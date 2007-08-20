@@ -31,6 +31,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if (movingItem != 0 && event->button() == Qt::LeftButton) {
         oldPos = movingItem->pos();
     }
+    
+    clearSelection();    
     QGraphicsScene::mousePressEvent(event);
 }
 
