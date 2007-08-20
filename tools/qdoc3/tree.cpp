@@ -1121,7 +1121,7 @@ bool Tree::generateIndexSection(QXmlStreamWriter &writer, const Node *node) cons
 }
 
 void Tree::generateIndexSections(QXmlStreamWriter &writer,
-                                       const Node *node) const
+                                 const Node *node) const
 {
     if (generateIndexSection(writer, node)) {
 
@@ -1130,7 +1130,7 @@ void Tree::generateIndexSections(QXmlStreamWriter &writer,
 
             // Recurse to write an element for this child node and all its children.
             foreach (Node *child, inner->childNodes())
-                generateIndexSection(writer, child);
+                generateIndexSections(writer, child);
 
 /*
             foreach (Node *child, inner->relatedNodes()) {
@@ -1160,7 +1160,7 @@ void Tree::generateIndex(const QString &fileName, const QString &url,
     writer.writeAttribute("title", title);
     writer.writeAttribute("version", version());
 
-    generateIndexSection(writer, root());
+    generateIndexSections(writer, root());
 
     writer.writeEndElement(); // INDEX
     writer.writeEndElement(); // QDOCINDEX
