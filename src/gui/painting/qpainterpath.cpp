@@ -1527,7 +1527,7 @@ static inline bool rect_intersects(const QRectF &r1, const QRectF &r2)
 }
 
 /*!
-    Converts the path into a list of polygons using the 
+    Converts the path into a list of polygons using the
     QTransform \a matrix, and returns the list.
 
     The function differs from the toFillPolygon() function in that it
@@ -2482,15 +2482,15 @@ void QPainterPathStroker::setDashOffset(qreal offset)
 /*!
   Converts the path into a polygon using the QTransform
   \a matrix, and returns the polygon.
-  
+
   The polygon is created by first converting all subpaths to
   polygons, then using a rewinding technique to make sure that
   overlapping subpaths can be filled using the correct fill rule.
-  
+
   Note that rewinding inserts addition lines in the polygon so
   the outline of the fill polygon does not match the outline of
   the path.
-  
+
   \sa toSubpathPolygons(), toFillPolygons(),
   {QPainterPath#QPainterPath Conversion}{QPainterPath Conversion}
 */
@@ -2893,7 +2893,7 @@ void QPainterPath::addRoundRect(const QRectF &r, int xRnd, int yRnd)
   Adds a rectangle with rounded corners to the path. The rectangle
   is constructed from \a x, \a y, and the width and height \a w
   and \a h.
-  
+
   The \a xRnd and \a yRnd arguments specify how rounded the corners
   should be. 0 is angled corners, 99 is maximum roundedness.
  */
@@ -3051,6 +3051,7 @@ void QPainterPath::computeBoundingRect() const
     d->bounds = QRectF(minx, miny, maxx - minx, maxy - miny);
 }
 
+
 void QPainterPath::computeControlPointRect() const
 {
     QPainterPathData *d = d_func();
@@ -3072,3 +3073,16 @@ void QPainterPath::computeControlPointRect() const
     }
     d->controlBounds = QRectF(minx, miny, maxx - minx, maxy - miny);
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug s, const QPainterPath &p)
+{
+    s.nospace() << "QPainterPath: Element count=" << p.elementCount() << endl;
+    const char *types[] = {"MoveTo", "LineTo", "CurveTo", "CurveToData"};
+    for (int i=0; i<p.elementCount(); ++i) {
+        s.nospace() << " -> " << types[p.elementAt(i).type] << "(x=" << p.elementAt(i).x << ", y=" << p.elementAt(i).y << ")" << endl;
+
+    }
+    return s;
+}
+#endif
