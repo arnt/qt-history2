@@ -810,6 +810,8 @@ static void blit_1(QScreen *screen, const QImage &image,
 }
 #endif // QT_QWS_DEPTH_1
 
+#ifdef QT_QWS_DEPTH_GENERIC
+
 class qrgb
 {
 public:
@@ -940,6 +942,8 @@ void qt_set_generic_blit(QScreen *screen, int bpp,
     qrgb::off_alpha = off_alpha;
     screen->d_ptr->blit = blit_rgb;
 }
+
+#endif // QT_QWS_DEPTH_GENERIC
 
 void qt_blit_setup(QScreen *screen, const QImage &image,
                    const QPoint &topLeft, const QRegion &region)
