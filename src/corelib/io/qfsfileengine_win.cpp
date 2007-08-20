@@ -43,7 +43,11 @@
 #ifdef  _WIN64
 typedef __int64             intptr_t;
 #else
+#ifdef _W64
 typedef _W64 int            intptr_t;
+#else
+typedef INT_PTR intptr_t;
+#endif
 #endif
 #define _INTPTR_T_DEFINED
 #endif
