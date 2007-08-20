@@ -362,7 +362,7 @@ QString Q3ActionPrivate::toolTip() const
     if (tooltip.isNull()) {
 #ifndef QT_NO_ACCEL
         if (accel)
-            return text + QLatin1String(" (") + (QString)QKeySequence(accel->key(accelid)) + QLatin1Char('(');
+            return text + QLatin1String(" (") + (QString)QKeySequence(accel->key(accelid)) + QLatin1Char(')');
 #endif
         return text;
     }

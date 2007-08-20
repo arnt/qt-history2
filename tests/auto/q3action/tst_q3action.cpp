@@ -27,6 +27,7 @@ private slots:
     void getSetCheck();
     void setText_data();
     void setText();
+    void toolTip();
 };
 
 // Testing get/set functions
@@ -81,6 +82,14 @@ void tst_Q3Action::setText()
     QCOMPARE(action.whatsThis(), whatsThis);
 }
 
-QTEST_APPLESS_MAIN(tst_Q3Action)
+void tst_Q3Action::toolTip()
+{
+    QWidget widget;
+    Q3Action action(&widget);
+    action.setAccel(QKeySequence(Qt::CTRL | Qt::Key_A));
+    QCOMPARE(action.toolTip(), QString(" (Ctrl+A)"));
+}
+
+QTEST_MAIN(tst_Q3Action)
 #include "tst_q3action.moc"
 
