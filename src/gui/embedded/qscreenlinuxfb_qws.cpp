@@ -697,7 +697,7 @@ bool QLinuxFbScreen::initDevice()
     if (pixelFormat() == QImage::Format_Invalid && screencols == 0
         && d_ptr->doGenericColors)
     {
-        qt_set_generic_blit(this, vinfo.bits_per_pixel / 8,
+        qt_set_generic_blit(this, vinfo.bits_per_pixel,
                             vinfo.red.length, vinfo.green.length,
                             vinfo.blue.length, vinfo.transp.length,
                             vinfo.red.offset, vinfo.green.offset,

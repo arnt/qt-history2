@@ -931,7 +931,7 @@ void qt_set_generic_blit(QScreen *screen, int bpp,
                          int len_red, int len_green, int len_blue, int len_alpha,
                          int off_red, int off_green, int off_blue, int off_alpha)
 {
-    qrgb::bpp = bpp;
+    qrgb::bpp = bpp / 8;
     qrgb::len_red = len_red;
     qrgb::len_green = len_green;
     qrgb::len_blue = len_blue;
