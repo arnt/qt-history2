@@ -842,14 +842,14 @@ static inline quint32 qt_convertToRgb(SRC color);
 template <>
 static inline quint32 qt_convertToRgb(quint32 color)
 {
-    const int a = qAlpha(color) >> (8 - qrgb::len_alpha);
     const int r = qRed(color) >> (8 - qrgb::len_red);
     const int g = qGreen(color) >> (8 - qrgb::len_green);
     const int b = qBlue(color) >> (8 - qrgb::len_blue);
-    const quint32 v = | (a << qrgb::off_alpha)
-                      | (r << qrgb::off_red)
+    const int a = qAlpha(color) >> (8 - qrgb::len_alpha);
+    const quint32 v = (r << qrgb::off_red)
                       | (g << qrgb::off_green)
-                      | (b << qrgb::off_blue);
+                      | (b << qrgb::off_blue)
+                      | (a << qrgb::off_alpha);
 
     return v;
 }
