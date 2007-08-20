@@ -18,10 +18,6 @@
 #ifndef WEBXMLGENERATOR_H
 #define WEBXMLGENERATOR_H
 
-#include <qmap.h>
-#include <qregexp.h>
-#include <qdom.h>
-
 #include "codemarker.h"
 #include "config.h"
 #include "pagegenerator.h"
@@ -39,16 +35,16 @@ public:
 
 protected:
     virtual void startText( const Node *relative, CodeMarker *marker );
-    virtual int generateAtom( const Atom *atom, const Node *relative,
-			      CodeMarker *marker );
+    virtual int generateAtom(QXmlStreamWriter &writer, const Atom *atom,
+                             const Node *relative, CodeMarker *marker );
     virtual void generateClassLikeNode(const InnerNode *inner, CodeMarker *marker);
-    virtual void generateFakeNode( const FakeNode *fake, CodeMarker *marker );
+    virtual void generateFakeNode(const FakeNode *fake, CodeMarker *marker);
     virtual QString fileExtension(const Node *node);
 
-    virtual const Atom *addAtomElements(QDomElement &parent, const Atom *atom,
+    virtual const Atom *addAtomElements(QXmlStreamWriter &writer, const Atom *atom,
                                  const Node *relative, CodeMarker *marker);
-    QDomElement generateIndexSections(QDomDocument &document, const Node *node,
-                                      CodeMarker *marker);
+    virtual void generateIndexSections(QXmlStreamWriter &writer, const Node *node,
+                                       CodeMarker *marker);
 
 private:
     const Tree *tre;

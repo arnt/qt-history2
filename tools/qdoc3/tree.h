@@ -20,6 +20,7 @@
 
 #include "node.h"
 #include <QDomElement>
+#include <QXmlStreamWriter>
 
 class QStringList;
 class TreePrivate;
@@ -65,8 +66,8 @@ public:
     Atom *findTarget(const QString &target, const Node *node) const;
     const NamespaceNode *root() const { return &roo; }
     void readIndexes(const QStringList &indexFiles);
-    QDomElement generateIndexSection(QDomDocument &document, const Node *node) const;
-    QDomElement generateIndexSections(QDomDocument &document, const Node *node) const;
+    bool generateIndexSection(QXmlStreamWriter &writer, const Node *node) const;
+    void generateIndexSections(QXmlStreamWriter &writer, const Node *node) const;
     void generateIndex(const QString &fileName, const QString &url,
                        const QString &title) const;
     void addExternalLink(const QString &url, const Node *relative);

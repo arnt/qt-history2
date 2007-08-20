@@ -844,10 +844,16 @@ void Tree::resolveIndex()
     }
 }
 
-QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node) const
+/*!
+    Generate the index section with the given \a writer for the \a node
+    specified, returning true if an element was written; otherwise returns
+    false.
+*/
+
+bool Tree::generateIndexSection(QXmlStreamWriter &writer, const Node *node) const
 {
     if (!node->url().isEmpty())
-        return QDomElement();
+        return false;
 
     QString nodeName;
     switch (node->type()) {
@@ -879,10 +885,8 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
             nodeName = "target";
             break;
         default:
-            return QDomElement();
+            return false;
     }
-
-    QDomElement element = document.createElement(nodeName);
 
     QString access;
     switch (node->access()) {
@@ -894,9 +898,19 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
             break;
         case Node::Private:     // Do not include private nodes in the index.
         default:
-            return QDomElement();
+            return false;
     }
-    element.setAttribute("access", access);
+
+    QString objName = node->name();
+
+    // Special case: only the root node should have an empty name.
+    if (objName.isEmpty() && node != root())
+        return false;
+
+    writer.writeStartElement(nodeName);
+
+    QXmlStreamAttributes attributes;
+    writer.writeAttribute("access", access);
 
     if (node->type() != Node::Fake) {
         QString threadSafety;
@@ -915,19 +929,16 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
                 threadSafety = "unspecified";
                 break;
         }
-        element.setAttribute("threadsafety", threadSafety);
+        writer.writeAttribute("threadsafety", threadSafety);
     }
 
-    QString objName = node->name();
-    element.setAttribute("name", objName);
-    element.setAttribute("href", fullDocumentName(node));
-    element.setAttribute("location", node->location().fileName());
+    writer.writeAttribute("name", objName);
+    writer.writeAttribute("href", fullDocumentName(node));
+    writer.writeAttribute("location", node->location().fileName());
 
     if (node->type() == Node::Class) {
 
         // Classes contain information about their base classes.
-        if (objName.isEmpty())
-            return QDomElement();
 
         const ClassNode *classNode = static_cast<const ClassNode*>(node);
         QList<RelatedClass> bases = classNode->baseClasses();
@@ -936,107 +947,99 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
             ClassNode *baseClassNode = related.node;
             baseStrings.append(baseClassNode->name());
         }
-        element.setAttribute("bases", baseStrings.join(","));
-        element.setAttribute("module", node->moduleName());
+        writer.writeAttribute("bases", baseStrings.join(","));
+        writer.writeAttribute("module", node->moduleName());
     }
 
     else if (node->type() == Node::Namespace) {
-        element.setAttribute("module", node->moduleName());
-    }
+        writer.writeAttribute("module", node->moduleName());
 
-    // Fake nodes (such as manual pages) contain subtypes, titles and other
-    // attributes.
+    } else if (node->type() == Node::Fake) {
 
-    else if (node->type() == Node::Fake) {
-
-        if (objName.isEmpty())
-            return QDomElement();
+        // Fake nodes (such as manual pages) contain subtypes, titles and other
+        // attributes.
 
         const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
         switch (fakeNode->subType()) {
             case FakeNode::Example:
-                element.setAttribute("subtype", "example");
+                writer.writeAttribute("subtype", "example");
                 break;
             case FakeNode::HeaderFile:
-                element.setAttribute("subtype", "header");
+                writer.writeAttribute("subtype", "header");
                 break;
             case FakeNode::File:
-                element.setAttribute("subtype", "file");
+                writer.writeAttribute("subtype", "file");
                 break;
             case FakeNode::Group:
-                element.setAttribute("subtype", "group");
+                writer.writeAttribute("subtype", "group");
                 break;
             case FakeNode::Module:
-                element.setAttribute("subtype", "module");
+                writer.writeAttribute("subtype", "module");
                 break;
             case FakeNode::Page:
-                element.setAttribute("subtype", "page");
+                writer.writeAttribute("subtype", "page");
                 break;
             case FakeNode::ExternalPage:
-                element.setAttribute("subtype", "externalpage");
+                writer.writeAttribute("subtype", "externalpage");
                 break;
             default:
                 break;
         }
-        element.setAttribute("title", fakeNode->title());
-        element.setAttribute("fulltitle", fakeNode->fullTitle());
-        element.setAttribute("subtitle", fakeNode->subTitle());
-        element.setAttribute("location", fakeNode->doc().location().fileName());
-    }
+        writer.writeAttribute("title", fakeNode->title());
+        writer.writeAttribute("fulltitle", fakeNode->fullTitle());
+        writer.writeAttribute("subtitle", fakeNode->subTitle());
+        writer.writeAttribute("location", fakeNode->doc().location().fileName());
 
-    // Function nodes contain information about the type of function being
-    // described.
+    } else if (node->type() == Node::Function) {
 
-    else if (node->type() == Node::Function) {
-
-        if (objName.isEmpty())
-            return QDomElement();
+        // Function nodes contain information about the type of function being
+        // described.
 
         const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
 
         switch (functionNode->virtualness()) {
             case FunctionNode::NonVirtual:
-                element.setAttribute("virtual", "non");
+                writer.writeAttribute("virtual", "non");
                 break;
             case FunctionNode::ImpureVirtual:
-                element.setAttribute("virtual", "impure");
+                writer.writeAttribute("virtual", "impure");
                 break;
             case FunctionNode::PureVirtual:
-                element.setAttribute("virtual", "pure");
+                writer.writeAttribute("virtual", "pure");
                 break;
             default:
                 break;
         }
         switch (functionNode->metaness()) {
             case FunctionNode::Plain:
-                element.setAttribute("meta", "plain");
+                writer.writeAttribute("meta", "plain");
                 break;
             case FunctionNode::Signal:
-                element.setAttribute("meta", "signal");
+                writer.writeAttribute("meta", "signal");
                 break;
             case FunctionNode::Slot:
-                element.setAttribute("meta", "slot");
+                writer.writeAttribute("meta", "slot");
                 break;
             case FunctionNode::Ctor:
-                element.setAttribute("meta", "constructor");
+                writer.writeAttribute("meta", "constructor");
                 break;
             case FunctionNode::Dtor:
-                element.setAttribute("meta", "destructor");
+                writer.writeAttribute("meta", "destructor");
                 break;
             case FunctionNode::MacroWithParams:
-                element.setAttribute("meta", "macrowithparams");
+                writer.writeAttribute("meta", "macrowithparams");
                 break;
             case FunctionNode::MacroWithoutParams:
-                element.setAttribute("meta", "macrowithoutparams");
+                writer.writeAttribute("meta", "macrowithoutparams");
                 break;
             default:
                 break;
         }
-        element.setAttribute("const", functionNode->isConst()?"true":"false");
-        element.setAttribute("static", functionNode->isStatic()?"true":"false");
-        element.setAttribute("overload", functionNode->isOverload()?"true":"false");
+        writer.writeAttribute("const", functionNode->isConst()?"true":"false");
+        writer.writeAttribute("static", functionNode->isStatic()?"true":"false");
+        writer.writeAttribute("overload", functionNode->isOverload()?"true":"false");
         if (functionNode->relates())
-            element.setAttribute("relates", functionNode->relates()->name());
+            writer.writeAttribute("relates", functionNode->relates()->name());
     }
 
     // Inner nodes and function nodes contain child nodes of some sort, either
@@ -1067,25 +1070,25 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
                 if (!external)
                     targetName = Doc::canonicalTitle(targetName);
 
-                QDomElement childElement = document.createElement("target");
-                childElement.setAttribute("name", targetName);
-                element.appendChild(childElement);
+                writer.writeStartElement("target");
+                writer.writeAttribute("name", targetName);
+                writer.writeEndElement(); // target
             }
         }
         if (inner->doc().hasKeywords()) {
             foreach (Atom *keyword, inner->doc().keywords()) {
-                QDomElement childElement = document.createElement("keyword");
-                childElement.setAttribute("name", Doc::canonicalTitle(keyword->string()));
-                element.appendChild(childElement);
+                writer.writeStartElement("keyword");
+                writer.writeAttribute("name", Doc::canonicalTitle(keyword->string()));
+                writer.writeEndElement(); // keyword
             }
         }
         if (inner->doc().hasTableOfContents()) {
             foreach (Atom *item, inner->doc().tableOfContents()) {
                 QString title = Text::sectionHeading(item).toString();
-                QDomElement childElement = document.createElement("contents");
-                childElement.setAttribute("name", Doc::canonicalTitle(title));
-                childElement.setAttribute("title", title);
-                element.appendChild(childElement);
+                writer.writeStartElement("contents");
+                writer.writeAttribute("name", Doc::canonicalTitle(title));
+                writer.writeAttribute("title", title);
+                writer.writeEndElement(); // contents
             }
         }
 
@@ -1095,51 +1098,49 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
         foreach (Parameter parameter, functionNode->parameters()) {
             // Do not supply a default value for the parameter; it will only
             // cause disagreement when it is read from an index file later on.
-            QDomElement childElement = document.createElement("parameter");
-            childElement.setAttribute("left", parameter.leftType());
-            childElement.setAttribute("right", parameter.rightType());
-            childElement.setAttribute("name", parameter.name());
-            //childElement.setAttribute("default", parameter.defaultValue());
-            element.appendChild(childElement);
+            writer.writeStartElement("parameter");
+            writer.writeAttribute("left", parameter.leftType());
+            writer.writeAttribute("right", parameter.rightType());
+            writer.writeAttribute("name", parameter.name());
+            //writer.writeAttribute("default", parameter.defaultValue());
+            writer.writeEndElement(); // parameter
         }
 
     } else if (node->type() == Node::Enum) {
 
         const EnumNode *enumNode = static_cast<const EnumNode*>(node);
         foreach (EnumItem item, enumNode->items()) {
-            QDomElement childElement = document.createElement("value");
-            childElement.setAttribute("name", item.name());
-            childElement.setAttribute("value", item.value());
-            element.appendChild(childElement);
+            writer.writeStartElement("value");
+            writer.writeAttribute("name", item.name());
+            writer.writeAttribute("value", item.value());
+            writer.writeEndElement(); // value
         }
     }
 
-    return element;
+    return true;
 }
 
-QDomElement Tree::generateIndexSections(QDomDocument &document,
+void Tree::generateIndexSections(QXmlStreamWriter &writer,
                                        const Node *node) const
 {
-    QDomElement element = generateIndexSection(document, node);
+    if (generateIndexSection(writer, node)) {
 
-    if (!element.isNull() && node->isInnerNode()) {
-        const InnerNode *inner = static_cast<const InnerNode *>(node);
+        if (node->isInnerNode()) {
+            const InnerNode *inner = static_cast<const InnerNode *>(node);
 
-        foreach (Node *child, inner->childNodes()) {
-            // Recurse to generate a DOM element for this child node and all
-            // its children.
-            QDomElement childElement = generateIndexSections(document, child);
-            element.appendChild(childElement);
-        }
+            // Recurse to write an element for this child node and all its children.
+            foreach (Node *child, inner->childNodes())
+                generateIndexSection(writer, child);
+
 /*
-        foreach (Node *child, inner->relatedNodes()) {
-            QDomElement childElement = generateIndexSections(document, child);
-            element.appendChild(childElement);
-        }
+            foreach (Node *child, inner->relatedNodes()) {
+                QDomElement childElement = generateIndexSections(document, child);
+                element.appendChild(childElement);
+            }
 */
+        }
+        writer.writeEndElement();
     }
-
-    return element;
 }
 
 void Tree::generateIndex(const QString &fileName, const QString &url,
@@ -1149,24 +1150,22 @@ void Tree::generateIndex(const QString &fileName, const QString &url,
     if (!file.open(QFile::WriteOnly | QFile::Text))
         return ;
 
-    QTextStream out(&file);
-    QDomDocument document("QDOCINDEX");
-    QDomProcessingInstruction process = document.createProcessingInstruction(
-        "xml", QString("version=\"1.0\" encoding=\"%1\"").arg("iso-8859-1"));
+    QXmlStreamWriter writer(&file);
+    writer.setAutoFormatting(true);
+    writer.writeStartDocument();
+    writer.writeStartElement("QDOCINDEX");
 
-    QDomElement indexElement = document.createElement("INDEX");
-    indexElement.setAttribute("url", url);
-    indexElement.setAttribute("title", title);
-    indexElement.setAttribute("version", version());
+    writer.writeStartElement("INDEX");
+    writer.writeAttribute("url", url);
+    writer.writeAttribute("title", title);
+    writer.writeAttribute("version", version());
 
-    document.appendChild(process);
-    document.appendChild(indexElement);
+    generateIndexSection(writer, root());
 
-    QDomElement rootElement = generateIndexSections(document, root());
-    indexElement.appendChild(rootElement);
-
-    out << document;
-    out.flush();
+    writer.writeEndElement(); // INDEX
+    writer.writeEndElement(); // QDOCINDEX
+    writer.writeEndDocument();
+    file.close();
 }
 
 void Tree::addExternalLink(const QString &url, const Node *relative)
