@@ -1182,6 +1182,16 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \endcode
 
     \sa QMetaType
+
+    \section1 Using QVariant::canConvert() and QVariant::convert() Consecutively
+    
+    When using canConvert() and convert() consecutively, with an alphanumeric
+    string, for example, it is possible for canConvert() to return \c true, but
+    convert() to return \c false. This is because in the context of canConvert(),
+    a string variant can be converted to an int variant, however, if the string is
+    alphanumeric, it cannot be converted to an int. Hence, it is important to have
+    both functions return \c true for a successful conversion.
+    
 */
 
 /*!
