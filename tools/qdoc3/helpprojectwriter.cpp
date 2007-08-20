@@ -53,6 +53,20 @@ void HelpProjectWriter::addExtraFiles(const QSet<QString> &files)
     extraFiles.unite(files);
 }
 
+QStringList HelpProjectWriter::keywordDetails(const Node *node) const
+{
+    QStringList details;
+    details << node->name();
+
+    if (node->parent() && !node->parent()->name().isEmpty())
+        details << node->parent()->name()+"::"+node->name();
+    else
+        details << node->name();
+    details << tree->fullDocumentName(node);
+
+    return details;
+}
+
 bool HelpProjectWriter::generateSection(QXmlStreamWriter &writer, const Node *node)
 {
     if (!node->url().isEmpty())
@@ -75,6 +89,8 @@ bool HelpProjectWriter::generateSection(QXmlStreamWriter &writer, const Node *no
                 writer.writeAttribute("ref", href);
                 writer.writeAttribute("title", objName);
                 writer.writeEndElement(); // section
+
+                keywords.append(keywordDetails(node));
                 files.insert(tree->fullDocumentName(node));
             }
             break;
@@ -85,20 +101,15 @@ bool HelpProjectWriter::generateSection(QXmlStreamWriter &writer, const Node *no
                 writer.writeAttribute("ref", href);
                 writer.writeAttribute("title", objName);
                 writer.writeEndElement(); // section
+
+                keywords.append(keywordDetails(node));
                 files.insert(tree->fullDocumentName(node));
             }
             break;
 
         case Node::Function:
             {
-                QStringList details;
-                details << objName;
-                if (node->parent())
-                    details << node->parent()->name()+"::"+objName;
-                else
-                    details << objName;
-                details << tree->fullDocumentName(node);
-                keywords.append(details);
+                keywords.append(keywordDetails(node));
             }
             break;
 
@@ -113,6 +124,28 @@ bool HelpProjectWriter::generateSection(QXmlStreamWriter &writer, const Node *no
                         writer.writeAttribute("ref", href);
                         writer.writeAttribute("title", fakeNode->title());
                         writer.writeEndElement(); // section
+
+                        if (fakeNode->doc().hasKeywords()) {
+                            foreach (Atom *keyword, fakeNode->doc().keywords()) {
+                                QStringList details;
+                                details << keyword->string()
+                                        << keyword->string()
+                                        << tree->fullDocumentName(node) + "#" + Doc::canonicalTitle(keyword->string());
+                                keywords.append(details);
+                            }
+                        }
+                        if (fakeNode->doc().hasTableOfContents()) {
+                            foreach (Atom *item, fakeNode->doc().tableOfContents()) {
+                                QString title = Text::sectionHeading(item).toString();
+                                QStringList details;
+                                details << title
+                                        << title
+                                        << tree->fullDocumentName(node) + "#" + Doc::canonicalTitle(title);
+                                keywords.append(details);
+                            }
+                        }
+
+                        keywords.append(keywordDetails(node));
                         files.insert(tree->fullDocumentName(node));
                     }
                 }

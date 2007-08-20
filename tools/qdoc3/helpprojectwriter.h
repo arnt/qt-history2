@@ -34,6 +34,7 @@ public:
 private:
     void generateSections(QXmlStreamWriter &writer, const Node *node);
     bool generateSection(QXmlStreamWriter &writer, const Node *node);
+    QStringList keywordDetails(const Node *node) const;
 
     const Tree *tree;
 
