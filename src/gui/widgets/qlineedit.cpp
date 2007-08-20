@@ -1186,7 +1186,10 @@ bool QLineEdit::hasAcceptableInput() const
     an empty string ("") or just calling setInputMask() with no
     arguments.
 
-    The mask format understands these mask characters:
+    The table below shows mask characters that the mask format understands.
+    A space character, the default character for a blank, is needed for cases
+    where a character is \e{permitted but not required}.
+
     \table
     \header \i Character \i Meaning
     \row \i \c A \i ASCII alphabetic character required. A-Z, a-z.
@@ -1215,7 +1218,7 @@ bool QLineEdit::hasAcceptableInput() const
     The mask consists of a string of mask characters and separators,
     optionally followed by a semicolon and the character used for
     blanks: the blank characters are always removed from the text
-    after editing. The default blank character is space.
+    after editing.
 
     Examples:
     \table
