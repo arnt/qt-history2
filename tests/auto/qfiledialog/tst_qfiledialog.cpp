@@ -664,8 +664,6 @@ void tst_QFiledialog::clearLineEdit()
     QVERIFY(lineEdit->text() == "foo");
     fd.setDirectory(QDir::home());
 
-    QTest::qWait(200);
-
     QListView* list = fd.findChild<QListView*>("listView");
     QVERIFY(list);
     QModelIndex root = list->rootIndex();
