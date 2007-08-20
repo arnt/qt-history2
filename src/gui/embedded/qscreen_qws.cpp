@@ -810,13 +810,138 @@ static void blit_1(QScreen *screen, const QImage &image,
 }
 #endif // QT_QWS_DEPTH_1
 
+class qrgb
+{
+public:
+    quint32 dummy;
+
+    static int bpp;
+    static int len_red;
+    static int len_green;
+    static int len_blue;
+    static int len_alpha;
+    static int off_red;
+    static int off_green;
+    static int off_blue;
+    static int off_alpha;
+} Q_PACKED;
+
+int qrgb::bpp = 0;
+int qrgb::len_red = 0;
+int qrgb::len_green = 0;
+int qrgb::len_blue = 0;
+int qrgb::len_alpha = 0;
+int qrgb::off_red = 0;
+int qrgb::off_green = 0;
+int qrgb::off_blue = 0;
+int qrgb::off_alpha = 0;
+
+template <typename SRC>
+static inline quint32 qt_convertToRgb(SRC color);
+
+template <>
+static inline quint32 qt_convertToRgb(quint32 color)
+{
+    const int a = qAlpha(color) >> (8 - qrgb::len_alpha);
+    const int r = qRed(color) >> (8 - qrgb::len_red);
+    const int g = qGreen(color) >> (8 - qrgb::len_green);
+    const int b = qBlue(color) >> (8 - qrgb::len_blue);
+    const quint32 v = | (a << qrgb::off_alpha)
+                      | (r << qrgb::off_red)
+                      | (g << qrgb::off_green)
+                      | (b << qrgb::off_blue);
+
+    return v;
+}
+
+template <>
+static inline quint32 qt_convertToRgb(quint16 color)
+{
+    return qt_convertToRgb(qt_colorConvert<quint32, quint16>(color, 0));
+}
+
+template <typename SRC>
+static inline void qt_rectconvert_rgb(qrgb *dest, const SRC *src,
+                                      int x, int y, int width, int height,
+                                      int dstStride, int srcStride)
+{
+    quint8 *dest8 = reinterpret_cast<quint8*>(dest)
+                    + y * dstStride + x * qrgb::bpp;
+
+    srcStride = srcStride / sizeof(SRC) - width;
+    dstStride -= (width * qrgb::bpp);
+
+    for (int j = 0;  j < height; ++j) {
+        for (int i = 0; i < width; ++i) {
+            SRC s = *src;
+            const quint32 v = qt_convertToRgb<SRC>(*src++);
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+            if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+                for (int j = qrgb::bpp - 1; j >= 0; --j)
+                    *dest8++ = (v >> (8 * j)) & 0xff;
+#else
+                for (int j = 0; j < qrgb::bpp; ++j)
+                    *dest8++ = (v >> (8 * j)) & 0xff;
+#endif
+        }
+
+        dest8 += dstStride;
+        src += srcStride;
+    }
+}
+
+template <>
+void qt_rectconvert(qrgb *dest, const quint32 *src,
+                    int x, int y, int width, int height,
+                    int dstStride, int srcStride)
+{
+    qt_rectconvert_rgb<quint32>(dest, src, x, y, width, height,
+                                dstStride, srcStride);
+}
+
+template <>
+void qt_rectconvert(qrgb *dest, const quint16 *src,
+                    int x, int y, int width, int height,
+                    int dstStride, int srcStride)
+{
+    qt_rectconvert_rgb<quint16>(dest, src, x, y, width, height,
+                                dstStride, srcStride);
+}
+
+
+
+static void blit_rgb(QScreen *screen, const QImage &image,
+                     const QPoint &topLeft, const QRegion &region)
+{
+    switch (image.format()) {
+    case QImage::Format_ARGB32_Premultiplied:
+        blit_template<qrgb, quint32>(screen, image, topLeft, region);
+        return;
+    case QImage::Format_RGB16:
+        blit_template<qrgb, quint16>(screen, image, topLeft, region);
+        return;
+    default:
+        qCritical("blit_rgb(): Image format %d not supported!", image.format());
+    }
+}
+
 void qt_blit_setup(QScreen *screen, const QImage &image,
                    const QPoint &topLeft, const QRegion &region)
 {
     switch (screen->depth()) {
 #ifdef QT_QWS_DEPTH_32
     case 32:
-        screen->d_ptr->blit = blit_32;
+//        screen->d_ptr->blit = blit_32;
+        qrgb::bpp = 4;
+        qrgb::len_red = 8;
+        qrgb::len_green = 8;
+        qrgb::len_blue = 8;
+        qrgb::len_alpha = 8;
+        qrgb::off_red = 16;
+        qrgb::off_green = 8;
+        qrgb::off_blue = 0;
+        qrgb::off_alpha = 24;
+        screen->d_ptr->blit = blit_rgb;
         break;
 #endif
 #ifdef QT_QWS_DEPTH_24
@@ -837,6 +962,17 @@ void qt_blit_setup(QScreen *screen, const QImage &image,
         else
 #endif
             screen->d_ptr->blit = blit_16;
+
+        qrgb::bpp = 2;
+        qrgb::len_red = 5;
+        qrgb::len_green = 6;
+        qrgb::len_blue = 5;
+        qrgb::len_alpha = 0;
+        qrgb::off_red = 11;
+        qrgb::off_green = 5;
+        qrgb::off_blue = 0;
+        qrgb::off_alpha = 0;
+        screen->d_ptr->blit = blit_rgb;
         break;
 #endif
 #ifdef QT_QWS_DEPTH_8
