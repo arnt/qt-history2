@@ -12,9 +12,9 @@ class tst_QDBusServer : public QObject
 {
     Q_OBJECT
 
-private slots:
     void connectToServer();
     void callMethod();
+private slots:
 };
 
 void tst_QDBusServer::connectToServer()
