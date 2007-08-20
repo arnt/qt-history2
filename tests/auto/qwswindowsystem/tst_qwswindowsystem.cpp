@@ -11,6 +11,9 @@
 
 #ifdef Q_WS_QWS
 
+//TESTED_CLASS=
+//TESTED_FILES=gui/embedded/qwindowsystem_qws.h gui/embedded/qwindowsystem_qws.cpp
+
 #include <qwindowsystem_qws.h>
 #include <qpainter.h>
 #include <qdesktopwidget.h>
