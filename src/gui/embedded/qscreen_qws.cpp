@@ -925,23 +925,29 @@ static void blit_rgb(QScreen *screen, const QImage &image,
     }
 }
 
+void qt_set_generic_blit(QScreen *screen, int bpp,
+                         int len_red, int len_green, int len_blue, int len_alpha,
+                         int off_red, int off_green, int off_blue, int off_alpha)
+{
+    qrgb::bpp = 4;
+    qrgb::len_red = 8;
+    qrgb::len_green = 8;
+    qrgb::len_blue = 8;
+    qrgb::len_alpha = 8;
+    qrgb::off_red = 16;
+    qrgb::off_green = 8;
+    qrgb::off_blue = 0;
+    qrgb::off_alpha = 24;
+    screen->d_ptr->blit = blit_rgb;
+}
+
 void qt_blit_setup(QScreen *screen, const QImage &image,
                    const QPoint &topLeft, const QRegion &region)
 {
     switch (screen->depth()) {
 #ifdef QT_QWS_DEPTH_32
     case 32:
-//        screen->d_ptr->blit = blit_32;
-        qrgb::bpp = 4;
-        qrgb::len_red = 8;
-        qrgb::len_green = 8;
-        qrgb::len_blue = 8;
-        qrgb::len_alpha = 8;
-        qrgb::off_red = 16;
-        qrgb::off_green = 8;
-        qrgb::off_blue = 0;
-        qrgb::off_alpha = 24;
-        screen->d_ptr->blit = blit_rgb;
+        screen->d_ptr->blit = blit_32;
         break;
 #endif
 #ifdef QT_QWS_DEPTH_24
@@ -962,17 +968,6 @@ void qt_blit_setup(QScreen *screen, const QImage &image,
         else
 #endif
             screen->d_ptr->blit = blit_16;
-
-        qrgb::bpp = 2;
-        qrgb::len_red = 5;
-        qrgb::len_green = 6;
-        qrgb::len_blue = 5;
-        qrgb::len_alpha = 0;
-        qrgb::off_red = 11;
-        qrgb::off_green = 5;
-        qrgb::off_blue = 0;
-        qrgb::off_alpha = 0;
-        screen->d_ptr->blit = blit_rgb;
         break;
 #endif
 #ifdef QT_QWS_DEPTH_8

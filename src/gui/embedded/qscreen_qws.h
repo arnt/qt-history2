@@ -300,6 +300,10 @@ private:
     friend void qt_solidFill_setup(QScreen*, const QColor&, const QRegion&);
     friend void qt_blit_setup(QScreen *screen, const QImage &image,
                               const QPoint &topLeft, const QRegion &region);
+    friend void qt_set_generic_blit(QScreen *screen, int bpp,
+                                    int len_red, int len_green, int len_blue,
+                                    int len_alpha, int off_red, int off_green,
+                                    int off_blue, int off_alpha);
 
     QScreenPrivate *d_ptr;
 };
