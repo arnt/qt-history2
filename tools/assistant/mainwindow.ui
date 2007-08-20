@@ -322,6 +322,9 @@
    <property name="whatsThis" >
     <string>Close the current window.</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+W</string>
+   </property>
   </action>
   <action name="actionAddBookmark" >
    <property name="text" >
