@@ -637,6 +637,13 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 */
 
 /*!
+    \variable QStyleOptionFrameV2::features
+    \brief a bitwise OR of the features that describe this frame.
+
+    \sa FrameFeature
+*/
+
+/*!
     \enum QStyleOptionFrameV2::StyleOptionVersion
 
     This enum is used to hold information about the version of the style option, and
