@@ -91,11 +91,12 @@
     \value Expanding  The sizeHint() is a sensible size, but the
         widget can be shrunk and still be useful. The widget can make use
         of extra space, so it should get as much space as possible (e.g.
-        the horizontal direction of a slider).
+        the horizontal direction of a horizontal slider).
 
     \value MinimumExpanding  The sizeHint() is minimal, and sufficient.
         The widget can make use of extra space, so it should get as much
-        space as possible (e.g. the horizontal direction of a slider).
+        space as possible (e.g. the horizontal direction of a horizontal
+        slider).
 
     \value Ignored  The sizeHint() is ignored. The widget will get as
         much space as possible.
