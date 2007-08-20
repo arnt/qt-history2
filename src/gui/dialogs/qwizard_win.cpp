@@ -18,6 +18,9 @@
 #include "qlibrary.h"
 #include "qwizard.h"
 #include "qpaintengine.h"
+#include "qapplication.h"
+#include <QtGui/QMouseEvent>
+#include <QtGui/QDesktopWidget>
 
 // Note, these tests are duplicates in qwindowsxpstyle_p.h.
 #ifdef Q_CC_GNU
