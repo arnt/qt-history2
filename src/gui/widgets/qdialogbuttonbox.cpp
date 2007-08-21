@@ -26,6 +26,7 @@
     layout that is appropriate to the current widget style.
 
     \ingroup application
+    \mainclass
 
     Dialogs and message boxes typically present buttons in a layout that
     conforms to the interface guidelines for that platform. Invariably,
