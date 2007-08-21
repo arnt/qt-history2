@@ -1167,8 +1167,8 @@ bool QTransportAuth::authToMessage( QTransportAuth::Data &d, char *hdr, const ch
 {
     // qDebug( "authToMessage(): prog id %u", d.progId );
     // only authorize connection oriented transports once, unless key has changed
-    if ( d_func()->authKey.progId == d.progId && d.connection() &&
-            (( d.status & QTransportAuth::ErrMask ) != QTransportAuth::Pending ))
+    if ( d.connection() && ((d.status & QTransportAuth::ErrMask) != QTransportAuth::Pending) &&
+        d_func()->authKey.progId == d.progId )
         return false;
     d.progId = d_func()->authKey.progId;
     // If Unix socket credentials are being used the key wont be set
