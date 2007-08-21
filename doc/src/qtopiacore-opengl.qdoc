@@ -17,65 +17,160 @@
     \title Qtopia Core and OpenGL
     \ingroup qtopiacore
 
-    Starting with the 4.2 release, \l {Qtopia Core} supports \l
-    {http://www.khronos.org/opengles/}{OpenGL ES} (OpenGL for Embedded
-    Systems). To be able to use the OpenGL API in \l {Qtopia Core}, it
-    must be integrated with the Q Window System (QWS). This is done by
-    providing an \l {http://www.khronos.org/egl/}{EGL} implementation,
-    i.e., a native platform window system interface.
+\section1 Introduction
 
-    \image qtopiacore-opengl.png
+\l {http://www.opengl.org}{OpenGL} is an industry standard API for
+2D/3D graphics. It provides a powerful, low-level interface between
+software and acceleration hardware, and it is operating system and
+window system independent.
 
-    \l {http://www.khronos.org/egl/}{EGL} is an interface portable
-    layer for graphics resource management - and works between the
-    rendering API and the underlying native platform window
-    system. There are two ways of implementing \l
-    {http://www.khronos.org/egl/}{EGL} in \l{Qtopia Core}:
+\l {http://www.khronos.org/opengles}{OpenGL ES} is a subset
+of the \l {http://www.opengl.org}{OpenGL} standard.
+Because it is meant for use in embedded systems, it has a smaller,
+more constrained API. 
 
-    \tableofcontents
+For reference, Trolltech provides a plugin which integrates \l
+{http://www.khronos.org/opengles}{OpenGL ES} with Qtopia Core, but
+Qtopia Core can be adapted to a wide range of OpenGL versions.
 
-    \warning This feature is under development and is subject to
-    change.
+There are three ways to use OpenGL with Qtopia Core:
+\list
+  \o Perform OpenGL 3D graphics operations in applications;
+  \o Accelerate normal 2D painting operations; 
+  \o Implement window compositing and special effects.
+\endlist
 
-    \section1 Simple Integration
+Qtopia Core's reference integration demonstrates all three uses.
 
-    The simple integration approach use a ready-made \l
-    {http://www.khronos.org/egl/}{EGL} implementation, only requiring
-    a simple custom interface between the \l
-    {http://www.khronos.org/egl/}{EGL} interface and QWS. To
-    illustrate, the current release of \l {Qtopia Core} provides a
-    simple example interface integrating the "Vanilla" EGL
-    implementation from \l {http://www.hybrid.fi/}{Hybrid Graphics
-    Ltd.} with QWS. The example is located in Qt's \c src/opengl
-    directory (\c qegl_qws.*).
+\section2 Using OpenGL 3D Graphics in Applications
 
-    \image qtopiacore-vanilla.png
+The \l {QtOpenGL module} offers classes that make it easy to draw 3D
+graphics in GUI applications. The module API is cross-platform, so it
+is also available on Windows, X11, and Mac OS X.
 
-    Our example interface uses QImage to draw into the backingstore
-    enabling alpha blending with other windows.  It is important to
-    notice that the \l {http://www.khronos.org/egl/}{EGL} interface
-    requires that the image data is represented using native
-    types. Using the example interface as a basis for your own
-    integration, you must modify the \c qegl_qws_p.h and \c
-    qegl_qws.cpp files to ensure that the \c createNativePixmap() and
-    \c destroyNativePixmap() functions return the appropiate data. The
-    current implementation converts a QImage object to a "Vanilla"
-    pixmap.
+To use OpenGL-enabled widgets in a Qtopia Core application, all that
+is required is to subclass the QGLWidget and draw into instances of
+the subclass with standard OpenGL functions. 
 
-    Another approach to simple integration, is to implement the \c
-    createNativeWindow() function that enables the programmer to draw
-    directly onto the screen. Please note that this approach currently
-    requires more extensive modifications of the implementation
-    files. Please contact \l {mailto:qtbugs@trolltech.com}{Trolltech}
-    for more information.
+\section2 Using OpenGL to Accelerate Normal 2D Painting
 
-    \section1 Full Integration
+Qt provides QOpenGLPaintEngine, a subclass of QPaintEngine that
+translates QPainter operations into OpenGL calls. This specialized
+paint engine can be used to improve 2D rendering performance on
+appropriate hardware. It can also overlay controls and decorations
+onto 3D scenes drawn using OpenGL.
 
-    It is also possible to do a full integration, taking the advantage
-    of accelerated hardware. This requires creating a custom driver
-    using the screen driver framework. See the 
-    \l {Accelerated Graphics Driver Example} for more information on the 
-    screen driver framework, and see the 
-    \l {OpenGL for Embedded Systems Example} for an example OpenGL ES 
-    integration.
- */
+\section2 Using OpenGL to Implement Window Compositing and Effects
+
+Qtopia Core includes a complete windowing system, which implements
+real transparency. The windowing system can be accelerated using
+OpenGL to implement top level window compositing. This makes it easy
+to add 3D effects to applications, for instance when windows are
+minimized or maximized.
+
+\section1 The Qtopia Core Acceleration Architecture
+
+Qtopia Core's graphics acceleration architecture lets you control each
+step of the painting process. Subclassing QPaintEngine allows you to
+implement the QPainter API using accelerated hardware.
+### Subclassing QWindowSurface lets
+you decide the properties of the space your widgets will draw
+themselves into, as well as which paint engine they should use to draw
+themselves into that space. 
+Subclassing QScreen lets you control the
+creation of window surfaces and lets you decide how to implement
+window compositing.  Using the standard C++ subclassing mechanism,
+your implementation work is minimized since you can reuse base class
+functionality you don't need to change.
+
+\image qtopiacore-opengl1.png
+\image qtopiacore-opengl2.png
+\image qtopiacore-opengl3.png
+\image qtopiacore-opengl4.png
+
+To integrate an OpenGL implementation into Qtopia Core for a
+particular platform, you use the same mechanisms you would use for
+writing any other accelerated driver. Base classes, e.g., QGLScreen
+and QWSGLWindowSurface, are provided to minimize the need for
+reimplementing common functionality.
+
+\section1 The Reference Integration
+
+The Qtopia Core \l {OpenGL for Embedded Systems Example} is the
+reference implementation for integrating OpenGL ES and \l
+{http://www.khronos.org/egl/}{EGL} with Qtopia Core.
+( \l {http://www.khronos.org/egl/} {EGL} is a library that
+binds OpenGL ES to native windowing systems.)
+
+The example implements a screen driver plugin that demonstrates all
+three uses of OpenGL in Qtopia Core: Top-level window compositing and
+special effects, 2D graphics acceleration, and 3D graphics operations
+using the \l {QtOpenGL module}.
+
+The specific OpenGL library being used by the example restricts all
+OpenGL operations to occur in a single process. Hence the example
+creates instances of QWSGLWindowSurface only in the server process.
+Other processes then perform 2D graphics by creating instances
+of the standard QWindowSurface classes for client processes.  The
+standard window surface performs software-based rendering into a
+shared memory segment. The server then transfers the contents of this
+shared memory into an OpenGL texture before they are drawn onto the
+screen during window compositing.
+
+The QWSGLWindowSurface implementation uses the \l
+{http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt}
+{OpenGL Framebuffer Object extension} to draw windows into an
+offscreen buffer. This allows animation effects to be applied to the
+windows during compositing, as well as allowing support for
+semi-transparent windows. The reference implementation uses OpenGL to
+implement top level window compositing and to provide a 3D animated
+transition effect as each new window is shown.
+
+\code
+[some kind of snapshot?]
+\endcode
+
+\section1 Future Directions
+
+\section2 API Improvements
+
+Trolltech is now working on enhancing the API for integrating OpenGL
+with Qtopia Core. The current design plan includes the following
+features:
+
+\list
+
+  \o Provide convenience classes, e.g., QEGLScreen and
+  QWSEGLWindowSurface, which implement common uses of the EGL
+  API. These classes will simplify implementing an OpenGL ES base
+  integration.
+
+  \o Extend the screen driver API to provide more control over window
+  properties and animations, and provide a software-based integration
+  to enable testing on the desktop.
+
+  \o Improve performance as opportunities arise.
+
+\endlist
+
+\section2 OpenVG Support
+
+\l {http://www.khronos.org/openvg} {OpenVG} is a dedicated API for 2D
+graphics on mobile devices. It is therefore more likely to be a better
+alternative for 2D acceleration than OpenGL. Until recently, no
+OpenVG-capable hardware has been available, so Trolltech has not yet
+included an OpenVG solution in Qtopia Core.
+
+However, Trolltech has done a feasibility study, implementing an
+OpenVG paint engine on top of a software OpenVG implementation.
+Assuming availability of the appropriate hardware, this OpenVG paint
+engine can easily be completed and integrated using the existing
+acceleration architecture. Since OpenVG shares the same EGL layer as
+OpenGL ES, the work already done on the OpenGL integration can be
+reused.
+
+Related technologies included in the \l
+{http://www.khronos.org/openkode} {OpenKODE} API set will also be
+considered.
+
+*/
