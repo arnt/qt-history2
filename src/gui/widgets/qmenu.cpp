@@ -530,8 +530,10 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, SelectionReason 
                     if (widget->focusPolicy() != Qt::NoFocus)
                         widget->setFocus(Qt::TabFocusReason);
                 } else {
-                    //when the action has no QWidget, the QMenu itself should get the focus
-                    q->setFocus(Qt::TabFocusReason);
+                    //when the action has no QWidget, the QMenu itself should
+                    // get the focus
+                    // Since the menu is a pop-up, it uses the popup reason.
+                    q->setFocus(Qt::PopupFocusReason);
                 }
             }
         } else { //action is a separator
