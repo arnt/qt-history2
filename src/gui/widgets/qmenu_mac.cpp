@@ -37,7 +37,6 @@
 /*****************************************************************************
   QMenu globals
  *****************************************************************************/
-bool qt_mac_no_menubar_icons = false;
 bool qt_mac_no_native_menubar = false;
 bool qt_mac_no_menubar_merge = false;
 
@@ -375,7 +374,8 @@ static QKeySequence qt_mac_menu_merge_accel(QMacMenuAction *action)
     return ret;
 }
 
-void Q_GUI_EXPORT qt_mac_set_menubar_icons(bool b) { qt_mac_no_menubar_icons = !b; }
+void Q_GUI_EXPORT qt_mac_set_menubar_icons(bool b)
+{ QApplication::instance()->setAttribute(Qt::AA_DontShowIconsInMenus, !b); }
 void Q_GUI_EXPORT qt_mac_set_native_menubar(bool b) { qt_mac_no_native_menubar = !b; }
 void Q_GUI_EXPORT qt_mac_set_menubar_merge(bool b) { qt_mac_no_menubar_merge = !b; }
 
@@ -897,7 +897,8 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 
     //icon
     data.whichData |= kMenuItemDataIconHandle;
-    if (!action->action->icon().isNull() && !qt_mac_no_menubar_icons) {
+    if (!action->action->icon().isNull()
+            && !QApplication::instance()->testAttribute(Qt::AA_DontShowIconsInMenus)) {
         data.iconType = kMenuIconRefType;
         data.iconHandle = (Handle)qt_mac_create_iconref(action->action->icon().pixmap(22, QIcon::Normal));
     } else {

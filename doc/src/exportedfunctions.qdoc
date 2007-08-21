@@ -80,6 +80,9 @@
     Specifies whether icons associated to menu items for the
     application's menu bar should be shown on Mac OS X. By default,
     icons are shown on Mac OS X just like on the other platforms.
+    
+    In Qt 4.4, this is equivalent to
+    \c { QApplication::instance()->setAttribute(Qt::AA_DontShowIconsInMenus); }.
 
     \section1 void qt_mac_set_menubar_merge(bool \e{enable})
 

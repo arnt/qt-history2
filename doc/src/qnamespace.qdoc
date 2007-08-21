@@ -109,6 +109,9 @@
            setting/clearing the \c WA_MSWindowsUseDirect3D attribute
            on a specific widget. \bold {This functionality is
            experimental}.
+
+    \value AA_DontShowIconsInMenus Actions with the Icon property won't be shown in
+    any menus unless specifically set by the QAction::iconVisibleInMenu property.
     
     \omitvalue AA_AttributeCount
 */

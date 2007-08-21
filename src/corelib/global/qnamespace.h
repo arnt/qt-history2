@@ -402,6 +402,7 @@ public:
     {
         AA_ImmediateWidgetCreation = 0,
         AA_MSWindowsUseDirect3DByDefault = 1, // Win only
+        AA_DontShowIconsInMenus = 2,
 
         // Add new attributes before this line
         AA_AttributeCount
