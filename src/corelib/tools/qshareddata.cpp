@@ -13,7 +13,8 @@
 
 #include <qshareddata.h>
 
-/*! \class QSharedData
+/*! 
+    \class QSharedData
     \brief The QSharedData class is a base class for shared data objects.
 
     \reentrant
@@ -26,18 +27,21 @@
     See the QSharedDataPointer documentation for details.
 */
 
-/*! \fn QSharedData::QSharedData()
+/*! 
+    \fn QSharedData::QSharedData()
 
     Constructs a QSharedData object with a reference count of 0.
 */
 
-/*! \fn QSharedData::QSharedData(const QSharedData &other)
+/*! 
+    \fn QSharedData::QSharedData(const QSharedData &other)
 
     Constructs a QSharedData object with a reference count of 0. (\a
     other is ignored.)
 */
 
-/*! \class QSharedDataPointer
+/*! 
+    \class QSharedDataPointer
     \brief The QSharedDataPointer class provides a pointer to a shared data object.
 
     \reentrant
@@ -134,35 +138,40 @@
     \sa QSharedData
 */
 
-/*! \fn T &QSharedDataPointer::operator*()
+/*! 
+    \fn T &QSharedDataPointer::operator*()
 
     Provides access to the shared object's members.
 
     This function does a detach().
 */
 
-/*! \fn const T &QSharedDataPointer::operator*() const
+/*! 
+    \fn const T &QSharedDataPointer::operator*() const
 
     \overload
 
     This function does not call detach().
 */
 
-/*! \fn T *QSharedDataPointer::operator->()
+/*! 
+    \fn T *QSharedDataPointer::operator->()
 
     Provides access to the shared object's members.
 
     This function does a detach().
 */
 
-/*! \fn const T *QSharedDataPointer::operator->() const
+/*! 
+    \fn const T *QSharedDataPointer::operator->() const
 
     \overload
 
     This function does not call detach().
 */
 
-/*! \fn QSharedDataPointer::operator T *()
+/*! 
+    \fn QSharedDataPointer::operator T *()
 
     Returns a pointer to the shared object.
 
@@ -171,14 +180,16 @@
     \sa data(), constData()
 */
 
-/*! \fn QSharedDataPointer::operator const T *() const
+/*! 
+    \fn QSharedDataPointer::operator const T *() const
 
     Returns a pointer to the shared object.
 
     This function does not call detach().
 */
 
-/*! \fn T * QSharedDataPointer::data()
+/*! 
+    \fn T * QSharedDataPointer::data()
 
     Returns a pointer to the shared object.
 
@@ -187,14 +198,16 @@
     \sa constData()
 */
 
-/*! \fn const T * QSharedDataPointer::data() const
+/*! 
+    \fn const T * QSharedDataPointer::data() const
 
     \overload
 
     This function does not call detach().
 */
 
-/*! \fn const T * QSharedDataPointer::constData() const
+/*! 
+    \fn const T * QSharedDataPointer::constData() const
 
     Returns a const pointer to the shared object.
 
@@ -203,7 +216,8 @@
     \sa data()
 */
 
-/*! \fn bool QSharedDataPointer::operator==(const QSharedDataPointer<T> &other) const
+/*! 
+    \fn bool QSharedDataPointer::operator==(const QSharedDataPointer<T> &other) const
 
     Returns a true if the pointer to the shared object in \a other is equal to
     to the pointer to the shared data in this else returns false.
@@ -211,7 +225,8 @@
     This function does not call detach().
 */
 
-/*! \fn bool QSharedDataPointer::operator!=(const QSharedDataPointer<T> &other) const
+/*! 
+    \fn bool QSharedDataPointer::operator!=(const QSharedDataPointer<T> &other) const
 
     Returns a true if the pointer to the shared object in \a other is not equal to
     to the pointer to the shared data in this else returns false.
@@ -219,12 +234,14 @@
     This function does not call detach().
 */
 
-/*! \fn QSharedDataPointer::QSharedDataPointer()
+/*! 
+    \fn QSharedDataPointer::QSharedDataPointer()
 
     Constructs a QSharedDataPointer initialized with a null pointer.
 */
 
-/*! \fn QSharedDataPointer::~QSharedDataPointer()
+/*! 
+    \fn QSharedDataPointer::~QSharedDataPointer()
 
     Destroys the QSharedDataPointer.
 
@@ -233,7 +250,8 @@
     reaches 0.
 */
 
-/*! \fn QSharedDataPointer::QSharedDataPointer(T *sharedData)
+/*! 
+    \fn QSharedDataPointer::QSharedDataPointer(T *sharedData)
 
     Constructs a QSharedDataPointer that points to \a sharedData.
 
@@ -241,7 +259,8 @@
     count.
 */
 
-/*! \fn QSharedDataPointer::QSharedDataPointer(const QSharedDataPointer<T> &other)
+/*! 
+    \fn QSharedDataPointer::QSharedDataPointer(const QSharedDataPointer<T> &other)
 
     Constructs a copy of \a other.
 
@@ -249,7 +268,8 @@
     shared data object pointed to by \a{other}.
 */
 
-/*! \fn QSharedDataPointer<T> &QSharedDataPointer::operator=(const QSharedDataPointer<T> &other)
+/*! 
+    \fn QSharedDataPointer<T> &QSharedDataPointer::operator=(const QSharedDataPointer<T> &other)
 
     Assigns \a other to this pointer.
 
@@ -260,7 +280,8 @@
     data object is deleted.
 */
 
-/*! \fn QSharedDataPointer &QSharedDataPointer::operator=(T *sharedData)
+/*! 
+    \fn QSharedDataPointer &QSharedDataPointer::operator=(T *sharedData)
 
     \overload
 
@@ -272,12 +293,14 @@
     reference count reaches 0, the shared data object is deleted.
 */
 
-/*! \fn bool QSharedDataPointer::operator!() const
+/*! 
+    \fn bool QSharedDataPointer::operator!() const
 
     Returns true if this pointer is null; otherwise returns false.
 */
 
-/*! \fn void QSharedDataPointer::detach()
+/*! 
+    \fn void QSharedDataPointer::detach()
 
     If the shared data's reference count is greater than 1, creates a
     deep copy of the shared data.
