@@ -133,6 +133,7 @@ private slots:
     void widgetAt();
 #ifdef Q_WS_MAC
     void retainHIView();
+    void sheetOpacity();
 #endif
     void resizeEvent();
     void task110173();
@@ -3122,6 +3123,16 @@ void tst_QWidget::retainHIView()
     }
 }
 
+void tst_QWidget::sheetOpacity()
+{
+    QWidget tmpWindow;
+    QWidget sheet(&tmpWindow, Qt::Sheet);
+    tmpWindow.show();
+    sheet.show();
+    QCOMPARE(int(sheet.windowOpacity() * 255), 242);  // 95%
+    sheet.setParent(0, Qt::Dialog);
+    QCOMPARE(int(sheet.windowOpacity() * 255), 255);
+}
 #endif
 
 class SiblingDeleter : public QWidget

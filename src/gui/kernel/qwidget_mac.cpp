@@ -1812,6 +1812,10 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
     if (wasCreated && !qt_isGenuineQWidget(q))
         return;
+
+    if ((data.window_flags & Qt::Sheet) && topData && topData->opacity == 242)
+        q->setWindowOpacity(1.0f);
+
     setWinId(0); //do after the above because they may want the id
 
     data.window_flags = f;
