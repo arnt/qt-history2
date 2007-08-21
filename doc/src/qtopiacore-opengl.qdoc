@@ -40,7 +40,8 @@ There are three ways to use OpenGL with Qtopia Core:
   \o Implement window compositing and special effects.
 \endlist
 
-Qtopia Core's reference integration demonstrates all three uses.
+Qtopia Core's reference integration example demonstrates all three
+uses.
 
 \section2 Using OpenGL 3D Graphics in Applications
 
@@ -68,25 +69,34 @@ OpenGL to implement top level window compositing. This makes it easy
 to add 3D effects to applications, for instance when windows are
 minimized or maximized.
 
+\section1 The Qtopia Core Painting Architecture
+
+The diagram below shows the Qtopia Core painting architecture.
+
+\image qtopiacore-opengl3.png
+
+A client process widget uses a paint engine to draw into a window
+surface. The server then combines the window surfaces and displays the
+composition on the screen. This acceleration architecture lets you
+control the steps of the painting process. 
+
+Subclassing QPaintEngine allows you to implement the QPainter API
+using accelerated hardware.  Subclassing QWindowSurface lets you
+decide the properties of the space your widgets will draw themselves
+into, as well as which paint engine they should use to draw themselves
+into that space.  Subclassing QScreen lets you control the creation of
+window surfaces and lets you decide how to implement window
+compositing.  Using subclassing, your implementation work is minimized
+since you can reuse base class functionality you don't need to change.
+
+\image qtopiacore-opengl4.png
+
 \section1 The Qtopia Core Acceleration Architecture
 
-Qtopia Core's graphics acceleration architecture lets you control each
-step of the painting process. Subclassing QPaintEngine allows you to
-implement the QPainter API using accelerated hardware.
-### Subclassing QWindowSurface lets
-you decide the properties of the space your widgets will draw
-themselves into, as well as which paint engine they should use to draw
-themselves into that space. 
-Subclassing QScreen lets you control the
-creation of window surfaces and lets you decide how to implement
-window compositing.  Using the standard C++ subclassing mechanism,
-your implementation work is minimized since you can reuse base class
-functionality you don't need to change.
+Qtopia Core's graphics acceleration architecture is shown in the
+diagram below.
 
 \image qtopiacore-opengl1.png
-\image qtopiacore-opengl2.png
-\image qtopiacore-opengl3.png
-\image qtopiacore-opengl4.png
 
 To integrate an OpenGL implementation into Qtopia Core for a
 particular platform, you use the same mechanisms you would use for
@@ -98,9 +108,11 @@ reimplementing common functionality.
 
 The Qtopia Core \l {OpenGL for Embedded Systems Example} is the
 reference implementation for integrating OpenGL ES and \l
-{http://www.khronos.org/egl/}{EGL} with Qtopia Core.
-( \l {http://www.khronos.org/egl/} {EGL} is a library that
-binds OpenGL ES to native windowing systems.)
+{http://www.khronos.org/egl/}{EGL} with Qtopia Core's graphics
+acceleration architecture.  ( \l {http://www.khronos.org/egl/} {EGL}
+is a library that binds OpenGL ES to native windowing systems.)
+
+\image qtopiacore-opengl2.png
 
 The example implements a screen driver plugin that demonstrates all
 three uses of OpenGL in Qtopia Core: Top-level window compositing and
