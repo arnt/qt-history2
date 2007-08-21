@@ -3721,7 +3721,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_IndicatorWidth:
     case PM_ExclusiveIndicatorHeight:
     case PM_IndicatorHeight:
-        subRule = renderRule(w, PseudoElement_Indicator);
+        subRule = renderRule(w, opt, PseudoElement_Indicator);
         if (subRule.hasContentsSize()) {
             return (m == PM_ExclusiveIndicatorWidth) || (m == PM_IndicatorWidth)
                         ? subRule.size().width() : subRule.size().height();
@@ -3809,7 +3809,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
                 return rule.box()->spacing;
         }
         // assume group box
-        subRule = renderRule(w, PseudoElement_GroupBoxTitle);
+        subRule = renderRule(w, opt, PseudoElement_GroupBoxTitle);
         if (subRule.hasBox() && subRule.box()->spacing != -1)
             return subRule.box()->spacing;
         break;
@@ -3836,7 +3836,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 #endif // QT_NO_SCROLLBAR
 
     case PM_ProgressBarChunkWidth:
-        subRule = renderRule(w, PseudoElement_ProgressBarChunk);
+        subRule = renderRule(w, opt, PseudoElement_ProgressBarChunk);
         if (subRule.hasContentsSize()) {
             QSize sz = subRule.size();
             return (opt->state & QStyle::State_Horizontal)
@@ -3846,7 +3846,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_TabBarTabHSpace:
     case PM_TabBarTabVSpace:
-        subRule = renderRule(w, PseudoElement_TabBarTab);
+        subRule = renderRule(w, opt, PseudoElement_TabBarTab);
         if (subRule.hasBox() || subRule.hasBorder())
             return 0;
         break;
@@ -3862,7 +3862,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_TabBarTabShiftHorizontal:
     case PM_TabBarTabShiftVertical:
-        subRule = renderRule(w, PseudoElement_TabBarTab);
+        subRule = renderRule(w, opt, PseudoElement_TabBarTab);
         if (subRule.hasBox())
             return 0;
         break;
@@ -4020,7 +4020,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
 #ifndef QT_NO_TABBAR
     case CT_TabBarTab: {
-        QRenderRule subRule = renderRule(w, PseudoElement_TabBarTab, PseudoClass_Enabled);
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_TabBarTab);
         sz = csz.expandedTo(subRule.minimumContentsSize());
         if (subRule.hasBox() || subRule.hasBorder()) {
             sz = subRule.boxSize(sz);
@@ -4201,7 +4201,7 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_TabBar_Alignment:
 #ifndef QT_NO_TABWIDGET
             if (qobject_cast<const QTabWidget *>(w)) {
-                rule = renderRule(w, PseudoElement_TabWidgetTabBar);
+                rule = renderRule(w, opt, PseudoElement_TabWidgetTabBar);
                 if (rule.hasPosition())
                     return rule.position()->position;
             }
@@ -4615,7 +4615,7 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
         break;
 
     case SE_TabBarTearIndicator: {
-        QRenderRule subRule = renderRule(w, PseudoElement_TabBarTear);
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_TabBarTear);
         if (subRule.hasContentsSize()) {
             QRect r;
             if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
