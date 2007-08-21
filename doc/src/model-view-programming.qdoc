@@ -1,6 +1,6 @@
 /*!
     \page model-view-programming.html
-    \nextpage Using Models and Views
+    \nextpage Model/View Introduction
     \startpage index.html Qt Reference Documentation
 
     \title Model/View Programming
@@ -8,9 +8,51 @@
     \brief A guide to the extensible model/view architecture used by Qt's
     item view classes.
 
-    \tableofcontents
+    \list
+    \o \l{Using Models and Views}
+      \tableofcontents{1 Using Models and Views}
+    \o \l{Model Classes}
+      \tableofcontents{1 Model Classes}
+    \o \l{Creating New Models}
+      \tableofcontents{1 Creating New Models}
+    \o \l{View Classes}
+      \tableofcontents{1 View Classes}
+    \o \l{Handling Selections in Item Views}
+      \tableofcontents{1 Handling Selections in Item Views}
+    \o \l{Delegate Classes}
+      \tableofcontents{1 Delegate Classes}
+    \o \l{Item View Convenience Classes}
+      \tableofcontents{1 Item View Convenience Classes}
+    \o \l{Using Drag and Drop with Item Views}
+      \tableofcontents{1 Using Drag and Drop with Item Views}
+    \o \l{Proxy Models}
+      \tableofcontents{1 Proxy Models}
+    \o \l{Model Subclassing Reference}
+      \tableofcontents{1 Model Subclassing Reference}
+    \endlist
 
-    \section1 Introduction
+    See also the list of \l{Model/View Classes}.
+
+    \section1 Related Examples
+
+    \list
+    \o \l{itemviews/dirview}{Dir View}
+    \o \l{itemviews/spinboxdelegate}{Spin Box Delegate}
+    \o \l{itemviews/pixelator}{Pixelator}
+    \o \l{itemviews/simpletreemodel}{Simple Tree Model}
+    \o \l{itemviews/chart}{Chart}
+    \endlist
+*/
+
+/*!
+    \page model-view-introduction.html
+    \previouspage Model/View Programming
+    \nextpage Using Models and Views
+    \startpage index.html Qt Reference Documentation
+
+    \title Model/View Introduction
+
+    \tableofcontents
 
     Qt 4 introduces a new set of item view classes that use a model/view
     architecture to manage the relationship between data and the way it
@@ -195,41 +237,6 @@
     The following sections describe the way in which the model/view pattern
     is used in Qt. Each section provides an example of use, and is followed
     by a section showing how you can create new components.
-
-    \list
-    \o \l{Using Models and Views}
-      \tableofcontents{1 Using Models and Views}
-    \o \l{Model Classes}
-      \tableofcontents{1 Model Classes}
-    \o \l{Creating New Models}
-      \tableofcontents{1 Creating New Models}
-    \o \l{View Classes}
-      \tableofcontents{1 View Classes}
-    \o \l{Handling Selections in Item Views}
-      \tableofcontents{1 Handling Selections in Item Views}
-    \o \l{Delegate Classes}
-      \tableofcontents{1 Delegate Classes}
-    \o \l{Item View Convenience Classes}
-      \tableofcontents{1 Item View Convenience Classes}
-    \o \l{Using Drag and Drop with Item Views}
-      \tableofcontents{1 Using Drag and Drop with Item Views}
-    \o \l{Proxy Models}
-      \tableofcontents{1 Proxy Models}
-    \o \l{Model Subclassing Reference}
-      \tableofcontents{1 Model Subclassing Reference}
-    \endlist
-
-    See also the list of \l{Model/View Classes}.
-
-    \section1 Related Examples
-
-    \list
-    \o \l{itemviews/dirview}{Dir View}
-    \o \l{itemviews/spinboxdelegate}{Spin Box Delegate}
-    \o \l{itemviews/pixelator}{Pixelator}
-    \o \l{itemviews/simpletreemodel}{Simple Tree Model}
-    \o \l{itemviews/chart}{Chart}
-    \endlist
 */
 
 /*!
