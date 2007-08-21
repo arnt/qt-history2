@@ -297,7 +297,8 @@
     from QAbstractButton.]
 */
 
-/*! \example tutorial/t3
+/*! 
+    \example tutorial/t3
 
     \contentspage Qt Tutorial
     \previouspage {tutorial/t2}{Chapter 2}
