@@ -2079,6 +2079,27 @@ static QWidget *embeddedWidget(QWidget *w)
     return w;
 }
 
+static int extendedPseudoClass(QWidget *w)
+{
+    int pc = 0;
+    if (QAbstractSlider *slider = qobject_cast<QAbstractSlider *>(w)) {
+        pc |= ((slider->orientation() == Qt::Vertical) ? PseudoClass_Vertical : PseudoClass_Horizontal);
+    } else
+#ifndef QT_NO_COMBOBOX
+    if (QComboBox *combo = qobject_cast<QComboBox *>(w)) {
+        if (combo->editable())
+        pc |= (combo->editable() ? PseudoClass_Editable : PseudoClass_ReadOnly);
+    } else
+#endif
+#ifndef QT_NO_LINEDIT
+    if (QLineEdit *edit = qobject_cast<QLineEdit *>(w)) {
+        pc |= (edit->isReadOnly() ? PseudoClass_ReadOnly : PseudoClass_Editable);
+    } else
+#endif
+    { } // required for the above ifdef'ery to work
+    return pc;
+}
+
 // sets up the geometry of the widget. We set a dynamic property when
 // we modify the min/max size of the widget. The min/max size is restored
 // to their original value when a new stylesheet that does not contain
@@ -2087,7 +2108,7 @@ static QWidget *embeddedWidget(QWidget *w)
 // don't use stylesheets at all.
 void QStyleSheetStyle::setGeometry(QWidget *w)
 {
-    QRenderRule rule = renderRule(w, PseudoElement_None, PseudoClass_Enabled);
+    QRenderRule rule = renderRule(w, PseudoElement_None, PseudoClass_Enabled | extendedPseudoClass(w));
     const QStyleSheetGeometryData *geo = rule.geometry();
     if (w->property("_q_stylesheet_minw").toBool()
         && ((!rule.hasGeometry() || geo->minWidth == -1))) {
@@ -2196,7 +2217,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
     QWidget *ew = embeddedWidget(w);
 
     for (int i = 0; i < 3; i++) {
-        QRenderRule rule = renderRule(w, PseudoElement_None, map[i].state);
+        QRenderRule rule = renderRule(w, PseudoElement_None, map[i].state | extendedPseudoClass(w));
         if (i == 0) {
             w->setFont(rule.font);
 
