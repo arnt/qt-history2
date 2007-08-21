@@ -222,11 +222,62 @@ void LowerWidgetCommand::undo()
 {
 }
 
+// ---- ManageWidgetCommandHelper
+ManageWidgetCommandHelper::ManageWidgetCommandHelper() :
+    m_widget(0)
+{
+}
+
+void ManageWidgetCommandHelper::init(const QDesignerFormWindowInterface *fw, QWidget *widget)
+{
+    m_widget = widget;
+    m_managedChildren.clear();
+
+    const QWidgetList children = qFindChildren<QWidget *>(m_widget);
+    if (children.empty())
+        return;
+
+    m_managedChildren.reserve(children.size());
+    const QWidgetList::const_iterator lcend = children.constEnd();
+    for (QWidgetList::const_iterator it = children.constBegin(); it != lcend; ++it)
+        if (fw->isManaged(*it))
+            m_managedChildren.push_back(*it);
+}
+
+void ManageWidgetCommandHelper::init(QWidget *widget, const WidgetVector &managedChildren)
+{
+    m_widget = widget;
+    m_managedChildren = managedChildren;
+}
+
+void ManageWidgetCommandHelper::manage(QDesignerFormWindowInterface *fw)
+{
+    // Manage the managed children after parent
+    fw->manageWidget(m_widget);
+    if (!m_managedChildren.empty()) {
+        const WidgetVector::const_iterator lcend = m_managedChildren.constEnd();
+        for (WidgetVector::const_iterator it = m_managedChildren.constBegin(); it != lcend; ++it)
+            fw->manageWidget(*it);
+    }
+}
+
+void ManageWidgetCommandHelper::unmanage(QDesignerFormWindowInterface *fw)
+{
+    // Unmanage the managed children first
+    if (!m_managedChildren.empty()) {
+        const WidgetVector::const_iterator lcend = m_managedChildren.constEnd();
+        for (WidgetVector::const_iterator it = m_managedChildren.constBegin(); it != lcend; ++it)
+            fw->unmanageWidget(*it);
+    }
+    fw->unmanageWidget(m_widget);
+}
+
 // ---- DeleteWidgetCommand ----
 DeleteWidgetCommand::DeleteWidgetCommand(QDesignerFormWindowInterface *formWindow) :
     QDesignerFormWindowCommand(QString(), formWindow),
     m_layoutType(LayoutInfo::NoLayout),
     m_layoutHelper(0),
+    m_layoutMode(SimplifyLayout),
     m_splitterIndex(-1),
     m_layoutSimplified(false),
     m_formItem(0),
@@ -239,12 +290,12 @@ DeleteWidgetCommand::~DeleteWidgetCommand()
     delete  m_layoutHelper;
 }
 
-void DeleteWidgetCommand::init(QWidget *widget)
+void DeleteWidgetCommand::init(QWidget *widget, LayoutMode layoutMode)
 {
     m_widget = widget;
     m_parentWidget = widget->parentWidget();
     m_geometry = widget->geometry();
-
+    m_layoutMode = layoutMode;
     m_layoutType = LayoutInfo::NoLayout;
     m_splitterIndex = -1;
     if (hasLayout(m_parentWidget)) {
@@ -270,12 +321,7 @@ void DeleteWidgetCommand::init(QWidget *widget)
     m_tabOrderIndex = m_formItem->tabOrder().indexOf(widget);
 
     // Build the list of managed children
-    m_managedChildren.clear();
-    QList<QWidget *>children = qFindChildren<QWidget *>(m_widget);
-    foreach (QPointer<QWidget> child, children) {
-        if (formWindow()->isManaged(child))
-            m_managedChildren.append(child);
-    }
+    m_manageHelper.init(formWindow(), m_widget);
 
     setText(QApplication::translate("Command", "Delete '%1'").arg(widget->objectName()));
 }
@@ -306,7 +352,7 @@ void DeleteWidgetCommand::redo()
             break;
         default:
             // Attempt to simplify grids if a row/column becomes empty
-            m_layoutSimplified = m_layoutHelper->canSimplify(m_parentWidget, m_layoutPosition);
+            m_layoutSimplified = m_layoutMode == SimplifyLayout ? m_layoutHelper->canSimplify(m_parentWidget, m_layoutPosition) : false;
             if (m_layoutSimplified) {
                 m_layoutHelper->pushState(m_parentWidget);
                 m_layoutHelper->simplify(core, m_parentWidget, m_layoutPosition);
@@ -314,11 +360,8 @@ void DeleteWidgetCommand::redo()
             break;
         }
 
-    // Unmanage the managed children first
-    foreach (QWidget *child, m_managedChildren)
-        formWindow()->unmanageWidget(child);
+    m_manageHelper.unmanage(formWindow());
 
-    formWindow()->unmanageWidget(m_widget);
     m_widget->setParent(formWindow());
     m_widget->hide();
 
@@ -342,12 +385,8 @@ void DeleteWidgetCommand::undo()
     }
 
     m_widget->setGeometry(m_geometry);
-    formWindow()->manageWidget(m_widget);
 
-    // Manage the managed children
-    foreach (QWidget *child, m_managedChildren)
-        formWindow()->manageWidget(child);
-
+    m_manageHelper.manage(formWindow());
     // ### set up alignment
     switch (m_layoutType) {
     case LayoutInfo::NoLayout:

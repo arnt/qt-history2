@@ -515,6 +515,24 @@ bool FormWindow::isPageOfContainerWidget(const QWidget *widget) const
     return false;
 }
 
+// We can drag widget in managed layouts except splitter.
+static bool canDragWidgetInLayout(const QDesignerFormEditorInterface *core, QWidget *w)
+{
+    bool managed;
+    const LayoutInfo::Type type = LayoutInfo::laidoutWidgetType(core ,w, &managed);
+    if (!managed)
+        return false;
+    switch (type) {
+    case LayoutInfo::NoLayout:
+    case LayoutInfo::HSplitter:
+    case LayoutInfo::VSplitter:
+       return false;
+    default:
+       break;
+    }
+    return true;
+}
+
 bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
 {
     e->accept();
@@ -552,9 +570,11 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
                 current = current->parentWidget();
                 continue;
             } else if (LayoutInfo::isWidgetLaidout(core(), current)) {
-                current = current->parentWidget();
-                continue;
-            } else if (isPageOfContainerWidget(current)) {
+              if (!canDragWidgetInLayout(core(), current)) {
+                  current = current->parentWidget();
+                  continue;
+              }
+           } else if (isPageOfContainerWidget(current)) {
                 current = current->parentWidget();
                 continue;
             } else if (current->parentWidget()) {
@@ -2255,6 +2275,67 @@ void FormWindow::editContents()
     }
 }
 
+namespace {
+// Helper command to manage a widget
+class ManageWidgetCommand: public QDesignerFormWindowCommand
+{
+
+public:
+    typedef ManageWidgetCommandHelper::WidgetVector WidgetVector;
+
+    explicit ManageWidgetCommand(QDesignerFormWindowInterface *formWindow) :
+        QDesignerFormWindowCommand(FormWindow::tr("Manage widget"), formWindow) {}
+
+    void init(QWidget *widget, const WidgetVector &managedChildren) {  m_manageHelper.init(widget, managedChildren); }
+
+    virtual void redo() { m_manageHelper.manage(formWindow()); }
+    virtual void undo() { m_manageHelper.unmanage(formWindow()); }
+
+private:
+    ManageWidgetCommandHelper m_manageHelper;
+};
+}
+
+void FormWindow::dragWidgetWithinForm(QWidget *widget, const QRect &targetGeometry, QWidget *targetContainer)
+{
+    const bool fromLayout = canDragWidgetInLayout(core(), widget);
+    const QDesignerLayoutDecorationExtension *targetDeco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), targetContainer);
+    const bool toLayout = targetDeco != 0;
+
+    ManageWidgetCommand::WidgetVector unmanagedChildren;
+    if (fromLayout) {
+        // Drag from Layout: We need to delete the widget properly to store the layout state
+        // Do not simplify the layout when dragging onto a layout
+        // as this might invalidate the insertion position if it is the same layout
+        DeleteWidgetCommand *cmd = new DeleteWidgetCommand(this);
+        const DeleteWidgetCommand::LayoutMode sourceLayoutMode = toLayout ? DeleteWidgetCommand::KeepLayout : DeleteWidgetCommand::SimplifyLayout;
+        cmd->init(widget, sourceLayoutMode);
+        unmanagedChildren = cmd->managedChildren();
+        commandHistory()->push(cmd);
+    }
+
+    if (toLayout) {
+        // Drag from form to layout: just insert, else manage again
+        const bool alreadyInForm = !fromLayout;
+        insertWidget(widget, targetGeometry, targetContainer, alreadyInForm);
+    } else {
+        // into container without layout
+        if (fromLayout)  { // Layout to layout: re-manage the deleted widget
+            ManageWidgetCommand *mwc = new ManageWidgetCommand(this);
+            mwc->init(widget, unmanagedChildren);
+            commandHistory()->push(mwc);
+        }
+        if (targetContainer != widget->parent()) { // different parent
+            ReparentWidgetCommand *cmd = new ReparentWidgetCommand(this);
+            cmd->init(widget, targetContainer );
+            commandHistory()->push(cmd);
+        }
+        resizeWidget(widget, targetGeometry);
+        selectWidget(widget, true);
+        widget->show();
+    }
+}
+
 bool FormWindow::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
                              const QPoint &global_mouse_pos)
 {
@@ -2312,27 +2393,12 @@ bool FormWindow::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list,
                 return false;
             selectWidget(widget, true);
             mainContainer()->setFocus(Qt::MouseFocusReason); // in case focus was in e.g. object inspector
-        } else { // move
+        } else { // same form move
             QWidget *widget = item->widget();
             Q_ASSERT(widget != 0);
             QDesignerFormWindowInterface *dest = findFormWindow(widget);
-
-            QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), container);
-            if (dest == this) { // the same form
-                if (deco == 0) { // into container without layout
-                    parent = container;
-                    if (parent != widget->parent()) { // different parent
-                        ReparentWidgetCommand *cmd = new ReparentWidgetCommand(dest);
-                        cmd->init(widget, parent);
-                        commandHistory()->push(cmd);
-                    }
-
-                    resizeWidget(widget, geometry);
-                    selectWidget(widget, true);
-                    widget->show();
-                } else { // into layout
-                    insertWidget(widget, geometry, container, true);
-                }
+            if (dest == this) {
+                dragWidgetWithinForm(widget, geometry, container);
             } else { // from other form
                 FormWindow *source = qobject_cast<FormWindow*>(item->source());
                 Q_ASSERT(source != 0);

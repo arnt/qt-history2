@@ -251,6 +251,7 @@ private:
     bool setCurrentWidget(QWidget *currentWidget);
     bool trySelectWidget(QWidget *w, bool select);
 
+    void dragWidgetWithinForm(QWidget *widget, const QRect &targetGeometry, QWidget *targetContainer);
 
     BreakLayoutCommand *breakLayoutCommand(QWidget *w);
 

@@ -79,28 +79,46 @@ void LayoutInfo::deleteLayout(const QDesignerFormEditorInterface *core, QWidget 
     qDebug() << "trying to delete an unmanaged layout:" << "widget:" << widget << "layout:" << layout;
 }
 
-bool LayoutInfo::isWidgetLaidout(const QDesignerFormEditorInterface *core, QWidget *widget)
+LayoutInfo::Type LayoutInfo::laidoutWidgetType(const QDesignerFormEditorInterface *core, QWidget *widget, bool *isManaged)
 {
-    Q_UNUSED(core);
+    if (isManaged)
+        *isManaged = false;
 
-    const QWidget *parent = widget->parentWidget();
+    QWidget *parent = widget->parentWidget();
+    if (!parent)
+        return NoLayout;
 
-    if (qobject_cast<const QSplitter*>(parent)) { // ### generalize
-        return true;
+    // 1) Splitter
+    if (QSplitter *splitter  = qobject_cast<QSplitter*>(parent)) {
+        if (isManaged)
+            *isManaged = core->metaDataBase()->item(splitter);
+        return  splitter->orientation() == Qt::Horizontal ? HSplitter : VSplitter;
     }
 
-    if (parent && parent->layout()) {
-        if (parent->layout()->indexOf(widget) != -1)
-            return true;
+    // 2) Layout of parent
+    QLayout *parentLayout = parent->layout();
+    if (!parentLayout)
+        return NoLayout;
 
-        const QList<QLayout*> childLayouts = qFindChildren<QLayout*>(parent->layout());
-        foreach (QLayout *childLayout, childLayouts) {
-            if (childLayout->indexOf(widget) != -1)
-                return true;
+    if (parentLayout->indexOf(widget) != -1) {
+        if (isManaged)
+            *isManaged = core->metaDataBase()->item(parentLayout);
+        return layoutType(core, parentLayout);
+    }
+
+    // 3) Some child layout
+    const QList<QLayout*> childLayouts = qFindChildren<QLayout*>(parentLayout);
+    if (childLayouts.empty())
+        return NoLayout;
+    const QList<QLayout*>::const_iterator lcend = childLayouts.constEnd();
+    for (QList<QLayout*>::const_iterator it = childLayouts.constBegin(); it != lcend; ++it)
+        if ((*it)->indexOf(widget) != -1) {
+            if (isManaged)
+                *isManaged = core->metaDataBase()->item(*it);
+            return layoutType(core, parentLayout);
         }
-    }
 
-    return false;
+    return NoLayout;
 }
 
 QLayout *LayoutInfo::internalLayout(const QWidget *widget)

@@ -131,6 +131,24 @@ private:
     QRect m_geometry;
 };
 
+// Helper to correctly unmanage a widget and its children for delete operations
+class  QDESIGNER_SHARED_EXPORT ManageWidgetCommandHelper {
+public:
+    typedef QVector<QWidget*> WidgetVector;
+
+    ManageWidgetCommandHelper();
+    void init(const QDesignerFormWindowInterface *fw, QWidget *widget);
+    void init(QWidget *widget, const WidgetVector &managedChildren);
+
+    void manage(QDesignerFormWindowInterface *fw);
+    void unmanage(QDesignerFormWindowInterface *fw);
+
+    const WidgetVector &managedChildren() const { return m_managedChildren; }
+private:
+    QWidget *m_widget;
+    WidgetVector m_managedChildren;
+};
+
 class QDESIGNER_SHARED_EXPORT DeleteWidgetCommand: public QDesignerFormWindowCommand
 {
 
@@ -138,23 +156,27 @@ public:
     explicit DeleteWidgetCommand(QDesignerFormWindowInterface *formWindow);
     ~DeleteWidgetCommand();
 
-    void init(QWidget *widget);
+    enum LayoutMode { SimplifyLayout, KeepLayout };
+
+    void init(QWidget *widget, LayoutMode layoutMode = SimplifyLayout);
 
     virtual void redo();
     virtual void undo();
 
+    const QVector<QWidget*> &managedChildren() const { return m_manageHelper.managedChildren(); }
 private:
     QPointer<QWidget> m_widget;
     QPointer<QWidget> m_parentWidget;
     QRect m_geometry;
     LayoutInfo::Type m_layoutType;
     LayoutHelper* m_layoutHelper;
+    LayoutMode m_layoutMode;
     QRect m_layoutPosition;
     int m_splitterIndex;
     bool m_layoutSimplified;
     QDesignerMetaDataBaseItemInterface *m_formItem;
     int m_tabOrderIndex;
-    QList<QPointer<QWidget> > m_managedChildren;
+    ManageWidgetCommandHelper m_manageHelper;
 };
 
 class QDESIGNER_SHARED_EXPORT ReparentWidgetCommand: public QDesignerFormWindowCommand
