@@ -138,6 +138,7 @@
         <li><a href="qtopiacore.html">Qtopia Core</a></li>
         <li><a href="overviews.html">All Overviews and HOWTOs</a></li>
         <li><a href="gallery.html">Qt Widget Gallery</a></li>
+        <li><a href="http://doc.trolltech.com/extras/qt43-class-chart.pdf">Class Chart</a></li>
         </ul>
         </td>
         <td valign="top">
@@ -160,7 +161,7 @@
         <li><a href="qt4-mainwindow.html">Main Window Architecture</a></li>
         <li><a href="richtext.html">Rich Text Processing</a></li>
         <li><a href="model-view-programming.html">Model/View Programming</a></li>
-        <li><a href="stylesheet.html">Style Sheet</a></li>
+        <li><a href="stylesheet.html">Style Sheets</a></li>
         <li><a href="qtnetwork.html">Network Module</a></li>
         <li><a href="qtopengl.html">OpenGL Module</a></li>
         <li><a href="qtsql.html">SQL Module</a></li>

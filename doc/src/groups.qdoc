@@ -469,7 +469,9 @@
     \title Threading Classes
     \brief Classes that provide threading support.
 
-    These classes are relevant to threaded applications.
+    These classes are relevant to threaded applications. See
+    \l{Thread Support in Qt} for an overview of the features
+    Qt provides to help with multithreaded programming.
 */
 
 
