@@ -1392,7 +1392,8 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
     if (d->paint_unclipped)
         return;
 
-    if (!d->rasterBuffer->clip || op == Qt::NoClip || op == Qt::ReplaceClip) {
+    if (d->txop <= QTransform::TxScale
+        && (!d->rasterBuffer->clip || op == Qt::NoClip || op == Qt::ReplaceClip)) {
         switch (op) {
         case Qt::NoClip:
             d->clipRegion = d->deviceRect;

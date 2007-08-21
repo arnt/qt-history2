@@ -864,7 +864,12 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
         updateClipRegion_dev(QRegion(clipped_poly_dev.toPolygon(), state.clipPath().fillRule()),
                              state.clipOperation());
     } else if (flags & DirtyClipRegion) {
-        updateClipRegion_dev(d->matrix.map(state.clipRegion()), state.clipOperation());
+        QPainterPath clip_path;
+        clip_path.addRegion(state.clipRegion());
+        QPolygonF clip_poly_dev(d->matrix.map(clip_path.toFillPolygon()));
+        QPolygonF clipped_poly_dev;
+        d->clipPolygon_dev(clip_poly_dev, &clipped_poly_dev);
+        updateClipRegion_dev(QRegion(clipped_poly_dev.toPolygon()), state.clipOperation());
     }
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
 #if !defined(QT_NO_XRENDER)
