@@ -1113,7 +1113,7 @@
          on the directory they reside. This is turned on by default.
     \row \o embed_manifest_dll \o Embeds a manifest file in the DLL created
          as part of a library project.
-    \row \o embed_manifest_dll \o Embeds a manifest file in the DLL created
+    \row \o embed_manifest_exe \o Embeds a manifest file in the DLL created
          as part of an application project.
     \endtable
 
