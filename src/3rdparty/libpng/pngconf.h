@@ -36,7 +36,7 @@
 #include "config.h"
 #endif
 #else
-#if !defined(__i386__) && !defined(__x86_64__)
+#if !defined(__i386__) && !defined(__x86_64__) || (defined(__APPLE__) && defined(__GNUC__))
 #define PNG_NO_ASSEMBLER_CODE
 #endif
 #endif
