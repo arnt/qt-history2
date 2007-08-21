@@ -1328,8 +1328,6 @@ bool QMenuBar::macUpdateMenuBar()
             SetRootMenu(menu);
             QWidget *modalWidget = qApp->activeModalWidget();
             if (mb != menubars()->value(modalWidget)) {
-                qDebug() << "set modal state";
-                qDebug() << mb << mb->parentWidget() << modalWidget << qApp->activeWindow();
                 qt_mac_set_modal_state(menu, qt_mac_should_disable_menu(mb, modalWidget));
             }
         }
