@@ -975,7 +975,7 @@ void QSqlResult::setNumericalPrecisionPolicy(QSql::NumericalPrecisionPolicy poli
     \code
     QSqlQuery query = ...
     QVariant v = query.result()->handle();
-    if (v.isValid() && v.typeName() == "sqlite3_stmt*") {
+    if (v.isValid() && qstrcmp(v.typeName(), "sqlite3_stmt*")) {
         // v.data() returns a pointer to the handle
         sqlite3_stmt *handle = *static_cast<sqlite3_stmt **>(v.data());
         if (handle != 0) { // check that it is not NULL

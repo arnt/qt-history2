@@ -573,7 +573,7 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
     \code
     QSqlDatabase db = ...;
     QVariant v = db.driver()->handle();
-    if (v.isValid() && v.typeName() == "sqlite3*") {
+    if (v.isValid() && qstrcmp(v.typeName(), "sqlite3*")) {
         // v.data() returns a pointer to the handle
         sqlite3 *handle = *static_cast<sqlite3 **>(v.data());
         if (handle != 0) { // check that it is not NULL
