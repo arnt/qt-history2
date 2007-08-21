@@ -357,7 +357,7 @@
     we need is to add another private slot to our test class:
 
     \quotefromfile qtestlib/tutorial2/testqstring.cpp
-    \skipto class
+    \skipto class TestQString
     \printuntil };
 
     \section1 Writing the Data Function
@@ -523,7 +523,7 @@
     function to your test class:
 
     \quotefromfile qtestlib/tutorial4/testgui.cpp
-    \skipto class
+    \skipto class TestGui
     \printuntil /^\}/
 
     \section1 Writing the Data Function
