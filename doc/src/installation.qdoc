@@ -325,6 +325,10 @@ What follows is how to install Qt/Mac from the source package.
     dynamic libraries (dylibs) by specifying the \c{-no-framework}
     option.
 
+    Qt can also be configured to be built with debugging symbols. This
+    process is described in detail in the \l{Debugging Techniques}
+    document.
+
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
 
