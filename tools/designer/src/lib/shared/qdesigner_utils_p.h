@@ -215,11 +215,16 @@ namespace qdesigner_internal { namespace Utils {
 
 inline int valueOf(const QVariant &value, bool *ok = 0)
 {
-    if (qVariantCanConvert<PropertySheetEnumValue>(value))
+    if (qVariantCanConvert<PropertySheetEnumValue>(value)) {
+        if (ok)
+            *ok = true;
         return qVariantValue<PropertySheetEnumValue>(value).value;
-    else if (qVariantCanConvert<PropertySheetFlagValue>(value))
+    }
+    else if (qVariantCanConvert<PropertySheetFlagValue>(value)) {
+        if (ok)
+            *ok = true;
         return qVariantValue<PropertySheetFlagValue>(value).value;
-
+    }
     return value.toInt(ok);
 }
 
