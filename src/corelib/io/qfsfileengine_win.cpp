@@ -431,7 +431,7 @@ void QFSFileEnginePrivate::nativeInitFileName()
         nativeFilePath = QByteArray((const char *)path.utf16(), path.size() * 2 + 1);
     }, {
         QString path = fixIfRelativeUncPath(filePath);
-        nativeFilePath = win95Name(QDir::toNativeSeparators(path));
+        nativeFilePath = win95Name(path).replace('/', '\\');        
     });
 }
 
