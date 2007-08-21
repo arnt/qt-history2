@@ -1431,7 +1431,7 @@ bool QAbstractSocket::waitForConnected(int msecs)
     while (state() == ConnectingState && (msecs == -1 || stopWatch.elapsed() < msecs)) {
         int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
         if (msecs != -1 && timeout > QT_CONNECT_TIMEOUT)
-            timeout = qt_timeout_value(QT_CONNECT_TIMEOUT, stopWatch.elapsed());
+            timeout = QT_CONNECT_TIMEOUT;
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::waitForConnected(%i) waiting %.2f secs for connection attempt #%i",
                msecs, timeout / 1000.0, attempt++);
