@@ -905,7 +905,7 @@ bool QFileDialog::resolveSymlinks() const
 
     If this property is set to true and the accept mode is
     AcceptSave, the filedialog will ask whether the user wants to
-    overwrite the fike before accepting the file.
+    overwrite the file before accepting the file.
 */
 void QFileDialog::setConfirmOverwrite(bool enabled)
 {
