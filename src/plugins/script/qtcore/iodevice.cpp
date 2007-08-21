@@ -70,7 +70,7 @@ public Q_SLOTS:
     }
     void close()
     {
-        DECLARE_SELF2(QIODevice, close, );
+        DECLARE_SELF2(QIODevice, close, QSCRIPT_VOID);
         self->close();
     }
     QString errorString() const
@@ -157,7 +157,7 @@ public Q_SLOTS:
     }
     void setTextModeEnabled(bool enabled)
     {
-        DECLARE_SELF2(QIODevice, setTextModeEnabled, );
+        DECLARE_SELF2(QIODevice, setTextModeEnabled, QSCRIPT_VOID);
         self->setTextModeEnabled(enabled);
     }
     qint64 size() const
@@ -167,7 +167,7 @@ public Q_SLOTS:
     }
     void ungetChar(char c)
     {
-        DECLARE_SELF2(QIODevice, ungetChar, );
+        DECLARE_SELF2(QIODevice, ungetChar, QSCRIPT_VOID);
         self->ungetChar(c);
     }
     bool waitForBytesWritten(int msecs)

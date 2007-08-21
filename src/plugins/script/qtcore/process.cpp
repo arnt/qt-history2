@@ -85,12 +85,12 @@ public:
 public Q_SLOTS:
     void closeReadChannel(int channel)
     {
-        DECLARE_SELF2(QProcess, closeReadChannel, );
+        DECLARE_SELF2(QProcess, closeReadChannel, QSCRIPT_VOID);
         self->closeReadChannel(QProcess::ProcessChannel(channel));
     }
     void closeWriteChannel()
     {
-        DECLARE_SELF2(QProcess, closeWriteChannel, );
+        DECLARE_SELF2(QProcess, closeWriteChannel, QSCRIPT_VOID);
         self->closeWriteChannel();
     }
     QStringList environment() const
@@ -140,52 +140,52 @@ public Q_SLOTS:
     }
     void setEnvironment(const QStringList &environment)
     {
-        DECLARE_SELF2(QProcess, setEnvironment, );
+        DECLARE_SELF2(QProcess, setEnvironment, QSCRIPT_VOID);
         self->setEnvironment(environment);
     }
     void setProcessChannelMode(int mode)
     {
-        DECLARE_SELF2(QProcess, setProcessChannelMode, );
+        DECLARE_SELF2(QProcess, setProcessChannelMode, QSCRIPT_VOID);
         self->setProcessChannelMode(QProcess::ProcessChannelMode(mode));
     }
     void setReadChannel(int channel)
     {
-        DECLARE_SELF2(QProcess, setReadChannel, );
+        DECLARE_SELF2(QProcess, setReadChannel, QSCRIPT_VOID);
         self->setReadChannel(QProcess::ProcessChannel(channel));
     }
     void setStandardErrorFile(const QString &fileName, int mode = QIODevice::Truncate)
     {
-        DECLARE_SELF2(QProcess, setStandardErrorFile, );
+        DECLARE_SELF2(QProcess, setStandardErrorFile, QSCRIPT_VOID);
         self->setStandardErrorFile(fileName, QIODevice::OpenMode(mode));
     }
     void setStandardInputFile(const QString &fileName)
     {
-        DECLARE_SELF2(QProcess, setStandardInputFile, );
+        DECLARE_SELF2(QProcess, setStandardInputFile, QSCRIPT_VOID);
         self->setStandardInputFile(fileName);
     }
     void setStandardOutputFile(const QString &fileName, int mode = QIODevice::Truncate)
     {
-        DECLARE_SELF2(QProcess, setStandardOutputFile, );
+        DECLARE_SELF2(QProcess, setStandardOutputFile, QSCRIPT_VOID);
         self->setStandardOutputFile(fileName, QIODevice::OpenMode(mode));
     }
     void setStandardOutputProcess(QProcess *destination)
     {
-        DECLARE_SELF2(QProcess, setStandardOutputProcess, );
+        DECLARE_SELF2(QProcess, setStandardOutputProcess, QSCRIPT_VOID);
         self->setStandardOutputProcess(destination);
     }
     void setWorkingDirectory(const QString &dir)
     {
-        DECLARE_SELF2(QProcess, setWorkingDirectory, );
+        DECLARE_SELF2(QProcess, setWorkingDirectory, QSCRIPT_VOID);
         self->setWorkingDirectory(dir);
     }
     void start(const QString &program, const QStringList &arguments, int mode = QIODevice::ReadWrite)
     {
-        DECLARE_SELF2(QProcess, start, );
+        DECLARE_SELF2(QProcess, start, QSCRIPT_VOID);
         self->start(program, arguments, QIODevice::OpenMode(mode));
     }
     void start(const QString &program, int mode = QIODevice::ReadWrite)
     {
-        DECLARE_SELF2(QProcess, start, );
+        DECLARE_SELF2(QProcess, start, QSCRIPT_VOID);
         self->start(program, QIODevice::OpenMode(mode));
     }
     int state() const

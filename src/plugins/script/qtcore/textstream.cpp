@@ -113,7 +113,7 @@ public Q_SLOTS:
     }
     void flush()
     {
-        DECLARE_SELF2(QTextStream, flush, );
+        DECLARE_SELF2(QTextStream, flush, QSCRIPT_VOID);
         self->flush();
     }
     bool generateByteOrderMark() const
@@ -163,12 +163,12 @@ public Q_SLOTS:
     }
     void reset()
     {
-        DECLARE_SELF2(QTextStream, reset, );
+        DECLARE_SELF2(QTextStream, reset, QSCRIPT_VOID);
         self->reset();
     }
     void resetStatus()
     {
-        DECLARE_SELF2(QTextStream, resetStatus, );
+        DECLARE_SELF2(QTextStream, resetStatus, QSCRIPT_VOID);
         self->resetStatus();
     }
     bool seek(qint64 pos)
@@ -178,67 +178,67 @@ public Q_SLOTS:
     }
     void setAutoDetectUnicode(bool enabled)
     {
-        DECLARE_SELF2(QTextStream, setAutoDetectUnicode, );
+        DECLARE_SELF2(QTextStream, setAutoDetectUnicode, QSCRIPT_VOID);
         self->setAutoDetectUnicode(enabled);
     }
     void setCodec(QTextCodec *codec)
     {
-        DECLARE_SELF2(QTextStream, setCodec, );
+        DECLARE_SELF2(QTextStream, setCodec, QSCRIPT_VOID);
         self->setCodec(codec);
     }
     void setDevice(QIODevice *device)
     {
-        DECLARE_SELF2(QTextStream, setDevice, );
+        DECLARE_SELF2(QTextStream, setDevice, QSCRIPT_VOID);
         self->setDevice(device);
     }
     void setFieldAlignment(int mode)
     {
-        DECLARE_SELF2(QTextStream, setFieldAlignment, );
+        DECLARE_SELF2(QTextStream, setFieldAlignment, QSCRIPT_VOID);
         self->setFieldAlignment(QTextStream::FieldAlignment(mode));
     }
     void setFieldWidth(int width)
     {
-        DECLARE_SELF2(QTextStream, setFieldWidth, );
+        DECLARE_SELF2(QTextStream, setFieldWidth, QSCRIPT_VOID);
         self->setFieldWidth(width);
     }
     void setGenerateByteOrderMark(bool generate)
     {
-        DECLARE_SELF2(QTextStream, setGenerateByteOrderMark, );
+        DECLARE_SELF2(QTextStream, setGenerateByteOrderMark, QSCRIPT_VOID);
         self->setGenerateByteOrderMark(generate);
     }
     void setIntegerBase(int base)
     {
-        DECLARE_SELF2(QTextStream, setIntegerBase, );
+        DECLARE_SELF2(QTextStream, setIntegerBase, QSCRIPT_VOID);
         self->setIntegerBase(base);
     }
     void setNumberFlags(int flags)
     {
-        DECLARE_SELF2(QTextStream, setNumberFlags, );
+        DECLARE_SELF2(QTextStream, setNumberFlags, QSCRIPT_VOID);
         self->setNumberFlags(QTextStream::NumberFlags(flags));
     }
     void setPadChar(QChar ch)
     {
-        DECLARE_SELF2(QTextStream, setPadChar, );
+        DECLARE_SELF2(QTextStream, setPadChar, QSCRIPT_VOID);
         self->setPadChar(ch);
     }
     void setRealNumberNotation(int notation)
     {
-        DECLARE_SELF2(QTextStream, setRealNumberNotation, );
+        DECLARE_SELF2(QTextStream, setRealNumberNotation, QSCRIPT_VOID);
         self->setRealNumberNotation(QTextStream::RealNumberNotation(notation));
     }
     void setRealNumberPrecision(int precision)
     {
-        DECLARE_SELF2(QTextStream, setRealNumberPrecision, );
+        DECLARE_SELF2(QTextStream, setRealNumberPrecision, QSCRIPT_VOID);
         self->setRealNumberPrecision(precision);
     }
     void setStatus(int status)
     {
-        DECLARE_SELF2(QTextStream, setStatus, );
+        DECLARE_SELF2(QTextStream, setStatus, QSCRIPT_VOID);
         self->setStatus(QTextStream::Status(status));
     }
     void skipWhiteSpace()
     {
-        DECLARE_SELF2(QTextStream, skipWhiteSpace, );
+        DECLARE_SELF2(QTextStream, skipWhiteSpace, QSCRIPT_VOID);
         self->skipWhiteSpace();
     }
     int status() const

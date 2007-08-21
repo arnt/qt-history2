@@ -190,7 +190,7 @@ public Q_SLOTS:
     }
     void setFileName(const QString &name)
     {
-        DECLARE_SELF2(QFile, setFileName, );
+        DECLARE_SELF2(QFile, setFileName, QSCRIPT_VOID);
         self->setFileName(name);
     }
     bool setPermissions(QFile::Permissions permissions)
@@ -205,7 +205,7 @@ public Q_SLOTS:
     }
     void unsetError()
     {
-        DECLARE_SELF2(QFile, unsetError, );
+        DECLARE_SELF2(QFile, unsetError, QSCRIPT_VOID);
         self->unsetError();
     }
     QString toString() const

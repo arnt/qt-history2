@@ -15,6 +15,8 @@
 
 #include <QtCore/QSharedData>
 
+#define QSCRIPT_VOID
+
 #define DECLARE_SELF(Class, __fn__) \
     Class* self = qscriptvalue_cast<Class*>(ctx->thisObject()); \
     if (!self) { \
