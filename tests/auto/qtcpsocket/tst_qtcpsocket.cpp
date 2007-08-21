@@ -1600,7 +1600,7 @@ void tst_QTcpSocket::connectToMultiIP()
         return;
     QFETCH_GLOBAL(bool, setProxy);
     if (setProxy)
-        QSKIP("This test takes too long if we also add the proxies.", SkipSingle);
+        ;//QSKIP("This test takes too long if we also add the proxies.", SkipSingle);
 
     qDebug("Please wait, this test can take a while...");
 
@@ -1611,7 +1611,7 @@ void tst_QTcpSocket::connectToMultiIP()
     QTime stopWatch;
     stopWatch.start();
     socket->connectToHost("multi.dev.troll.no", 80);
-    QVERIFY(socket->waitForConnected(60000));
+    QVERIFY(socket->waitForConnected(60500));
     QVERIFY(stopWatch.elapsed() < 70000);
     socket->abort();
 
