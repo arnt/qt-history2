@@ -28,7 +28,7 @@ public:
     WebXMLGenerator();
     ~WebXMLGenerator();
 
-    virtual void initializeGenerator( const Config& config );
+    virtual void initializeGenerator(const Config &config);
     virtual void terminateGenerator();
     virtual QString format();
     virtual void generateTree(const Tree *tree, CodeMarker *marker);

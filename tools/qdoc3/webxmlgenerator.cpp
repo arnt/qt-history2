@@ -127,17 +127,17 @@ void WebXMLGenerator::generateIndexSections(QXmlStreamWriter &writer,
 {
     if (tre->generateIndexSection(writer, node)) {
 
+        // Add documentation to this node if it exists.
+        writer.writeStartElement("description");
+        startText(node, marker);
+
+        const Atom *atom = node->doc().body().firstAtom();
+        while (atom)
+            atom = addAtomElements(writer, atom, node, marker);
+        writer.writeEndElement(); // description
+
         if (node->isInnerNode()) {
             const InnerNode *inner = static_cast<const InnerNode *>(node);
-
-            // Add documentation to this node if it exists.
-            writer.writeStartElement("description");
-            startText(node, marker);
-
-            const Atom *atom = node->doc().body().firstAtom();
-            while (atom)
-                atom = addAtomElements(writer, atom, node, marker);
-            writer.writeEndElement(); // description
 
             // Recurse to generate an element for this child node and all its children.
             foreach (Node *child, inner->childNodes())
@@ -320,13 +320,13 @@ const Atom *WebXMLGenerator::addAtomElements(QXmlStreamWriter &writer,
         break;
     case Atom::Image:
         writer.writeStartElement("image");
-        writer.writeAttribute("href", atom->string());
+        writer.writeAttribute("href", imageFileName(relative, atom->string()));
         writer.writeEndElement(); // image
         break;
 
     case Atom::InlineImage:
         writer.writeStartElement("inlineimage");
-        writer.writeAttribute("href", atom->string());
+        writer.writeAttribute("href", imageFileName(relative, atom->string()));
         writer.writeEndElement(); // inlineimage
         break;
 
