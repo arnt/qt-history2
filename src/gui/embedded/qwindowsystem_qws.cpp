@@ -4091,6 +4091,9 @@ void QWSServer::setScreenSaverBlockLevel(int eventBlockLevel)
     if (!qwsServerPrivate)
         return;
     qwsServerPrivate->screensavereventblocklevel = eventBlockLevel;
+#ifdef EVENT_BLOCK_DEBUG
+    qDebug() << "QWSServer::setScreenSaverBlockLevel() " << eventBlockLevel;
+#endif
 }
 
 extern bool qt_disable_lowpriority_timers; //in qeventloop_unix.cpp
