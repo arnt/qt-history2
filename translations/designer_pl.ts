@@ -1167,7 +1167,7 @@ Czy chcesz go zastąpić?</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="549"/>
-        <source>Form %1 successful saved...</source>
+        <source>Saved %1.</source>
         <translation>Forma %1 zapisana pomyślnie...</translation>
     </message>
     <message>

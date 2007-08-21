@@ -1121,7 +1121,7 @@ Wollen Sie sie überschreiben?</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="610"/>
-        <source>Form %1 successful saved...</source>
+        <source>Saved %1.</source>
         <translation>Das Formular %1 wurde gespeichert...</translation>
     </message>
     <message>

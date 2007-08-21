@@ -102,6 +102,11 @@ static QActionGroup *createActionGroup(QObject *parent, bool exclusive = false) 
     return rc;
 }
 
+static inline QString savedMessage(const QString &fileName)
+{
+    return QDesignerActions::tr("Saved %1.").arg(fileName);
+}
+
 // Prompt for a file and make sure an extension is added
 // unless the user explicitly specifies another one.
 
@@ -542,7 +547,7 @@ void QDesignerActions::saveForm()
 {
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
         if (saveForm(fw))
-            showStatusBarMessage(tr("Form %1 successful saved...").arg(QFileInfo(fw->fileName()).fileName()));
+            showStatusBarMessage(savedMessage(QFileInfo(fw->fileName()).fileName()));
     }
 }
 
@@ -568,7 +573,7 @@ void QDesignerActions::saveAllForms()
     }
 
     if (!fileNames.isEmpty()) {
-        showStatusBarMessage(tr("Form %1 successful saved...").arg(fileNames));
+        showStatusBarMessage(savedMessage(fileNames));
     }
 }
 
@@ -603,8 +608,7 @@ void QDesignerActions::saveFormAs()
 {
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
         if (saveFormAs(fw))
-            showStatusBarMessage(tr("Form %1 successful saved...").arg(fw->fileName()));
-
+            showStatusBarMessage(savedMessage(fw->fileName()));
     }
 }
 

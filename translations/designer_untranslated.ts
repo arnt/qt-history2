@@ -1092,7 +1092,7 @@ Do you want to replace it?</source>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="610"/>
-        <source>Form %1 successful saved...</source>
+        <source>Saved %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
