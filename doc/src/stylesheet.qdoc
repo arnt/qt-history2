@@ -1170,6 +1170,10 @@
            \l{#selection-background-color-prop}{selection-background-color}
            respectively.
 
+           The corner widget in a QTableView is implemented as a QAbstractButton
+           and can be styled using the "QTableView QTableCornerButton::section"
+           selector.
+
            The color of the grid can be specified using the
            \l{#gridline-color-prop}{gridline-color} property.
 
@@ -4680,6 +4684,15 @@ blue green yellow * /
         QTableWidget {
             selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5,
                                         stop: 0 #FF92BB, stop: 1 white);
+        }
+    \endcode
+
+    The corner widget can be customized using the following style sheet
+
+    \code
+        QTableWidget QTableCornerButton::section {
+            background: red;
+            border: 2px outset red;
         }
     \endcode
 
