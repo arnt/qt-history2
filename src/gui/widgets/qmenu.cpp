@@ -1075,7 +1075,8 @@ void QMenu::initStyleOption(QStyleOptionMenuItem *option, const QAction *action)
 	    option->menuItemType = QStyleOptionMenuItem::DefaultItem;
     else
         option->menuItemType = QStyleOptionMenuItem::Normal;
-    option->icon = action->icon();
+    if (!QApplication::instance()->testAttribute(Qt::AA_DontShowIconsInMenus))
+        option->icon = action->icon();
     QString textAndAccel = action->text();
 #ifndef QT_NO_SHORTCUT
     if (textAndAccel.indexOf(QLatin1Char('\t')) == -1) {
