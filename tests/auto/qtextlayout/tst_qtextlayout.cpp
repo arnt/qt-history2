@@ -196,16 +196,16 @@ void tst_QTextLayout::lineBreaking()
     while (b->utf8) {
         QString str = QString::fromUtf8(b->utf8);
         QTextEngine engine(str, QFont());
-        const QCharAttributes *attrs = engine.attributes();
+        const HB_CharAttributes *attrs = engine.attributes();
         int i;
         for (i = 0; i < (int)str.length() - 1; ++i) {
             QVERIFY(b->breaks[i] != 0xff);
-            if ( (attrs[i].lineBreakType != QCharAttributes::NoBreak) != (bool)b->breaks[i] ) {
+            if ( (attrs[i].lineBreakType != HB_NoBreak) != (bool)b->breaks[i] ) {
                 qDebug("test case \"%s\" failed at char %d; break type: %d", b->utf8, i, attrs[i].lineBreakType);
-                QCOMPARE( (attrs[i].lineBreakType != QCharAttributes::NoBreak), (bool)b->breaks[i] );
+                QCOMPARE( (attrs[i].lineBreakType != HB_NoBreak), (bool)b->breaks[i] );
             }
         }
-        QVERIFY(attrs[i].lineBreakType == QCharAttributes::ForcedBreak);
+        QVERIFY(attrs[i].lineBreakType == HB_ForcedBreak);
         QCOMPARE(b->breaks[i], (uchar)0xff);
         ++b;
     }
@@ -469,7 +469,7 @@ void tst_QTextLayout::charWordStopOnLineSeparator()
     txt.append(lineSeparator);
     QTextLayout layout(txt, testFont);
     QTextEngine *engine = layout.engine();
-    const QCharAttributes *attrs = engine->attributes();
+    const HB_CharAttributes *attrs = engine->attributes();
     QVERIFY(attrs);
     QVERIFY(attrs[1].charStop);
 }
@@ -528,7 +528,7 @@ void tst_QTextLayout::charStopForSurrogatePairs()
     txt.append("b");
     QTextLayout layout(txt, testFont);
     QTextEngine *engine = layout.engine();
-    const QCharAttributes *attrs = engine->attributes();
+    const HB_CharAttributes *attrs = engine->attributes();
     QVERIFY(attrs);
     QVERIFY(attrs[0].charStop);
     QVERIFY(attrs[1].charStop);
