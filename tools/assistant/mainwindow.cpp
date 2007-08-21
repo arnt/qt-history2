@@ -329,6 +329,11 @@ void MainWindow::on_actionAboutApplication_triggered()
     if(text.isNull())
         text = tr("Failed to open about application contents in file: '%1'").arg(url);
 
+    QFileInfo fi(file);
+    QString path = QDir::cleanPath(fi.absolutePath());
+    if (!QDir::searchPaths("aboutImages").contains(path))
+        QDir::addSearchPath("aboutImages", path);
+    
     QMessageBox box(this);
     box.setText(text);
     box.setWindowTitle(Config::configuration()->aboutApplicationMenuText());
