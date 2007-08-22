@@ -69,7 +69,7 @@ OpenGL to implement top level window compositing. This makes it easy
 to add 3D effects to applications, for instance when windows are
 minimized or maximized.
 
-\section1 The Qtopia Core Painting Architecture
+\section1 The Qtopia Core Acceleration Architecture
 
 The diagram below shows the Qtopia Core painting architecture.
 
@@ -77,8 +77,8 @@ The diagram below shows the Qtopia Core painting architecture.
 
 A client process widget uses a paint engine to draw into a window
 surface. The server then combines the window surfaces and displays the
-composition on the screen. This acceleration architecture lets you
-control the steps of the painting process. 
+composition on the screen. This architecture lets you
+control the steps of the painting process by subclassing. 
 
 Subclassing QPaintEngine allows you to implement the QPainter API
 using accelerated hardware.  Subclassing QWindowSurface lets you
@@ -89,12 +89,15 @@ window surfaces and lets you decide how to implement window
 compositing.  Using subclassing, your implementation work is minimized
 since you can reuse base class functionality you don't need to change.
 
-\section1 The Qtopia Core Acceleration Architecture
-
-Qtopia Core's graphics acceleration architecture is shown in the
+The elements of an accelerated Qtopia Core system are shown in the
 diagram below.
 
 \image qtopiacore-opengl1.png
+
+The applications, using the Qt API, do not depend on the presence of
+the acceleration plugin. The plugin uses the graphics hardware to
+accelerate painting primitives. Any operations not accelerated by the
+plugin are done in software by Qtopia Core's software paint engine.
 
 To integrate an OpenGL implementation into Qtopia Core for a
 particular platform, you use the same mechanisms you would use for
@@ -110,12 +113,27 @@ reference implementation for integrating OpenGL ES and \l
 acceleration architecture.  ( \l {http://www.khronos.org/egl/} {EGL}
 is a library that binds OpenGL ES to native windowing systems.)
 
+In this case, the diagram above needs some more boxes: ###
+
 \image qtopiacore-opengl2.png
 
 The example implements a screen driver plugin that demonstrates all
-three uses of OpenGL in Qtopia Core: Top-level window compositing and
-special effects, 2D graphics acceleration, and 3D graphics operations
-using the \l {QtOpenGL module}.
+three uses of OpenGL in Qtopia Core: 2D graphics acceleration, 3D
+graphics operations using the \l {QtOpenGL module}, and top-level
+window compositing and special effects.
+
+The applications still does not talk directly to the accelerated plugin. For 2D graphics,
+the Qt API is used.  For 3D graphics the application uses the OpenGL API directly,
+together with the functionality in the Qt OpenGL support classes. All access to the
+display is done through OpenGL. The reference implementation uses OpenGL to implement top
+level window compositing and to provide a 3D animated transition effect as each new window
+is shown.
+
+The example subclasses QWSGLWindowSurface implementation and uses the \l
+{http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt}
+{OpenGL Framebuffer Object extension} to draw windows into an offscreen buffer. This
+allows animation effects to be applied to the windows during compositing, as well as
+allowing support for semi-transparent windows.
 
 The specific OpenGL library being used by the example restricts all
 OpenGL operations to occur in a single process. Hence the example
@@ -127,14 +145,6 @@ shared memory segment. The server then transfers the contents of this
 shared memory into an OpenGL texture before they are drawn onto the
 screen during window compositing.
 
-The QWSGLWindowSurface implementation uses the \l
-{http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt}
-{OpenGL Framebuffer Object extension} to draw windows into an
-offscreen buffer. This allows animation effects to be applied to the
-windows during compositing, as well as allowing support for
-semi-transparent windows. The reference implementation uses OpenGL to
-implement top level window compositing and to provide a 3D animated
-transition effect as each new window is shown.
 
 \section1 Future Directions
 
@@ -148,7 +158,7 @@ features:
 
   \o Provide convenience classes, e.g., QEGLScreen and
   QWSEGLWindowSurface, which implement common uses of the EGL
-  API. These classes will simplify implementing an OpenGL ES base
+  API. These classes will simplify implementing an OpenGL ES 
   integration.
 
   \o Extend the screen driver API to provide more control over window
