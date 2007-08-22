@@ -2129,6 +2129,8 @@ void QComboBox::showPopup()
     else
         listRect.setHeight(itemHeight * qMin(d->maxVisibleItems, count()));
 
+    // ### Adjusting by PM_DefaultFrameWidth is not enough. Since QFrame supports
+    // SE_FrameContents, QFrame needs API to return the frameWidths
     listRect.setHeight(listRect.height() + 2*container->spacing()
                        + style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &opt, this) * 2);
 

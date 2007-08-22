@@ -3734,7 +3734,16 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         break;
 
     case PM_DefaultFrameWidth:
-        if (rule.hasBorder())
+#ifndef QT_NO_COMBOBOX
+        // QComboBox uses this for resizing its popup
+        if (qobject_cast<const QComboBox *>(w)) {
+            QAbstractItemView *view = qFindChild<QAbstractItemView *>(w);
+            QRenderRule subRule = renderRule(view, PseudoElement_None);
+            if (subRule.hasBox())
+                return subRule.border()->borders[TopEdge] + (subRule.hasBox() ? subRule.box()->paddings[TopEdge] : 0);
+        } else
+#endif
+        if (rule.hasBox())
             return rule.border()->borders[LeftEdge];
         break;
 
