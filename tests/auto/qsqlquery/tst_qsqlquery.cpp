@@ -65,8 +65,8 @@ private slots:
     void record_sqlite();
     void finish_data() { generic_data(); }
     void finish();
-    void finish_sqlite_data() { generic_data(); }
-    void finish_sqlite();
+    void sqlite_finish_data() { generic_data(); }
+    void sqlite_finish();
 
     // forwardOnly mode need special treatment
     void forwardOnly_data() { generic_data(); }
@@ -2316,14 +2316,13 @@ void tst_QSqlQuery::finish()
     QCOMPARE(q.record().count(), 1);
 }
 
-void tst_QSqlQuery::finish_sqlite()
+void tst_QSqlQuery::sqlite_finish()
 {
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
+    DBMS_SPECIFIC(db, "QSQLITE");
 
-    if (db.driverName() != "QSQLITE")
-        QSKIP("This test requires sqlite support", SkipAll);
     if (db.databaseName().startsWith(":"))
         QSKIP("This test requires a database on the filesystem, not in-memory", SkipAll);
 
