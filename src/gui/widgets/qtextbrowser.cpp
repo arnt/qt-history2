@@ -307,6 +307,15 @@ void QTextBrowserPrivate::keypadMove(bool next)
     QRectF newViewRect = QRectF(0, scrollYOffset, control->size().width(), height);
     QRectF bothViewRects = viewRect.united(newViewRect);
 
+    // If we don't have a previous anchor, pretend that we had the first/last character
+    // on the screen selected.
+    if (prevFocus.isNull()) {
+        if (next)
+            prevFocus = control->cursorForPosition(QPointF(0, yOffset));
+        else
+            prevFocus = control->cursorForPosition(QPointF(control->size().width(), yOffset + height));
+    }
+
     // First, check to see if someone has moved the scroll bars independently
     if (lastKeypadScrollValue != yOffset) {
         // Someone (user or programmatically) has moved us, so we might
