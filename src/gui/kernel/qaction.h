@@ -53,6 +53,7 @@ class Q_GUI_EXPORT QAction : public QObject
 #endif
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
     Q_PROPERTY(MenuRole menuRole READ menuRole WRITE setMenuRole)
+    Q_PROPERTY(bool IconVisibleInMenu READ isIconVisibleInMenu WRITE setIconVisibleInMenu)
 
 public:
     enum MenuRole { NoRole, TextHeuristicRole, ApplicationSpecificRole, AboutQtRole,
@@ -135,6 +136,9 @@ public:
 
     void setMenuRole(MenuRole menuRole);
     MenuRole menuRole() const;
+
+    void setIconVisibleInMenu(bool visible);
+    bool isIconVisibleInMenu() const;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT void setMenuText(const QString &text) { setText(text); }

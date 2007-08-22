@@ -51,7 +51,7 @@ static QString qt_strippedText(QString s)
 
 QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
                                    visible(1), forceInvisible(0), checkable(0), checked(0), separator(0), fontSet(false),
-                                   menuRole(QAction::TextHeuristicRole)
+                                   menuRole(QAction::TextHeuristicRole), iconVisibleInMenu(-1)
 {
 #ifdef QT3_SUPPORT
     static int qt_static_action_id = -1;
@@ -1276,6 +1276,55 @@ QAction::MenuRole QAction::menuRole() const
 {
     Q_D(const QAction);
     return d->menuRole;
+}
+
+/*!
+    \property QAction::iconVisibleInMenu
+    \brief Whether or not an action should show an icon in a menu
+
+    In some applications, it may make sense to have actions with icons in the
+    toolbar, but not in menus. If true, the icon (if valid) is shown in the menu, when it
+    is false, it is not shown.
+
+    The default is to follow whether the Qt::AA_DontShowIconsInMenus attribute
+    is set for the application. Explicitly settings this property overrides
+    the presence (or abscence) of the attribute.
+
+    For example:
+    \code
+    QApplication app(argc, argv);
+    app.setAttribute(Qt::AA_DontShowIconsInMenus);  // Icons are *no longer shown* in menus
+    // ...
+    QAction *myAction = new QAction();
+    // ...
+    myAction->setIcon(SomeIcon);
+    myAction->setIconVisibleInMenu(true);   // Icon *will* be shown in menus for *this* action.
+    \endcode
+
+    \sa QAction::icon QApplication::setAttribute()
+*/
+void QAction::setIconVisibleInMenu(bool visible)
+{
+    Q_D(QAction);
+    if (visible != d->iconVisibleInMenu) {
+        int oldValue = d->iconVisibleInMenu;
+        d->iconVisibleInMenu = visible;
+        // Only send data changed if we really need to.
+        if (oldValue != -1
+            || (oldValue == -1
+                && visible == !QApplication::instance()->testAttribute(Qt::AA_DontShowIconsInMenus))) {
+            d->sendDataChanged();
+        }
+    }
+}
+
+bool QAction::isIconVisibleInMenu() const
+{
+    Q_D(const QAction);
+    if (d->iconVisibleInMenu == -1) {
+        return !QApplication::instance()->testAttribute(Qt::AA_DontShowIconsInMenus);
+    }
+    return d->iconVisibleInMenu;
 }
 
 #include "moc_qaction.cpp"

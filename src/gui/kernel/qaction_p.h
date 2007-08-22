@@ -71,6 +71,7 @@ public:
     uint separator : 1;
     uint fontSet : 1;
     QAction::MenuRole menuRole;
+    int iconVisibleInMenu : 3;  // Only has values -1, 0, and 1
     QList<QWidget *> widgets;
 #ifndef QT_NO_SHORTCUT
     void redoGrab(QShortcutMap &map);

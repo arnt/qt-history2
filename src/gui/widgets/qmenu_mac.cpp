@@ -898,7 +898,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     //icon
     data.whichData |= kMenuItemDataIconHandle;
     if (!action->action->icon().isNull()
-            && !QApplication::instance()->testAttribute(Qt::AA_DontShowIconsInMenus)) {
+            && action->action->isIconVisibleInMenu()) {
         data.iconType = kMenuIconRefType;
         data.iconHandle = (Handle)qt_mac_create_iconref(action->action->icon().pixmap(22, QIcon::Normal));
     } else {
