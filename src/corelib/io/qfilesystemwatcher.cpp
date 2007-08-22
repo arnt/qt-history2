@@ -315,9 +315,9 @@ void QFileSystemWatcherPrivate::_q_directoryChanged(const QString &path, bool re
 
     The fileChanged() signal is emitted when a file has been modified
     or removed from disk. Similarly, the directoryChanged() signal
-    is emitted when a directory is modified or removed. Note that
-    QFileSystemWatcher stops monitoring files and directories once they
-    have been removed from disk.
+    is emitted when a directory or its contents is modified or removed.
+    Note that QFileSystemWatcher stops monitoring files and directories
+    once they have been removed from disk.
 
     \bold{Note:} On systems running a Linux kernel without inotify support,
     file systems that contain watched paths cannot be unmounted.
@@ -497,11 +497,11 @@ void QFileSystemWatcher::removePaths(const QStringList &paths)
 /*!
     \fn void QFileSystemWatcher::directoryChanged(const QString &path)
 
-    This signal is emitted when the directory at the specified \a path is
-    modified or removed from disk. Note that if there are several changes
-    during a short period of time, some of the changes might not
-    emit this signal. However, the last change in the sequence of changes
-    will always generate this signal.
+    This signal is emitted when the directory at a specified \a path, is modified
+    (e.g., when a file is added, modified or deleted) or removed from disk. Note
+    that if there are several changes during a short period of time, some of the
+    changes might not emit this signal. However, the last change in the sequence
+    of changes will always generate this signal.
 
     \sa fileChanged()
 */
