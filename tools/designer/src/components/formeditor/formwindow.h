@@ -274,6 +274,9 @@ private:
 
     void handleArrowKeyEvent(int key, Qt::KeyboardModifiers modifiers);
 
+    void layoutSelection(int type);
+    void layoutContainer(QWidget *w, int type);
+
 private:
     QWidget *containerForPaste() const;
 

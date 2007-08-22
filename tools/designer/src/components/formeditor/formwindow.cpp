@@ -1291,28 +1291,27 @@ void FormWindow::selectAll()
         emitSelectionChanged();
 }
 
-void FormWindow::layoutHorizontal()
+void FormWindow::layoutSelection(int type)
 {
     LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::HBox);
+    cmd->init(mainContainer(), selectedWidgets(), static_cast<LayoutInfo::Type>(type));
     clearSelection(false);
     commandHistory()->push(cmd);
+}
+
+void FormWindow::layoutHorizontal() 
+{
+    layoutSelection(LayoutInfo::HBox);
 }
 
 void FormWindow::layoutVertical()
 {
-    LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::VBox);
-    clearSelection(false);
-    commandHistory()->push(cmd);
+    layoutSelection(LayoutInfo::VBox);
 }
 
 void FormWindow::layoutGrid()
 {
-    LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::Grid);
-    clearSelection(false);
-    commandHistory()->push(cmd);
+    layoutSelection(LayoutInfo::Grid);
 }
 
 void FormWindow::deleteWidgets()
@@ -1732,92 +1731,45 @@ void FormWindow::setContents(const QString &contents)
         setContents(&b);
 }
 
-void FormWindow::layoutHorizontalContainer(QWidget *w)
+void FormWindow::layoutContainer(QWidget *w, int type)
 {
     if (w == this)
         w = mainContainer();
 
     w = core()->widgetFactory()->containerOfWidget(w);
 
-    QList<QObject*> l = w->children();
+    const QObjectList l = w->children();
     if (l.isEmpty())
         return;
-
+    // find managed widget children
     QWidgetList widgets;
-    QListIterator<QObject*> it(l);
-    while (it.hasNext()) {
-        QObject* o = it.next();
-        if (!o->isWidgetType())
-            continue;
-
-        QWidget *widget = static_cast<QWidget*>(o);
-        if (widget->isVisibleTo(this) && isManaged(widget))
-            widgets.append(widget);
-    }
+    const QObjectList::const_iterator ocend = l.constEnd();
+    for (QObjectList::const_iterator it = l.constBegin(); it != l.constEnd(); ++it)
+        if ( (*it)->isWidgetType() ) {
+            QWidget *widget = static_cast<QWidget*>(*it);
+            if (widget->isVisibleTo(this) && isManaged(widget))
+                widgets.append(widget);
+        }
 
     LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), widgets, LayoutInfo::HBox, w);
+    cmd->init(mainContainer(), widgets, static_cast<LayoutInfo::Type>(type), w);
     clearSelection(false);
     commandHistory()->push(cmd);
+}
+
+void FormWindow::layoutHorizontalContainer(QWidget *w)
+{
+    layoutContainer(w, LayoutInfo::HBox);
 }
 
 void FormWindow::layoutVerticalContainer(QWidget *w)
 {
-    if (w == this)
-        w = mainContainer();
-
-    w = core()->widgetFactory()->containerOfWidget(w);
-
-    const QList<QObject*> l = w->children();
-    if (l.isEmpty())
-        return;
-
-    QListIterator<QObject*> it(l);
-    QWidgetList widgets;
-    while (it.hasNext()) {
-        QObject* o = it.next();
-        if (!o->isWidgetType())
-            continue;
-
-        QWidget *widget = static_cast<QWidget*>(o);
-        if (widget->isVisibleTo(this) && isManaged(widget))
-            widgets.append(widget);
-    }
-
-    LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), widgets, LayoutInfo::VBox, w);
-    clearSelection(false);
-    commandHistory()->push(cmd);
+    layoutContainer(w, LayoutInfo::VBox);
 }
 
 void FormWindow::layoutGridContainer(QWidget *w)
 {
-    if (w == this)
-        w = mainContainer();
-
-    w = core()->widgetFactory()->containerOfWidget(w);
-
-    const QList<QObject*> l = w->children();
-    if (l.isEmpty())
-        return;
-
-    QWidgetList widgets;
-    QListIterator<QObject*> it(l);
-    while (it.hasNext()) {
-        QObject* o = it.next();
-
-        if (!o->isWidgetType())
-            continue;
-
-        QWidget *widget = static_cast<QWidget*>(o);
-        if (widget->isVisibleTo(this) && isManaged(widget))
-            widgets.append(widget);
-    }
-
-    LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), widgets, LayoutInfo::Grid, w);
-    clearSelection(false);
-    commandHistory()->push(cmd);
+    layoutContainer(w, LayoutInfo::Grid);
 }
 
 bool FormWindow::hasInsertedChildren(QWidget *widget) const // ### move
@@ -1838,18 +1790,12 @@ bool FormWindow::hasInsertedChildren(QWidget *widget) const // ### move
 
 void FormWindow::layoutHorizontalSplit()
 {
-    LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::HSplitter, /*layoutBase=*/ 0);
-    clearSelection(false);
-    commandHistory()->push(cmd);
+    layoutSelection(LayoutInfo::HSplitter);
 }
 
 void FormWindow::layoutVerticalSplit()
 {
-    LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::VSplitter, /*layoutBase=*/ 0);
-    clearSelection(false);
-    commandHistory()->push(cmd);
+    layoutSelection(LayoutInfo::VSplitter);
 }
 
 QMenu *FormWindow::createPopupMenu(QWidget *w)
