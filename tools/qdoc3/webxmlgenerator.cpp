@@ -349,14 +349,20 @@ const Atom *WebXMLGenerator::addAtomElements(QXmlStreamWriter &writer,
     case Atom::Link:
         writer.writeStartElement("link");
         writer.writeAttribute("href", atom->string());
-        //inLink = true;
+        inLink = true;
+        atom = atom->next(); // Assume that the next atom is FormattingLeft.
+        while (atom && atom->type() != Atom::FormattingRight)
+            atom = addAtomElements(writer, atom, relative, marker);
         writer.writeEndElement(); // link
         break;
 
     case Atom::LinkNode:
         writer.writeStartElement("link");
         writer.writeAttribute("href", atom->string());
-        //inLink = true;
+        inLink = true;
+        atom = atom->next(); // Assume that the next atom is FormattingLeft.
+        while (atom && atom->type() != Atom::FormattingRight)
+            atom = addAtomElements(writer, atom, relative, marker);
         writer.writeEndElement(); // link
         break;
 
