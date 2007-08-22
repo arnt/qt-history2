@@ -3078,6 +3078,8 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                     mi.rect = positionRect(w, subRule, subRule2, PseudoElement_MenuRightArrow, opt->rect, mi.direction);
                     drawPrimitive(arrow, &mi, p, w);
                 }
+            } else if (hasStyleRule(w, PseudoElement_MenuCheckMark)) {
+                QWindowsStyle::drawControl(ce, &mi, p, w);
             } else {
                 baseStyle()->drawControl(ce, &mi, p, w);
             }
