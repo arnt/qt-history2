@@ -29,7 +29,7 @@ void uiLibWarning(const QString &message) {
 }
 
 QFormBuilderExtra::QFormBuilderExtra() :
-    m_buddyPropertyName(QLatin1String("buddy")), m_layoutWidget(false)
+    m_layoutWidget(false)
 {
 }
 void QFormBuilderExtra::clear()
@@ -46,7 +46,7 @@ bool QFormBuilderExtra::applyPropertyInternally(QObject *o, const QString &prope
 {
     // Store buddies and apply them later on as the widgets might not exist yet.
     QLabel *label = qobject_cast<QLabel*>(o);
-    if (!label || propertyName !=  m_buddyPropertyName)
+    if (!label || propertyName != QFormBuilderStrings::instance().buddyProperty)
         return false;
 
     m_buddies.insert(label, value.toString());
@@ -151,9 +151,58 @@ void QFormBuilderExtra::setProcessingLayoutWidget(bool processing)
     m_layoutWidget = processing;
 }
 
-bool QFormBuilderExtra::processingLayoutWidget() const
+ bool QFormBuilderExtra::processingLayoutWidget() const
 {
     return m_layoutWidget;
+}
+// ------------ QFormBuilderStrings
+
+QFormBuilderStrings::QFormBuilderStrings() :
+    buddyProperty(QLatin1String("buddy")),
+    cursorProperty(QLatin1String("cursor")),
+    objectNameProperty(QLatin1String("objectName")),
+    trueValue(QLatin1String("true")),
+    falseValue(QLatin1String("false")),
+    horizontalPostFix(QLatin1String("Horizontal")),
+    separator(QLatin1String("separator")),
+    defaultTitle(QLatin1String("Page")),
+    titleAttribute(QLatin1String("title")),
+    labelAttribute(QLatin1String("label")),
+    toolTipAttribute(QLatin1String("toolTip")),
+    iconAttribute(QLatin1String("icon")),
+    pixmapAttribute(QLatin1String("pixmap")),
+    textAttribute(QLatin1String("text")),
+    currentIndexProperty(QLatin1String("currentIndex")),
+    toolBarAreaAttribute(QLatin1String("toolBarArea")),
+    toolBarBreakAttribute(QLatin1String("toolBarBreak")),
+    dockWidgetAreaAttribute(QLatin1String("dockWidgetArea")),
+    marginProperty(QLatin1String("margin")),
+    spacingProperty(QLatin1String("spacing")),
+    leftMarginProperty(QLatin1String("leftMargin")),
+    topMarginProperty(QLatin1String("topMargin")),
+    rightMarginProperty(QLatin1String("rightMargin")),
+    bottomMarginProperty(QLatin1String("bottomMargin")),
+    horizontalSpacingProperty(QLatin1String("horizontalSpacing")),
+    verticalSpacingProperty(QLatin1String("verticalSpacing")),
+    sizeHintProperty(QLatin1String("sizeHint")),
+    sizeTypeProperty(QLatin1String("sizeType")),
+    orientationProperty(QLatin1String("orientation")),
+    qtHorizontal(QLatin1String("Qt::Horizontal")),
+    qtVertical(QLatin1String("Qt::Vertical")),
+    currentRowProperty(QLatin1String("currentRow")),
+    tabSpacingProperty(QLatin1String("tabSpacing")),
+    qWidgetClass(QLatin1String("QWidget")),
+    lineClass(QLatin1String("Line")),
+    geometryProperty(QLatin1String("geometry")),
+    scriptWidgetVariable(QLatin1String("widget")),
+    scriptChildWidgetsVariable(QLatin1String("childWidgets"))
+{
+}
+
+const QFormBuilderStrings &QFormBuilderStrings::instance()
+{
+    static const QFormBuilderStrings rc;
+    return rc;
 }
 
 #ifdef QFORMINTERNAL_NAMESPACE

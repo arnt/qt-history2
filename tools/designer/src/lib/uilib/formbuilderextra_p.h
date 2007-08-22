@@ -77,8 +77,6 @@ public:
     static void removeInstance(const QAbstractFormBuilder *afb);
 
 private:
-    const QString m_buddyPropertyName;
-
     typedef QHash<QLabel*, QString> BuddyHash;
     BuddyHash m_buddies;
 
@@ -96,6 +94,51 @@ private:
 
 void uiLibWarning(const QString &message);
 
+// Struct with static accessor that provides most strings used in the form builder.
+struct QFormBuilderStrings {
+    QFormBuilderStrings();
+
+    static const QFormBuilderStrings &instance();
+
+    const QString buddyProperty;
+    const QString cursorProperty;
+    const QString objectNameProperty;
+    const QString trueValue;
+    const QString falseValue;
+    const QString horizontalPostFix;
+    const QString separator;
+    const QString defaultTitle;
+    const QString titleAttribute;
+    const QString labelAttribute;
+    const QString toolTipAttribute;
+    const QString iconAttribute;
+    const QString pixmapAttribute;
+    const QString textAttribute;
+    const QString currentIndexProperty;
+    const QString toolBarAreaAttribute;
+    const QString toolBarBreakAttribute;
+    const QString dockWidgetAreaAttribute;
+    const QString marginProperty;
+    const QString spacingProperty;
+    const QString leftMarginProperty;
+    const QString topMarginProperty;
+    const QString rightMarginProperty;
+    const QString bottomMarginProperty;
+    const QString horizontalSpacingProperty;
+    const QString verticalSpacingProperty;
+    const QString sizeHintProperty;
+    const QString sizeTypeProperty;
+    const QString orientationProperty;
+    const QString qtHorizontal;
+    const QString qtVertical;
+    const QString currentRowProperty;
+    const QString tabSpacingProperty;
+    const QString qWidgetClass;
+    const QString lineClass;
+    const QString geometryProperty;
+    const QString scriptWidgetVariable;
+    const QString scriptChildWidgetsVariable;
+};
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif

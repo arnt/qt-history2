@@ -28,11 +28,6 @@
 
 #include <private/qfont_p.h>
 
-static bool toBool(const QString &str)
-{
-    return str.toLower() == QLatin1String("true");
-}
-
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
 {
@@ -97,7 +92,7 @@ QVariant domPropertyToVariant(QAbstractFormBuilder *afb,const QMetaObject *meta,
             // ### special-casing for Line (QFrame) -- fix for 4.2. Jambi hack for enumerations
             if (!qstrcmp(meta->className(), "QFrame")
                 && (pname == QByteArray("orientation"))) {
-                return QVariant(p->elementEnum().endsWith(QLatin1String("Horizontal")) ? QFrame::HLine : QFrame::VLine);
+                return QVariant(p->elementEnum().endsWith(QFormBuilderStrings::instance().horizontalPostFix) ? QFrame::HLine : QFrame::VLine);
             } else {
                 uiLibWarning(QObject::tr("The enumeration-type property %1 could not be read.").arg(p->attributeName()));
                 return QVariant();
@@ -121,7 +116,7 @@ QVariant domPropertyToVariant(const DomProperty *p)
     // requires non-const virtual nameToIcon, etc.
     switch(p->kind()) {
     case DomProperty::Bool:
-        return QVariant(toBool(p->elementBool()));
+        return QVariant(p->elementBool() == QFormBuilderStrings::instance().trueValue);
 
     case DomProperty::Cstring:
         return QVariant(p->elementCstring());
@@ -326,7 +321,7 @@ static bool applySimpleProperty(const QVariant &v, bool translateString, DomProp
         return true;
 
     case QVariant::Bool:
-        dom_prop->setElementBool(v.toBool() ? QLatin1String("true") : QLatin1String("false"));
+        dom_prop->setElementBool(v.toBool() ? QFormBuilderStrings::instance().trueValue : QFormBuilderStrings::instance().falseValue);
         return true;
 
     case QVariant::Char: {
@@ -566,6 +561,8 @@ DomProperty *variantToDomProperty(const QString &pname, const QVariant &v, bool 
 DomProperty *variantToDomProperty(QAbstractFormBuilder *afb, QObject *obj,
                                   const QString &pname, const QVariant &v)
 {
+    const QFormBuilderStrings &strings = QFormBuilderStrings::instance();
+
     DomProperty *dom_prop = new DomProperty();
     dom_prop->setAttributeName(pname);
 
@@ -573,12 +570,12 @@ DomProperty *variantToDomProperty(QAbstractFormBuilder *afb, QObject *obj,
     const int pindex = meta->indexOfProperty(pname.toLatin1());
     if (pindex != -1) {
         QMetaProperty meta_property = meta->property(pindex);
-        if (!meta_property.hasStdCppSet() || (qobject_cast<QAbstractScrollArea *>(obj) && pname == QLatin1String("cursor")))
+        if (!meta_property.hasStdCppSet() || (qobject_cast<QAbstractScrollArea *>(obj) && pname == strings.cursorProperty))
             dom_prop->setAttributeStdset(0);
     }
 
     // Try simple properties
-    const bool translateString = pname != QLatin1String("objectName");
+    const bool translateString = pname != strings.objectNameProperty;
     if (applySimpleProperty(v, translateString, dom_prop))
         return dom_prop;
 

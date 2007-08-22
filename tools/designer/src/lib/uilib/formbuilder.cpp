@@ -110,8 +110,7 @@ QFormBuilder::~QFormBuilder()
 QWidget *QFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(false);
-    static const QString qWidget = QLatin1String("QWidget");
-    if (ui_widget->attributeClass() == qWidget && !ui_widget->hasAttributeNative()
+    if (ui_widget->attributeClass() == QFormBuilderStrings::instance().qWidgetClass && !ui_widget->hasAttributeNative()
             && parentWidget
 #ifndef QT_NO_MAINWINDOW
             && !qobject_cast<QMainWindow *>(parentWidget)
@@ -155,9 +154,8 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
 #endif
 
     // ### special-casing for Line (QFrame) -- fix for 4.2
-    static const QString line = QLatin1String("Line");
     do {
-        if (widgetName == line) {
+        if (widgetName == QFormBuilderStrings::instance().lineClass) {
             w = new QFrame(parentWidget);
             static_cast<QFrame*>(w)->setFrameStyle(QFrame::HLine | QFrame::Sunken);
             break;
@@ -343,20 +341,21 @@ QLayout *QFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *pa
     bool layoutWidget = QFormBuilderExtra::instance(this)->processingLayoutWidget();
     QLayout *l = QAbstractFormBuilder::create(ui_layout, layout, parentWidget);
     if (layoutWidget) {
+        const QFormBuilderStrings &strings = QFormBuilderStrings::instance();
         int left, top, right, bottom;
         left = top = right = bottom = 0;
         const DomPropertyHash properties = propertyMap(ui_layout->elementProperty());
 
-        if (DomProperty *prop = properties.value(QLatin1String("leftMargin")))
+        if (DomProperty *prop = properties.value(strings.leftMarginProperty))
             left = prop->elementNumber();
 
-        if (DomProperty *prop = properties.value(QLatin1String("topMargin")))
+        if (DomProperty *prop = properties.value(strings.topMarginProperty))
             top = prop->elementNumber();
 
-        if (DomProperty *prop = properties.value(QLatin1String("rightMargin")))
+        if (DomProperty *prop = properties.value(strings.rightMarginProperty))
             right = prop->elementNumber();
 
-        if (DomProperty *prop = properties.value(QLatin1String("bottomMargin")))
+        if (DomProperty *prop = properties.value(strings.bottomMarginProperty))
             bottom = prop->elementNumber();
 
         l->setContentsMargins(left, top, right, bottom);
@@ -496,6 +495,7 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
         return;
 
     QFormBuilderExtra *fb = QFormBuilderExtra::instance(this);
+    const QFormBuilderStrings &strings = QFormBuilderStrings::instance();
 
     const DomPropertyList::const_iterator cend = properties.constEnd();
     for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
@@ -504,11 +504,11 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
             continue;
 
         const QString attributeName = (*it)->attributeName();
-        if (o == fb->rootWidget() && attributeName == QLatin1String("geometry")) {
+        if (o == fb->rootWidget() && attributeName == strings.geometryProperty) {
             // apply only the size for the rootWidget
             fb->rootWidget()->resize(qvariant_cast<QRect>(v).size());
         } else if (fb->applyPropertyInternally(o, attributeName, v)) {
-        } else if (!qstrcmp("QFrame", o->metaObject()->className ()) && attributeName == QLatin1String("orientation")) {
+        } else if (!qstrcmp("QFrame", o->metaObject()->className ()) && attributeName == strings.orientationProperty) {
             // ### special-casing for Line (QFrame) -- try to fix me
             o->setProperty("frameShape", v); // v is of QFrame::Shape enum
         } else {
