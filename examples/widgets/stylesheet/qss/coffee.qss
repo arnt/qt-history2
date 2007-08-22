@@ -83,6 +83,14 @@ QLabel {
     background: none;
 }
 
+/* A QToolTip is a QLabel ... */
+QToolTip {
+    border: 2px solid darkkhaki;
+    padding: 5px;
+    border-radius: 3px;
+    opacity: 200;
+}
+
 /* Nice to have the background color change when hovered. */
 QRadioButton:hover, QCheckBox:hover {
     background-color: wheat;
@@ -93,8 +101,4 @@ QDialogButtonBox {
     button-layout: 0;
 }
 
-QToolTip {
-    padding: 5px;
-    border-radius: 3px;
-    opacity: 200;
-}
+
