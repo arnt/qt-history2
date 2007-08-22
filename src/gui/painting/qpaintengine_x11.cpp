@@ -1765,6 +1765,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     int sx = qRound(p.x());
     int sy = qRound(p.y());
 
+    bool mono_src = pixmap.depth() == 1;
     Q_D(QX11PaintEngine);
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender && d->picture && pixmap.x11PictureHandle()) {
@@ -1774,7 +1775,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
         attrs.repeat = true;
         XRenderChangePicture(d->dpy, pixmap.x11PictureHandle(), CPRepeat, &attrs);
 
-        if (pixmap.depth() == 1) {
+        if (mono_src) {
             qt_render_bitmap(d->dpy, d->scrn, pixmap.x11PictureHandle(), d->picture,
                              sx, sy, x, y, w, h, d->cpen);
         } else {
@@ -1800,7 +1801,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
                     drawW = pixmap.width() - xOff; // Cropping first column
                     if (xPos + drawW > x + w)    // Cropping last column
                         drawW = x + w - xPos;
-                    if (pixmap.depth() == 1) {
+                    if (mono_src) {
                         qt_render_bitmap(d->dpy, d->scrn, pixmap.x11PictureHandle(), d->picture,
                                          xOff, yOff, xPos, yPos, drawW, drawH, d->cpen);
                     } else {
@@ -1821,7 +1822,8 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
             const int pw = w + sx;
             const int ph = h + sy;
             QPixmap pm(pw, ph);
-            pm.fill(pixmap.hasAlpha() ? Qt::transparent : Qt::black);
+            if (pixmap.hasAlpha() || mono_src)
+                pm.fill(Qt::transparent);
 
             const int mode = pixmap.hasAlpha() ? PictOpOver : PictOpSrc;
             const ::Picture pmPicture = pm.x11PictureHandle();
@@ -1854,7 +1856,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
             }
 
             // composite
-            if (pixmap.depth() == 1)
+            if (mono_src)
                 qt_render_bitmap(d->dpy, d->scrn, pmPicture, d->picture,
                                  sx, sy, x, y, w, h, d->cpen);
             else
