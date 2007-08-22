@@ -2275,56 +2275,29 @@ void FormWindow::editContents()
     }
 }
 
-namespace {
-// Helper command to manage a widget
-class ManageWidgetCommand: public QDesignerFormWindowCommand
-{
-
-public:
-    typedef ManageWidgetCommandHelper::WidgetVector WidgetVector;
-
-    explicit ManageWidgetCommand(QDesignerFormWindowInterface *formWindow) :
-        QDesignerFormWindowCommand(FormWindow::tr("Manage widget"), formWindow) {}
-
-    void init(QWidget *widget, const WidgetVector &managedChildren) {  m_manageHelper.init(widget, managedChildren); }
-
-    virtual void redo() { m_manageHelper.manage(formWindow()); }
-    virtual void undo() { m_manageHelper.unmanage(formWindow()); }
-
-private:
-    ManageWidgetCommandHelper m_manageHelper;
-};
-}
-
 void FormWindow::dragWidgetWithinForm(QWidget *widget, const QRect &targetGeometry, QWidget *targetContainer)
 {
     const bool fromLayout = canDragWidgetInLayout(core(), widget);
     const QDesignerLayoutDecorationExtension *targetDeco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), targetContainer);
     const bool toLayout = targetDeco != 0;
 
-    ManageWidgetCommand::WidgetVector unmanagedChildren;
     if (fromLayout) {
         // Drag from Layout: We need to delete the widget properly to store the layout state
         // Do not simplify the layout when dragging onto a layout
         // as this might invalidate the insertion position if it is the same layout
         DeleteWidgetCommand *cmd = new DeleteWidgetCommand(this);
-        const DeleteWidgetCommand::LayoutMode sourceLayoutMode = toLayout ? DeleteWidgetCommand::KeepLayout : DeleteWidgetCommand::SimplifyLayout;
-        cmd->init(widget, sourceLayoutMode);
-        unmanagedChildren = cmd->managedChildren();
+        unsigned deleteFlags = DeleteWidgetCommand::DoNotUnmanage;
+        if (toLayout)
+            deleteFlags |= DeleteWidgetCommand::DoNotSimplifyLayout;
+        cmd->init(widget, deleteFlags);
         commandHistory()->push(cmd);
     }
 
     if (toLayout) {
-        // Drag from form to layout: just insert, else manage again
-        const bool alreadyInForm = !fromLayout;
-        insertWidget(widget, targetGeometry, targetContainer, alreadyInForm);
+        // Drag from form to layout: just insert. Do not manage
+        insertWidget(widget, targetGeometry, targetContainer, true);
     } else {
         // into container without layout
-        if (fromLayout)  { // Layout to layout: re-manage the deleted widget
-            ManageWidgetCommand *mwc = new ManageWidgetCommand(this);
-            mwc->init(widget, unmanagedChildren);
-            commandHistory()->push(mwc);
-        }
         if (targetContainer != widget->parent()) { // different parent
             ReparentWidgetCommand *cmd = new ReparentWidgetCommand(this);
             cmd->init(widget, targetContainer );

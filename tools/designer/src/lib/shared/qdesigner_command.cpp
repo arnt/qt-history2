@@ -277,7 +277,7 @@ DeleteWidgetCommand::DeleteWidgetCommand(QDesignerFormWindowInterface *formWindo
     QDesignerFormWindowCommand(QString(), formWindow),
     m_layoutType(LayoutInfo::NoLayout),
     m_layoutHelper(0),
-    m_layoutMode(SimplifyLayout),
+    m_flags(0),
     m_splitterIndex(-1),
     m_layoutSimplified(false),
     m_formItem(0),
@@ -290,12 +290,12 @@ DeleteWidgetCommand::~DeleteWidgetCommand()
     delete  m_layoutHelper;
 }
 
-void DeleteWidgetCommand::init(QWidget *widget, LayoutMode layoutMode)
+void DeleteWidgetCommand::init(QWidget *widget, unsigned flags)
 {
     m_widget = widget;
     m_parentWidget = widget->parentWidget();
     m_geometry = widget->geometry();
-    m_layoutMode = layoutMode;
+    m_flags = flags;
     m_layoutType = LayoutInfo::NoLayout;
     m_splitterIndex = -1;
     if (hasLayout(m_parentWidget)) {
@@ -352,7 +352,7 @@ void DeleteWidgetCommand::redo()
             break;
         default:
             // Attempt to simplify grids if a row/column becomes empty
-            m_layoutSimplified = m_layoutMode == SimplifyLayout ? m_layoutHelper->canSimplify(m_parentWidget, m_layoutPosition) : false;
+            m_layoutSimplified = (m_flags & DoNotSimplifyLayout) ? false : m_layoutHelper->canSimplify(m_parentWidget, m_layoutPosition);
             if (m_layoutSimplified) {
                 m_layoutHelper->pushState(m_parentWidget);
                 m_layoutHelper->simplify(core, m_parentWidget, m_layoutPosition);
@@ -360,7 +360,8 @@ void DeleteWidgetCommand::redo()
             break;
         }
 
-    m_manageHelper.unmanage(formWindow());
+    if (!(m_flags & DoNotUnmanage))
+        m_manageHelper.unmanage(formWindow());
 
     m_widget->setParent(formWindow());
     m_widget->hide();
@@ -386,7 +387,8 @@ void DeleteWidgetCommand::undo()
 
     m_widget->setGeometry(m_geometry);
 
-    m_manageHelper.manage(formWindow());
+    if (!(m_flags & DoNotUnmanage))
+        m_manageHelper.manage(formWindow());
     // ### set up alignment
     switch (m_layoutType) {
     case LayoutInfo::NoLayout:

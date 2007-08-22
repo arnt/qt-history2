@@ -156,21 +156,20 @@ public:
     explicit DeleteWidgetCommand(QDesignerFormWindowInterface *formWindow);
     ~DeleteWidgetCommand();
 
-    enum LayoutMode { SimplifyLayout, KeepLayout };
+    enum DeleteFlags { DoNotUnmanage = 0x1, DoNotSimplifyLayout = 0x2 };
 
-    void init(QWidget *widget, LayoutMode layoutMode = SimplifyLayout);
+    void init(QWidget *widget, unsigned flags = 0);
 
     virtual void redo();
     virtual void undo();
 
-    const QVector<QWidget*> &managedChildren() const { return m_manageHelper.managedChildren(); }
 private:
     QPointer<QWidget> m_widget;
     QPointer<QWidget> m_parentWidget;
     QRect m_geometry;
     LayoutInfo::Type m_layoutType;
     LayoutHelper* m_layoutHelper;
-    LayoutMode m_layoutMode;
+    unsigned m_flags;
     QRect m_layoutPosition;
     int m_splitterIndex;
     bool m_layoutSimplified;
