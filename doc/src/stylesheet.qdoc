@@ -4783,6 +4783,21 @@ blue green yellow * /
            \endcode
     \endlist
 
+    \section2 Customizing QToolTip
+
+    QToolTip is customized exactly like a QLabel. In addition, for platforms
+    that support it, the opacity property may be set to adjust the opacity.
+
+    For example,
+    \code
+        QToolTip {
+            border: 2px solid darkkhaki;
+            padding: 5px;
+            border-radius: 3px;
+            opacity: 200;
+        }
+    \endcode
+
     \section2 Customizing QTreeView
 
     The branches of a QTreeView are styled using the 
