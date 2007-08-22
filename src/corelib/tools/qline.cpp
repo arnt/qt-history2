@@ -170,6 +170,44 @@
     Translates this line the distance specified by \a dx and \a dy.
 */
 
+
+/*
+    \fn void QLine::setP1(const QPoint &p1)
+
+    Sets the starting point of this line to p1.
+
+    \sa setP2(), p1()
+*/
+
+
+/*
+    \fn void QLine::setP2(const QPoint &p2)
+
+    Sets the end point of this line to p2.
+
+    \sa setP1(), p2()
+*/
+
+
+/*
+    \fn void QLine::setPoints(const QPoint &p1, const QPoint &p2)
+
+    Sets the start point of this line to p1 and the end point of this line to p2.
+
+    \sa setP1(), setP2(), p1(), p2()
+*/
+
+
+/*
+    \fn void QLine::setLine(qreal x1, qreal y1, qreal x2, qreal y2)
+
+    Sets this line to the start in x1, y1 and end in x2, y2.
+
+    \sa setP1(), setP2(), p1(), p2().
+*/
+
+
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug d, const QLine &p)
 {
@@ -581,6 +619,42 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 
     Translates this line the distance specified by \a dx and \a dy.
 */
+
+/*
+    \fn void QLineF::setP1(const QPointF &p1)
+
+    Sets the starting point of this line to p1.
+
+    \sa setP2(), p1()
+*/
+
+
+/*
+    \fn void QLineF::setP2(const QPointF &p2)
+
+    Sets the end point of this line to p2.
+
+    \sa setP1(), p2()
+*/
+
+
+/*
+    \fn void QLineF::setPoints(const QPointF &p1, const QPointF &p2)
+
+    Sets the start point of this line to p1 and the end point of this line to p2.
+
+    \sa setP1(), setP2(), p1(), p2()
+*/
+
+
+/*
+    \fn void QLineF::setLine(qreal x1, qreal y1, qreal x2, qreal y2)
+
+    Sets this line to the start in x1, y1 and end in x2, y2.
+
+    \sa setP1(), setP2(), p1(), p2().
+*/
+
 
 /*!
   \fn qreal QLineF::angle(const QLineF &line) const

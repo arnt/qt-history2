@@ -48,6 +48,11 @@ public:
     inline void translate(const QPoint &p);
     inline void translate(int dx, int dy);
 
+    inline void setP1(const QPoint &p1);
+    inline void setP2(const QPoint &p2);
+    inline void setPoints(const QPoint &p1, const QPoint &p2);
+    inline void setLine(int x1, int y1, int x2, int y2);
+
     inline bool operator==(const QLine &d) const;
     inline bool operator!=(const QLine &d) const { return !(*this == d); }
 
@@ -122,6 +127,28 @@ inline void QLine::translate(int adx, int ady)
     this->translate(QPoint(adx, ady));
 }
 
+inline void QLine::setP1(const QPoint &p1)
+{
+    pt1 = p1;
+}
+
+inline void QLine::setP2(const QPoint &p2)
+{
+    pt2 = p2;
+}
+
+inline void QLine::setPoints(const QPoint &p1, const QPoint &p2)
+{
+    pt1 = p1;
+    pt2 = p2;
+}
+
+inline void QLine::setLine(int x1, int y1, int x2, int y2)
+{
+    pt1 = QPoint(x1, y1);
+    pt2 = QPoint(x2, y2);
+}
+
 inline bool QLine::operator==(const QLine &d) const
 {
     return pt1 == d.pt1 && pt2 == d.pt2;
@@ -177,6 +204,11 @@ public:
     QPointF pointAt(qreal t) const;
     inline void translate(const QPointF &p);
     inline void translate(qreal dx, qreal dy);
+
+    inline void setP1(const QPointF &p1);
+    inline void setP2(const QPointF &p2);
+    inline void setPoints(const QPointF &p1, const QPointF &p2);
+    inline void setLine(qreal x1, qreal y1, qreal x2, qreal y2);
 
     inline bool operator==(const QLineF &d) const;
     inline bool operator!=(const QLineF &d) const { return !(*this == d); }
@@ -282,10 +314,36 @@ inline QLine QLineF::toLine() const
     return QLine(pt1.toPoint(), pt2.toPoint());
 }
 
+
+inline void QLineF::setP1(const QPointF &p1)
+{
+    pt1 = p1;
+}
+
+inline void QLineF::setP2(const QPointF &p2)
+{
+    pt2 = p2;
+}
+
+inline void QLineF::setPoints(const QPointF &p1, const QPointF &p2)
+{
+    pt1 = p1;
+    pt2 = p2;
+}
+
+inline void QLineF::setLine(qreal x1, qreal y1, qreal x2, qreal y2)
+{
+    pt1 = QPointF(x1, y1);
+    pt2 = QPointF(x2, y2);
+}
+
+
 inline bool QLineF::operator==(const QLineF &d) const
 {
     return pt1 == d.pt1 && pt2 == d.pt2;
 }
+
+
 
 #ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug d, const QLineF &p);

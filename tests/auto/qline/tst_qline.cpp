@@ -43,6 +43,8 @@ private slots:
 
     void testAngle();
     void testAngle_data();
+
+    void testSet();
 };
 
 // Square root of two
@@ -54,6 +56,56 @@ private slots:
 tst_QLine::tst_QLine()
 
 {
+}
+
+void tst_QLine::testSet()
+{
+    {
+        QLine l;
+        l.setP1(QPoint(1, 2));
+        l.setP2(QPoint(3, 4));
+
+        QCOMPARE(l.x1(), 1);
+        QCOMPARE(l.y1(), 2);
+        QCOMPARE(l.x2(), 3);
+        QCOMPARE(l.y2(), 4);
+
+        l.setPoints(QPoint(5, 6), QPoint(7, 8));
+        QCOMPARE(l.x1(), 5);
+        QCOMPARE(l.y1(), 6);
+        QCOMPARE(l.x2(), 7);
+        QCOMPARE(l.y2(), 8);
+
+        l.setLine(9, 10, 11, 12);
+        QCOMPARE(l.x1(), 9);
+        QCOMPARE(l.y1(), 10);
+        QCOMPARE(l.x2(), 11);
+        QCOMPARE(l.y2(), 12);
+    }
+
+    {
+        QLineF l;
+        l.setP1(QPointF(1, 2));
+        l.setP2(QPointF(3, 4));
+
+        QCOMPARE(l.x1(), 1.0);
+        QCOMPARE(l.y1(), 2.0);
+        QCOMPARE(l.x2(), 3.0);
+        QCOMPARE(l.y2(), 4.0);
+
+        l.setPoints(QPointF(5, 6), QPointF(7, 8));
+        QCOMPARE(l.x1(), 5.0);
+        QCOMPARE(l.y1(), 6.0);
+        QCOMPARE(l.x2(), 7.0);
+        QCOMPARE(l.y2(), 8.0);
+
+        l.setLine(9.0, 10.0, 11.0, 12.0);
+        QCOMPARE(l.x1(), 9.0);
+        QCOMPARE(l.y1(), 10.0);
+        QCOMPARE(l.x2(), 11.0);
+        QCOMPARE(l.y2(), 12.0);
+    }
+
 }
 
 void tst_QLine::testIntersection_data()
