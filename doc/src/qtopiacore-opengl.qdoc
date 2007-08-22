@@ -113,27 +113,30 @@ reference implementation for integrating OpenGL ES and \l
 acceleration architecture.  ( \l {http://www.khronos.org/egl/} {EGL}
 is a library that binds OpenGL ES to native windowing systems.)
 
-In this case, the diagram above needs some more boxes: ###
+The diagram below shows how OpenGL ES is used within the acceleration architecture:
 
 \image qtopiacore-opengl2.png
 
 The example implements a screen driver plugin that demonstrates all
 three uses of OpenGL in Qtopia Core: 2D graphics acceleration, 3D
 graphics operations using the \l {QtOpenGL module}, and top-level
-window compositing and special effects.
+window compositing and special effects. The applications still do
+not talk directly to the accelerated plugin. 
 
-The applications still does not talk directly to the accelerated plugin. For 2D graphics,
-the Qt API is used.  For 3D graphics the application uses the OpenGL API directly,
-together with the functionality in the Qt OpenGL support classes. All access to the
-display is done through OpenGL. The reference implementation uses OpenGL to implement top
-level window compositing and to provide a 3D animated transition effect as each new window
-is shown.
+For 2D graphics, applications use the normal Qt painting API. The example accelerates 2D
+painting by using the QOpenGLPaintEngine, which is included in the \l {QtOpenGL module}.
 
-The example subclasses QWSGLWindowSurface implementation and uses the \l
-{http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt}
+For 3D graphics applications use the OpenGL API directly, together with the functionality
+in the Qt OpenGL support classes. The example supports this by creating a
+QWSGLWindowSurface whenever a QGLWidget is instantiated.
+
+All access to the display is done through OpenGL. The example subclasses
+QWSGLWindowSurface implementation and uses the \l
+{http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt} 
 {OpenGL Framebuffer Object extension} to draw windows into an offscreen buffer. This
-allows animation effects to be applied to the windows during compositing, as well as
-allowing support for semi-transparent windows.
+lets the example use OpenGL to implement top level window compositing of opaque and
+semi-transparent windows, and to provide a 3D animated transition effect as each new
+window is shown.
 
 The specific OpenGL library being used by the example restricts all
 OpenGL operations to occur in a single process. Hence the example
@@ -144,7 +147,6 @@ standard window surface performs software-based rendering into a
 shared memory segment. The server then transfers the contents of this
 shared memory into an OpenGL texture before they are drawn onto the
 screen during window compositing.
-
 
 \section1 Future Directions
 
