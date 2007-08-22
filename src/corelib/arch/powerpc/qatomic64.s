@@ -211,7 +211,7 @@ q_atomic_fetch_and_add_int:
 	add    6,4,5
         extsw  7,6
 	stwcx. 7,0,3
-	bne-   $-12
+	bne-   $-16
         extsw  3,5
 	blr
 LT..q_atomic_fetch_and_add_int:
@@ -235,7 +235,7 @@ q_atomic_fetch_and_add_acquire_int:
 	add    6,4,5
         extsw  7,6
 	stwcx. 7,0,3
-	bne-   $-12
+	bne-   $-16
         extsw  3,5
 	eieio
 	blr
@@ -261,7 +261,7 @@ q_atomic_fetch_and_add_release_int:
 	add    6,4,5
         extsw  7,6
 	stwcx. 7,0,3
-	bne-   $-12
+	bne-   $-16
         extsw  3,5
 	blr
 LT..q_atomic_fetch_and_add_release_int:
