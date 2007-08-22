@@ -45,7 +45,7 @@ public:
     enum DriverFeature { Transactions, QuerySize, BLOB, Unicode, PreparedQueries,
                          NamedPlaceholders, PositionalPlaceholders, LastInsertId,
                          BatchOperations, SimpleLocking, LowPrecisionNumbers,
-                         EventNotifications};
+                         EventNotifications, FinishQuery };
 
     enum StatementType { WhereStatement, SelectStatement, UpdateStatement,
                          InsertStatement, DeleteStatement };

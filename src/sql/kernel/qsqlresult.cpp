@@ -944,7 +944,8 @@ bool QSqlResult::execBatch(bool arrayBind)
  */
 void QSqlResult::detachFromResultSet()
 {
-    if (driver()->hasFeature(QSqlDriver::SimpleLocking))
+    if (driver()->hasFeature(QSqlDriver::FinishQuery) 
+            || driver()->hasFeature(QSqlDriver::SimpleLocking))
         virtual_hook(DetachFromResultSet, 0);
 }
 

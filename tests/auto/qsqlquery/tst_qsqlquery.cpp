@@ -63,12 +63,10 @@ private slots:
     void record();
     void record_sqlite_data() { generic_data(); }
     void record_sqlite();
-#ifdef QT_44_API_QSQLQUERY_FINISH
     void finish_data() { generic_data(); }
     void finish();
     void finish_sqlite_data() { generic_data(); }
     void finish_sqlite();
-#endif
 
     // forwardOnly mode need special treatment
     void forwardOnly_data() { generic_data(); }
@@ -2281,7 +2279,6 @@ void tst_QSqlQuery::reExecutePreparedForwardOnlyQuery()
     QCOMPARE(q.value(2).toString().trimmed(), QString("Char0"));
 }
 
-#ifdef QT_44_API_QSQLQUERY_FINISH
 void tst_QSqlQuery::finish()
 {
     QFETCH(QString, dbName);
@@ -2318,9 +2315,7 @@ void tst_QSqlQuery::finish()
     QCOMPARE(q.value(0).toInt(), 1);
     QCOMPARE(q.record().count(), 1);
 }
-#endif
 
-#ifdef QT_44_API_QSQLQUERY_FINISH
 void tst_QSqlQuery::finish_sqlite()
 {
     QFETCH(QString, dbName);
@@ -2361,8 +2356,6 @@ void tst_QSqlQuery::finish_sqlite()
 
     QSqlDatabase::removeDatabase("sqlite_finish_sqlite");
 }
-#endif
-
 
 QTEST_MAIN(tst_QSqlQuery)
 #include "tst_qsqlquery.moc"

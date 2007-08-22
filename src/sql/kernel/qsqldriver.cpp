@@ -160,6 +160,7 @@ bool QSqlDriver::isOpenError() const
     \value SimpleLocking  Whether the driver disallows a write lock on a table while other queries have a read lock on it.
     \value LowPrecisionNumbers  Whether the driver allows fetching numerical values with low precision.
     \value EventNotifications Whether the driver supports database event notifications.
+    \value FinishQuery Whether the driver can do any low-level resource cleanup when QSqlQuery::finish() is called.
 
     More information about supported features can be found in the
     \l{sql-driver.html}{Qt SQL driver} documentation.

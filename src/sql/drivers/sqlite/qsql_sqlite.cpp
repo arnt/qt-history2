@@ -421,6 +421,7 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     case PreparedQueries:
     case PositionalPlaceholders:
     case SimpleLocking:
+    case FinishQuery:
         return true;
     case QuerySize:
     case NamedPlaceholders:
