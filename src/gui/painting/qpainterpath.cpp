@@ -58,17 +58,47 @@ QPainterPath qt_stroke_dash(const QPainterPath &path, qreal *dashes, int dashCou
 void qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
                             QPointF* startPoint, QPointF *endPoint)
 {
-#define ANGLE(t) ((t) * 2 * Q_PI / qreal(360.0))
-    qreal a = r.width() / qreal(2.0);
-    qreal b = r.height() / qreal(2.0);
-
-    if (startPoint) {
-        *startPoint = r.center()
-                      + QPointF(a * qCos(ANGLE(angle)), -b * qSin(ANGLE(angle)));
+    if (r.isNull()) {
+        if (startPoint)
+            *startPoint = QPointF();
+        if (endPoint)
+            *endPoint = QPointF();
+        return;
     }
-    if (endPoint) {
-        *endPoint = r.center()
-                    + QPointF(a * qCos(ANGLE(angle + length)), -b * qSin(ANGLE(angle + length)));
+
+    qreal w2 = r.width() / 2;
+    qreal h2 = r.height() / 2;
+
+    qreal angles[2] = { angle, angle + length };
+    QPointF *points[2] = { startPoint, endPoint };
+
+    for (int i = 0; i < 2; ++i) {
+        if (!points[i])
+            continue;
+
+        qreal theta = angles[i] - 360 * qFloor(angles[i] / 360);
+        qreal t = theta / 90;
+        // truncate
+        int quadrant = int(t);
+        t -= quadrant;
+
+        // swap x and y?
+        if (quadrant & 1)
+            t = 1 - t;
+
+        qreal a, b, c, d;
+        bezierCoefficients(t, a, b, c, d);
+        QPointF p(a + b + c*QT_PATH_KAPPA, d + c + b*QT_PATH_KAPPA);
+
+        // left quadrants
+        if (quadrant == 1 || quadrant == 2)
+            p.rx() = -p.x();
+
+        // top quadrants
+        if (quadrant == 0 || quadrant == 1)
+            p.ry() = -p.y();
+
+        *points[i] = r.center() + QPointF(w2 * p.x(), h2 * p.y());
     }
 }
 
@@ -825,7 +855,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
     detach();
 
     int point_count;
-    QPointF pts[12];
+    QPointF pts[15];
     QPointF curve_start = qt_curves_for_arc(rect, startAngle, sweepLength, pts, &point_count);
 
     lineTo(curve_start);

@@ -486,7 +486,7 @@ void QStroker::joinPoints(qfixed focal_x, qfixed focal_y, const QLineF &nextLine
             qreal sweepLength = qAbs(l2_on_x - l1_on_x);
 
             int point_count;
-            QPointF curves[12];
+            QPointF curves[15];
 
             QPointF curve_start =
                 qt_curves_for_arc(QRectF(qt_fixed_to_real(focal_x - offset),
@@ -701,7 +701,6 @@ template <class Iterator> bool qt_stroke_side(Iterator *it,
     }
 }
 
-
 /*!
     \internal
 
@@ -731,102 +730,122 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
         return QPointF();
     }
 
+    qreal x = rect.x();
+    qreal y = rect.y();
+
+    qreal w = rect.width();
+    qreal w2 = rect.width() / 2;
+    qreal w2k = w2 * QT_PATH_KAPPA;
+
+    qreal h = rect.height();
+    qreal h2 = rect.height() / 2;
+    qreal h2k = h2 * QT_PATH_KAPPA;
+
+    QPointF points[16] =
+    {
+        // start point
+        QPointF(x + w, y + h2),
+
+        // 0 -> 270 degrees
+        QPointF(x + w, y + h2 + h2k),
+        QPointF(x + w2 + w2k, y + h),
+        QPointF(x + w2, y + h),
+
+        // 270 -> 180 degrees
+        QPointF(x + w2 - w2k, y + h),
+        QPointF(x, y + h2 + h2k),
+        QPointF(x, y + h2),
+
+        // 180 -> 90 degrees
+        QPointF(x, y + h2 - h2k),
+        QPointF(x + w2 - w2k, y),
+        QPointF(x + w2, y),
+
+        // 90 -> 0 degrees
+        QPointF(x + w2 + w2k, y),
+        QPointF(x + w, y + h2 - h2k),
+        QPointF(x + w, y + h2)
+    };
+
     if (sweepLength > 360) sweepLength = 360;
     else if (sweepLength < -360) sweepLength = -360;
 
     // Special case fast path
     if (startAngle == 0.0 && sweepLength == 360.0) {
-        qreal x = rect.x();
-        qreal y = rect.y();
+        for (int i = 1; i <= 12; ++i)
+            curves[(*point_count)++] = points[i];
 
-        qreal w = rect.width();
-        qreal w2 = rect.width() / 2;
-        qreal w2k = w2 * QT_PATH_KAPPA;
-
-        qreal h = rect.height();
-        qreal h2 = rect.height() / 2;
-        qreal h2k = h2 * QT_PATH_KAPPA;
-
-        // 0 -> 270 degrees
-        curves[(*point_count)++] = QPointF(x + w, y + h2 + h2k);
-        curves[(*point_count)++] = QPointF(x + w2 + w2k, y + h);
-        curves[(*point_count)++] = QPointF(x + w2, y + h);
-
-        // 270 -> 180 degrees
-        curves[(*point_count)++] = QPointF(x + w2 - w2k, y + h);
-        curves[(*point_count)++] = QPointF(x, y + h2 + h2k);
-        curves[(*point_count)++] = QPointF(x, y + h2);
-
-        // 180 -> 90 degrees
-        curves[(*point_count)++] = QPointF(x, y + h2 - h2k);
-        curves[(*point_count)++] = QPointF(x + w2 - w2k, y);
-        curves[(*point_count)++] = QPointF(x + w2, y);
-
-        // 90 -> 0 degrees
-        curves[(*point_count)++] = QPointF(x + w2 + w2k, y);
-        curves[(*point_count)++] = QPointF(x + w, y + h2 - h2k);
-        curves[(*point_count)++] = QPointF(x + w, y + h2);
-
-        return QPointF(x + w, y + h2);
+        return points[0];
     }
 
-#define ANGLE(t) ((t) * 2 * Q_PI / 360.0)
-#define SIGN(t) (t > 0 ? 1 : -1)
-    qreal a = rect.width() / 2.0;
-    qreal b = rect.height() / 2.0;
+    int startSegment = int(floor(startAngle / 90));
+    int endSegment = int(floor((startAngle + sweepLength) / 90));
 
-    qreal absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
-    int iterations = qCeil((absSweepLength) / qreal(90.0));
+    qreal startT = (startAngle - startSegment * 90) / 90;
+    qreal endT = (startAngle + sweepLength - endSegment * 90) / 90;
 
-    QPointF first_point;
+    int delta = sweepLength > 0 ? 1 : -1;
+    if (delta < 0) {
+        startT = 1 - startT;
+        endT = 1 - endT;
+    }
 
-    if (iterations == 0) {
-        first_point = rect.center() + QPointF(a * qCos(ANGLE(startAngle)),
-                                              -b * qSin(ANGLE(startAngle)));
-    } else {
-        qreal clength = sweepLength / iterations;
-        qreal cosangle1, sinangle1, cosangle2, sinangle2;
+    // avoid empty start segment
+    if (qFuzzyCompare(startT, qreal(1))) {
+        startT = 0;
+        startSegment += delta;
+    }
 
-        for (int i=0; i<iterations; ++i) {
-            qreal cangle = startAngle + i * clength;
+    // avoid empty end segment
+    if (qFuzzyCompare(endT, qreal(0))) {
+        endT = 1;
+        endSegment -= delta;
+    }
 
-            cosangle1 = qCos(ANGLE(cangle));
-            sinangle1 = qSin(ANGLE(cangle));
-            cosangle2 = qCos(ANGLE(cangle + clength));
-            sinangle2 = qSin(ANGLE(cangle + clength));
+    const bool splitAtStart = !qFuzzyCompare(startT, qreal(0));
+    const bool splitAtEnd = !qFuzzyCompare(endT, qreal(1));
 
-            // Find the start and end point of the curve.
-            QPointF startPoint = rect.center() + QPointF(a * cosangle1, -b * sinangle1);
-            QPointF endPoint = rect.center() + QPointF(a * cosangle2, -b * sinangle2);
+    const int end = endSegment + delta;
 
-            // The derived at the start and end point.
-            qreal sdx = -a * sinangle1;
-            qreal sdy = -b * cosangle1;
-            qreal edx = -a * sinangle2;
-            qreal edy = -b * cosangle2;
+    // empty arc?
+    if (startSegment == end) {
+        const int quadrant = 3 - ((startSegment % 4) + 4) % 4;
+        const int j = 3 * quadrant;
+        return delta > 0 ? points[j + 3] : points[j];
+    }
 
-            // Creating the tangent lines. We need to reverse their direction if the
-            // sweep is negative (clockwise)
-            QLineF controlLine1(startPoint, startPoint + SIGN(sweepLength) * QPointF(sdx, sdy));
-            QLineF controlLine2(endPoint, endPoint - SIGN(sweepLength) * QPointF(edx, edy));
+    QPointF startPoint;
+    for (int i = startSegment; i != end; i += delta) {
+        const int quadrant = 3 - ((i % 4) + 4) % 4;
+        const int j = 3 * quadrant;
 
-            // We need to scale down the control lines to match that of the current sweeplength.
-            // qAbs because we only want to scale, not change direction.
-            qreal kappa = QT_PATH_KAPPA * qAbs(clength) / 90.0;
-            // Adjust their length to fit the magic KAPPA length.
-            controlLine1.setLength(controlLine1.length() * kappa);
-            controlLine2.setLength(controlLine2.length() * kappa);
+        QBezier b;
+        if (delta > 0)
+            b = QBezier::fromPoints(points[j + 3], points[j + 2], points[j + 1], points[j]);
+        else
+            b = QBezier::fromPoints(points[j], points[j + 1], points[j + 2], points[j + 3]);
 
-            curves[(*point_count)++] = controlLine1.p2();
-            curves[(*point_count)++] = controlLine2.p2();
-            curves[(*point_count)++] = endPoint;
+        // empty arc?
+        if (startSegment == endSegment && qFuzzyCompare(startT, endT))
+            return b.pointAt(startT);
 
-            if (i == 0)
-                first_point = startPoint;
+        if (i == startSegment) {
+            if (i == endSegment && splitAtEnd)
+                b = b.bezierOnInterval(startT, endT);
+            else if (splitAtStart)
+                b = b.bezierOnInterval(startT, 1);
+            startPoint = b.pt1();
+        } else if (i == endSegment && splitAtEnd) {
+            b = b.bezierOnInterval(0, endT);
         }
+
+        // push control points
+        curves[(*point_count)++] = b.pt2();
+        curves[(*point_count)++] = b.pt3();
+        curves[(*point_count)++] = b.pt4();
     }
 
-    return first_point;
+    return startPoint;
 }
 
 

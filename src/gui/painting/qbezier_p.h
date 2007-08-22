@@ -111,12 +111,8 @@ inline QLineF QBezier::endTangent() const
     return tangent;
 }
 
-inline QPointF QBezier::pointAt(qreal t) const
+inline void bezierCoefficients(qreal t, qreal &a, qreal &b, qreal &c, qreal &d)
 {
-    Q_ASSERT(t >= 0);
-    Q_ASSERT(t <= 1);
-#if 1
-    qreal a, b, c, d;
     qreal m_t = 1. - t;
     b = m_t * m_t;
     c = t * t;
@@ -124,7 +120,15 @@ inline QPointF QBezier::pointAt(qreal t) const
     a = b * m_t;
     b *= 3. * t;
     c *= 3. * m_t;
+}
 
+inline QPointF QBezier::pointAt(qreal t) const
+{
+    Q_ASSERT(t >= 0);
+    Q_ASSERT(t <= 1);
+#if 1
+    qreal a, b, c, d;
+    bezierCoefficients(t, a, b, c, d);
     return QPointF(a*x1 + b*x2 + c*x3 + d*x4, a*y1 + b*y2 + c*y3 + d*y4);
 #else
     // numerically more stable:
