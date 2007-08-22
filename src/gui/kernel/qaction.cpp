@@ -1281,6 +1281,7 @@ QAction::MenuRole QAction::menuRole() const
 /*!
     \property QAction::iconVisibleInMenu
     \brief Whether or not an action should show an icon in a menu
+    \since 4.4
 
     In some applications, it may make sense to have actions with icons in the
     toolbar, but not in menus. If true, the icon (if valid) is shown in the menu, when it
