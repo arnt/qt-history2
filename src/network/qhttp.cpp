@@ -2776,6 +2776,11 @@ void QHttpPrivate::_q_slotReadyRead()
                 }
             }
         } else if (response.hasContentLength()) {
+            if (repost && (n < response.contentLength())) {
+                // wait for the content to be available fully 
+                // if repost is required, the content is ignored
+                return;
+            }
             n = qMin(qint64(response.contentLength() - bytesDone), n);
             if (n > 0) {
                 arr = new QByteArray;
