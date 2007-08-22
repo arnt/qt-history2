@@ -23,7 +23,7 @@
 #include "../qsqldatabase/tst_databases.h"
 
 //TESTED_CLASS=
-//TESTED_FILES=sql/gui/qsqlquerymodel.h sql/gui/qsqlquerymodel.cpp
+//TESTED_FILES=sql/models/qsqlquerymodel.h sql/models/qsqlquerymodel.cpp
 
 Q_DECLARE_METATYPE(Qt::Orientation)
 

@@ -13,7 +13,7 @@
 #include <QSignalSpy>
 
 //TESTED_CLASS=
-//TESTED_FILES=sql/gui/qsqltablemodel.h sql/gui/qsqltablemodel.cpp
+//TESTED_FILES=sql/models/qsqltablemodel.h sql/models/qsqltablemodel.cpp
 
 Q_DECLARE_METATYPE(QModelIndex)
 

@@ -16,7 +16,7 @@
 
 
 //TESTED_CLASS=
-//TESTED_FILES=sql/gui/qsqlrelationaltablemodel.h sql/gui/qsqlrelationaltablemodel.cpp
+//TESTED_FILES=sql/models/qsqlrelationaltablemodel.h sql/models/qsqlrelationaltablemodel.cpp
 
 class tst_QSqlRelationalTableModel : public QObject
 {

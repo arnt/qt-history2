@@ -15,7 +15,7 @@
 
 
 //TESTED_CLASS=
-//TESTED_FILES=qsqlerror.h
+//TESTED_FILES=sql/kernel/qsqlerror.h sql/kernel/qsqlerror.cpp
 
 class tst_QSqlError : public QObject
 {
