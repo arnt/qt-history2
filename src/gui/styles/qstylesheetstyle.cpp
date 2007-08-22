@@ -2087,8 +2087,8 @@ static int extendedPseudoClass(QWidget *w)
     } else
 #ifndef QT_NO_COMBOBOX
     if (QComboBox *combo = qobject_cast<QComboBox *>(w)) {
-        if (combo->editable())
-        pc |= (combo->editable() ? PseudoClass_Editable : PseudoClass_ReadOnly);
+        if (combo->isEditable())
+        pc |= (combo->isEditable() ? PseudoClass_Editable : PseudoClass_ReadOnly);
     } else
 #endif
 #ifndef QT_NO_LINEDIT
