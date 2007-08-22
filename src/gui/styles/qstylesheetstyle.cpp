@@ -2208,7 +2208,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         int state;
         QPalette::ColorGroup group;
     } map[3] = {
-        { PseudoClass_Enabled, QPalette::Active },
+        { PseudoClass_Active | PseudoClass_Enabled, QPalette::Active },
         { PseudoClass_Disabled, QPalette::Disabled },
         { PseudoClass_Enabled, QPalette::Inactive }
     };
