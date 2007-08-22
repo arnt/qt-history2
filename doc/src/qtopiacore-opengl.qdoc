@@ -89,8 +89,6 @@ window surfaces and lets you decide how to implement window
 compositing.  Using subclassing, your implementation work is minimized
 since you can reuse base class functionality you don't need to change.
 
-\image qtopiacore-opengl4.png
-
 \section1 The Qtopia Core Acceleration Architecture
 
 Qtopia Core's graphics acceleration architecture is shown in the
@@ -137,10 +135,6 @@ windows during compositing, as well as allowing support for
 semi-transparent windows. The reference implementation uses OpenGL to
 implement top level window compositing and to provide a 3D animated
 transition effect as each new window is shown.
-
-\code
-[some kind of snapshot?]
-\endcode
 
 \section1 Future Directions
 
