@@ -86,9 +86,7 @@ public:
     QMap<QString, QVariant> boundValues() const;
     QString executedQuery() const;
     QVariant lastInsertId() const;
-#ifdef QT_44_API_QSQLQUERY_FINISH
     void finish();
-#endif
 
 private:
     QSqlQueryPrivate* d;
