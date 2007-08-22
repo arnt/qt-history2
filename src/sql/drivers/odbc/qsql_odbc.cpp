@@ -1415,6 +1415,16 @@ QVariant QODBCResult::handle() const
     return QVariant(qRegisterMetaType<SQLHANDLE>("SQLHANDLE"), &d->hStmt);
 }
 
+void QODBCResult::virtual_hook(int id, void *data)
+{
+    if (id == DetachFromResultSet) {
+        if (d->hStmt)
+            SQLCloseCursor(d->hStmt);
+        return;
+    }
+    QSqlResult::virtual_hook(id, data);
+}
+
 ////////////////////////////////////////
 
 
@@ -1470,6 +1480,7 @@ bool QODBCDriver::hasFeature(DriverFeature f) const
     case PreparedQueries:
     case BLOB:
     case PositionalPlaceholders:
+    case FinishQuery:
         return true;
     case QuerySize:
     case NamedPlaceholders:
