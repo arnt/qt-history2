@@ -273,13 +273,16 @@ static void initializeDb()
             }
     }
 
-    QString fontpath;
+    QString fontpath = QString::fromLocal8Bit(qgetenv("QT_QWS_FONTDIR"));
+    if (fontpath.isEmpty()) {
 #ifndef QT_NO_SETTINGS
-    fontpath = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
-    fontpath += QLatin1String("/fonts");
+        fontpath = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
+        fontpath += QLatin1String("/fonts");
 #else
-    fontpath += QLatin1String("/lib/fonts");
+        fontpath += QLatin1String("/lib/fonts");
 #endif
+    }
+
     QString fontDirFile = fontpath + QLatin1String("/fontdir");
 
     if(!QFile::exists(fontpath)) {
