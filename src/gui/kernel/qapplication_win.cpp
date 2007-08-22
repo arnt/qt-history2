@@ -437,10 +437,8 @@ static void qt_set_windows_color_resources()
     }
 }
 
-static void qt_set_windows_resources()
+static void qt_set_windows_font_resources()
 {
-    if (QApplication::type() != QApplication::Tty)
-        (void) QApplication::style(); // trigger creation of application style
 #ifndef Q_OS_TEMP
     QFont menuFont;
     QFont messageFont;
@@ -488,6 +486,14 @@ static void qt_set_windows_resources()
     GetObject(stockFont, sizeof(lf), &lf);
     QApplicationPrivate::setSystemFont(qt_LOGFONTtoQFont(lf, true));
 #endif// Q_OS_TEMP
+}
+
+
+static void qt_set_windows_resources()
+{
+    if (QApplication::type() != QApplication::Tty)
+        (void) QApplication::style(); // trigger creation of application style
+    qt_set_windows_font_resources();
     qt_set_windows_color_resources();
 }
 
@@ -1665,6 +1671,14 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                                              QString::fromLocal8Bit((char*)msg.lParam));
                 if (area == QLatin1String("intl"))
                     QApplication::postEvent(widget, new QEvent(QEvent::LocaleChange));
+            } 
+            else if (msg.wParam == SPI_SETICONTITLELOGFONT) {
+                if (qApp->desktopSettingsAware()) {
+                    widget = (QETWidget*)QWidget::find(hwnd);
+                    if (widget && !widget->parentWidget()) {
+                        qt_set_windows_font_resources();
+                    }
+                }
             }
             break;
 
