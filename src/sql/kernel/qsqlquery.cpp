@@ -1132,3 +1132,29 @@ QSql::NumericalPrecisionPolicy QSqlQuery::numericalPrecisionPolicy() const
     return d->precisionPolicy;
 }
 
+/*!
+    \since 4.3.2
+    \preliminary
+
+    Instruct the database driver that no more data will be fetched from this
+    query until it is re-executed. There is normally no need to call this
+    function, but it may be helpful in order to free resources such as locks
+    or cursors if you intend to re-use the query at a later time.
+    
+    Sets the query to inactive. Bound values retain their values.
+
+    This function is new in Qt 4.3.2 and requires that QT_44_API_QSQLQUERY_FINISH
+    is defined when compiling your application. It is expected to become part
+    of the public API in Qt 4.4.
+
+    \sa prepare() exec() isActive()
+*/
+void QSqlQuery::finish()
+{
+    if (isActive()) {
+        d->sqlResult->setLastError(QSqlError());
+        d->sqlResult->setAt(QSql::BeforeFirstRow);
+        d->sqlResult->detachFromResultSet();
+        d->sqlResult->setActive(false);
+    }
+}

@@ -12,7 +12,7 @@
 
 #include "../qsqldatabase/tst_databases.h"
 
-//TESTED_FILES=
+//TESTED_FILES=sql/kernel/qsqlquery.h sql/kernel/qsqlquery.cpp
 
 class tst_QSqlQuery : public QObject
 {
@@ -63,6 +63,12 @@ private slots:
     void record();
     void record_sqlite_data() { generic_data(); }
     void record_sqlite();
+#ifdef QT_44_API_QSQLQUERY_FINISH
+    void finish_data() { generic_data(); }
+    void finish();
+    void finish_sqlite_data() { generic_data(); }
+    void finish_sqlite();
+#endif
 
     // forwardOnly mode need special treatment
     void forwardOnly_data() { generic_data(); }
@@ -251,6 +257,7 @@ void tst_QSqlQuery::dropTestTables(QSqlDatabase db)
 //    tst_Databases::safeDropTable(db, qTableName("qtest_batch"));
     if (tst_Databases::isSqlServer(db) || db.driverName().startsWith("QOCI"))
         tst_Databases::safeDropTable(db, qTableName("qtest_longstr"));
+    tst_Databases::safeDropTable(db, qTableName("qtest_lockedtable"));
 }
 
 void tst_QSqlQuery::createTestTables(QSqlDatabase db)
@@ -2273,6 +2280,89 @@ void tst_QSqlQuery::reExecutePreparedForwardOnlyQuery()
     QCOMPARE(q.value(1).toString().trimmed(), QString("VarChar0"));
     QCOMPARE(q.value(2).toString().trimmed(), QString("Char0"));
 }
+
+#ifdef QT_44_API_QSQLQUERY_FINISH
+void tst_QSqlQuery::finish()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlQuery q(db);
+    QVERIFY2(q.prepare("SELECT id FROM " + qTableName("qtest") + " WHERE id = ?"),
+        qPrintable(q.lastError().text()));
+
+    int id = 4;
+    q.bindValue(0, id);
+    QVERIFY2(q.exec(), qPrintable(q.lastError().text()));
+    QVERIFY(q.isActive());
+    QVERIFY2(q.next(), qPrintable(q.lastError().text()));
+    QCOMPARE(q.value(0).toInt(), id);
+
+    q.finish();
+    QVERIFY(!q.isActive()); // query is now inactive
+    QCOMPARE(q.boundValue(0).toInt(), id); // bound values are retained
+
+    QVERIFY2(q.exec(), qPrintable(q.lastError().text())); // no prepare necessary
+    QVERIFY(q.isActive());
+    QVERIFY2(q.next(), qPrintable(q.lastError().text()));
+    QCOMPARE(q.value(0).toInt(), id);
+    
+    q.finish();
+    QVERIFY(!q.isActive());
+    
+    QVERIFY2(q.exec("SELECT id FROM " + qTableName("qtest") + " WHERE id = 1"),
+        qPrintable(q.lastError().text()));
+    QVERIFY(q.isActive());
+    QVERIFY2(q.next(), qPrintable(q.lastError().text()));
+    QCOMPARE(q.value(0).toInt(), 1);
+    QCOMPARE(q.record().count(), 1);
+}
+#endif
+
+#ifdef QT_44_API_QSQLQUERY_FINISH
+void tst_QSqlQuery::finish_sqlite()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (db.driverName() != "QSQLITE")
+        QSKIP("This test requires sqlite support", SkipAll);
+    if (db.databaseName().startsWith(":"))
+        QSKIP("This test requires a database on the filesystem, not in-memory", SkipAll);
+
+    {
+        QSqlDatabase db2 = QSqlDatabase::addDatabase("QSQLITE", "sqlite_finish_sqlite");
+        db2.setDatabaseName(db.databaseName());
+        QVERIFY2(db2.open(), qPrintable(db2.lastError().text()));
+
+        QString tableName = qTableName("qtest_lockedtable");
+        QSqlQuery q(db);
+        q.exec("CREATE TABLE " + tableName + " (pk_id INTEGER PRIMARY KEY, whatever TEXT)");
+        q.exec("INSERT INTO " + tableName + " values(1, 'whatever')");
+        q.exec("INSERT INTO " + tableName + " values(2, 'whatever more')");
+
+        // This creates a read-lock in the database
+        QVERIFY2(q.exec("SELECT * FROM " + tableName + " WHERE pk_id = 1 or pk_id = 2"), qPrintable(q.lastError().text()));
+        QVERIFY2(q.next(), qPrintable(q.lastError().text()));
+
+        // The DELETE will fail because of the read-lock
+        QSqlQuery q2(db2);
+        QVERIFY(!q2.exec("DELETE FROM " + tableName + " WHERE pk_id=2"));
+        QCOMPARE(q2.numRowsAffected(), -1);
+
+        // The DELETE will succeed now because finish() removes the lock
+        q.finish();
+        QVERIFY2(q2.exec("DELETE FROM " + tableName + " WHERE pk_id=2"), qPrintable(q2.lastError().text()));
+        QCOMPARE(q2.numRowsAffected(), 1);
+        q.exec("DROP TABLE " + tableName);
+    }
+
+    QSqlDatabase::removeDatabase("sqlite_finish_sqlite");
+}
+#endif
+
 
 QTEST_MAIN(tst_QSqlQuery)
 #include "tst_qsqlquery.moc"
