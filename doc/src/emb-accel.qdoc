@@ -79,22 +79,26 @@
     done.
 
     \table
-    \header \o Acceleration Without a Framebuffer
+    \header \o Acceleration Without a Memory Buffer
     \row
     \o
 
-    If you are writing a driver for a device with a graphic I/O
-    controller but no framebuffer support, the
-    QCustomRasterPaintDevice::memory() function must return 0 (meaning
-    no buffer available). Then, whenever a color or buffer should be
-    written into memory, the paint engine will call the
+    By default the QRasterPaintEngine draws into a memory buffer (this can
+    be local memory, shared memory or graphics memory mapped into
+    application memory).
+    In some cases you might want to avoid using a memory buffer directly,
+    e.g if you want to use an accelerated graphic controller to handle all
+    the buffer manipulation. This can be implemented by  reimplementing
+    the QCustomRasterPaintDevice::memory() function to return 0 (meaning
+    no buffer available). Then, whenever a color or image buffer normally
+    would be written into paint engine buffer, the paint engine will call the
     QRasterPaintEngine::drawColorSpans() and
     QRasterPaintEngine::drawBufferSpan() functions instead.
 
     Note that the default implementations of these functions only
     calls qFatal() with an error message; reimplement the functions
-    and let them do the appropriate communication with the I/O
-    controller.
+    and let them do the appropriate communication with the accelerated
+    graphics controller.
 
     \endtable
 
