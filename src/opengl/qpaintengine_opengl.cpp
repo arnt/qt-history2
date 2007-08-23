@@ -4251,8 +4251,9 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                 for (int y=0; y<glyph_im.height(); ++y) {
                     uchar *s = (uchar *) glyph_im.scanLine(y);
                     for (int x=0; x<glyph_im.width(); ++x) {
-                        tex_data[idx] = *s;
-                        tex_data[idx+1] = *s;
+                        uchar alpha = qAlpha(glyph_im.color(*s));
+                        tex_data[idx] = alpha;
+                        tex_data[idx+1] = alpha;
                         ++s;
                         idx += 2;
                     }

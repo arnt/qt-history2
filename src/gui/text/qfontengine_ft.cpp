@@ -1442,22 +1442,29 @@ QImage QFontEngineFT::alphaMapForGlyph(glyph_t g)
 {
     lockFace();
 
-    Glyph *glyph = loadGlyph(g, Format_A8);
+    GlyphFormat glyph_format = antialias ? Format_A8 : Format_Mono;
+
+    Glyph *glyph = loadGlyph(g, glyph_format);
     if (!glyph) {
         unlockFace();
         return QFontEngine::alphaMapForGlyph(g);
     }
 
-    Q_ASSERT(glyph->format == QFontEngineFT::Format_A8);
+    const int pitch = antialias ? (glyph->width + 3) & ~3 : ((glyph->width + 31)/32) * 4;
 
-    const int pitch = (glyph->width + 3) & ~3;
-
-    QImage img(glyph->width, glyph->height, QImage::Format_Indexed8);
-    QVector<QRgb> colors(256);
-    for (int i=0; i<256; ++i)
-        colors[i] = qRgba(0, 0, 0, i);
-    img.setColorTable(colors);
-
+    QImage img(glyph->width, glyph->height, antialias ? QImage::Format_Indexed8 : QImage::Format_Mono);
+    if (antialias) {
+        QVector<QRgb> colors(256);
+        for (int i=0; i<256; ++i)
+            colors[i] = qRgba(0, 0, 0, i);
+        img.setColorTable(colors);
+    } else {
+        QVector<QRgb> colors(2);
+        colors[0] = qRgba(0, 0, 0, 0);
+        colors[1] = qRgba(0, 0, 0, 255);
+        img.setColorTable(colors);
+    }
+    Q_ASSERT(img.bytesPerLine() == pitch);
     for (int y = 0; y < glyph->height; ++y)
         memcpy(img.scanLine(y), &glyph->data[y * pitch], pitch);
     unlockFace();

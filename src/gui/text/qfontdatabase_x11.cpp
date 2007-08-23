@@ -709,6 +709,7 @@ static int getFCWeight(int fc_weight)
 QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
 {
     QFontDef fontDef;
+    fontDef.styleStrategy = request.styleStrategy;
 
     FcChar8 *value = 0;
     if (FcPatternGetString(pattern, FC_FAMILY, 0, &value) == FcResultMatch) {
@@ -734,7 +735,6 @@ QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
     fontDef.pointSize = qt_pointSize(fontDef.pixelSize, qRound(dpi));
 
     /* ###
-       fontDef.styleStrategy
        fontDef.styleHint
     */
 
