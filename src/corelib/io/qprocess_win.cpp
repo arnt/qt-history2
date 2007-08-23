@@ -808,8 +808,5 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     return success;
 }
 
-
-#include "qprocess_win.moc"
-
 #endif // QT_NO_PROCESS
 
