@@ -63,6 +63,7 @@ private slots:
     void readLineMaxlen_data();
     void readLineMaxlen();
 #endif
+    void readLinesFromBufferCRCR();
 
     // all
     void readAllFromDevice_data();
@@ -622,6 +623,24 @@ void tst_QTextStream::readLineMaxlen()
 }
 
 // ------------------------------------------------------------------------------
+void tst_QTextStream::readLinesFromBufferCRCR()
+{
+    QBuffer buffer;
+    buffer.open(QIODevice::WriteOnly);
+    QByteArray data("0123456789\r\r\n");
+
+    for (int i = 0; i < 10000; ++i)
+        buffer.write(data);
+
+    buffer.close();
+    if (buffer.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        QTextStream stream(&buffer);
+        while (!stream.atEnd())
+            QCOMPARE(stream.readLine(), QString("0123456789"));
+    }
+}
+
+// ------------------------------------------------------------------------------
 void tst_QTextStream::readLineFromString_data()
 {
     generateLineData(true);
@@ -687,10 +706,12 @@ void tst_QTextStream::readLineFromTextDevice()
                 QChar c;
                 while (!stream.atEnd()) {
                     stream >> c;
-                    if (c != QLatin1Char('\n') && c != QLatin1Char('\r'))
-                        line += c;
-                    if (c == QLatin1Char('\n'))
-                        break;
+                    if (stream.status() == QTextStream::Ok) {
+                        if (c != QLatin1Char('\n') && c != QLatin1Char('\r'))
+                            line += c;
+                        if (c == QLatin1Char('\n'))
+                            break;
+                    }
                 }
             } else {
                 line = stream.readLine();
@@ -1134,7 +1155,7 @@ void tst_QTextStream::readNewlines_data()
 
     QTest::newRow("empty") << QByteArray() << QString();
     QTest::newRow("\\r\\n") << QByteArray("\r\n") << QString("\n");
-    QTest::newRow("\\r\\r\\n") << QByteArray("\r\r\n") << QString("\r\n");
+    QTest::newRow("\\r\\r\\n") << QByteArray("\r\r\n") << QString("\n");
     QTest::newRow("\\r\\n\\r\\n") << QByteArray("\r\n\r\n") << QString("\n\n");
     QTest::newRow("\\n") << QByteArray("\n") << QString("\n");
     QTest::newRow("\\n\\n") << QByteArray("\n\n") << QString("\n\n");

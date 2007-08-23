@@ -244,7 +244,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     QByteArray out;
     for (int i = 0; i < len; ++i) {
         char c = data[i];
-        if (isprint(c)) {
+        if (isprint(int(uchar(c)))) {
             out += c;
         } else switch (c) {
         case '\n': out += "\\n"; break;
@@ -392,11 +392,9 @@ public:
     QString readBuffer;
     int readBufferOffset;
     qint64 readBufferStartDevicePos;
-    QString endOfBufferState;
 #ifndef QT_NO_TEXTCODEC
     QTextCodec::ConverterState readBufferStartReadConverterState;
 #endif
-    QString readBufferStartEndOfBufferState;
 
     // streaming parameters
     int realNumberPrecision;
@@ -471,7 +469,6 @@ void QTextStreamPrivate::reset()
 
     readBufferOffset = 0;
     readBufferStartDevicePos = 0;
-    endOfBufferState.clear();
     lastTokenSize = 0;
 
 #ifndef QT_NO_TEXTCODEC
@@ -554,7 +551,6 @@ bool QTextStreamPrivate::fillReadBuffer(qint64 maxBytes)
         return false;
 
     int oldReadBufferSize = readBuffer.size();
-    readBuffer += endOfBufferState;
 #ifndef QT_NO_TEXTCODEC
     // convert to unicode
     readBuffer += codec->toUnicode(buf, bytesRead, &readConverterState);
@@ -569,34 +565,31 @@ bool QTextStreamPrivate::fillReadBuffer(qint64 maxBytes)
     // remove all '\r\n' in the string.
     if (readBuffer.size() > oldReadBufferSize && textModeEnabled) {
         QChar CR = QLatin1Char('\r');
-        QChar LF = QLatin1Char('\n');
-        QChar *writePtr = readBuffer.data();
-        QChar *readPtr = readBuffer.data();
+        QChar *writePtr = readBuffer.data() + oldReadBufferSize;
+        QChar *readPtr = readBuffer.data() + oldReadBufferSize;
         QChar *endPtr = readBuffer.data() + readBuffer.size();
 
-        int n = 0;
+        int n = oldReadBufferSize;
+        if (readPtr < endPtr) {
+            // Cut-off to avoid unnecessary self-copying.
+            while (*readPtr++ != CR) {
+                ++n;
+                if (++writePtr == endPtr)
+                    break;
+            }
+        }
         while (readPtr < endPtr) {
-            if (readPtr + 1 < endPtr && *readPtr == CR && *(readPtr + 1) == LF) {
-                *writePtr = LF;
+            QChar ch = *readPtr++;
+            if (ch != CR) {
+                *writePtr++ = ch;
+            } else {
                 if (n < readBufferOffset)
                     --readBufferOffset;
-                ++readPtr;
-            } else  if (readPtr != writePtr) {
-                *writePtr = *readPtr;
+                --bytesRead;
             }
-
             ++n;
-            ++writePtr;
-            ++readPtr;
         }
         readBuffer.resize(writePtr - readBuffer.data());
-
-        if (readBuffer.endsWith(QLatin1Char('\r')) && !device->atEnd()) {
-            endOfBufferState = QLatin1String("\r");
-            readBuffer.chop(1);
-        } else {
-            endOfBufferState.clear();
-        }
     }
 
 #if defined (QTEXTSTREAM_DEBUG)
@@ -802,7 +795,6 @@ inline void QTextStreamPrivate::consume(int size)
 #ifndef QT_NO_TEXTCODEC
             copyConverterState(&readBufferStartReadConverterState, &readConverterState);
 #endif
-            readBufferStartEndOfBufferState = endOfBufferState;
         }
     }
 }
@@ -1100,9 +1092,7 @@ bool QTextStream::seek(qint64 pos)
             return false;
         d->readBuffer.clear();
         d->readBufferOffset = 0;
-        d->endOfBufferState.clear();
         d->readBufferStartDevicePos = d->device->pos();
-        d->readBufferStartEndOfBufferState.clear();
 
 #ifndef QT_NO_TEXTCODEC
         // Reset the codec converter states.
@@ -1140,7 +1130,7 @@ qint64 QTextStream::pos() const
     Q_D(const QTextStream);
     if (d->device) {
         // Cutoff
-        if (d->readBuffer.isEmpty() && d->endOfBufferState.isEmpty())
+        if (d->readBuffer.isEmpty())
             return d->device->pos();
         if (d->device->isSequential())
             return 0;
@@ -1158,7 +1148,6 @@ qint64 QTextStream::pos() const
 #ifndef QT_NO_TEXTCODEC
         ::copyConverterState(&thatd->readConverterState, &d->readBufferStartReadConverterState);
 #endif
-        thatd->endOfBufferState = d->readBufferStartEndOfBufferState;
 #ifndef QT_NO_TEXTCODEC
         if (d->readBufferStartDevicePos == 0)
             thatd->autoDetectUnicode = true;
