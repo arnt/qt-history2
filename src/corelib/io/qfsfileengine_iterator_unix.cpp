@@ -89,7 +89,8 @@ bool QFSFileEngineIterator::hasNext() const
             // ### Race condition; we should use fpathconf and dirfd().
             long maxPathName = ::pathconf(QFile::encodeName(path()).data(), _PC_NAME_MAX);
             if (maxPathName == -1)
-                maxPathName = (sizeof(dirent) + FILENAME_MAX + 1);
+                maxPathName = FILENAME_MAX;
+            maxPathName += sizeof(dirent) + 1;
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
             if (that->platform->mt_file)
                 delete [] that->platform->mt_file;

@@ -38,6 +38,7 @@ private slots:
     void engineWithNoIterator();
     void absoluteFilePathsFromRelativeIteratorPath();
     void recurseWithFilters() const;
+    void longPath();
 };
 
 tst_QDirIterator::tst_QDirIterator()
@@ -301,6 +302,29 @@ void tst_QDirIterator::recurseWithFilters() const
     QCOMPARE(it.fileInfo().filePath(), QString::fromLatin1("recursiveDirs/dir1/textFileB.txt"));
 
     QVERIFY(!it.hasNext());
+}
+
+void tst_QDirIterator::longPath()
+{
+    QDir dir;
+    dir.mkdir("longpaths");
+    dir.cd("longpaths");
+
+    QString dirName = "x";
+    int n = 0;
+    while (dir.exists(dirName) || dir.mkdir(dirName)) {
+        ++n;
+        dirName.append('x');
+    }
+
+    QDirIterator it(dir.absolutePath(), QDir::NoDotAndDotDot|QDir::Dirs, QDirIterator::Subdirectories);
+    int m = 0;
+    while (it.hasNext()) {
+        ++m;
+        it.next();
+    }
+
+    QCOMPARE(n, m);
 }
 
 QTEST_MAIN(tst_QDirIterator)
