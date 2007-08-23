@@ -262,10 +262,10 @@ void tst_QLocalSocket::sendData()
         QTextStream out(serverSocket);
         QTextStream in(&socket);
         out << testLine << endl;
+        QVERIFY(serverSocket->waitForBytesWritten(1000));
         if (!socket.canReadLine())
             QVERIFY(socket.waitForReadyRead());
         QCOMPARE(in.readLine(), testLine);
-        QVERIFY(serverSocket->waitForBytesWritten(1000));
         QCOMPARE(serverSocket->errorString(), QString("Unknown error"));
         QCOMPARE(socket.errorString(), QString("Unknown error"));
     }

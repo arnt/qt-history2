@@ -23,7 +23,7 @@
 // The buffer size need to be 0 otherwise data could be
 // lost if the socket that has written data closes the connection
 // before it is read.
-#define BUFSIZE 0
+#define BUFSIZE 4096
 
 QLocalServerThread::QLocalServerThread(QObject *parent) : QThread(parent),
        	maxPendingConnections(1),
