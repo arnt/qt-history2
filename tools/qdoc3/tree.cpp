@@ -936,110 +936,154 @@ bool Tree::generateIndexSection(QXmlStreamWriter &writer, const Node *node) cons
     writer.writeAttribute("href", fullDocumentName(node));
     writer.writeAttribute("location", node->location().fileName());
 
-    if (node->type() == Node::Class) {
+    switch (node->type()) {
 
-        // Classes contain information about their base classes.
+    case Node::Class:
+        {
+            // Classes contain information about their base classes.
 
-        const ClassNode *classNode = static_cast<const ClassNode*>(node);
-        QList<RelatedClass> bases = classNode->baseClasses();
-        QStringList baseStrings;
-        foreach (RelatedClass related, bases) {
-            ClassNode *baseClassNode = related.node;
-            baseStrings.append(baseClassNode->name());
+            const ClassNode *classNode = static_cast<const ClassNode*>(node);
+            QList<RelatedClass> bases = classNode->baseClasses();
+            QStringList baseStrings;
+            foreach (RelatedClass related, bases) {
+                ClassNode *baseClassNode = related.node;
+                baseStrings.append(baseClassNode->name());
+            }
+            writer.writeAttribute("bases", baseStrings.join(","));
+            writer.writeAttribute("module", node->moduleName());
         }
-        writer.writeAttribute("bases", baseStrings.join(","));
+        break;
+
+    case Node::Namespace:
         writer.writeAttribute("module", node->moduleName());
-    }
+        break;
 
-    else if (node->type() == Node::Namespace) {
-        writer.writeAttribute("module", node->moduleName());
+    case Node::Fake:
+        {
+            // Fake nodes (such as manual pages) contain subtypes, titles and other
+            // attributes.
 
-    } else if (node->type() == Node::Fake) {
-
-        // Fake nodes (such as manual pages) contain subtypes, titles and other
-        // attributes.
-
-        const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
-        switch (fakeNode->subType()) {
-            case FakeNode::Example:
-                writer.writeAttribute("subtype", "example");
-                break;
-            case FakeNode::HeaderFile:
-                writer.writeAttribute("subtype", "header");
-                break;
-            case FakeNode::File:
-                writer.writeAttribute("subtype", "file");
-                break;
-            case FakeNode::Group:
-                writer.writeAttribute("subtype", "group");
-                break;
-            case FakeNode::Module:
-                writer.writeAttribute("subtype", "module");
-                break;
-            case FakeNode::Page:
-                writer.writeAttribute("subtype", "page");
-                break;
-            case FakeNode::ExternalPage:
-                writer.writeAttribute("subtype", "externalpage");
-                break;
-            default:
-                break;
+            const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
+            switch (fakeNode->subType()) {
+                case FakeNode::Example:
+                    writer.writeAttribute("subtype", "example");
+                    break;
+                case FakeNode::HeaderFile:
+                    writer.writeAttribute("subtype", "header");
+                    break;
+                case FakeNode::File:
+                    writer.writeAttribute("subtype", "file");
+                    break;
+                case FakeNode::Group:
+                    writer.writeAttribute("subtype", "group");
+                    break;
+                case FakeNode::Module:
+                    writer.writeAttribute("subtype", "module");
+                    break;
+                case FakeNode::Page:
+                    writer.writeAttribute("subtype", "page");
+                    break;
+                case FakeNode::ExternalPage:
+                    writer.writeAttribute("subtype", "externalpage");
+                    break;
+                default:
+                    break;
+            }
+            writer.writeAttribute("title", fakeNode->title());
+            writer.writeAttribute("fulltitle", fakeNode->fullTitle());
+            writer.writeAttribute("subtitle", fakeNode->subTitle());
+            writer.writeAttribute("location", fakeNode->doc().location().fileName());
         }
-        writer.writeAttribute("title", fakeNode->title());
-        writer.writeAttribute("fulltitle", fakeNode->fullTitle());
-        writer.writeAttribute("subtitle", fakeNode->subTitle());
-        writer.writeAttribute("location", fakeNode->doc().location().fileName());
+        break;
 
-    } else if (node->type() == Node::Function) {
+    case Node::Function:
+        {
+            // Function nodes contain information about the type of function being
+            // described.
 
-        // Function nodes contain information about the type of function being
-        // described.
+            const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
 
-        const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
-
-        switch (functionNode->virtualness()) {
-            case FunctionNode::NonVirtual:
-                writer.writeAttribute("virtual", "non");
-                break;
-            case FunctionNode::ImpureVirtual:
-                writer.writeAttribute("virtual", "impure");
-                break;
-            case FunctionNode::PureVirtual:
-                writer.writeAttribute("virtual", "pure");
-                break;
-            default:
-                break;
+            switch (functionNode->virtualness()) {
+                case FunctionNode::NonVirtual:
+                    writer.writeAttribute("virtual", "non");
+                    break;
+                case FunctionNode::ImpureVirtual:
+                    writer.writeAttribute("virtual", "impure");
+                    break;
+                case FunctionNode::PureVirtual:
+                    writer.writeAttribute("virtual", "pure");
+                    break;
+                default:
+                    break;
+            }
+            switch (functionNode->metaness()) {
+                case FunctionNode::Plain:
+                    writer.writeAttribute("meta", "plain");
+                    break;
+                case FunctionNode::Signal:
+                    writer.writeAttribute("meta", "signal");
+                    break;
+                case FunctionNode::Slot:
+                    writer.writeAttribute("meta", "slot");
+                    break;
+                case FunctionNode::Ctor:
+                    writer.writeAttribute("meta", "constructor");
+                    break;
+                case FunctionNode::Dtor:
+                    writer.writeAttribute("meta", "destructor");
+                    break;
+                case FunctionNode::MacroWithParams:
+                    writer.writeAttribute("meta", "macrowithparams");
+                    break;
+                case FunctionNode::MacroWithoutParams:
+                    writer.writeAttribute("meta", "macrowithoutparams");
+                    break;
+                default:
+                    break;
+            }
+            writer.writeAttribute("const", functionNode->isConst()?"true":"false");
+            writer.writeAttribute("static", functionNode->isStatic()?"true":"false");
+            writer.writeAttribute("overload", functionNode->isOverload()?"true":"false");
+            if (functionNode->relates())
+                writer.writeAttribute("relates", functionNode->relates()->name());
+            const PropertyNode *propertyNode = functionNode->associatedProperty();
+            if (propertyNode)
+                writer.writeAttribute("associated-property", propertyNode->name());
         }
-        switch (functionNode->metaness()) {
-            case FunctionNode::Plain:
-                writer.writeAttribute("meta", "plain");
-                break;
-            case FunctionNode::Signal:
-                writer.writeAttribute("meta", "signal");
-                break;
-            case FunctionNode::Slot:
-                writer.writeAttribute("meta", "slot");
-                break;
-            case FunctionNode::Ctor:
-                writer.writeAttribute("meta", "constructor");
-                break;
-            case FunctionNode::Dtor:
-                writer.writeAttribute("meta", "destructor");
-                break;
-            case FunctionNode::MacroWithParams:
-                writer.writeAttribute("meta", "macrowithparams");
-                break;
-            case FunctionNode::MacroWithoutParams:
-                writer.writeAttribute("meta", "macrowithoutparams");
-                break;
-            default:
-                break;
+        break;
+
+    case Node::Property:
+        {
+            const PropertyNode *propertyNode = static_cast<const PropertyNode*>(node);
+            foreach (Node *fnNode, propertyNode->getters()) {
+                const FunctionNode *functionNode = static_cast<const FunctionNode*>(fnNode);
+                if (functionNode) {
+                    writer.writeStartElement("getter");
+                    writer.writeAttribute("name", functionNode->name());
+                    writer.writeEndElement(); // getter
+                }
+            }
+            foreach (Node *fnNode, propertyNode->setters()) {
+                const FunctionNode *functionNode = static_cast<const FunctionNode*>(fnNode);
+                if (functionNode) {
+                    writer.writeStartElement("setter");
+                    writer.writeAttribute("name", functionNode->name());
+                    writer.writeEndElement(); // getter
+                }
+            }
+            foreach (Node *fnNode, propertyNode->resetters()) {
+                const FunctionNode *functionNode = static_cast<const FunctionNode*>(fnNode);
+                if (functionNode) {
+                    writer.writeStartElement("resetter");
+                    writer.writeAttribute("name", functionNode->name());
+                    writer.writeEndElement(); // getter
+                }
+            }
         }
-        writer.writeAttribute("const", functionNode->isConst()?"true":"false");
-        writer.writeAttribute("static", functionNode->isStatic()?"true":"false");
-        writer.writeAttribute("overload", functionNode->isOverload()?"true":"false");
-        if (functionNode->relates())
-            writer.writeAttribute("relates", functionNode->relates()->name());
+        break;
+
+    default:
+        break;
     }
 
     // Inner nodes and function nodes contain child nodes of some sort, either
