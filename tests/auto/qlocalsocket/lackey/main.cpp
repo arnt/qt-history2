@@ -64,7 +64,7 @@ public slots:
         out << string << endl;
     }
 
-    bool waitForBytesWritten(int t = 300) {
+    bool waitForBytesWritten(int t = 3000) {
         return lc->waitForBytesWritten(t);
     }
 

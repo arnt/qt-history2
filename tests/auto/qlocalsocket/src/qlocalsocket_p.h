@@ -21,6 +21,7 @@
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
+#include "private/qwindowspipewriter_p.h"
 #include "private/qwineventnotifier_p.h"
 #else
 #include "private/qnativesocketengine_p.h"
@@ -113,6 +114,7 @@ public:
     QLocalSocket::LocalSocketError error;
     QWinEventNotifier handleNotifier;
     HANDLE handle;
+    QWindowsPipeWriter *pipeWriter;
 #else
     QLocalUnixSocket unixSocket;
     void errorOccured(QLocalSocket::LocalSocketError, const QString &function);

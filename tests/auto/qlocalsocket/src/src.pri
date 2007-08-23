@@ -12,7 +12,8 @@ unix:SOURCES += $$PWD/qlocalserver_unix.cpp \
 win32:SOURCES += $$PWD/qlocalserver_win.cpp \
                  $$PWD/qlocalsocket_win.cpp
 
+win32:HEADERS += $$PWD/qlocalserver_p.h
+
 HEADERS += $$PWD/qlocalsocket.h \
            $$PWD/qlocalsocket_p.h \
-	   $$PWD/qlocalserver.h
-#           $$PWD/qlocalserver_p.h
+	   $$PWD/qlocalserver.h \

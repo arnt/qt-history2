@@ -7,10 +7,12 @@ function QVERIFY(x, socket) {
 
 var socket = new QScriptLocalSocket;
 socket.peerName = "qlocalsocket_autotest";
-QVERIFY(socket.waitForConnected(), socket)
+QVERIFY(socket.waitForConnected(), socket);
+print("client: connected");
 socket.waitForReadyRead();
 var text = socket.readLine();
 var testLine = "test";
 QVERIFY((text == testLine), socket);
 QVERIFY((socket.errorString() == "Unknown error"), socket);
 socket.close();
+print("client: exiting", text);

@@ -262,11 +262,10 @@ void tst_QLocalSocket::sendData()
         QTextStream out(serverSocket);
         QTextStream in(&socket);
         out << testLine << endl;
-	if (!(serverSocket->openMode() & QIODevice::Unbuffered))
-            QVERIFY(serverSocket->waitForBytesWritten(1000));
         if (!socket.canReadLine())
             QVERIFY(socket.waitForReadyRead());
         QCOMPARE(in.readLine(), testLine);
+        QVERIFY(serverSocket->waitForBytesWritten(1000));
         QCOMPARE(serverSocket->errorString(), QString("Unknown error"));
         QCOMPARE(socket.errorString(), QString("Unknown error"));
     }
@@ -327,8 +326,7 @@ public:
         socket.connectToName("test");
         QVERIFY(socket.waitForConnected(10000));
         QVERIFY(socket.state() == QLocalSocket::ConnectedState);
-	if (!(socket.openMode() & QIODevice::Unbuffered))
-	    QVERIFY(socket.waitForReadyRead());
+	QVERIFY(socket.waitForReadyRead());
         QTextStream in(&socket);
         QCOMPARE(in.readLine(), testLine);
         QCOMPARE(socket.errorString(), QString("Unknown error"));
@@ -353,8 +351,7 @@ public:
             QVERIFY(serverSocket);
             QTextStream out(serverSocket);
             out << testLine << endl;
-	    if (!(serverSocket->openMode() & QIODevice::Unbuffered))
-                QVERIFY(serverSocket->waitForBytesWritten(300000));
+            QVERIFY(serverSocket->waitForBytesWritten(300000));
             QCOMPARE(serverSocket->errorString(), QString("Unknown error"));
             --done;
             delete serverSocket;
@@ -367,9 +364,9 @@ void tst_QLocalSocket::threadedConnection_data()
 {
     QTest::addColumn<int>("threads");
     QTest::newRow("1 client") << 1;
-    QTest::newRow("2 client") << 2;
-    QTest::newRow("5 client") << 5;
-    QTest::newRow("10 client") << 10;
+    QTest::newRow("2 clients") << 2;
+    QTest::newRow("5 clients") << 5;
+    QTest::newRow("10 clients") << 10;
 }
 
 void tst_QLocalSocket::threadedConnection()

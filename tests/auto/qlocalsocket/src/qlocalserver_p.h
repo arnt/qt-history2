@@ -22,6 +22,7 @@
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #include <qthread.h>
+#include <qqueue.h>
 
 class QLocalServerThread : public QThread
 {
@@ -40,6 +41,9 @@ public:
     void run();
     void makeHandle();
 
+    QQueue<HANDLE> handles;
+    int maxPendingConnections;
+    // current handle the thread is looking after
     HANDLE handle;
 private:
     QString fullName;

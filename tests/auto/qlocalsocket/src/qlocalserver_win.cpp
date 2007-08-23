@@ -14,35 +14,42 @@
 #include "qlocalserver.h"
 #include "qlocalserver_p.h"
 #include "qlocalsocket.h"
+#include <private/qwindowspipewriter_p.h>
 
 #include <qdebug.h>
 #include <qdatetime.h>
 #include <qcoreapplication.h>
 
-#define BUFSIZE 4096
+// The buffer size need to be 0 otherwise data could be
+// lost if the socket that has written data closes the connection
+// before it is read.
+#define BUFSIZE 0
 
 QLocalServerThread::QLocalServerThread(QObject *parent) : QThread(parent),
-	handle(INVALID_HANDLE_VALUE)
+       	maxPendingConnections(1),
+       	handle(INVALID_HANDLE_VALUE)
 {
 }
 
 QLocalServerThread::~QLocalServerThread()
 {
-    CloseHandle(handle);
+    while (!handles.isEmpty())
+    	CloseHandle(handles.dequeue());
 }
 
 void QLocalServerThread::setName(const QString &key)
 {
     fullName = QString("\\\\.\\pipe\\%1").arg(key);
-    makeHandle();
+    for (int i = handles.count(); i < maxPendingConnections; ++i)
+        makeHandle();
 }
 
 void QLocalServerThread::makeHandle()
 {
-    if (handle != INVALID_HANDLE_VALUE)
+    if (handles.count() >= maxPendingConnections)
         return;
 
-    handle = CreateNamedPipeW(
+    HANDLE handle = CreateNamedPipeW(
                  (TCHAR*)fullName.utf16(), // pipe name
                  PIPE_ACCESS_DUPLEX,       // read/write access
                  PIPE_TYPE_MESSAGE |       // message type pipe
@@ -56,29 +63,31 @@ void QLocalServerThread::makeHandle()
 
     if (handle == INVALID_HANDLE_VALUE) {
 	emit error();
+    } else {
+	handles.enqueue(handle);
     }
 }
 
 void QLocalServerThread::run()
 {
-    qDebug() << "Starting server";
     while (true) {
-	makeHandle();
-        if (handle == INVALID_HANDLE_VALUE)
+	if (handle == INVALID_HANDLE_VALUE) {
+	    makeHandle();
+            handle = handles.dequeue();
+	}
+	if (handle == INVALID_HANDLE_VALUE)
             return;
 
-	qDebug() << "server: waiting";
         // Wait for a connection, ConnectNamedPipe blocks
 	BOOL fConnected = ConnectNamedPipe(handle, NULL) ?
                           TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
 
         if (fConnected) {
-            emit connected((int)handle);
+	    emit connected((int)handle);
 	} else {
 	    emit error();
 	    CloseHandle(handle);
 	}
-	qDebug() << "server: resetartin";
         handle = INVALID_HANDLE_VALUE;
     }
 }
@@ -97,8 +106,8 @@ void QLocalServerPrivate::_q_error()
     // ### See if this is ever hit when run on all the windows test machines
     QString function = QLatin1String("QLocalServer::listen");
     error = QLocalServer::UnknownError;
-    errorString = QLocalServer::tr("%1: unknown error %2").arg(function).arg(GetLastError());
-    qDebug() << "error?" << errorString;
+    errorString = QLocalServer::tr("%1: Unknown error %2").arg(function).arg(GetLastError());
+    qDebug() << "server: You got an error! *DING* *DING* *DING*" << errorString;
 }
 
 bool QLocalServerPrivate::listen(const QString &name)
@@ -134,41 +143,47 @@ void QLocalServerPrivate::waitForNewConnection(int msecs, bool *timedOut)
     if (!pendingConnections.isEmpty())
 	return;
 
-    // For the time being while developing the QLocalSocket class ...
-    msecs = 1000;
+    if (timedOut)
+        *timedOut = false;
 
     // ### Is there no nicer way to do this?
     waiting = true;
     thread.terminate();
-    if (thread.handle == INVALID_HANDLE_VALUE)
+    if (thread.handle == INVALID_HANDLE_VALUE) {
 	thread.makeHandle();
+        thread.handle = thread.handles.dequeue();
+    }
     // The thread might have emited a signal of a new connection
     // before terminating
     QCoreApplication::instance()->processEvents();
-    QTime stopWatch;
-    stopWatch.start();
-
+    
+    QIncrementalSleepTimer timer(msecs);
     DWORD dwMode = PIPE_NOWAIT;
     SetNamedPipeHandleState(thread.handle, &dwMode, NULL, NULL);
     dwMode = PIPE_WAIT;
 
-    while (pendingConnections.isEmpty()
-	 && (msecs == -1 || stopWatch.elapsed() < msecs)) {
+    forever { 
+    	if (!pendingConnections.isEmpty())
+	    break;
 	BOOL fConnected = ConnectNamedPipe(thread.handle, NULL) ?
                           TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
         if (fConnected) {
 	    SetNamedPipeHandleState(thread.handle, &dwMode, NULL, NULL);
 	    _q_openSocket((int)thread.handle);
             thread.handle = INVALID_HANDLE_VALUE;
-	    thread.makeHandle();
 	    break;
 	} else {
-          qDebug() << "looping" << GetLastError() << thread.handle;
-	  Sleep(10);
+	    Sleep(timer.nextSleepTime());
+	}
+	
+        // Only wait for as long as we've been asked.
+        if (timer.hasTimedOut()) {
+	    qDebug() << "server: timeout waiting for new con";
+	    if (timedOut)
+                *timedOut = true;
+	    break;
 	}
     }
-    if (timedOut)
-        *timedOut = (stopWatch.elapsed() > msecs);
     SetNamedPipeHandleState(thread.handle, &dwMode, NULL, NULL);
     waiting = false;
     thread.start();
