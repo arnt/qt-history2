@@ -3315,9 +3315,9 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             // 1.6 -approximate golden mean
             bs.setWidth(qMax(16, qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4)));
             bs = bs.expandedTo(QApplication::globalStrut());
-            int y = fw;
+            int y = fw + spinbox->rect.y();
             int x, lx, rx;
-            x = spinbox->rect.width() - y - bs.width();
+            x = spinbox->rect.x() + spinbox->rect.width() - fw - bs.width();
             lx = fw;
             rx = x - fw;
             switch (sc) {

@@ -1863,9 +1863,9 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
             bs.setHeight(opt->rect.height()/2 - fw);
             bs.setWidth(qMin(bs.height() * 8 / 5, opt->rect.width() / 4)); // 1.6 -approximate golden mean
             bs = bs.expandedTo(QApplication::globalStrut());
-            int y = fw;
+            int y = fw + spinbox->rect.y();
             int x, lx, rx;
-            x = opt->rect.width() - y - bs.width();
+            x = spinbox->rect.x() + opt->rect.width() - fw - bs.width();
             lx = fw;
             rx = x - fw * 2;
             const int margin = spinbox->frame ? 4 : 0;
@@ -1878,18 +1878,17 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
             case SC_SpinBoxDown:
                 if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
                     return QRect();
-
                 return visualRect(spinbox->direction, spinbox->rect,
                                   QRect(x, y + bs.height() + 1, bs.width(), bs.height() - 1));
             case SC_SpinBoxEditField:
                 if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
                     return visualRect(spinbox->direction, spinbox->rect,
-                                      QRect(lx + margin, fw + margin,
+                                      QRect(lx + margin, y + margin,
                                             spinbox->rect.width() - 2*fw - 2*margin,
                                             spinbox->rect.height() - 2*fw - 2*margin));
 
                 return visualRect(spinbox->direction, spinbox->rect,
-                                  QRect(lx + margin, fw + margin, rx - margin,
+                                  QRect(lx + margin, y + margin, rx - margin,
                                         spinbox->rect.height() - 2*fw - 2 * margin));
             case SC_SpinBoxFrame:
                 return visualRect(spinbox->direction, spinbox->rect, spinbox->rect);

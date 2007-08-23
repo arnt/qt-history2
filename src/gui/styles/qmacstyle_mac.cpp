@@ -5062,7 +5062,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 const int spinner_w = 18,
                 y = pixelMetric(PM_SpinBoxFrameWidth, spin, widget),
                 x = spin->rect.width() - spinner_w + y;
-                ret.setRect(x, y, spinner_w, spin->rect.height() - y * 2);
+                ret.setRect(x + spin->rect.x(), y + spin->rect.y(), spinner_w, spin->rect.height() - y * 2);
                 HIThemeButtonDrawInfo bdi;
                 bdi.version = qt_mac_hitheme_version;
                 bdi.kind = kThemeIncDecButton;
