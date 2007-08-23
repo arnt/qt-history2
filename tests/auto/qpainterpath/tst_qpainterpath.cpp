@@ -461,6 +461,10 @@ void tst_QPainterPath::testArcMoveTo_data()
         for (int i=-360; i<=360; ++i) {
             QTest::newRow("test") << rects.at(domain) << (qreal) i;
         }
+
+        // test low angles
+        QTest::newRow("test") << rects.at(domain) << (qreal) 1e-10;
+        QTest::newRow("test") << rects.at(domain) << (qreal)-1e-10;
     }
 }
 
@@ -472,13 +476,13 @@ void tst_QPainterPath::testArcMoveTo_data()
 
 static inline bool pathFuzzyCompare(double p1, double p2)
 {
-    return qFuzzyCompare(p1, p2);
+    return qAbs(p1 - p2) < 0.001;
 }
 
 
 static inline bool pathFuzzyCompare(float p1, float p2)
 {
-     return qAbs(p1 - p2) < 0.0002;
+    return qAbs(p1 - p2) < 0.001;
 }
 
 
@@ -489,9 +493,12 @@ void tst_QPainterPath::testArcMoveTo()
 
     QPainterPath path;
     path.arcMoveTo(rect, angle);
+    path.arcTo(rect, angle, 30);
+    path.arcTo(rect, angle + 30, 30);
 
     QPointF pos = path.elementAt(0);
 
+    QVERIFY((path.elementCount()-1) % 3 == 0);
 
     qreal x_radius = rect.width() / 2.0;
     qreal y_radius = rect.height() / 2.0;
@@ -499,8 +506,11 @@ void tst_QPainterPath::testArcMoveTo()
     QPointF shouldBe = rect.center()
                        + QPointF(x_radius * cos(ANGLE(angle)), -y_radius * sin(ANGLE(angle)));
 
-    QVERIFY(pathFuzzyCompare(pos.x(), shouldBe.x()));
-    QVERIFY(pathFuzzyCompare(pos.y(), shouldBe.y()));
+    qreal iw = 1 / rect.width();
+    qreal ih = 1 / rect.height();
+
+    QVERIFY(pathFuzzyCompare(pos.x() * iw, shouldBe.x() * iw));
+    QVERIFY(pathFuzzyCompare(pos.y() * ih, shouldBe.y() * ih));
 }
 
 void tst_QPainterPath::testOnPath_data()

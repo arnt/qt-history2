@@ -85,6 +85,8 @@ struct qfixed2d
 QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLength,
                           QPointF *controlPoints, int *point_count);
 
+qreal qt_t_for_arc_angle(qreal angle);
+
 typedef void (*qStrokerMoveToHook)(qfixed x, qfixed y, void *data);
 typedef void (*qStrokerLineToHook)(qfixed x, qfixed y, void *data);
 typedef void (*qStrokerCubicToHook)(qfixed c1x, qfixed c1y,

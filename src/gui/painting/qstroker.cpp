@@ -704,6 +704,79 @@ template <class Iterator> bool qt_stroke_side(Iterator *it,
 /*!
     \internal
 
+    For a given angle in the range [0 .. 90], finds the corresponding parameter t
+    of the prototype cubic bezier arc segment
+    b = fromPoints(QPointF(1, 0), QPointF(1, KAPPA), QPointF(KAPPA, 1), QPointF(0, 1));
+
+    From the bezier equation:
+    b.pointAt(t).x() = (1-t)^3 + t*(1-t)^2 + t^2*(1-t)*KAPPA
+    b.pointAt(t).y() = t*(1-t)^2 * KAPPA + t^2*(1-t) + t^3
+
+    Third degree coefficients:
+    b.pointAt(t).x() = at^3 + bt^2 + ct + d
+    where a = 2-3*KAPPA, b = 3*(KAPPA-1), c = 0, d = 1
+
+    b.pointAt(t).y() = at^3 + bt^2 + ct + d
+    where a = 3*KAPPA-2, b = 6*KAPPA+3, c = 3*KAPPA, d = 0
+
+    Newton's method to find the zero of a function:
+    given a function f(x) and initial guess x_0
+    x_1 = f(x_0) / f'(x_0)
+    x_2 = f(x_1) / f'(x_1)
+    etc...
+*/
+
+qreal qt_t_for_arc_angle(qreal angle)
+{
+    if (qFuzzyCompare(angle, qreal(0)))
+        return 0;
+
+    if (qFuzzyCompare(angle, qreal(90)))
+        return 1;
+
+    qreal radians = Q_PI * angle / 180;
+    qreal cosAngle = qCos(radians);
+    qreal sinAngle = qSin(radians);
+
+    // initial guess
+    qreal tc = angle / 90;
+    // do some iterations of newton's method to approximate cosAngle
+    // finds the zero of the function b.pointAt(tc).x() - cosAngle
+    tc -= ((((2-3*QT_PATH_KAPPA) * tc + 3*(QT_PATH_KAPPA-1)) * tc) * tc + 1 - cosAngle) // value
+         / (((6-9*QT_PATH_KAPPA) * tc + 6*(QT_PATH_KAPPA-1)) * tc); // derivative
+    tc -= ((((2-3*QT_PATH_KAPPA) * tc + 3*(QT_PATH_KAPPA-1)) * tc) * tc + 1 - cosAngle) // value
+         / (((6-9*QT_PATH_KAPPA) * tc + 6*(QT_PATH_KAPPA-1)) * tc); // derivative
+
+    // initial guess
+    qreal ts = tc;
+    // do some iterations of newton's method to approximate sinAngle
+    // finds the zero of the function b.pointAt(tc).y() - sinAngle
+    ts -= ((((3*QT_PATH_KAPPA-2) * ts -  6*QT_PATH_KAPPA + 3) * ts + 3*QT_PATH_KAPPA) * ts - sinAngle)
+         / (((9*QT_PATH_KAPPA-6) * ts + 12*QT_PATH_KAPPA - 6) * ts + 3*QT_PATH_KAPPA);
+    ts -= ((((3*QT_PATH_KAPPA-2) * ts -  6*QT_PATH_KAPPA + 3) * ts + 3*QT_PATH_KAPPA) * ts - sinAngle)
+         / (((9*QT_PATH_KAPPA-6) * ts + 12*QT_PATH_KAPPA - 6) * ts + 3*QT_PATH_KAPPA);
+
+    // use the average of the t that best approximates cosAngle
+    // and the t that best approximates sinAngle
+    qreal t = 0.5 * (tc + ts);
+
+#if 0
+    printf("angle: %f, t: %f\n", angle, t);
+    qreal a, b, c, d;
+    bezierCoefficients(t, a, b, c, d);
+    printf("cosAngle: %.10f, value: %.10f\n", cosAngle, a + b + c * QT_PATH_KAPPA);
+    printf("sinAngle: %.10f, value: %.10f\n", sinAngle, b * QT_PATH_KAPPA + c + d);
+#endif
+
+    return t;
+}
+
+void qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
+                            QPointF* startPoint, QPointF *endPoint);
+
+/*!
+    \internal
+
     Creates a number of curves for a given arc definition. The arc is
     defined an arc along the ellipses that fits into \a rect starting
     at \a startAngle and an arc length of \a sweepLength.
@@ -802,6 +875,9 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
         endSegment -= delta;
     }
 
+    startT = qt_t_for_arc_angle(startT * 90);
+    endT = qt_t_for_arc_angle(endT * 90);
+
     const bool splitAtStart = !qFuzzyCompare(startT, qreal(0));
     const bool splitAtEnd = !qFuzzyCompare(endT, qreal(1));
 
@@ -814,7 +890,9 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
         return delta > 0 ? points[j + 3] : points[j];
     }
 
-    QPointF startPoint;
+    QPointF startPoint, endPoint;
+    qt_find_ellipse_coords(rect, startAngle, sweepLength, &startPoint, &endPoint);
+
     for (int i = startSegment; i != end; i += delta) {
         const int quadrant = 3 - ((i % 4) + 4) % 4;
         const int j = 3 * quadrant;
@@ -827,14 +905,13 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
 
         // empty arc?
         if (startSegment == endSegment && qFuzzyCompare(startT, endT))
-            return b.pointAt(startT);
+            return startPoint;
 
         if (i == startSegment) {
             if (i == endSegment && splitAtEnd)
                 b = b.bezierOnInterval(startT, endT);
             else if (splitAtStart)
                 b = b.bezierOnInterval(startT, 1);
-            startPoint = b.pt1();
         } else if (i == endSegment && splitAtEnd) {
             b = b.bezierOnInterval(0, endT);
         }
@@ -844,6 +921,9 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
         curves[(*point_count)++] = b.pt3();
         curves[(*point_count)++] = b.pt4();
     }
+
+    Q_ASSERT(*point_count > 0);
+    curves[*(point_count)-1] = endPoint;
 
     return startPoint;
 }

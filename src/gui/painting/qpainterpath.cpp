@@ -82,6 +82,8 @@ void qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
         int quadrant = int(t);
         t -= quadrant;
 
+        t = qt_t_for_arc_angle(90 * t);
+
         // swap x and y?
         if (quadrant & 1)
             t = 1 - t;
