@@ -126,6 +126,16 @@ enum Property {
     ListStyle,
     QtImageAlignment,
     TextAlignment,
+    Outline,
+    OutlineOffset,
+    OutlineWidth,
+    OutlineColor,
+    OutlineStyle,
+    OutlineRadius,
+    OutlineTopLeftRadius,
+    OutlineTopRightRadius,
+    OutlineBottomLeftRadius,
+    OutlineBottomRightRadius,
     NumProperties
 };
 
@@ -463,6 +473,7 @@ struct Q_GUI_EXPORT ValueExtractor
                          QCss::PositionMode *, Qt::Alignment *);
     bool extractBox(int *margins, int *paddings, int *spacing = 0);
     bool extractBorder(int *borders, QBrush *colors, BorderStyle *Styles, QSize *radii);
+    bool extractOutline(int *borders, QBrush *colors, BorderStyle *Styles, QSize *radii, int *offsets);
     bool extractPalette(QBrush *fg, QBrush *sfg, QBrush *sbg, QBrush *abg);
     int  extractStyleFeatures();
     bool extractImage(QIcon *icon, Qt::Alignment *a, QSize *size);

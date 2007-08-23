@@ -136,6 +136,16 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "max-width", MaximumWidth },
     { "min-height", MinimumHeight },
     { "min-width", MinimumWidth },
+    { "outline", Outline },
+    { "outline-bottom-left-radius", OutlineBottomLeftRadius },
+    { "outline-bottom-right-radius", OutlineBottomRightRadius },
+    { "outline-color", OutlineColor },
+    { "outline-offset", OutlineOffset },
+    { "outline-radius", OutlineRadius },
+    { "outline-style", OutlineStyle },
+    { "outline-top-left-radius", OutlineTopLeftRadius },
+    { "outline-top-right-radius", OutlineTopRightRadius },
+    { "outline-width", OutlineWidth },
     { "padding", Padding },
     { "padding-bottom", PaddingBottom },
     { "padding-left", PaddingLeft },
@@ -523,6 +533,40 @@ bool ValueExtractor::extractBorder(int *borders, QBrush *colors, BorderStyle *st
             borderValue(decl, &borders[BottomEdge], &styles[BottomEdge], &colors[BottomEdge]);
             break;
         case Border:
+            borderValue(decl, &borders[LeftEdge], &styles[LeftEdge], &colors[LeftEdge]);
+            borders[TopEdge] = borders[RightEdge] = borders[BottomEdge] = borders[LeftEdge];
+            styles[TopEdge] = styles[RightEdge] = styles[BottomEdge] = styles[LeftEdge];
+            colors[TopEdge] = colors[RightEdge] = colors[BottomEdge] = colors[LeftEdge];
+            break;
+
+        default: continue;
+        }
+        hit = true;
+    }
+
+    return hit;
+}
+
+bool ValueExtractor::extractOutline(int *borders, QBrush *colors, BorderStyle *styles,
+                                   QSize *radii, int *offsets)
+{
+    extractFont();
+    bool hit = false;
+    for (int i = 0; i < declarations.count(); i++) {
+        const Declaration &decl = declarations.at(i);
+        switch (decl.propertyId) {
+        case OutlineWidth: lengthValues(decl, borders); break;
+        case OutlineColor: decl.brushValues(colors, pal); break;
+        case OutlineStyle:  decl.styleValues(styles); break;
+
+        case OutlineTopLeftRadius: radii[0] = sizeValue(decl); break;
+        case OutlineTopRightRadius: radii[1] = sizeValue(decl); break;
+        case OutlineBottomLeftRadius: radii[2] = sizeValue(decl); break;
+        case OutlineBottomRightRadius: radii[3] = sizeValue(decl); break;
+        case OutlineRadius: sizeValues(decl, radii); break;
+        case OutlineOffset: lengthValues(decl, offsets); break;
+
+        case Outline:
             borderValue(decl, &borders[LeftEdge], &styles[LeftEdge], &colors[LeftEdge]);
             borders[TopEdge] = borders[RightEdge] = borders[BottomEdge] = borders[LeftEdge];
             styles[TopEdge] = styles[RightEdge] = styles[BottomEdge] = styles[LeftEdge];
