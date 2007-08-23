@@ -476,6 +476,7 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
     capitalize(tokens[Family]);
     capitalize(tokens[Foundry]);
 
+    fd->styleStrategy |= QFont::NoAntialias;
     fd->family = QString::fromLatin1(tokens[Family]);
     QString foundry = QString::fromLatin1(tokens[Foundry]);
     if (! foundry.isEmpty() && foundry != QString::fromLatin1("*"))
