@@ -259,6 +259,25 @@ void QFontDatabasePrivate::loadFromCache(const QString &fontPath)
 /*!
     \internal
 */
+
+static QString qwsFontPath()
+{
+    QString fontpath = QString::fromLocal8Bit(qgetenv("QT_QWS_FONTDIR"));
+    if (fontpath.isEmpty()) {
+#ifndef QT_NO_SETTINGS
+        fontpath = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
+        fontpath += QLatin1String("/fonts");
+#else
+        fontpath = QLatin1String("/lib/fonts");
+#endif
+    }
+
+    return fontpath;
+}
+
+/*!
+    \internal
+*/
 static void initializeDb()
 {
     QFontDatabasePrivate *db = privateDb();
@@ -273,16 +292,7 @@ static void initializeDb()
             }
     }
 
-    QString fontpath = QString::fromLocal8Bit(qgetenv("QT_QWS_FONTDIR"));
-    if (fontpath.isEmpty()) {
-#ifndef QT_NO_SETTINGS
-        fontpath = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
-        fontpath += QLatin1String("/fonts");
-#else
-        fontpath += QLatin1String("/lib/fonts");
-#endif
-    }
-
+    QString fontpath = qwsFontPath();
     QString fontDirFile = fontpath + QLatin1String("/fontdir");
 
     if(!QFile::exists(fontpath)) {
@@ -319,14 +329,8 @@ static void initializeDb()
                 int size=0;
                 sscanf(buf,"%s %s %s %s %d %d %s",name,file,render,isitalic,&weight,&size,flags);
                 QString filename;
-                if (file[0] != '/') {
-#ifndef QT_NO_SETTINGS
-                    filename = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
-                    filename += QLatin1String("/fonts/");
-#else
-                    filename += QLatin1String("/lib/fonts/");
-#endif
-                }
+                if (file[0] != '/')
+                    filename.append(fontpath).append(QLatin1Char('/'));
                 filename += QLatin1String(file);
                 bool italic = isitalic[0] == 'y';
                 bool smooth = QByteArray(flags).contains('s');
@@ -624,13 +628,8 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
 #endif // QT_NO_FREETYPE
     {
 #ifndef QT_NO_QWS_QPF
-        QString fn;
-#ifndef QT_NO_SETTINGS
-	fn = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
-        fn += QLatin1String("/fonts/");
-#else
-        fn += QLatin1String("/lib/fonts/");
-#endif
+        QString fn = qwsFontPath();
+        fn += QLatin1Char('/');
         fn += family->name.toLower()
               + QLatin1String("_") + QString::number(pixelSize*10)
               + QLatin1String("_") + QString::number(style->key.weight)
