@@ -568,6 +568,11 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
                         socketState = QAbstractSocket::UnconnectedState;
                         break;
                     }
+                    if (value == WSAETIMEDOUT) {
+                        setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
+                        socketState = QAbstractSocket::UnconnectedState;
+                        break;
+                    }
                 }
                 // fall through
             }
