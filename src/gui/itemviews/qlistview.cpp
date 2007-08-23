@@ -1750,7 +1750,7 @@ bool QListView::uniformItemSizes() const
     \brief the item text word-wrapping policy
     \since 4.2
 
-    If this property is true then item text text is wrapped where
+    If this property is true then the item text is wrapped where
     necessary at word-breaks; otherwise it is not wrapped at all.
     This property is false by default.
 */
