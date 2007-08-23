@@ -261,10 +261,10 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
         home = url;
 
     if (doSetText) {
+        q->QTextEdit::setHtml(txt);
 #ifdef QT_KEYPAD_NAVIGATION
         prevFocus.movePosition(QTextCursor::Start);
 #endif
-        q->QTextEdit::setHtml(txt);
     }
 
     forceLoadOnSourceChange = false;
