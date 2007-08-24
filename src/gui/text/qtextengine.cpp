@@ -146,11 +146,11 @@ static void appendItems(QScriptAnalysis *analysis, int &start, int &stop, const 
 // creates the next QScript items.
 static bool bidiItemize(QTextEngine *engine, QScriptAnalysis *analysis, QBidiControl &control)
 {
-#if BIDI_DEBUG >= 2
-    qDebug() << "bidiItemize: rightToLeft=" << rightToLeft;
-#endif
     bool rightToLeft = (control.basicDirection() == 1);
     bool hasBidi = rightToLeft;
+#if BIDI_DEBUG >= 2
+    qDebug() << "bidiItemize: rightToLeft=" << rightToLeft << engine->layoutData->string;
+#endif
 
     int sor = 0;
     int eor = -1;
@@ -989,9 +989,8 @@ static void generateScriptItems(const QScriptAnalysis *analysis, int start, int 
 {
     if (!length)
         return;
-    analysis += start;
-    start = 0;
-    for (int i = 1; i < length; ++i) {
+    int end = start + length;
+    for (int i = start + 1; i < end; ++i) {
         if ((analysis[i] == analysis[start])
             && analysis[i].flags < QScriptAnalysis::TabOrObject)
             continue;
@@ -1007,10 +1006,9 @@ static void generateScriptItemsCase(const QScriptAnalysis *analysis, const ushor
 {
     if (!length)
         return;
-    uc += start;
-    start = 0;
-    bool lower = (QChar::category(*uc) == QChar::Letter_Lowercase);
-    for (int i = 1; i < length; ++i) {
+    bool lower = (QChar::category(uc[start]) == QChar::Letter_Lowercase);
+    int end = start + length;
+    for (int i = start + 1; i < end; ++i) {
         bool l = (QChar::category(uc[i]) == QChar::Letter_Lowercase);
         if ((analysis[i] == analysis[start])
             && analysis[i].flags < QScriptAnalysis::TabOrObject
@@ -1105,15 +1103,13 @@ void QTextEngine::itemize() const
         int lastPos = position;
         while (1) {
             const QTextFragmentData * const frag = it.value();
-            lastPos += frag->size;
             if (it == end || format != frag->format) {
                 if (s && lastPos >= s->preeditPosition) {
                     lastPos += s->preeditText.length();
                     s = 0;
                 }
-                if (lastPos > length)
-                    lastPos = length;
-            
+                Q_ASSERT(lastPos <= length);
+                
                 bool smallCaps = formats()->charFormat(frag->format).font().d->smallCaps;
 
                 if (smallCaps) {
@@ -1122,11 +1118,12 @@ void QTextEngine::itemize() const
                 } else {
                     generateScriptItems(analysis, position, lastPos - position, &items);
                 }
-                format = frag->format;
-                position = lastPos;
                 if (it == end)
                     break;
+                format = frag->format;
+                position = lastPos;
             }
+            lastPos += frag->size;
             ++it;
         } 
     } else if (fnt.d->smallCaps) {
@@ -1341,10 +1338,11 @@ QFont QTextEngine::font(const QScriptItem &si) const
     }
     
     if (si.analysis.flags == QScriptAnalysis::Lowercase) {
-        if (font.pointSize() != -1)
-            font.setPointSize((font.pointSize() * 7) / 10);
+        qreal pointSize = font.pointSizeF();
+        if (pointSize > 0)
+            font.setPointSizeF(pointSize * .7);
         else
-            font.setPixelSize((font.pixelSize() * 7) / 10);
+            font.setPixelSize((font.pixelSize() * 7 + 5) / 10);
     }
 
     return font;
@@ -1383,10 +1381,11 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
     }
 
     if (si.analysis.flags == QScriptAnalysis::Lowercase) {
-        if (font.pointSize() != -1)
-            font.setPointSize((font.pointSize() * 7) / 10);
+        qreal pointSize = font.pointSizeF();
+        if (pointSize > 0)
+            font.setPointSizeF(pointSize * .7);
         else
-            font.setPixelSize((font.pixelSize() * 7) / 10);
+            font.setPixelSize((font.pixelSize() * 7 + 5) / 10);
         scaledEngine = font.d->engineForScript(script);
     }
     
