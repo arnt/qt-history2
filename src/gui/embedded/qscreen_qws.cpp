@@ -2142,7 +2142,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
     bool opaque = true;
 
     if (win) {
-        opaque = win->isOpaque();
+        opaque = win->isOpaque() || !surface->isBuffered();
         if (opaque) {
             exposedBelow -= win->allocatedRegion();
             if (above_changing || !surface->isBuffered())
