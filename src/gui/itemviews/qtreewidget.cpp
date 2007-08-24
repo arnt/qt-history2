@@ -947,6 +947,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
   \since 4.2
 
   Expands the item if \a expand is true, otherwise collapses the item.
+  \warning The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
 
   \sa isExpanded()
 */
