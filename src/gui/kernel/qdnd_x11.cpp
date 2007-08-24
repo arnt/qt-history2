@@ -1883,14 +1883,14 @@ Qt::DropAction QDragManager::drag(QDrag * o)
     XSetSelectionOwner(X11->display, ATOM(XdndSelection), dragPrivate()->source->window()->internalWinId(), X11->time);
     global_accepted_action = Qt::CopyAction;
     qt_xdnd_source_sameanswer = QRect();
-    move(QCursor::pos());
-    heartbeat = startTimer(200);
-
 #ifndef QT_NO_CURSOR
+    // set the override cursor (must be done here, since it is updated
+    // in the call to move() below)
     qApp->setOverrideCursor(Qt::ArrowCursor);
     restoreCursor = true;
-    updateCursor();
 #endif
+    move(QCursor::pos());
+    heartbeat = startTimer(200);
 
     qt_xdnd_dragging = true;
 
