@@ -216,9 +216,9 @@ static inline void transform_point(GLdouble out[4], const GLdouble m[16], const 
 }
 
 static inline GLint qgluProject(GLdouble objx, GLdouble objy, GLdouble objz,
-	   const GLdouble model[16], const GLdouble proj[16],
-	   const GLint viewport[4],
-	   GLdouble * winx, GLdouble * winy, GLdouble * winz)
+           const GLdouble model[16], const GLdouble proj[16],
+           const GLint viewport[4],
+           GLdouble * winx, GLdouble * winy, GLdouble * winz)
 {
    GLdouble in[4], out[4];
 
@@ -3373,9 +3373,11 @@ static void qt_gl_draw_text(QPainter *p, int x, int y, const QString &str,
 void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, int)
 {
     Q_D(QGLWidget);
-    if (str.isEmpty())
+    if (str.isEmpty() || !isValid())
         return;
 
+    int width = d->glcx->device()->width();
+    int height = d->glcx->device()->height();
     bool auto_swap = autoBufferSwap();
 
     QPaintEngine *engine = paintEngine();
@@ -3387,13 +3389,13 @@ void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, 
         qt_save_gl_state();
 
         glDisable(GL_DEPTH_TEST);
-        glViewport(0, 0, width(), height());
+        glViewport(0, 0, width, height);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 #ifndef Q_WS_QWS
-        glOrtho(0, width(), height(), 0, 0, 1);
+        glOrtho(0, width, height, 0, 0, 1);
 #else
-        glOrthof(0, width(), height(), 0, 0, 1);
+        glOrthof(0, width, height, 0, 0, 1);
 #endif
         glMatrixMode(GL_MODELVIEW);
 
@@ -3430,11 +3432,13 @@ void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, 
 void QGLWidget::renderText(double x, double y, double z, const QString &str, const QFont &font, int)
 {
     Q_D(QGLWidget);
-    if (str.isEmpty())
+    if (str.isEmpty() || !isValid())
         return;
 
     bool auto_swap = autoBufferSwap();
 
+    int width = d->glcx->device()->width();
+    int height = d->glcx->device()->height();
     GLdouble model[4][4], proj[4][4];
     GLint view[4];
 #ifndef Q_WS_QWS
@@ -3445,7 +3449,7 @@ void QGLWidget::renderText(double x, double y, double z, const QString &str, con
     GLdouble win_x = 0, win_y = 0, win_z = 0;
     qgluProject(x, y, z, &model[0][0], &proj[0][0], &view[0],
                 &win_x, &win_y, &win_z);
-    win_y = height() - win_y; // y is inverted
+    win_y = height - win_y; // y is inverted
 
     QPaintEngine *engine = paintEngine();
     QPainter *p;
@@ -3463,11 +3467,11 @@ void QGLWidget::renderText(double x, double y, double z, const QString &str, con
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glViewport(0, 0, width(), height());
+    glViewport(0, 0, width, height);
 #ifndef Q_WS_QWS
-    glOrtho(0, width(), height(), 0, 0, 1);
+    glOrtho(0, width, height, 0, 0, 1);
 #else
-    glOrthof(0, width(), height(), 0, 0, 1);
+    glOrthof(0, width, height, 0, 0, 1);
 #endif
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

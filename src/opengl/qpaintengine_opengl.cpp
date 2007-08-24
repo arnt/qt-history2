@@ -223,16 +223,18 @@ inline void QGLDrawable::doneCurrent()
 
 inline QSize QGLDrawable::size() const
 {
-    if (widget)
-        return widget->size();
-    else if (buffer)
+    if (widget) {
+        return QSize(widget->d_func()->glcx->device()->width(),
+                     widget->d_func()->glcx->device()->height());
+    } else if (buffer) {
         return buffer->size();
-    else if (fbo)
+    } else if (fbo) {
         return fbo->size();
 #ifdef Q_WS_QWS
-    else if (wsurf)
+    } else if (wsurf) {
         return wsurf->window()->frameSize();
 #endif
+    }
     return QSize();
 }
 
