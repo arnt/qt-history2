@@ -263,12 +263,18 @@ Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
 struct QScriptAnalysis
 {
+    enum Flags {
+        None = 0, 
+        Lowercase = 1, 
+        Tab = 2,
+        TabOrObject = Tab, 
+        Object = 3
+    };
     unsigned short script    : 8;
     unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
-    unsigned short isTab     : 1;
-    unsigned short isObject  : 1;
+    unsigned short flags     : 2;
     inline bool operator == (const QScriptAnalysis &other) const {
-        return script == other.script && bidiLevel == other.bidiLevel;
+        return script == other.script && bidiLevel == other.bidiLevel && flags == other.flags;
     }
 };
 Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);

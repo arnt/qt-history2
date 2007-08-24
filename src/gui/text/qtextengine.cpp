@@ -930,7 +930,7 @@ const HB_CharAttributes *QTextEngine::attributes() const
 
 void QTextEngine::shape(int item) const
 {
-    if (layoutData->items[item].analysis.isObject) {
+    if (layoutData->items[item].analysis.flags == QScriptAnalysis::Object) {
         ensureSpace(1);
         if (block.docHandle()) {
             QTextFormat format = formats()->format(formatIndex(&layoutData->items[item]));
@@ -970,9 +970,11 @@ static void generateScriptItems(const QScriptAnalysis *analysis, int start, int 
 {
     if (!length)
         return;
+    analysis += start;
+    start = 0;
     for (int i = 1; i < length; ++i) {
         if ((analysis[i] == analysis[start])
-            && !analysis[i].isTab && !analysis[i].isObject)
+            && analysis[i].flags < QScriptAnalysis::TabOrObject)
             continue;
         items->append(QScriptItem(start, analysis[start]));
         start = i;
@@ -986,17 +988,24 @@ static void generateScriptItemsCase(const QScriptAnalysis *analysis, const ushor
 {
     if (!length)
         return;
+    uc += start;
+    start = 0;
     bool lower = (QChar::category(*uc) == QChar::Letter_Lowercase);
     for (int i = 1; i < length; ++i) {
         if ((analysis[i] == analysis[start])
-            && !analysis[i].isTab && !analysis[i].isObject
-            && QChar::category(uc[i]) == lower)
+            && analysis[i].flags < QScriptAnalysis::TabOrObject
+            && (QChar::category(uc[i]) == QChar::Letter_Lowercase) == lower)
             continue;
         items->append(QScriptItem(start, analysis[start]));
+        if (lower)
+            items->last().analysis.flags = QScriptAnalysis::Lowercase;
+            
         start = i;
         lower = (QChar::category(uc[i]) == QChar::Letter_Lowercase);
     }
     items->append(QScriptItem(start, analysis[start]));
+    if (lower)
+        items->last().analysis.flags = QScriptAnalysis::Lowercase;
 }
 
 void QTextEngine::itemize() const
@@ -1042,15 +1051,15 @@ void QTextEngine::itemize() const
         int script = QUnicodeTables::script(*uc);
         if (script == QUnicodeTables::Inherited)
             script = lastScript;
-        analysis->isTab = analysis->isObject = false;
+        analysis->flags = QScriptAnalysis::None;
         if (*uc == QChar::ObjectReplacementCharacter || *uc == QChar::LineSeparator) {
             if (analysis->bidiLevel % 2)
                 --analysis->bidiLevel;
             analysis->script = QUnicodeTables::Common;
-            analysis->isObject = true;
+            analysis->flags = QScriptAnalysis::Object;
         } else if (*uc == 9) {
             analysis->script = QUnicodeTables::Common;
-            analysis->isTab = true;
+            analysis->flags = QScriptAnalysis::Tab;
             analysis->bidiLevel = control.baseLevel();
         } else {
             analysis->script = script;
@@ -1141,10 +1150,10 @@ QFixed QTextEngine::width(int from, int len) const
             if (!si->num_glyphs)
                 shape(i);
 
-            if (si->analysis.isObject) {
+            if (si->analysis.flags == QScriptAnalysis::Object) {
                 w += si->width;
                 continue;
-            } else if (si->analysis.isTab) {
+            } else if (si->analysis.flags == QScriptAnalysis::Tab) {
                 w = nextTab(si, w);
                 continue;
             }
@@ -1289,22 +1298,28 @@ glyph_metrics_t QTextEngine::tightBoundingBox(int from,  int len) const
 
 QFont QTextEngine::font(const QScriptItem &si) const
 {
-    if (!hasFormats())
-        return fnt;
-    QTextCharFormat f = format(&si);
-    QFont font = f.font();
+    QFont font = fnt;
+    bool small = false;
+    if (hasFormats()) {
+        QTextCharFormat f = format(&si);
+        font = f.font();
 
-    if (block.docHandle() && block.docHandle()->layout()) {
-        // Make sure we get the right dpi on printers
-        QPaintDevice *pdev = block.docHandle()->layout()->paintDevice();
-        if (pdev)
-            font = QFont(font, pdev);
+        if (block.docHandle() && block.docHandle()->layout()) {
+            // Make sure we get the right dpi on printers
+            QPaintDevice *pdev = block.docHandle()->layout()->paintDevice();
+            if (pdev)
+                font = QFont(font, pdev);
+        } else {
+            font = font.resolve(fnt);
+        }
+        QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
+        if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript)
+            small = true;
     } else {
-        font = font.resolve(fnt);
+        small = (si.analysis.flags == QScriptAnalysis::Lowercase);
     }
-
-    QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
-    if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
+    
+    if (small) {
         if (font.pointSize() != -1)
             font.setPointSize((font.pointSize() * 2) / 3);
         else
@@ -1316,19 +1331,11 @@ QFont QTextEngine::font(const QScriptItem &si) const
 
 QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFixed *descent) const
 {
-    QFontEngine *engine;
-    QFontEngine *scaledEngine = 0;
-    int script = si.analysis.script;
-
-    if (!hasFormats()) {
-        engine = fnt.d->engineForScript(script);
-#if defined(Q_WS_WIN)
-        if (engine->type() == QFontEngine::Box)
-            engine = fnt.d->engineForScript(QUnicodeTables::Common);
-#endif
-    } else {
+    QFont font = fnt;
+    bool small = false;
+    if (hasFormats()) {
         QTextCharFormat f = format(&si);
-        QFont font = f.font();
+        font = f.font();
 
         if (block.docHandle() && block.docHandle()->layout()) {
             // Make sure we get the right dpi on printers
@@ -1338,25 +1345,26 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
         } else {
             font = font.resolve(fnt);
         }
-        engine = font.d->engineForScript(script);
-#if defined(Q_WS_WIN)
-        if (engine->type() == QFontEngine::Box)
-            engine = font.d->engineForScript(QUnicodeTables::Common);
-#endif
         QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
-        if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
-            if (font.pointSize() != -1)
-                font.setPointSize((font.pointSize() * 2) / 3);
-            else
-                font.setPixelSize((font.pixelSize() * 2) / 3);
-            scaledEngine = font.d->engineForScript(script);
-#if defined(Q_WS_WIN)
-            if (scaledEngine->type() == QFontEngine::Box)
-                scaledEngine = font.d->engineForScript(QUnicodeTables::Common);
-#endif
-        }
+        if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript)
+            small = true;
+    } else {
+        small = (si.analysis.flags == QScriptAnalysis::Lowercase);
     }
 
+
+    int script = si.analysis.script;
+    QFontEngine *engine = font.d->engineForScript(script);
+    QFontEngine *scaledEngine = 0;
+
+    if (small) {
+        if (font.pointSize() != -1)
+            font.setPointSize((font.pointSize() * 2) / 3);
+        else
+            font.setPixelSize((font.pixelSize() * 2) / 3);
+        scaledEngine = font.d->engineForScript(script);
+    }
+    
     if (ascent) {
         *ascent = engine->ascent();
         *descent = engine->descent();

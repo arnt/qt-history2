@@ -4463,8 +4463,8 @@ void QPainter::drawText(const QPointF &p, const QString &str)
         int item = visualOrder[i];
         const QScriptItem &si = engine.layoutData->items.at(item);
         engine.shape(item);
-        if (si.analysis.isObject || si.analysis.isTab) {
-            if (si.analysis.isTab)
+        if (si.analysis.flags >= QScriptAnalysis::TabOrObject) {
+            if (si.analysis.flags == QScriptAnalysis::Tab)
                 x = engine.nextTab(&si, x - ox) + ox;
             else
                 x += si.width;

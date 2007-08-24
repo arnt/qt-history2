@@ -931,10 +931,10 @@ QScriptItem &QTextLineItemIterator::next()
     if (!si->num_glyphs)
         eng->shape(item);
 
-    if (si->analysis.isObject) {
+    if (si->analysis.flags == QScriptAnalysis::Object) {
         itemWidth = si->width;
         return *si;
-    } else if (si->analysis.isTab) {
+    } else if (si->analysis.flags == QScriptAnalysis::Tab) {
         itemWidth = eng->nextTab(si, x - pos_x) - (x - pos_x);
         return *si;
     }
@@ -970,7 +970,7 @@ bool QTextLineItemIterator::getSelectionBounds(QFixed *selectionX, QFixed *selec
     if (!selection)
         return false;
 
-    if (si->analysis.isObject || si->analysis.isTab) {
+    if (si->analysis.flags >= QScriptAnalysis::TabOrObject) {
         if (si->position >= selection->start + selection->length
             || si->position + itemLength <= selection->start)
             return false;
@@ -1552,7 +1552,7 @@ void QTextLine::layout_helper(int maxGlyphs)
         tmpData.ascent = qMax(tmpData.ascent, current.ascent);
         tmpData.descent = qMax(tmpData.descent, current.descent);
 
-        if (current.analysis.isTab && (alignment & Qt::AlignLeft)) {
+        if (current.analysis.flags == QScriptAnalysis::Tab && (alignment & Qt::AlignLeft)) {
             if (checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
 
@@ -1564,7 +1564,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             ++glyphCount;
             if (checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
-        } else if (current.analysis.isObject) {
+        } else if (current.analysis.flags == QScriptAnalysis::Object) {
             tmpData.length++;
 
             // the width of the linesep doesn't count into the textwidth
@@ -1837,7 +1837,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
     while (!iterator.atEnd()) {
         QScriptItem &si = iterator.next();
 
-        if (si.analysis.isObject || si.analysis.isTab) {
+        if (si.analysis.flags >= QScriptAnalysis::TabOrObject) {
             if (eng->layoutData->string.at(si.position) == QChar::LineSeparator)
                 continue;
 
@@ -1849,7 +1849,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                 if (selection)
                     format.merge(selection->format);
                 setPenAndDrawBackground(p, pen, format, QRectF(iterator.x.toReal(), (y - line.ascent).toReal(), iterator.itemWidth.toReal(), line.height().toReal()));
-                if (si.analysis.isObject && eng->block.docHandle()) {
+                if (si.analysis.flags == QScriptAnalysis::Object && eng->block.docHandle()) {
                     QFixed itemY = y - si.ascent;
                     if (format.verticalAlignment() == QTextCharFormat::AlignTop) {
                         itemY = y - line.ascent;
@@ -2057,10 +2057,10 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         if (!si.num_glyphs)
             eng->shape(item);
 
-        if (si.analysis.isTab) {
+        if (si.analysis.flags == QScriptAnalysis::Tab) {
             x = eng->nextTab(&si, x);
             continue;
-        } else if (si.analysis.isObject) {
+        } else if (si.analysis.flags == QScriptAnalysis::Object) {
             x += si.width;
             continue;
         }
@@ -2082,10 +2082,10 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
 
     logClusters = eng->logClusters(si);
     glyphs = eng->glyphs(si);
-    if (si->analysis.isTab) {
+    if (si->analysis.flags == QScriptAnalysis::Tab) {
         if(pos == l)
             x = eng->nextTab(si, x);
-    } else if (si->analysis.isObject) {
+    } else if (si->analysis.flags == QScriptAnalysis::Object) {
         if(pos == l)
             x += si->width;
     } else {
@@ -2176,9 +2176,9 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
             QGlyphLayout *glyphs = eng->glyphs(&si);
 
             QFixed item_width = 0;
-            if (si.analysis.isTab) {
+            if (si.analysis.flags == QScriptAnalysis::Tab) {
                 item_width = eng->nextTab(&si, pos) - pos;
-            } else if (si.analysis.isObject) {
+            } else if (si.analysis.flags == QScriptAnalysis::Object) {
                 item_width = si.width;
             } else {
                 int g = gs;
@@ -2194,7 +2194,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
                 continue;
             }
 //             qDebug("      inside run");
-            if (si.analysis.isTab || si.analysis.isObject) {
+            if (si.analysis.flags >= QScriptAnalysis::TabOrObject) {
                 if (cpos == QTextLine::CursorOnCharacter)
                     return si.position;
                 bool left_half = (x - pos) < item_width/2;

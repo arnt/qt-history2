@@ -1151,7 +1151,7 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
         int item = visualOrder[i];
         QScriptItem &si = eng->layoutData->items[item];
 
-        if (!si.analysis.isTab && !si.analysis.isObject) {
+        if (si.analysis.flags < QScriptAnalysis::TabOrObject) {
             QGlyphLayout *glyphs = eng->glyphs(&si);
             QFontEngine *fe = f.d->engineForScript(si.analysis.script);
             Q_ASSERT(fe);
