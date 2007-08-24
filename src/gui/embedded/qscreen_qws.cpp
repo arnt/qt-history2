@@ -2082,17 +2082,24 @@ QWSWindowSurface* QScreen::createSurface(const QString &key) const
 }
 
 #ifndef QT_NO_PAINTONSCREEN
-static inline bool isWidgetPaintOnScreen(const QWidget *w)
+bool QScreen::isWidgetPaintOnScreen(const QWidget *w)
 {
     static int doOnScreen = -1;
-    if (doOnScreen == -1)
-        doOnScreen = qgetenv("QT_ONSCREEN_PAINT").toInt();
+    if (doOnScreen == -1) {
+        const QByteArray env = qgetenv("QT_ONSCREEN_PAINT");
+        if (env == "force")
+            doOnScreen = 2;
+        else
+            doOnScreen = (env.toInt() > 0 ? 1 : 0);
+    }
 
-    if (doOnScreen > 0)
+    if (doOnScreen == 2) // force
         return true;
 
-    Q_ASSERT(w->isWindow());
-    return w->testAttribute(Qt::WA_PaintOnScreen);
+    if (doOnScreen == 0 && !w->testAttribute(Qt::WA_PaintOnScreen))
+        return false;
+
+    return w->d_func()->isOpaque();
 }
 #endif
 
@@ -2104,7 +2111,7 @@ static inline bool isWidgetPaintOnScreen(const QWidget *w)
 QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
 {
 #ifndef QT_NO_PAINTONSCREEN
-    if (isWidgetPaintOnScreen(widget) && widget->d_func()->isOpaque() && base())
+    if (isWidgetPaintOnScreen(widget) && base())
         return new QWSOnScreenSurface(widget);
     else
 #endif

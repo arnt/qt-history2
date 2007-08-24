@@ -1099,9 +1099,7 @@ bool QWSOnScreenSurface::isValid() const
         return false;
     if (img.isNull())
         return false;
-    if (!isWidgetOpaque(win))
-        return false;
-    return true;
+    return QScreen::isWidgetPaintOnScreen(win);
 }
 
 QByteArray QWSOnScreenSurface::permanentState() const

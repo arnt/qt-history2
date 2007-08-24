@@ -292,6 +292,9 @@ private:
     void compose(int level, const QRegion &exposed, QRegion &blend, QImage &blendbuffer, int changing_level);
     void paintBackground(const QRegion &);
 
+    friend class QWSOnScreenSurface;
+    static bool isWidgetPaintOnScreen(const QWidget *w);
+
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN
     void setFrameBufferLittleEndian(bool littleEndian);
     friend class QVNCScreen;
