@@ -31,6 +31,7 @@
 #include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>
 #include <private/qtextengine_p.h>
+#include <limits.h>
 
 #ifdef Q_WS_X11
 #include "qx11info_x11.h"
@@ -170,8 +171,9 @@ Q_GUI_EXPORT int qt_defaultDpi()
 }
 
 QFontPrivate::QFontPrivate()
-    : engineData(0), dpi(qt_defaultDpi()), screen(0),
-      rawMode(false), underline(false), overline(false), strikeOut(false), kerning(true)
+    : engineData(0), dpi(qt_defaultDpi()), screen(0), 
+      rawMode(false), underline(false), overline(false), strikeOut(false), kerning(true), 
+      smallCaps(false), letterSpacing(0), wordSpacing(0)
 {
     ref = 1;
 #ifdef Q_WS_X11
@@ -188,7 +190,8 @@ QFontPrivate::QFontPrivate()
 QFontPrivate::QFontPrivate(const QFontPrivate &other)
     : request(other.request), engineData(0), dpi(other.dpi), screen(other.screen),
       rawMode(other.rawMode), underline(other.underline), overline(other.overline),
-      strikeOut(other.strikeOut), kerning(other.kerning)
+      strikeOut(other.strikeOut), kerning(other.kerning), 
+      smallCaps(other.smallCaps), letterSpacing(other.letterSpacing), wordSpacing(other.wordSpacing)
 {
     ref = 1;
 #ifdef Q_WS_WIN
@@ -249,6 +252,13 @@ void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
 
     if (! (mask & Kerning))
         kerning = other->kerning;
+
+    if (! (mask & LetterSpacing))
+        letterSpacing = other->letterSpacing;
+    if (! (mask & WordSpacing))
+        wordSpacing = other->wordSpacing;
+    if (! (mask & SmallCaps))
+        smallCaps = other->smallCaps;
 }
 
 
@@ -1168,15 +1178,120 @@ void QFont::setStretch(int factor)
         return;
     }
 
-    detach();
-
     if ((resolve_mask & QFontPrivate::Stretch) &&
          d->request.stretch == (uint)factor)
         return;
 
+    detach();
+
     d->request.stretch = (uint)factor;
     resolve_mask |= QFontPrivate::Stretch;
 }
+
+
+/*!
+    Returns the letter spacing for the font.
+
+    \sa setLetterSpacing()
+ */
+int QFont::letterSpacing() const
+{
+    return d->letterSpacing;
+}
+
+/*!
+    Sets the letter spacing for the font.
+
+    Letter spacing changes the default spacing between individual
+    letters in the font. A positive value increases the letter spacing
+    by a corresponding amount of pixels, while a negative value
+    decreases the inter-letter spacing accordingly.
+
+    \sa letterSpacing() 
+*/
+void QFont::setLetterSpacing(int spacing)
+{
+    if (spacing < SHRT_MIN || spacing > SHRT_MAX) {
+        qWarning("QFont::setLetterSpacing: Parameter '%d' out of range", spacing);
+        return;
+    }
+
+    if ((resolve_mask & QFontPrivate::LetterSpacing) &&
+        d->letterSpacing == spacing)
+        return;
+    
+    detach();
+
+    d->letterSpacing = spacing;
+    resolve_mask |= QFontPrivate::LetterSpacing;
+}
+
+/*!
+    Returns the word spacing for the font.
+
+    \sa setWordSpacing()
+ */
+int QFont::wordSpacing() const
+{
+    return d->wordSpacing;
+}
+
+/*!
+    Sets the word spacing for the font.
+
+    Letter spacing changes the default spacing between individual
+    words. A positive value increases the word spacing
+    by a corresponding amount of pixels, while a negative value
+    decreases the inter-word spacing accordingly.
+
+    Word spacing will not apply to writing systems, where indiviaul
+    words are not separated by white space.
+
+    \sa letterSpacing() 
+*/
+void QFont::setWordSpacing(int spacing)
+{
+    if (spacing < SHRT_MIN || spacing > SHRT_MAX) {
+        qWarning("QFont::setWordSpacing: Parameter '%d' out of range", spacing);
+        return;
+    }
+
+    if ((resolve_mask & QFontPrivate::WordSpacing) &&
+        d->wordSpacing == spacing)
+        return;
+    
+    detach();
+
+    d->wordSpacing = spacing;
+    resolve_mask |= QFontPrivate::WordSpacing;
+}
+
+/*!
+    Returns whether the font is in small caps mode.
+
+    \sa setSmallCaps()
+ */
+bool QFont::smallCaps() const
+{
+    return d->smallCaps;
+}
+
+/*!
+  Set's the font into small-caps mode if \a on is true, otherwise
+  disables small-caps mode.
+*/
+void QFont::setSmallCaps(bool on)
+{
+    if ((resolve_mask & QFontPrivate::SmallCaps) &&
+        d->smallCaps == on)
+        return;
+    
+    detach();
+
+    d->smallCaps = on;
+    resolve_mask |= QFontPrivate::SmallCaps;
+}
+
 
 /*!
     If \a enable is true, turns raw mode on; otherwise turns raw mode

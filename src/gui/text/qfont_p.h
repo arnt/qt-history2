@@ -66,7 +66,7 @@ struct QFontDef
 
     uint ignorePitch : 1;
     uint fixedPitchComputed : 1; // for Mac OS X only
-    uint reserved   : 16; // for future extensions
+    int reserved   : 16; // for future extensions
 
     bool exactMatch(const QFontDef &other) const;
     bool operator==(const QFontDef &other) const
@@ -163,6 +163,11 @@ public:
     uint overline   :  1;
     uint strikeOut  :  1;
     uint kerning    :  1;
+    uint smallCaps  :  1;
+    uint unused     :  2;
+    
+    short letterSpacing;
+    short wordSpacing;
 
     enum {
         Family        = 0x0001,
@@ -177,7 +182,10 @@ public:
         FixedPitch    = 0x0200,
         Stretch       = 0x0400,
         Kerning       = 0x0800,
-        Complete      = 0x0fff
+        SmallCaps     = 0x1000,
+        LetterSpacing = 0x2000,
+        WordSpacing   = 0x4000,
+        Complete      = 0x7fff
     };
 
     void resolve(uint mask, const QFontPrivate *other);

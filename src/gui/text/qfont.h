@@ -136,6 +136,15 @@ public:
     int stretch() const;
     void setStretch(int);
 
+    int letterSpacing() const;
+    void setLetterSpacing(int spacing);
+
+    int wordSpacing() const;
+    void setWordSpacing(int spacing);
+
+    bool smallCaps() const;
+    void setSmallCaps(bool on);
+
     // is raw mode still needed?
     bool rawMode() const;
     void setRawMode(bool);
