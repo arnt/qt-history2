@@ -142,75 +142,9 @@ static void appendItems(QScriptAnalysis *analysis, int &start, int &stop, const 
     start = stop;
 }
 
-static void appendItems(QTextEngine *engine, int &start, int &stop, const QBidiControl &control, QChar::Direction dir)
-{
-    QScriptItemArray &items = engine->layoutData->items;
-    const QChar *text = engine->layoutData->string.unicode();
-
-    if (start > stop) {
-        // #### the algorithm is currently not really safe against this. Still needs fixing.
-//         qWarning("QTextEngine: BiDi internal error in appendItems()");
-        return;
-    }
-
-    int level = control.level;
-
-    if(dir != QChar::DirON && !control.override) {
-        // add level of run (cases I1 & I2)
-        if(level % 2) {
-            if(dir == QChar::DirL || dir == QChar::DirAN || dir == QChar::DirEN)
-                level++;
-        } else {
-            if(dir == QChar::DirR)
-                level++;
-            else if(dir == QChar::DirAN || dir == QChar::DirEN)
-                level += 2;
-        }
-    }
-
-#if (BIDI_DEBUG >= 1)
-    qDebug("new run: dir=%s from %d, to %d level = %d\n", directions[dir], start, stop, level);
-#endif
-    int script = -1;
-    QScriptItem item;
-    item.position = start;
-    item.analysis.script = script;
-    item.analysis.bidiLevel = level;
-    item.analysis.isTab = item.analysis.isObject = false;
-
-    for (int i = start; i <= stop; i++) {
-        unsigned short uc = text[i].unicode();
-        int s = QUnicodeTables::script(text[i]);
-        if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
-            item.analysis.bidiLevel = level % 2 ? level-1 : level;
-            item.analysis.script = QUnicodeTables::Common;
-            item.analysis.isObject = true;
-            s = -1;
-        } else if (uc == 9) {
-            item.analysis.script = QUnicodeTables::Common;
-            item.analysis.isTab = true;
-            item.analysis.bidiLevel = control.baseLevel();
-            s = -1;
-        } else if (s != script && (s != QUnicodeTables::Inherited || script == -1)) {
-            item.analysis.script = s == QUnicodeTables::Inherited ? QUnicodeTables::Common : s;
-            item.analysis.bidiLevel = level;
-        } else {
-            if (i - start < 4096)
-                continue;
-            start = i;
-        }
-
-        item.position = i;
-        items.append(item);
-        script = s;
-        item.analysis.isTab = item.analysis.isObject = false;
-    }
-    ++stop;
-    start = stop;
-}
 
 // creates the next QScript items.
-static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
+static bool bidiItemize(QTextEngine *engine, bool rightToLeft, bool skipBidi)
 {
 #if BIDI_DEBUG >= 2
     qDebug() << "bidiItemize: rightToLeft=" << rightToLeft;
@@ -236,16 +170,24 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
 
     QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
     QBidiStatus status;
-    QChar::Direction sdir = QChar::direction(*unicode);
-    if (sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN)
-	sdir = QChar::DirON;
-    else
-        dir = QChar::DirON;
-    status.eor = sdir;
-    status.lastStrong = rightToLeft ? QChar::DirR : QChar::DirL;
-    status.last = status.lastStrong;
-    status.dir = sdir;
 
+    if (skipBidi) {
+        sor = 0;
+        eor = length - 1;
+        goto bidiSkipped;        
+    }
+    
+    {
+        QChar::Direction sdir = QChar::direction(*unicode);
+        if (sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN)
+            sdir = QChar::DirON;
+        else
+            dir = QChar::DirON;
+        status.eor = sdir;
+        status.lastStrong = rightToLeft ? QChar::DirR : QChar::DirL;
+        status.last = status.lastStrong;
+        status.dir = sdir;
+    }
 
 
     while (current <= length) {
@@ -630,6 +572,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
 #endif
     eor = current - 1; // remove dummy char
 
+bidiSkipped:
     if (sor <= eor)
         appendItems(analysis, sor, eor, control, dir);
 
@@ -660,7 +603,6 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
     }
 
     // generate QScriptItem array
-//     qDebug() << "generating items";
     QScriptItemArray &items = engine->layoutData->items;
 
     analysis = scriptAnalysis.data();
@@ -1107,15 +1049,7 @@ void QTextEngine::itemize() const
         }
     }
 
-    if (!ignore) {
-        layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.textDirection() == Qt::RightToLeft));
-    } else {
-        QBidiControl control(false);
-        int start = 0;
-        int stop = layoutData->string.length() - 1;
-        appendItems(const_cast<QTextEngine *>(this), start, stop, control, QChar::DirL);
-        layoutData->hasBidi = false;
-    }
+    layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.textDirection() == Qt::RightToLeft), ignore);
 
     addRequiredBoundaries();
     resolveAdditionalFormats();
