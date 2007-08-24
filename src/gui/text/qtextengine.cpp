@@ -141,6 +141,7 @@ static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl
     item.position = start;
     item.analysis.script = script;
     item.analysis.bidiLevel = level;
+    item.analysis.isTab = item.analysis.isObject = false;
 
     for (int i = start; i <= stop; i++) {
         unsigned short uc = text[i].unicode();
@@ -148,18 +149,18 @@ static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl
         if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
             item.analysis.bidiLevel = level % 2 ? level-1 : level;
             item.analysis.script = QUnicodeTables::Common;
-            item.isObject = true;
+            item.analysis.isObject = true;
             s = -1;
         } else if (uc == 9) {
             item.analysis.script = QUnicodeTables::Common;
-            item.isTab = true;
+            item.analysis.isTab = true;
             item.analysis.bidiLevel = control.baseLevel();
             s = -1;
         } else if (s != script && (s != QUnicodeTables::Inherited || script == -1)) {
             item.analysis.script = s == QUnicodeTables::Inherited ? QUnicodeTables::Common : s;
             item.analysis.bidiLevel = level;
         } else {
-            if (i - start < 32000)
+            if (i - start < 4096)
                 continue;
             start = i;
         }
@@ -167,7 +168,7 @@ static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl
         item.position = i;
         items.append(item);
         script = s;
-        item.isTab = item.isObject = false;
+        item.analysis.isTab = item.analysis.isObject = false;
     }
     ++stop;
     start = stop;
@@ -964,7 +965,7 @@ const HB_CharAttributes *QTextEngine::attributes() const
 
 void QTextEngine::shape(int item) const
 {
-    if (layoutData->items[item].isObject) {
+    if (layoutData->items[item].analysis.isObject) {
         ensureSpace(1);
         if (block.docHandle()) {
             QTextFormat format = formats()->format(formatIndex(&layoutData->items[item]));
@@ -1068,10 +1069,10 @@ QFixed QTextEngine::width(int from, int len) const
             if (!si->num_glyphs)
                 shape(i);
 
-            if (si->isObject) {
+            if (si->analysis.isObject) {
                 w += si->width;
                 continue;
-            } else if (si->isTab) {
+            } else if (si->analysis.isTab) {
                 w = nextTab(si, w);
                 continue;
             }
