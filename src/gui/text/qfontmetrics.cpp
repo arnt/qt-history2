@@ -574,7 +574,7 @@ int QFontMetrics::charWidth(const QString &text, int pos) const
     if (pos < 0 || pos > (int)text.length())
         return 0;
 
-    const QChar &ch = text.unicode()[pos];
+    QChar ch = text.unicode()[pos];
     const int script = QUnicodeTables::script(ch);
     int width;
 
