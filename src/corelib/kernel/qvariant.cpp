@@ -1375,6 +1375,10 @@ QVariant::QVariant(QDataStream &s)
     The variant creates a deep copy of \a val, using the encoding
     set by QTextCodec::setCodecForCStrings().
 
+    Note that \a val is converted to a QString for storing in the
+    variant and QVariant::type() will return QMetaType::QString for
+    the variant.
+
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications.
 
@@ -1618,8 +1622,34 @@ QVariant::QVariant(Qt::GlobalColor color) { create(62, &color); }
 
 /*!
     Returns the storage type of the value stored in the variant.
-    Usually it's best to test with canConvert() whether the variant can
-    deliver the data type you are interested in.
+    Although this function is declared as returning QVariant::Type,
+    the return value should be interpreted as QMetaType::Type. In
+    particular, QVariant::UserType is returned here only if the value
+    is equal or greater than QMetaType::User.
+
+    Note that return values in the ranges QVariant::Char thru
+    QVariant::RegExp and QVariant::Font thru QVariant::Transform
+    correspond to the values in the ranges QMetaType::QChar thru
+    QMetaType::QRegExp and QMetaType::QFont thru QMetaType::QTransform.
+
+    Pay particular attention when working with char and QChar
+    variants.  Note that there is no QVariant constructor specifically
+    for type char, but there is one for QChar. For a variant of type
+    QChar, this function returns QVariant::Char, which is the same as
+    QMetaType::QChar, but for a variant of type \c char, this function
+    returns QMetaType::Char, which is \e not the same as
+    QVariant::Char.
+
+    Also note that the types \c void*, \c long, \c short, \c unsigned
+    \c long, \c unsigned \c short, \c unsigned \c char, \c float, \c
+    QObject*, and \c QWidget* are represented in QMetaType::Type but
+    not in QVariant::Type, and they can be returned by this function.
+    However, they are considered to be user defined types when tested
+    against QVariant::Type.
+    
+    To test whether an instance of QVariant contains a data type that
+    is compatible with the data type you are interested in, use
+    canConvert().
 */
 
 QVariant::Type QVariant::type() const
