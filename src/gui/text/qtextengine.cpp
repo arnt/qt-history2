@@ -755,7 +755,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
             // ############ if this happens there's a bug in the fontengine
             if (si.analysis.flags == QScriptAnalysis::Lowercase
                 && entire_shaper_item.string != upperCased)
-                delete [] entire_shaper_item.string;
+                delete [] const_cast<HB_UChar16 *>(entire_shaper_item.string);
             return;
         }
     }
@@ -881,7 +881,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 
     if (si.analysis.flags == QScriptAnalysis::Lowercase
         && entire_shaper_item.string != upperCased)
-        delete [] entire_shaper_item.string;
+        delete [] const_cast<HB_UChar16 *>(entire_shaper_item.string);
 }
 
 static void init(QTextEngine *e)
