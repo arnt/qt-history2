@@ -709,6 +709,43 @@ void QTextEngine::shapeText(int item) const
 #else
     shapeTextWithHarfbuzz(item);
 #endif
+
+    si.width = 0;
+
+    QGlyphLayout *glyphs = this->glyphs(&si);
+    const QGlyphLayout *end = glyphs + si.num_glyphs;
+    if (!si.num_glyphs)
+        return;
+
+    QFont font = this->font(si);
+    if (font.d->letterSpacing) {
+        QGlyphLayout *g = glyphs + 1;
+        while (g < end) {
+            if (g->attributes.clusterStart)
+                (g - 1)->advance.x += font.d->letterSpacing;
+            ++g;
+        }
+        (g - 1)->advance.x += font.d->letterSpacing;
+    }
+    if (font.d->wordSpacing) {
+        QGlyphLayout *g = glyphs;
+        while (g < end) {
+            if (g->attributes.justification == HB_Space
+                || g->attributes.justification == HB_Arabic_Space) {
+                QGlyphLayout *gp = g + 1;
+                // word spacing only gets added once to a consecutive run of spaces (see CSS spec)
+                if (gp == end
+                    ||(gp->attributes.justification != HB_Space
+                       && gp->attributes.justification != HB_Arabic_Space))
+                    g->advance.x += font.d->wordSpacing;
+            }
+            ++g;
+        }
+    }
+
+    while (glyphs < end)
+        si.width += (glyphs++)->advance.x;
+  
 }
 
 void QTextEngine::shapeTextWithHarfbuzz(int item) const
@@ -867,15 +904,6 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
     si.num_glyphs = glyph_pos;
 
     layoutData->used += si.num_glyphs;
-
-    QGlyphLayout *g = glyphs(&si);
-
-    si.width = 0;
-    QGlyphLayout *end = g + si.num_glyphs;
-    while (g < end)
-        si.width += (g++)->advance.x;
-
-    return;
 }
 
 static void init(QTextEngine *e)
@@ -1342,7 +1370,7 @@ void QTextEngine::justify(const QScriptLine &line)
 
     QVarLengthArray<QJustificationPoint> justificationPoints;
     int nPoints = 0;
-//     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, line_length, firstItem, nItems);
+//     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d (%s)", line.from, line_length, firstItem, nItems, layoutData->string.mid(line.from, line_length).toUtf8().constData());
     QFixed minKashida = 0x100000;
 
     // we need to do all shaping before we go into the next loop, as we there
@@ -1427,7 +1455,7 @@ void QTextEngine::justify(const QScriptLine &line)
     }
 
 //     qDebug("doing justification: textWidth=%x, requested=%x, maxJustify=%d", line.textWidth.value(), line.width.value(), maxJustify);
-//     qDebug("     minKashida=%f, need=%f", minKashida, need);
+//     qDebug("     minKashida=%f, need=%f", minKashida.toReal(), need.toReal());
 
     // distribute in priority order
     if (maxJustify >= HB_Arabic_Normal) {

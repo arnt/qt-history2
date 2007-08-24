@@ -593,10 +593,5 @@ void QTextEngine::shapeTextWithAtsui(int item) const
             g[gpos].attributes.justification = properties[i].justification;
         }
     }
-
-    si.width = 0;
-    QGlyphLayout *end = g + si.num_glyphs;
-    while (g < end)
-        si.width += (g++)->advance.x;
 }
 
