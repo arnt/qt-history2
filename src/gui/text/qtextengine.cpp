@@ -965,6 +965,39 @@ void QTextEngine::validate() const
         layoutData->string.insert(specialData->preeditPosition, specialData->preeditText);
 }
 
+static void generateScriptItems(const QScriptAnalysis *analysis, int start, int length,
+                                QScriptItemArray *items)
+{
+    if (!length)
+        return;
+    for (int i = 1; i < length; ++i) {
+        if ((analysis[i] == analysis[start])
+            && !analysis[i].isTab && !analysis[i].isObject)
+            continue;
+        items->append(QScriptItem(start, analysis[start]));
+        start = i;
+    }
+    items->append(QScriptItem(start, analysis[start]));
+}
+
+static void generateScriptItemsCase(const QScriptAnalysis *analysis, const ushort *uc,
+                                    int start, int length,
+                                    QScriptItemArray *items)
+{
+    if (!length)
+        return;
+    bool lower = (QChar::category(*uc) == QChar::Letter_Lowercase);
+    for (int i = 1; i < length; ++i) {
+        if ((analysis[i] == analysis[start])
+            && !analysis[i].isTab && !analysis[i].isObject
+            && QChar::category(uc[i]) == lower)
+            continue;
+        items->append(QScriptItem(start, analysis[start]));
+        start = i;
+        lower = (QChar::category(uc[i]) == QChar::Letter_Lowercase);
+    }
+    items->append(QScriptItem(start, analysis[start]));
+}
 
 void QTextEngine::itemize() const
 {
@@ -1030,20 +1063,48 @@ void QTextEngine::itemize() const
     QScriptItemArray &items = layoutData->items;
 
     analysis = scriptAnalysis.data();
-    int start = 0;
-//     qDebug() << "         analysis[0]=" << analysis->bidiLevel << analysis->script << analysis->isTab << analysis->isObject;
-    for (int i = 1; i < length; ++i) {
-//         qDebug() << "         analysis[" << i << "]=" << analysis[i].bidiLevel << analysis[i].script << analysis[i].isTab << analysis[i].isObject;
-        if ((analysis[i] == analysis[start])
-            && !analysis[i].isTab && !analysis[i].isObject)
-            continue;
-        items.append(QScriptItem(start, analysis[start]));
-//         qDebug() << "      appending item at " << start;
-        start = i;
-    }
-//     qDebug() << "      appending item at " << start;
-    items.append(QScriptItem(start, analysis[start]));
 
+    const QTextDocumentPrivate *p = block.docHandle();
+    if (p) {
+        SpecialData *s = specialData;
+        
+        QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
+        QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
+        int format = it.value()->format;
+
+        int position = 0;
+        int lastPos = position;
+        while (1) {
+            const QTextFragmentData * const frag = it.value();
+            lastPos += frag->size;
+            if (it == end || format != frag->format) {
+                if (s && lastPos >= s->preeditPosition) {
+                    lastPos += s->preeditText.length();
+                    s = 0;
+                }
+                if (lastPos > length)
+                    lastPos = length;
+            
+                bool smallCaps = formats()->charFormat(frag->format).font().d->smallCaps;
+
+                if (smallCaps) {
+                    generateScriptItemsCase(analysis, layoutData->string.utf16(),
+                                            position, lastPos - position, &items);
+                } else {
+                    generateScriptItems(analysis, position, lastPos - position, &items);
+                }
+                format = frag->format;
+                position = lastPos;
+                if (it == end)
+                    break;
+            }
+            ++it;
+        } 
+    } else if (fnt.d->smallCaps) {
+        generateScriptItemsCase(analysis, layoutData->string.utf16(), 0, length, &items);
+    } else {
+        generateScriptItems(analysis, 0, length, &items);
+    }
     
     addRequiredBoundaries();
     resolveAdditionalFormats();
@@ -1682,26 +1743,6 @@ QTextCharFormat QTextEngine::format(const QScriptItem *si) const
 
 void QTextEngine::addRequiredBoundaries() const
 {
-    int position = 0;
-    const QTextDocumentPrivate *p = block.docHandle();
-    if (p) {
-        SpecialData *s = specialData;
-        QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
-        QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
-        int format = it.value()->format;
-
-        for (; it != end; ++it) {
-            if (s && position >= s->preeditPosition) {
-                position += s->preeditText.length();
-                s = 0;
-            }
-            const QTextFragmentData * const frag = it.value();
-            if (format != frag->format)
-                setBoundary(position);
-            format = frag->format;
-            position += frag->size;
-        }
-    }
     if (specialData) {
         for (int i = 0; i < specialData->addFormats.size(); ++i) {
             const QTextLayout::FormatRange &r = specialData->addFormats.at(i);
