@@ -284,7 +284,8 @@ int registerPointerMetaType(
         eng, id, reinterpret_cast<QScriptEngine::MarshalFunction>(mf),
         reinterpret_cast<QScriptEngine::DemarshalFunction>(df),
         prototype);
-    eng->setDefaultPrototype(qMetaTypeId<typename Pointer<T>::wrapped_pointer_type>(), prototype);
+    typedef typename Pointer<T>::wrapped_pointer_type wrapped_pointer_type;
+    eng->setDefaultPrototype(qMetaTypeId<wrapped_pointer_type>(), prototype);
     return id;
 }
 
