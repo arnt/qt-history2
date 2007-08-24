@@ -386,6 +386,8 @@ int QFontMetrics::xHeight() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
+    if (d->smallCaps)
+        return qRound(d->smallCapsFontPrivate()->engineForScript(QUnicodeTables::Common)->ascent());
     return qRound(engine->xHeight());
 }
 
@@ -430,10 +432,17 @@ bool QFontMetrics::inFont(QChar ch) const
 int QFontMetrics::leftBearing(QChar ch) const
 {
     const int script = QUnicodeTables::script(ch);
-    QFontEngine *engine = d->engineForScript(script);
+    QFontEngine *engine;
+    if (d->smallCaps && ch.isLower()) {
+        ch = ch.toUpper();
+        engine = d->smallCapsFontPrivate()->engineForScript(script);
+    } else {
+        engine = d->engineForScript(script);
+    }
     Q_ASSERT(engine != 0);
     if (engine->type() == QFontEngine::Box)
         return 0;
+
 
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
@@ -458,7 +467,13 @@ int QFontMetrics::leftBearing(QChar ch) const
 int QFontMetrics::rightBearing(QChar ch) const
 {
     const int script = QUnicodeTables::script(ch);
-    QFontEngine *engine = d->engineForScript(script);
+    QFontEngine *engine;
+    if (d->smallCaps && ch.isLower()) {
+        ch = ch.toUpper();
+        engine = d->smallCapsFontPrivate()->engineForScript(script);
+    } else {
+        engine = d->engineForScript(script);
+    }
     Q_ASSERT(engine != 0);
     if (engine->type() == QFontEngine::Box)
         return 0;
@@ -527,7 +542,13 @@ int QFontMetrics::width(QChar ch) const
         return 0;
 
     const int script = QUnicodeTables::script(ch);
-    QFontEngine *engine = d->engineForScript(script);
+    QFontEngine *engine;
+    if (d->smallCaps && ch.isLower()) {
+        ch = ch.toUpper();
+        engine = d->smallCapsFontPrivate()->engineForScript(script);
+    } else {
+        engine = d->engineForScript(script);
+    }
     Q_ASSERT(engine != 0);
 
     QGlyphLayout glyphs[8];
@@ -536,7 +557,8 @@ int QFontMetrics::width(QChar ch) const
     return qRound(glyphs[0].advance.x);
 }
 
-/*!
+/*! \obsolete
+  
     Returns the width of the character at position \a pos in the
     string \a text.
 
@@ -568,7 +590,13 @@ int QFontMetrics::charWidth(const QString &text, int pos) const
     } else if (QChar::category(ch.unicode()) == QChar::Mark_NonSpacing) {
         width = 0;
     } else {
-        QFontEngine *engine = d->engineForScript(script);
+        QFontEngine *engine;
+        if (d->smallCaps && ch.isLower()) {
+            ch = ch.toUpper();
+            engine = d->smallCapsFontPrivate()->engineForScript(script);
+        } else {
+            engine = d->engineForScript(script);
+        }
         Q_ASSERT(engine != 0);
 
         QGlyphLayout glyphs[8];
@@ -631,7 +659,13 @@ QRect QFontMetrics::boundingRect(const QString &text) const
 QRect QFontMetrics::boundingRect(QChar ch) const
 {
     const int script = QUnicodeTables::script(ch);
-    QFontEngine *engine = d->engineForScript(script);
+    QFontEngine *engine;
+    if (d->smallCaps && ch.isLower()) {
+        ch = ch.toUpper();
+        engine = d->smallCapsFontPrivate()->engineForScript(script);
+    } else {
+        engine = d->engineForScript(script);
+    }
     Q_ASSERT(engine != 0);
 
     QGlyphLayout glyphs[10];
@@ -1185,6 +1219,8 @@ qreal QFontMetricsF::xHeight() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
+    if (d->smallCaps)
+        return d->smallCapsFontPrivate()->engineForScript(QUnicodeTables::Common)->ascent().toReal();
     return engine->xHeight().toReal();
 }
 
@@ -1229,11 +1265,18 @@ bool QFontMetricsF::inFont(QChar ch) const
 qreal QFontMetricsF::leftBearing(QChar ch) const
 {
     const int script = QUnicodeTables::script(ch);
-    QFontEngine *engine = d->engineForScript(script);
+    QFontEngine *engine;
+    if (d->smallCaps && ch.isLower()) {
+        ch = ch.toUpper();
+        engine = d->smallCapsFontPrivate()->engineForScript(script);
+    } else {
+        engine = d->engineForScript(script);
+    }
     Q_ASSERT(engine != 0);
     if (engine->type() == QFontEngine::Box)
         return 0;
 
+    
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
     engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
@@ -1257,7 +1300,13 @@ qreal QFontMetricsF::leftBearing(QChar ch) const
 qreal QFontMetricsF::rightBearing(QChar ch) const
 {
     const int script = QUnicodeTables::script(ch);
-    QFontEngine *engine = d->engineForScript(script);
+    QFontEngine *engine;
+    if (d->smallCaps && ch.isLower()) {
+        ch = ch.toUpper();
+        engine = d->smallCapsFontPrivate()->engineForScript(script);
+    } else {
+        engine = d->engineForScript(script);
+    }
     Q_ASSERT(engine != 0);
     if (engine->type() == QFontEngine::Box)
         return 0;
@@ -1319,7 +1368,13 @@ qreal QFontMetricsF::width(QChar ch) const
         return 0.;
 
     const int script = QUnicodeTables::script(ch);
-    QFontEngine *engine = d->engineForScript(script);
+    QFontEngine *engine;
+    if (d->smallCaps && ch.isLower()) {
+        ch = ch.toUpper();
+        engine = d->smallCapsFontPrivate()->engineForScript(script);
+    } else {
+        engine = d->engineForScript(script);
+    }
     Q_ASSERT(engine != 0);
 
     QGlyphLayout glyphs[8];
@@ -1378,7 +1433,13 @@ QRectF QFontMetricsF::boundingRect(const QString &text) const
 QRectF QFontMetricsF::boundingRect(QChar ch) const
 {
     const int script = QUnicodeTables::script(ch);
-    QFontEngine *engine = d->engineForScript(script);
+    QFontEngine *engine;
+    if (d->smallCaps && ch.isLower()) {
+        ch = ch.toUpper();
+        engine = d->smallCapsFontPrivate()->engineForScript(script);
+    } else {
+        engine = d->engineForScript(script);
+    }
     Q_ASSERT(engine != 0);
 
     QGlyphLayout glyphs[10];
