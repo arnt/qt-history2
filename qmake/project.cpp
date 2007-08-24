@@ -2180,7 +2180,7 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
                             if(*(i_data+x+1) == mapped_quotes[i].in) {
                                 *(i_data+x) = mapped_quotes[i].out;
                                 if(x < i_len-2)
-                                    memcpy(i_data+x+1, i_data+x+2, i_len-x);
+                                    memmove(i_data+x+1, i_data+x+2, (i_len-x)*sizeof(QChar));
                                 --i_len;
                                 break;
                             }
