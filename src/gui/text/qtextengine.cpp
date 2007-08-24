@@ -144,13 +144,12 @@ static void appendItems(QScriptAnalysis *analysis, int &start, int &stop, const 
 
 
 // creates the next QScript items.
-static bool bidiItemize(QTextEngine *engine, bool rightToLeft, bool skipBidi)
+static bool bidiItemize(QTextEngine *engine, QScriptAnalysis *analysis, QBidiControl &control)
 {
 #if BIDI_DEBUG >= 2
     qDebug() << "bidiItemize: rightToLeft=" << rightToLeft;
 #endif
-    QBidiControl control(rightToLeft);
-
+    bool rightToLeft = (control.basicDirection() == 1);
     bool hasBidi = rightToLeft;
 
     int sor = 0;
@@ -159,35 +158,21 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft, bool skipBidi)
 
     int length = engine->layoutData->string.length();
 
-    if (!length)
-        return hasBidi;
-
-    QVarLengthArray<QScriptAnalysis, 4096> scriptAnalysis(length);
-    QScriptAnalysis *analysis = scriptAnalysis.data();
-
     const ushort *unicode = (const ushort *)engine->layoutData->string.unicode();
     int current = 0;
 
     QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
     QBidiStatus status;
 
-    if (skipBidi) {
-        sor = 0;
-        eor = length - 1;
-        goto bidiSkipped;        
-    }
-    
-    {
-        QChar::Direction sdir = QChar::direction(*unicode);
-        if (sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN)
-            sdir = QChar::DirON;
-        else
-            dir = QChar::DirON;
-        status.eor = sdir;
-        status.lastStrong = rightToLeft ? QChar::DirR : QChar::DirL;
-        status.last = status.lastStrong;
-        status.dir = sdir;
-    }
+    QChar::Direction sdir = QChar::direction(*unicode);
+    if (sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN)
+        sdir = QChar::DirON;
+    else
+        dir = QChar::DirON;
+    status.eor = sdir;
+    status.lastStrong = rightToLeft ? QChar::DirR : QChar::DirL;
+    status.last = status.lastStrong;
+    status.dir = sdir;
 
 
     while (current <= length) {
@@ -572,53 +557,8 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft, bool skipBidi)
 #endif
     eor = current - 1; // remove dummy char
 
-bidiSkipped:
     if (sor <= eor)
         appendItems(analysis, sor, eor, control, dir);
-
-
-    // correctly assign script, isTab and isObject to the script analysis
-    const ushort *uc = unicode;
-    const ushort *e = uc + length;
-    int lastScript = QUnicodeTables::Common;
-    while (uc < e) {
-        int script = QUnicodeTables::script(*uc);
-        if (script == QUnicodeTables::Inherited)
-            script = lastScript;
-        analysis->isTab = analysis->isObject = false;
-        if (*uc == QChar::ObjectReplacementCharacter || *uc == QChar::LineSeparator) {
-            if (analysis->bidiLevel % 2)
-                --analysis->bidiLevel;
-            analysis->script = QUnicodeTables::Common;
-            analysis->isObject = true;
-        } else if (*uc == 9) {
-            analysis->script = QUnicodeTables::Common;
-            analysis->isTab = true;
-            analysis->bidiLevel = control.baseLevel();
-        } else {
-            analysis->script = script;
-        }
-        ++uc;
-        ++analysis;
-    }
-
-    // generate QScriptItem array
-    QScriptItemArray &items = engine->layoutData->items;
-
-    analysis = scriptAnalysis.data();
-    int start = 0;
-//     qDebug() << "         analysis[0]=" << analysis->bidiLevel << analysis->script << analysis->isTab << analysis->isObject;
-    for (int i = 1; i < length; ++i) {
-//         qDebug() << "         analysis[" << i << "]=" << analysis[i].bidiLevel << analysis[i].script << analysis[i].isTab << analysis[i].isObject;
-        if ((analysis[i] == analysis[start])
-            && !analysis[i].isTab && !analysis[i].isObject)
-            continue;
-        items.append(QScriptItem(start, analysis[start]));
-//         qDebug() << "      appending item at " << start;
-        start = i;
-    }
-//     qDebug() << "      appending item at " << start;
-    items.append(QScriptItem(start, analysis[start]));
 
     return hasBidi;
 }
@@ -1032,14 +972,15 @@ void QTextEngine::itemize() const
     if (layoutData->items.size())
         return;
 
-    if (layoutData->string.length() == 0)
+    int length = layoutData->string.length(); 
+    if (!length)
         return;
 
     bool ignore = ignoreBidi;
     if (!ignore && option.textDirection() == Qt::LeftToRight) {
         ignore = true;
         const QChar *start = layoutData->string.unicode();
-        const QChar * const end = start + layoutData->string.length();
+        const QChar * const end = start + length;
         while (start < end) {
             if (start->unicode() >= 0x590) {
                 ignore = false;
@@ -1049,8 +990,61 @@ void QTextEngine::itemize() const
         }
     }
 
-    layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.textDirection() == Qt::RightToLeft), ignore);
+    QVarLengthArray<QScriptAnalysis, 4096> scriptAnalysis(length);
+    QScriptAnalysis *analysis = scriptAnalysis.data();
+    
+    QBidiControl control(option.textDirection() == Qt::RightToLeft);
 
+    if (ignore)
+        memset(analysis, 0, length*sizeof(QScriptAnalysis));
+    else
+        layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), analysis, control);
+
+    const ushort *unicode = layoutData->string.utf16();
+    // correctly assign script, isTab and isObject to the script analysis
+    const ushort *uc = unicode;
+    const ushort *e = uc + length;
+    int lastScript = QUnicodeTables::Common;
+    while (uc < e) {
+        int script = QUnicodeTables::script(*uc);
+        if (script == QUnicodeTables::Inherited)
+            script = lastScript;
+        analysis->isTab = analysis->isObject = false;
+        if (*uc == QChar::ObjectReplacementCharacter || *uc == QChar::LineSeparator) {
+            if (analysis->bidiLevel % 2)
+                --analysis->bidiLevel;
+            analysis->script = QUnicodeTables::Common;
+            analysis->isObject = true;
+        } else if (*uc == 9) {
+            analysis->script = QUnicodeTables::Common;
+            analysis->isTab = true;
+            analysis->bidiLevel = control.baseLevel();
+        } else {
+            analysis->script = script;
+        }
+        ++uc;
+        ++analysis;
+    }
+
+    // generate QScriptItem array
+    QScriptItemArray &items = layoutData->items;
+
+    analysis = scriptAnalysis.data();
+    int start = 0;
+//     qDebug() << "         analysis[0]=" << analysis->bidiLevel << analysis->script << analysis->isTab << analysis->isObject;
+    for (int i = 1; i < length; ++i) {
+//         qDebug() << "         analysis[" << i << "]=" << analysis[i].bidiLevel << analysis[i].script << analysis[i].isTab << analysis[i].isObject;
+        if ((analysis[i] == analysis[start])
+            && !analysis[i].isTab && !analysis[i].isObject)
+            continue;
+        items.append(QScriptItem(start, analysis[start]));
+//         qDebug() << "      appending item at " << start;
+        start = i;
+    }
+//     qDebug() << "      appending item at " << start;
+    items.append(QScriptItem(start, analysis[start]));
+
+    
     addRequiredBoundaries();
     resolveAdditionalFormats();
 }
