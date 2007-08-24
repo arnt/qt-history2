@@ -535,7 +535,7 @@ bool QDBusMessage::isReplyRequired() const
 {
     if (!d_ptr->msg)
         return false;
-    return dbus_message_get_no_reply(d_ptr->msg);
+    return !dbus_message_get_no_reply(d_ptr->msg);
 }
 
 /*!
