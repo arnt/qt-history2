@@ -102,12 +102,13 @@ struct QBidiControl {
         bool override;
     } ctx[MaxBidiLevel];
     unsigned int cCtx;
-    unsigned int base;
+    const unsigned int base;
     unsigned int level;
     bool override;
 };
 
-static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl &control, QChar::Direction dir)
+
+static void appendItems(QTextEngine *engine, int &start, int &stop, const QBidiControl &control, QChar::Direction dir)
 {
     QScriptItemArray &items = engine->layoutData->items;
     const QChar *text = engine->layoutData->string.unicode();
