@@ -727,6 +727,18 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
     entire_shaper_item.item.bidiLevel = si.analysis.bidiLevel;
     entire_shaper_item.glyphIndicesPresent = false;
 
+    HB_UChar16 upperCased[256];
+    if (si.analysis.flags == QScriptAnalysis::Lowercase) {
+        HB_UChar16 *uc = upperCased;
+        if (entire_shaper_item.item.length > 256)
+            uc = new HB_UChar16[entire_shaper_item.item.length];
+        for (uint i = 0; i < entire_shaper_item.item.length; ++i)
+            uc[i] = QChar::toUpper(entire_shaper_item.string[si.position + i]);
+        entire_shaper_item.item.pos = 0;
+        entire_shaper_item.string = uc;
+        entire_shaper_item.stringLength = entire_shaper_item.item.length;
+    }
+
     entire_shaper_item.shaperFlags = 0;
     if (!kerningEnabled)
         entire_shaper_item.shaperFlags |= HB_ShaperFlag_NoKerning;
@@ -741,6 +753,9 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
         hb_initial_glyphs.resize(entire_shaper_item.num_glyphs);
         if (!stringToGlyphs(&entire_shaper_item, hb_initial_glyphs.data(), font)) {
             // ############ if this happens there's a bug in the fontengine
+            if (si.analysis.flags == QScriptAnalysis::Lowercase
+                && entire_shaper_item.string != upperCased)
+                delete [] entire_shaper_item.string;
             return;
         }
     }
@@ -863,6 +878,10 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
     si.num_glyphs = glyph_pos;
 
     layoutData->used += si.num_glyphs;
+
+    if (si.analysis.flags == QScriptAnalysis::Lowercase
+        && entire_shaper_item.string != upperCased)
+        delete [] entire_shaper_item.string;
 }
 
 static void init(QTextEngine *e)
@@ -992,16 +1011,17 @@ static void generateScriptItemsCase(const QScriptAnalysis *analysis, const ushor
     start = 0;
     bool lower = (QChar::category(*uc) == QChar::Letter_Lowercase);
     for (int i = 1; i < length; ++i) {
+        bool l = (QChar::category(uc[i]) == QChar::Letter_Lowercase);
         if ((analysis[i] == analysis[start])
             && analysis[i].flags < QScriptAnalysis::TabOrObject
-            && (QChar::category(uc[i]) == QChar::Letter_Lowercase) == lower)
+            && l == lower)
             continue;
         items->append(QScriptItem(start, analysis[start]));
         if (lower)
             items->last().analysis.flags = QScriptAnalysis::Lowercase;
             
         start = i;
-        lower = (QChar::category(uc[i]) == QChar::Letter_Lowercase);
+        lower = l;
     }
     items->append(QScriptItem(start, analysis[start]));
     if (lower)
@@ -1299,7 +1319,6 @@ glyph_metrics_t QTextEngine::tightBoundingBox(int from,  int len) const
 QFont QTextEngine::font(const QScriptItem &si) const
 {
     QFont font = fnt;
-    bool small = false;
     if (hasFormats()) {
         QTextCharFormat f = format(&si);
         font = f.font();
@@ -1313,17 +1332,19 @@ QFont QTextEngine::font(const QScriptItem &si) const
             font = font.resolve(fnt);
         }
         QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
-        if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript)
-            small = true;
-    } else {
-        small = (si.analysis.flags == QScriptAnalysis::Lowercase);
+        if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
+            if (font.pointSize() != -1)
+                font.setPointSize((font.pointSize() * 2) / 3);
+            else
+                font.setPixelSize((font.pixelSize() * 2) / 3);
+        }
     }
     
-    if (small) {
+    if (si.analysis.flags == QScriptAnalysis::Lowercase) {
         if (font.pointSize() != -1)
-            font.setPointSize((font.pointSize() * 2) / 3);
+            font.setPointSize((font.pointSize() * 7) / 10);
         else
-            font.setPixelSize((font.pixelSize() * 2) / 3);
+            font.setPixelSize((font.pixelSize() * 7) / 10);
     }
 
     return font;
@@ -1331,8 +1352,11 @@ QFont QTextEngine::font(const QScriptItem &si) const
 
 QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFixed *descent) const
 {
+    QFontEngine *engine = 0;
+    QFontEngine *scaledEngine = 0;
+    int script = si.analysis.script;
+    
     QFont font = fnt;
-    bool small = false;
     if (hasFormats()) {
         QTextCharFormat f = format(&si);
         font = f.font();
@@ -1345,23 +1369,24 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
         } else {
             font = font.resolve(fnt);
         }
+        engine = font.d->engineForScript(script);
         QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
-        if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript)
-            small = true;
+        if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
+            if (font.pointSize() != -1)
+                font.setPointSize((font.pointSize() * 2) / 3);
+            else
+                font.setPixelSize((font.pixelSize() * 2) / 3);
+            scaledEngine = font.d->engineForScript(script);
+        }
     } else {
-        small = (si.analysis.flags == QScriptAnalysis::Lowercase);
+        engine = font.d->engineForScript(script);
     }
 
-
-    int script = si.analysis.script;
-    QFontEngine *engine = font.d->engineForScript(script);
-    QFontEngine *scaledEngine = 0;
-
-    if (small) {
+    if (si.analysis.flags == QScriptAnalysis::Lowercase) {
         if (font.pointSize() != -1)
-            font.setPointSize((font.pointSize() * 2) / 3);
+            font.setPointSize((font.pointSize() * 7) / 10);
         else
-            font.setPixelSize((font.pixelSize() * 2) / 3);
+            font.setPixelSize((font.pixelSize() * 7) / 10);
         scaledEngine = font.d->engineForScript(script);
     }
     
