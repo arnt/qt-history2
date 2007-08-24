@@ -316,14 +316,13 @@ inline bool qIsControlChar(ushort uc)
 
 struct QScriptItem
 {
-    inline QScriptItem() : position(0), isSpace(false), isTab(false),
+    inline QScriptItem() : position(0), isTab(false),
                            isObject(false),
                            num_glyphs(0), descent(-1), ascent(-1), width(-1),
                            glyph_data_offset(0) {}
 
     int position;
     QScriptAnalysis analysis;
-    unsigned short isSpace  : 1;
     unsigned short isTab    : 1;
     unsigned short isObject : 1;
     int num_glyphs;

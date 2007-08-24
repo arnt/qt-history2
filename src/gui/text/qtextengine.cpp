@@ -152,7 +152,6 @@ static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl
             s = -1;
         } else if (uc == 9) {
             item.analysis.script = QUnicodeTables::Common;
-            item.isSpace = true;
             item.isTab = true;
             item.analysis.bidiLevel = control.baseLevel();
             s = -1;
@@ -168,7 +167,7 @@ static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl
         item.position = i;
         items.append(item);
         script = s;
-        item.isSpace = item.isTab = item.isObject = false;
+        item.isTab = item.isObject = false;
     }
     ++stop;
     start = stop;
