@@ -16,4 +16,4 @@ win32:HEADERS += $$PWD/qlocalserver_p.h
 
 HEADERS += $$PWD/qlocalsocket.h \
            $$PWD/qlocalsocket_p.h \
-	   $$PWD/qlocalserver.h \
+	   $$PWD/qlocalserver.h
