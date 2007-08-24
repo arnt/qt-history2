@@ -267,7 +267,7 @@ struct QScriptAnalysis
     unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
     unsigned short isTab     : 1;
     unsigned short isObject  : 1;
-    inline bool operator == (const QScriptAnalysis &other) {
+    inline bool operator == (const QScriptAnalysis &other) const {
         return script == other.script && bidiLevel == other.bidiLevel;
     }
 };
