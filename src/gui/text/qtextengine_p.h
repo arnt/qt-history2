@@ -261,60 +261,18 @@ struct glyph_metrics_t
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
-#if defined(Q_WS_X11) || defined (Q_WS_QWS) || defined (Q_WS_MAC)
-
-
 struct QScriptAnalysis
 {
-    unsigned short script    : 7;
-    unsigned short override  : 1;  // Set when in LRO/RLO embedding
-    unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
-    unsigned short reserved  : 2;
+    unsigned short script    : 8;
+    unsigned short bidiLevel : 8;  // Unicode Bidi algorithm embedding level (0-61)
     bool operator == (const QScriptAnalysis &other) {
         return
             script == other.script &&
             bidiLevel == other.bidiLevel;
-        // ###
-//             && override == other.override;
     }
 
 };
 Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
-
-#elif defined(Q_WS_WIN)
-
-struct QScriptAnalysis {
-    unsigned short script         :10;
-    unsigned short rtl            :1;
-    unsigned short layoutRTL      :1;
-    unsigned short linkBefore     :1;
-    unsigned short linkAfter      :1;
-    unsigned short logicalOrder   :1;
-    unsigned short noGlyphIndex   :1;
-    unsigned short bidiLevel         :5;
-    unsigned short override          :1;
-    unsigned short inhibitSymSwap    :1;
-    unsigned short charShape         :1;
-    unsigned short digitSubstitute   :1;
-    unsigned short inhibitLigate     :1;
-    unsigned short fDisplayZWG        :1;
-    unsigned short arabicNumContext  :1;
-    unsigned short gcpClusters       :1;
-    unsigned short reserved          :1;
-    unsigned short engineReserved    :2;
-};
-Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
-
-inline bool operator == (const QScriptAnalysis &sa1, const QScriptAnalysis &sa2)
-{
-    return
-        sa1.script == sa2.script &&
-        sa1.bidiLevel == sa2.bidiLevel;
-        // ###
-//             && override == other.override;
-}
-
-#endif
 
 struct QGlyphJustification
 {

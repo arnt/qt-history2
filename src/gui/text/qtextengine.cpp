@@ -141,8 +141,6 @@ static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl
     item.position = start;
     item.analysis.script = script;
     item.analysis.bidiLevel = level;
-    item.analysis.override = control.override;
-    item.analysis.reserved = 0;
 
     for (int i = start; i <= stop; i++) {
         unsigned short uc = text[i].unicode();
