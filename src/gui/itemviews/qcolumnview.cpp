@@ -45,6 +45,8 @@
     QAbstractItemView class to allow it to display data provided by
     models derived from the QAbstractItemModel class.
 
+    \image qcolumnview.png
+    
     \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
