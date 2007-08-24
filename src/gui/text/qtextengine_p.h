@@ -267,6 +267,9 @@ struct QScriptAnalysis
     unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
     unsigned short isTab     : 1;
     unsigned short isObject  : 1;
+    inline bool operator == (const QScriptAnalysis &other) {
+        return script == other.script && bidiLevel == other.bidiLevel;
+    }
 };
 Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
 
@@ -312,9 +315,14 @@ inline bool qIsControlChar(ushort uc)
 
 struct QScriptItem
 {
-    inline QScriptItem() : position(0),
-                           num_glyphs(0), descent(-1), ascent(-1), width(-1),
-                           glyph_data_offset(0) {}
+    inline QScriptItem()
+        : position(0),
+          num_glyphs(0), descent(-1), ascent(-1), width(-1),
+          glyph_data_offset(0) {}
+    inline QScriptItem(int p, const QScriptAnalysis &a)
+        : position(p), analysis(a),
+          num_glyphs(0), descent(-1), ascent(-1), width(-1),
+          glyph_data_offset(0) {}
 
     int position;
     QScriptAnalysis analysis;

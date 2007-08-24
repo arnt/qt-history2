@@ -35,7 +35,7 @@
 // -----------------------------------------------------------------------------------------------------
 
 
-#define BIDI_DEBUG 0//2
+#define BIDI_DEBUG 0
 #if (BIDI_DEBUG >= 1)
 #include <iostream>
 using namespace std;
@@ -108,6 +108,40 @@ struct QBidiControl {
 };
 
 
+
+static void appendItems(QScriptAnalysis *analysis, int &start, int &stop, const QBidiControl &control, QChar::Direction dir)
+{
+    if (start > stop)
+        return;
+
+    int level = control.level;
+
+    if(dir != QChar::DirON && !control.override) {
+        // add level of run (cases I1 & I2)
+        if(level % 2) {
+            if(dir == QChar::DirL || dir == QChar::DirAN || dir == QChar::DirEN)
+                level++;
+        } else {
+            if(dir == QChar::DirR)
+                level++;
+            else if(dir == QChar::DirAN || dir == QChar::DirEN)
+                level += 2;
+        }
+    }
+
+#if (BIDI_DEBUG >= 1)
+    qDebug("new run: dir=%s from %d, to %d level = %d override=%d", directions[dir], start, stop, level, control.override);
+#endif
+    QScriptAnalysis *s = analysis + start;
+    const QScriptAnalysis *e = analysis + stop;
+    while (s <= e) {
+        s->bidiLevel = level;
+        ++s;
+    }
+    ++stop;
+    start = stop;
+}
+
 static void appendItems(QTextEngine *engine, int &start, int &stop, const QBidiControl &control, QChar::Direction dir)
 {
     QScriptItemArray &items = engine->layoutData->items;
@@ -179,7 +213,7 @@ static void appendItems(QTextEngine *engine, int &start, int &stop, const QBidiC
 static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
 {
 #if BIDI_DEBUG >= 2
-    cout << "bidiItemize: rightToLeft=" << rightToLeft << endl;
+    qDebug() << "bidiItemize: rightToLeft=" << rightToLeft;
 #endif
     QBidiControl control(rightToLeft);
 
@@ -193,6 +227,9 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
 
     if (!length)
         return hasBidi;
+
+    QVarLengthArray<QScriptAnalysis, 4096> scriptAnalysis(length);
+    QScriptAnalysis *analysis = scriptAnalysis.data();
 
     const ushort *unicode = (const ushort *)engine->layoutData->string.unicode();
     int current = 0;
@@ -220,12 +257,12 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
             dirCurrent = QChar::direction(unicode[current]);
 
 #if (BIDI_DEBUG >= 2)
-        cout << "pos=" << current << " dir=" << directions[dir]
-             << " current=" << directions[dirCurrent] << " last=" << directions[status.last]
-             << " eor=" << eor << "/" << directions[status.eor]
-             << " sor=" << sor << " lastStrong="
-             << directions[status.lastStrong]
-             << " level=" << (int)control.level << " override=" << (bool)control.override << endl;
+//         qDebug() << "pos=" << current << " dir=" << directions[dir]
+//                  << " current=" << directions[dirCurrent] << " last=" << directions[status.last]
+//                  << " eor=" << eor << "/" << directions[status.eor]
+//                  << " sor=" << sor << " lastStrong="
+//                  << directions[status.lastStrong]
+//                  << " level=" << (int)control.level << " override=" << (bool)control.override;
 #endif
 
         switch(dirCurrent) {
@@ -244,7 +281,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                 if ((level%2 != 0) == rtl) ++level;
                 if(level < MaxBidiLevel) {
                     eor = current-1;
-                    appendItems(engine, sor, eor, control, dir);
+                    appendItems(analysis, sor, eor, control, dir);
                     eor = current;
                     control.embed(rtl, override);
                     QChar::Direction edir = (rtl ? QChar::DirR : QChar::DirL);
@@ -258,11 +295,11 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                 if (control.canPop()) {
                     if (dir != control.direction()) {
                         eor = current-1;
-                        appendItems(engine, sor, eor, control, dir);
+                        appendItems(analysis, sor, eor, control, dir);
                         dir = control.direction();
                     }
                     eor = current;
-                    appendItems(engine, sor, eor, control, dir);
+                    appendItems(analysis, sor, eor, control, dir);
                     control.pdf();
                     dir = QChar::DirON; status.eor = QChar::DirON;
                     status.last = control.direction();
@@ -288,7 +325,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                 case QChar::DirEN:
                 case QChar::DirAN:
                     if (eor >= 0) {
-                        appendItems(engine, sor, eor, control, dir);
+                        appendItems(analysis, sor, eor, control, dir);
                         dir = eor < length ? QChar::direction(unicode[eor]) : control.basicDirection();
                         status.eor = dir;
                     } else {
@@ -308,17 +345,17 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                         if(control.direction() == QChar::DirR) {
                             if(status.eor != QChar::DirR) {
                                 // AN or EN
-                                appendItems(engine, sor, eor, control, dir);
+                                appendItems(analysis, sor, eor, control, dir);
                                 status.eor = QChar::DirON;
                                 dir = QChar::DirR;
                             }
                             eor = current - 1;
-                            appendItems(engine, sor, eor, control, dir);
+                            appendItems(analysis, sor, eor, control, dir);
                             dir = eor < length ? QChar::direction(unicode[eor]) : control.basicDirection();
                             status.eor = dir;
                         } else {
                             if(status.eor != QChar::DirL) {
-                                appendItems(engine, sor, eor, control, dir);
+                                appendItems(analysis, sor, eor, control, dir);
                                 status.eor = QChar::DirON;
                                 dir = QChar::DirL;
                             } else {
@@ -343,7 +380,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                 case QChar::DirEN:
                 case QChar::DirAN:
                     if (eor >= 0)
-                        appendItems(engine, sor, eor, control, dir);
+                        appendItems(analysis, sor, eor, control, dir);
                     // fall through
                 case QChar::DirR:
                 case QChar::DirAL:
@@ -360,12 +397,12 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                         //last stuff takes embedding dir
                         if(control.direction() == QChar::DirR
                            || status.lastStrong == QChar::DirR || status.lastStrong == QChar::DirAL) {
-                            appendItems(engine, sor, eor, control, dir);
+                            appendItems(analysis, sor, eor, control, dir);
                             dir = QChar::DirR; status.eor = QChar::DirON;
                             eor = current;
                         } else {
                             eor = current - 1;
-                            appendItems(engine, sor, eor, control, dir);
+                            appendItems(analysis, sor, eor, control, dir);
                             dir = QChar::DirR; status.eor = QChar::DirON;
                         }
                     } else {
@@ -396,7 +433,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                     {
                     case QChar::DirET:
                         if (status.lastStrong == QChar::DirR || status.lastStrong == QChar::DirAL) {
-                            appendItems(engine, sor, eor, control, dir);
+                            appendItems(analysis, sor, eor, control, dir);
                             status.eor = QChar::DirON;
                             dir = QChar::DirAN;
                         }
@@ -410,7 +447,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                     case QChar::DirAL:
                     case QChar::DirAN:
                         if (eor >= 0)
-                            appendItems(engine, sor, eor, control, dir);
+                            appendItems(analysis, sor, eor, control, dir);
                         else
                             eor = current;
                         status.eor = QChar::DirEN;
@@ -428,7 +465,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                         if(status.eor == QChar::DirR) {
                             // neutrals go to R
                             eor = current - 1;
-                            appendItems(engine, sor, eor, control, dir);
+                            appendItems(analysis, sor, eor, control, dir);
                             dir = QChar::DirON; status.eor = QChar::DirEN;
                             dir = QChar::DirAN;
                         }
@@ -438,11 +475,11 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                         } else {
                             // numbers on both sides, neutrals get right to left direction
                             if(dir != QChar::DirL) {
-                                appendItems(engine, sor, eor, control, dir);
+                                appendItems(analysis, sor, eor, control, dir);
                                 dir = QChar::DirON; status.eor = QChar::DirON;
                                 eor = current - 1;
                                 dir = QChar::DirR;
-                                appendItems(engine, sor, eor, control, dir);
+                                appendItems(analysis, sor, eor, control, dir);
                                 dir = QChar::DirON; status.eor = QChar::DirON;
                                 dir = QChar::DirAN;
                             } else {
@@ -467,7 +504,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                 case QChar::DirAL:
                 case QChar::DirEN:
                     if (eor >= 0){
-                        appendItems(engine, sor, eor, control, dir);
+                        appendItems(analysis, sor, eor, control, dir);
                     } else {
                         eor = current;
                     }
@@ -487,7 +524,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                     if(status.eor == QChar::DirR) {
                         // neutrals go to R
                         eor = current - 1;
-                        appendItems(engine, sor, eor, control, dir);
+                        appendItems(analysis, sor, eor, control, dir);
                         status.eor = QChar::DirAN;
                         dir = QChar::DirAN;
                     } else if(status.eor == QChar::DirL ||
@@ -496,11 +533,11 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                     } else {
                         // numbers on both sides, neutrals get right to left direction
                         if(dir != QChar::DirL) {
-                            appendItems(engine, sor, eor, control, dir);
+                            appendItems(analysis, sor, eor, control, dir);
                             status.eor = QChar::DirON;
                             eor = current - 1;
                             dir = QChar::DirR;
-                            appendItems(engine, sor, eor, control, dir);
+                            appendItems(analysis, sor, eor, control, dir);
                             status.eor = QChar::DirAN;
                             dir = QChar::DirAN;
                         } else {
@@ -538,7 +575,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
             break;
         }
 
-        //cout << "     after: dir=" << //        dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << control.direction() << endl;
+        //qDebug() << "     after: dir=" << //        dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << control.direction();
 
         if(current >= (int)length) break;
 
@@ -589,12 +626,57 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
     }
 
 #if (BIDI_DEBUG >= 1)
-    cout << "reached end of line current=" << current << ", eor=" << eor << endl;
+    qDebug() << "reached end of line current=" << current << ", eor=" << eor;
 #endif
     eor = current - 1; // remove dummy char
 
     if (sor <= eor)
-        appendItems(engine, sor, eor, control, dir);
+        appendItems(analysis, sor, eor, control, dir);
+
+
+    // correctly assign script, isTab and isObject to the script analysis
+    const ushort *uc = unicode;
+    const ushort *e = uc + length;
+    int lastScript = QUnicodeTables::Common;
+    while (uc < e) {
+        int script = QUnicodeTables::script(*uc);
+        if (script == QUnicodeTables::Inherited)
+            script = lastScript;
+        analysis->isTab = analysis->isObject = false;
+        if (*uc == QChar::ObjectReplacementCharacter || *uc == QChar::LineSeparator) {
+            if (analysis->bidiLevel % 2)
+                --analysis->bidiLevel;
+            analysis->script = QUnicodeTables::Common;
+            analysis->isObject = true;
+        } else if (*uc == 9) {
+            analysis->script = QUnicodeTables::Common;
+            analysis->isTab = true;
+            analysis->bidiLevel = control.baseLevel();
+        } else {
+            analysis->script = script;
+        }
+        ++uc;
+        ++analysis;
+    }
+
+    // generate QScriptItem array
+//     qDebug() << "generating items";
+    QScriptItemArray &items = engine->layoutData->items;
+
+    analysis = scriptAnalysis.data();
+    int start = 0;
+//     qDebug() << "         analysis[0]=" << analysis->bidiLevel << analysis->script << analysis->isTab << analysis->isObject;
+    for (int i = 1; i < length; ++i) {
+//         qDebug() << "         analysis[" << i << "]=" << analysis[i].bidiLevel << analysis[i].script << analysis[i].isTab << analysis[i].isObject;
+        if ((analysis[i] == analysis[start])
+            && !analysis[i].isTab && !analysis[i].isObject)
+            continue;
+        items.append(QScriptItem(start, analysis[start]));
+//         qDebug() << "      appending item at " << start;
+        start = i;
+    }
+//     qDebug() << "      appending item at " << start;
+    items.append(QScriptItem(start, analysis[start]));
 
     return hasBidi;
 }
@@ -623,7 +705,7 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
     if(!(levelLow%2)) levelLow++;
 
 #if (BIDI_DEBUG >= 1)
-    cout << "reorderLine: lineLow = " << (uint)levelLow << ", lineHigh = " << (uint)levelHigh << endl;
+//     qDebug() << "reorderLine: lineLow = " << (uint)levelLow << ", lineHigh = " << (uint)levelHigh;
 #endif
 
     int count = numItems - 1;
@@ -639,7 +721,7 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
             int end = i-1;
 
             if(start != end) {
-                //cout << "reversing from " << start << " to " << end << endl;
+                //qDebug() << "reversing from " << start << " to " << end;
                 for(int j = 0; j < (end-start+1)/2; j++) {
                     int tmp = visualOrder[start+j];
                     visualOrder[start+j] = visualOrder[end-j];
@@ -652,9 +734,9 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
     }
 
 #if (BIDI_DEBUG >= 1)
-    cout << "visual order is:" << endl;
-    for (i = 0; i < numItems; i++)
-        cout << visualOrder[i] << endl;
+//     qDebug() << "visual order is:";
+//     for (i = 0; i < numItems; i++)
+//         qDebug() << visualOrder[i];
 #endif
 }
 
