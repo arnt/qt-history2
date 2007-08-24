@@ -26,15 +26,15 @@
 #define BUFSIZE 0
 
 QLocalServerThread::QLocalServerThread(QObject *parent) : QThread(parent),
-       	maxPendingConnections(1),
-       	handle(INVALID_HANDLE_VALUE)
+	maxPendingConnections(1),
+	handle(INVALID_HANDLE_VALUE)
 {
 }
 
 QLocalServerThread::~QLocalServerThread()
 {
     while (!handles.isEmpty())
-    	CloseHandle(handles.dequeue());
+	CloseHandle(handles.dequeue());
 }
 
 void QLocalServerThread::setName(const QString &key)
@@ -156,14 +156,14 @@ void QLocalServerPrivate::waitForNewConnection(int msecs, bool *timedOut)
     // The thread might have emited a signal of a new connection
     // before terminating
     QCoreApplication::instance()->processEvents();
-    
+
     QIncrementalSleepTimer timer(msecs);
     DWORD dwMode = PIPE_NOWAIT;
     SetNamedPipeHandleState(thread.handle, &dwMode, NULL, NULL);
     dwMode = PIPE_WAIT;
 
-    forever { 
-    	if (!pendingConnections.isEmpty())
+    forever {
+	if (!pendingConnections.isEmpty())
 	    break;
 	BOOL fConnected = ConnectNamedPipe(thread.handle, NULL) ?
                           TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
@@ -175,7 +175,7 @@ void QLocalServerPrivate::waitForNewConnection(int msecs, bool *timedOut)
 	} else {
 	    Sleep(timer.nextSleepTime());
 	}
-	
+
         // Only wait for as long as we've been asked.
         if (timer.hasTimedOut()) {
 	    qDebug() << "server: timeout waiting for new con";

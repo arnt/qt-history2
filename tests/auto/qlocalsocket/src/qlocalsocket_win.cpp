@@ -55,7 +55,7 @@ QLocalSocketPrivate::QLocalSocketPrivate() : QIODevicePrivate(),
        error(QLocalSocket::UnknownSocketError),
        handle(INVALID_HANDLE_VALUE),
        pipeWriter(0),
-       state(QLocalSocket::UnconnectedState)      
+       state(QLocalSocket::UnconnectedState)
 {
 }
 
@@ -147,7 +147,7 @@ qint64 QLocalSocket::bytesAvailable() const
         return 0;
     DWORD bytes;
     if (PeekNamedPipe(d->handle, NULL, 0, NULL, &bytes, NULL))
-        return bytes;	
+        return bytes;
     return 0;
 }
 
@@ -175,7 +175,7 @@ bool QLocalSocket::canReadLine() const
 			    &lpTotalBytesAvail,
 			    &lpBytesLeftThisMessage)) {
 	if (lpTotalBytesAvail > 0)
-		return true;	
+		return true;
     }
     return false;
     //d->file.canReadLine();
@@ -186,8 +186,8 @@ void QLocalSocket::close()
 {
     Q_D(QLocalSocket);
     //if (isValid())
-    // 	FlushFileBuffers(d->handle);
-    
+    //	FlushFileBuffers(d->handle);
+
     if (state() == UnconnectedState)
 	return;
     d->state = ClosingState;
@@ -204,7 +204,6 @@ bool QLocalSocket::flush()
 {
     //if (d->pipeWriter && d->pipeWriter->bytesToWrite() > 0) {
     //    d->pipeWriter->waitForWrite(ULONG_MAX);
-    
     return false;
 }
 
