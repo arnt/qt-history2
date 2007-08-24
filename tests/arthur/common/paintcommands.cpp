@@ -231,6 +231,10 @@ void PaintCommands::staticInit()
                       "^setPen\\s+(#?\\w*)\\s+([\\w.]+)\\s*(\\w*)\\s*(\\w*)\\s*(\\w*)$",
                       "setPen brush|<color> [width] [pen style enum] [FlatCap|SquareCap|RoundCap] [MiterJoin|BevelJoin|RoundJoin]",
                       "setPen black 1 FlatCap MiterJoin");
+    DECL_PAINTCOMMAND("pen_setDashOffset", command_pen_setDashOffset,
+                      "^pen_setDashOffset\\s+(-?\\d*\\.?\\d*)$",
+                      "pen_setDashOffset <offset>\n",
+                      "pen_setDashOffset 1.0");
     DECL_PAINTCOMMAND("pen_setDashPattern", command_pen_setDashPattern,
                       "^pen_setDashPattern\\s+\\[([\\w\\s.]*)\\]$",
                       "pen_setDashPattern <[ <dash_1> <space_1> ... <dash_n> <space_n> ]>",
@@ -2436,6 +2440,20 @@ void PaintCommands::command_textlayout_draw(QRegExp re)
     }
 
     layout.draw(m_painter, QPointF(0, 0));
+}
+
+/***************************************************************************************************/
+void PaintCommands::command_pen_setDashOffset(QRegExp re)
+{
+    QStringList caps = re.capturedTexts();
+    double offset = convertToDouble(caps.at(1));
+
+    if (m_verboseMode)
+        printf(" - setDashOffset(%lf)\n", offset);
+
+    QPen p = m_painter->pen();
+    p.setDashOffset(offset);
+    m_painter->setPen(p);
 }
 
 /***************************************************************************************************/

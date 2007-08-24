@@ -121,6 +121,7 @@ private:
     void command_setFont(QRegExp re);
     void command_setPen(QRegExp re);
     void command_setPen2(QRegExp re);
+    void command_pen_setDashOffset(QRegExp re);
     void command_pen_setDashPattern(QRegExp re);
     void command_pen_setCosmetic(QRegExp re);
     void command_setRenderHint(QRegExp re);

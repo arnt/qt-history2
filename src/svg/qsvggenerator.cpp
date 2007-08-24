@@ -39,6 +39,17 @@ static void translate_color(const QColor &color, QString *color_string,
     *opacity_string = QString::number(color.alphaF());
 }
 
+static void translate_dashPattern(QVector<qreal> pattern, const qreal& width, QString *pattern_string)
+{
+    Q_ASSERT(pattern_string);
+
+    // Note that SVG operates in absolute lengths, whereas Qt uses a length/width ratio.
+    foreach (qreal entry, pattern)
+        *pattern_string += QString::fromLatin1("%1,").arg(entry * width);
+
+    pattern_string->chop(1);
+}
+
 class QSvgPaintEnginePrivate : public QPaintEnginePrivate
 {
 public:
@@ -91,6 +102,7 @@ public:
         QString font_family;
         QString font_style;
         QString stroke, strokeOpacity;
+        QString dashPattern, dashOffset;
         QString fill, fillOpacity;
     } attributes;
 };
@@ -246,7 +258,28 @@ public:
         case Qt::DotLine:
         case Qt::DashDotLine:
         case Qt::DashDotDotLine:
-        case Qt::CustomDashLine:
+        case Qt::CustomDashLine: {
+            QString color, colorOpacity, dashPattern, dashOffset;
+
+            qreal penWidth = spen.width() == 0 ? qreal(1) : spen.widthF();
+
+            translate_color(spen.color(), &color, &colorOpacity);
+            translate_dashPattern(spen.dashPattern(), penWidth, &dashPattern);
+
+            // SVG uses absolute offset
+            dashOffset = QString::fromLatin1("%1").arg(spen.dashOffset() * penWidth);
+
+            d_func()->attributes.stroke = color;
+            d_func()->attributes.strokeOpacity = colorOpacity;
+            d_func()->attributes.dashPattern = dashPattern;
+            d_func()->attributes.dashOffset = dashOffset;
+
+            stream() << QLatin1String("stroke=\"")<<color<< QLatin1String("\" ");
+            stream() << QLatin1String("stroke-opacity=\"")<<colorOpacity<< QLatin1String("\" ");
+            stream() << QLatin1String("stroke-dasharray=\"")<<dashPattern<< QLatin1String("\" ");
+            stream() << QLatin1String("stroke-dashoffset=\"")<<dashOffset<< QLatin1String("\" ");
+            break;
+        }
         default:
             qWarning("Unsupported pen style");
             break;

@@ -989,7 +989,10 @@ void QDashStroker::processCurrentSubpath()
     int idash = 0; // Index to current dash
     qreal pos = 0; // The position on the curve, 0 <= pos <= path.length
     qreal elen = 0; // element length
-    qreal doffset = m_dashOffset;
+    qreal doffset = m_dashOffset * m_stroker->strokeWidth();
+
+    // make sure doffset is in range [0..sumLength)
+    doffset -= qFloor(doffset / sumLength) * sumLength;
 
     while (doffset >= dashes[idash]) {
         doffset -= dashes[idash];

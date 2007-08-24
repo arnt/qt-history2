@@ -994,10 +994,18 @@ static void parsePen(QSvgNode *node,
                         *d /= penw;
                         ++d;
                     }
+
+                // if the dash count is odd the dashes should be duplicated
+                if (dashes.size() % 2 != 0)
+                    dashes << QVector<qreal>(dashes);
+
                 pen.setDashPattern(dashes);
             }
             if (!dashOffset.isEmpty()) {
-                pen.setDashOffset(::toDouble(dashOffset));
+                qreal doffset = ::toDouble(dashOffset);
+                if (penw != 0)
+                    doffset /= penw;
+                pen.setDashOffset(doffset);
             }
             if (!miterlimit.isEmpty())
                 pen.setMiterLimit(::toDouble(miterlimit));

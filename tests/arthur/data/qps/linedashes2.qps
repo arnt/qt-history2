@@ -106,3 +106,40 @@ repeat_block vertical
 restore
 translate 0 780
 repeat_block vertical
+
+resetMatrix
+translate 40 400
+setPen 0xffff0000 5 dashdotline flatcap
+pen_setDashPattern [1 1 4 1 1 4]
+pen_setDashOffset -4
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset -2
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 0
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 2
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 4
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 6
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 8
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 10
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 12
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 14
+drawLine 0 0 300 0
+translate 0 8
+pen_setDashOffset 16
+drawLine 0 0 300 0
