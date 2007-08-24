@@ -253,10 +253,10 @@ void QLocalSocketPrivate::init()
 qint64 QLocalSocket::readBufferSize() const
 {
     Q_D(const QLocalSocket);
-    DWORD lpFlags;
-    DWORD lpOutBufferSize;
-    DWORD lpInBufferSize;
-    DWORD lpMaxInstances;
+    DWORD lpFlags = 0;
+    DWORD lpOutBufferSize = 0;
+    DWORD lpInBufferSize = 0;
+    DWORD lpMaxInstances = 0;
     if (0 != GetNamedPipeInfo(d->handle, &lpFlags,
 		    &lpOutBufferSize, &lpInBufferSize, &lpMaxInstances)) {
         return lpInBufferSize;
@@ -266,15 +266,18 @@ qint64 QLocalSocket::readBufferSize() const
 
 void QLocalSocket::setReadBufferSize(qint64 size)
 {
+    Q_UNUSED(size);
 }
 
 bool QLocalSocket::waitForConnected(int msecs)
 {
+    Q_UNUSED(msecs);
     return state() == ConnectedState;
 }
 
 bool QLocalSocket::waitForDisconnected(int msecs)
 {
+    Q_UNUSED(msecs);
     if (state() == UnconnectedState)
         return false;
     return state() == UnconnectedState;
