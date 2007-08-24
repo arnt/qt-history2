@@ -60,38 +60,31 @@ struct QBidiStatus {
     QChar::Direction dir;
 };
 
-// The Unicode standard says this should be 61, setting it to 29 would save quite some space here.
 enum { MaxBidiLevel = 61 };
 
 struct QBidiControl {
     inline QBidiControl(bool rtl)
-        : cCtx(0), base(rtl), level(rtl ? 1 : 0), override(false) {}
+        : cCtx(0), base(rtl ? 1 : 0), level(rtl ? 1 : 0), override(false) {}
 
     inline void embed(bool rtl, bool o = false) {
-        unsigned int plus2 = 0;
+        unsigned int toAdd = 1;
         if((level%2 != 0) == rtl ) {
-            level++;
-            plus2 = 2;
+            ++toAdd;
         }
-        level++;
-        if (level <= MaxBidiLevel) {
-            override = o;
-            unsigned int control = (plus2 + (override ? 1 : 0)) << (cCtx % 4)*2;
-            unsigned int mask = ~(0x3 << (cCtx % 4)*2);
-            ctx[cCtx>>2] &= mask;
-            ctx[cCtx>>2] |= control;
+        if (level + toAdd <= MaxBidiLevel) {
+            ctx[cCtx].level = level;
+            ctx[cCtx].override = override;
             cCtx++;
+            override = o;
+            level += toAdd;
         }
     }
     inline bool canPop() const { return cCtx != 0; }
     inline void pdf() {
         Q_ASSERT(cCtx);
-        (void) --cCtx;
-        unsigned int control = (ctx[cCtx>>2] >> ((cCtx % 4)*2)) & 0x3;
-        override = control & 0x1;
-        level--;
-        if (control & 0x2)
-            level--;
+        --cCtx;
+        level = ctx[cCtx].level;
+        override = ctx[cCtx].override;
     }
 
     inline QChar::Direction basicDirection() const {
@@ -104,7 +97,10 @@ struct QBidiControl {
         return ((level%2) ? QChar::DirR : QChar:: DirL);
     }
 
-    unsigned int ctx[(MaxBidiLevel+3)/4];
+    struct {
+        unsigned int level;
+        bool override;
+    } ctx[MaxBidiLevel];
     unsigned int cCtx;
     unsigned int base;
     unsigned int level;
@@ -745,7 +741,7 @@ void QTextEngine::shapeText(int item) const
 
     while (glyphs < end)
         si.width += (glyphs++)->advance.x;
-  
+
 }
 
 void QTextEngine::shapeTextWithHarfbuzz(int item) const
@@ -1029,7 +1025,7 @@ void QTextEngine::itemize() const
             ++start;
         }
     }
-    
+
     if (!ignore) {
         layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.textDirection() == Qt::RightToLeft));
     } else {
@@ -1678,10 +1674,9 @@ QTextCharFormat QTextEngine::format(const QScriptItem *si) const
 void QTextEngine::addRequiredBoundaries() const
 {
     int position = 0;
-    SpecialData *s = specialData;
-
     const QTextDocumentPrivate *p = block.docHandle();
     if (p) {
+        SpecialData *s = specialData;
         QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
         QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
         int format = it.value()->format;
