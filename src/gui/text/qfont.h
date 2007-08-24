@@ -221,6 +221,7 @@ private:
     int x11Screen() const;
 #endif
 
+    friend class QFontPrivate;
     friend class QFontMetrics;
     friend class QFontMetricsF;
     friend class QFontInfo;

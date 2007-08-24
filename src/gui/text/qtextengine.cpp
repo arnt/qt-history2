@@ -1337,13 +1337,8 @@ QFont QTextEngine::font(const QScriptItem &si) const
         }
     }
     
-    if (si.analysis.flags == QScriptAnalysis::Lowercase) {
-        qreal pointSize = font.pointSizeF();
-        if (pointSize > 0)
-            font.setPointSizeF(pointSize * .7);
-        else
-            font.setPixelSize((font.pixelSize() * 7 + 5) / 10);
-    }
+    if (si.analysis.flags == QScriptAnalysis::Lowercase) 
+        font = font.d->smallCapsFont();
 
     return font;
 }
@@ -1381,11 +1376,7 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
     }
 
     if (si.analysis.flags == QScriptAnalysis::Lowercase) {
-        qreal pointSize = font.pointSizeF();
-        if (pointSize > 0)
-            font.setPointSizeF(pointSize * .7);
-        else
-            font.setPixelSize((font.pixelSize() * 7 + 5) / 10);
+        font = font.d->smallCapsFont();
         scaledEngine = font.d->engineForScript(script);
     }
     

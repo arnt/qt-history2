@@ -169,6 +169,10 @@ public:
     short letterSpacing;
     short wordSpacing;
 
+    mutable QFontPrivate *scFont;
+    QFont smallCapsFont() const { return QFont(smallCapsFontPrivate()); }
+    QFontPrivate *smallCapsFontPrivate() const;
+
     enum {
         Family        = 0x0001,
         Size          = 0x0002,

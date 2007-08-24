@@ -173,7 +173,7 @@ Q_GUI_EXPORT int qt_defaultDpi()
 QFontPrivate::QFontPrivate()
     : engineData(0), dpi(qt_defaultDpi()), screen(0), 
       rawMode(false), underline(false), overline(false), strikeOut(false), kerning(true), 
-      smallCaps(false), letterSpacing(0), wordSpacing(0)
+      smallCaps(false), letterSpacing(0), wordSpacing(0), scFont(0)
 {
     ref = 1;
 #ifdef Q_WS_X11
@@ -191,7 +191,8 @@ QFontPrivate::QFontPrivate(const QFontPrivate &other)
     : request(other.request), engineData(0), dpi(other.dpi), screen(other.screen),
       rawMode(other.rawMode), underline(other.underline), overline(other.overline),
       strikeOut(other.strikeOut), kerning(other.kerning), 
-      smallCaps(other.smallCaps), letterSpacing(other.letterSpacing), wordSpacing(other.wordSpacing)
+      smallCaps(other.smallCaps), letterSpacing(other.letterSpacing), wordSpacing(other.wordSpacing),
+      scFont(other.scFont)
 {
     ref = 1;
 #ifdef Q_WS_WIN
@@ -204,7 +205,27 @@ QFontPrivate::~QFontPrivate()
     if (engineData)
         engineData->ref.deref();
     engineData = 0;
+    if (scFont && scFont != this)
+        scFont->ref.deref();
+    scFont = 0;
 }
+
+QFontPrivate *QFontPrivate::smallCapsFontPrivate() const
+{
+    if (scFont)
+        return scFont;
+    QFont font(const_cast<QFontPrivate *>(this));
+    qreal pointSize = font.pointSizeF();
+    if (pointSize > 0)
+        font.setPointSizeF(pointSize * .7);
+    else
+        font.setPixelSize((font.pixelSize() * 7 + 5) / 10);
+    scFont = font.d;
+    if (scFont != this)
+        scFont->ref.ref();
+    return scFont;
+}
+
 
 void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
 {
@@ -529,6 +550,9 @@ void QFont::detach()
         if (d->engineData)
             d->engineData->ref.deref();
         d->engineData = 0;
+        if (d->scFont && d->scFont != d)
+            d->scFont->ref.deref();
+        d->scFont = 0;
         return;
     }
 
