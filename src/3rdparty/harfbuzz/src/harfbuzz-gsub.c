@@ -1089,7 +1089,7 @@ static HB_Error  Do_ContextSubst( HB_GSUBHeader*        gsub,
 				  int                    nesting_level )
 {
   HB_Error  error;
-  HB_UShort i, old_pos;
+  HB_UInt   i, old_pos;
 
 
   i = 0;
@@ -4308,7 +4308,7 @@ static HB_Error  GSUB_Do_String_Lookup( HB_GSUBHeader*   gsub,
       error = HB_Err_Not_Covered;
 
     if ( error == HB_Err_Not_Covered )
-      if ( hb_buffer_copy_output_glyph ( buffer ) )
+      if ( (error = hb_buffer_copy_output_glyph ( buffer ) ) )
 	return error;
   }
 

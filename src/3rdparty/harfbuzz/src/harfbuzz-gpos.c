@@ -1461,7 +1461,7 @@ static void  Free_PairPos( HB_GPOS_SubTable* st )
 static HB_Error  Lookup_PairPos1( GPOS_Instance*       gpi,
 				  HB_PairPosFormat1*  ppf1,
 				  HB_Buffer           buffer,
-				  HB_UShort            first_pos,
+				  HB_UInt              first_pos,
 				  HB_UShort            index,
 				  HB_UShort            format1,
 				  HB_UShort            format2 )
@@ -1503,7 +1503,7 @@ static HB_Error  Lookup_PairPos1( GPOS_Instance*       gpi,
 static HB_Error  Lookup_PairPos2( GPOS_Instance*       gpi,
 				  HB_PairPosFormat2*  ppf2,
 				  HB_Buffer           buffer,
-				  HB_UShort            first_pos,
+				  HB_UInt              first_pos,
 				  HB_UShort            format1,
 				  HB_UShort            format2 )
 {
@@ -1543,7 +1543,8 @@ static HB_Error  Lookup_PairPos( GPOS_Instance*    gpi,
 				 int               nesting_level )
 {
   HB_Error         error;
-  HB_UShort        index, property, first_pos;
+  HB_UShort        index, property;
+  HB_UInt          first_pos;
   HB_GPOSHeader*  gpos = gpi->gpos;
   HB_PairPos*     pp = &st->pair;
 
@@ -1574,8 +1575,12 @@ static HB_Error  Lookup_PairPos( GPOS_Instance*    gpi,
       return error;
 
     if ( buffer->in_pos == buffer->in_length )
-      return HB_Err_Not_Covered;
+      {
+	buffer->in_pos = first_pos;
+        return HB_Err_Not_Covered;
+      }
     (buffer->in_pos)++;
+
   }
 
   switch ( pp->PosFormat )
@@ -3064,7 +3069,7 @@ static HB_Error  Do_ContextPos( GPOS_Instance*        gpi,
 				int                   nesting_level )
 {
   HB_Error  error;
-  HB_UShort i, old_pos;
+  HB_UInt   i, old_pos;
 
 
   i = 0;
