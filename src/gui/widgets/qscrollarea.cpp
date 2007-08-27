@@ -198,6 +198,9 @@ QWidget *QScrollArea::widget() const
     destroyed when the scroll area is deleted or when a new widget is
     set.
 
+    Note that if the scroll area is visible when the \a widget is
+    added, you must \l{QWidget::}{show()} it explicitly.
+
     \sa widget()
 */
 void QScrollArea::setWidget(QWidget *widget)
@@ -396,15 +399,12 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
     \since 4.2
 
     Scrolls the contents of the scroll area so that the \a childWidget
-    of the scroll area's widget() is visible inside the viewport with margins
-    specified in pixels by \a xmargin and \a ymargin.
+    of QScrollArea::widget() is visible inside the viewport with
+    margins specified in pixels by \a xmargin and \a ymargin. If the
+    specified point cannot be reached, the contents are scrolled to
+    the nearest valid position. The default value for both margins is
+    50 pixels.
 
-    If the child widget is an input widget, QScrollArea will ensure that its
-    micro focus rectangle is visible, rather than the widget as a whole.  If
-    the child widget (or its micro focus rectangle) with margins is not
-    completely contained within the viewport, the contents are scrolled to the
-    nearest valid position, or as close to this position as possible.  The
-    default value for both margins is 50 pixels.
 */
 void QScrollArea::ensureWidgetVisible(QWidget *childWidget, int xmargin, int ymargin)
 {
