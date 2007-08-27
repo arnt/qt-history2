@@ -424,7 +424,7 @@ static const char *knownStyleHints[] = {
 static const int numKnownStyleHints = sizeof(knownStyleHints)/sizeof(knownStyleHints[0]);
 
 QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget)
-: features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), ou(0), geo(0), p(0), img(0)
+: features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), ou(0), geo(0), p(0), img(0), clipset(0)
 {
     QPalette palette = qApp->palette(); // ###: ideally widget's palette
     ValueExtractor v(declarations, palette);
