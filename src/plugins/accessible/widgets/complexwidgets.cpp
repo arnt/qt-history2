@@ -196,7 +196,7 @@ QString QAccessibleItemRow::text(Text t, int child) const
         if (m_header) {
             if (!child)
                 return QString(); 
-            if (QHeaderView *vheader = verticalHeader()) {
+            if (verticalHeader()) {
                 if (child == 1)
                     return QString();
                 --child;
@@ -279,7 +279,7 @@ QString QAccessibleItemRow::text(Text t, int child) const
             if (!m_header) {
                 if (child == 0 && children().count() >= 1)
                     child = 1;
-                if (QHeaderView *vheader = verticalHeader()) {
+                if (verticalHeader()) {
                     if (child == 1) {
                         value = view->model()->headerData(row.row(), Qt::Vertical).toString();
                     }
@@ -310,7 +310,7 @@ void QAccessibleItemRow::setText(Text t, int child, const QString &text)
                 return;
         }
 
-        if (QHeaderView *vheader = verticalHeader()) {
+        if (verticalHeader()) {
             if (child == 1) {
                 view->model()->setHeaderData(row.row(), Qt::Vertical, text);
                 return;
@@ -373,7 +373,7 @@ int QAccessibleItemRow::childCount() const
         count = children().count();
     }
 #ifndef QT_NO_TABLEVIEW
-    if (const QTableView *tv = qobject_cast<const QTableView*>(view)) {
+    if (qobject_cast<const QTableView*>(view)) {
         if (verticalHeader())
             ++count;
     }
@@ -620,7 +620,7 @@ bool QAccessibleItemRow::doAction(int action, int child, const QVariantList & /*
     if (!view)
         return false;
 
-    if (QHeaderView *header = verticalHeader())
+    if (verticalHeader())
         --child;
 
     QModelIndex idx = child ? childIndex(child) : QModelIndex(row);
