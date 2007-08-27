@@ -35,7 +35,7 @@ namespace qdesigner_internal {
 class QDESIGNER_SHARED_EXPORT CodeDialog : public QDialog
 {
     Q_OBJECT
-    CodeDialog(QWidget *parent = 0);
+    explicit CodeDialog(QWidget *parent = 0);
 public:
     virtual ~CodeDialog();
 

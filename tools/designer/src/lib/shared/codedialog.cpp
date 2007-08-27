@@ -111,7 +111,9 @@ QString CodeDialog::formFileName() const
 bool CodeDialog::generateCode(const QDesignerFormWindowInterface *fw, QString *code, QString *errorMessage)
 {
     // Generate temporary file name similar to form file name (for header guards)
-    QString tempPattern = QDir::tempPath(); // trailing slash
+    QString tempPattern = QDir::tempPath();
+    if (!tempPattern.endsWith(QDir::separator())) // platform-dependant
+        tempPattern += QDir::separator();
     const QString fileName = fw->fileName();
     if (fileName.isEmpty()) {
         tempPattern += QLatin1String("designer");
