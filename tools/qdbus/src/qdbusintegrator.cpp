@@ -839,7 +839,7 @@ void QDBusConnectionPrivate::deliverCall(QObject *object, int /*flags*/, const Q
 
     // do we create a reply? Only if the caller is waiting for a reply and one hasn't been sent
     // yet.
-    if (!msg.isReplyRequired() && !msg.isDelayedReply()) {
+    if (msg.isReplyRequired() && !msg.isDelayedReply()) {
         if (!fail) {
             // normal reply
             qDBusDebug() << QThread::currentThread() << "Automatically sending reply:" << outputArgs;
