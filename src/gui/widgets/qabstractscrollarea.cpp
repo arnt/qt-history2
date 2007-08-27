@@ -54,7 +54,8 @@
 
     It is possible to reserve a margin area around the viewport, see
     setViewportMargins(). The feature is mostly used to place a
-    QHeaderView widget above or beside the scrolling area.
+    QHeaderView widget above or beside the scrolling area. Subclasses
+    of QAbstractScrollArea should implement margins.
 
     When inheriting QAbstractScrollArea, you need to do the
     following:
@@ -772,7 +773,8 @@ QWidgetList QAbstractScrollArea::scrollBarWidgets(Qt::Alignment alignment)
 
     Note that this function is frequently called by QTreeView and
     QTableView, so margins must be implemented by QAbstractScrollArea
-    subclasses.
+    subclasses. Also, if the subclasses are to be used in item views,
+    they should not call this function. 
 
     By default all margins are zero.
 
