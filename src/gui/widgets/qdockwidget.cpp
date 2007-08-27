@@ -324,6 +324,7 @@ void QDockWidgetLayout::setWidget(Role r, QWidget *w)
     if (w != 0) {
         addChildWidget(w);
         item_list[r] = new QWidgetItem(w);
+        w->show();
     } else {
         item_list[r] = 0;
     }
