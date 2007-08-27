@@ -892,10 +892,10 @@ bool QDesignerPropertySheet::reset(int index)
                 widget = formWindow->parentWidget();
 
             if (widget != w && widget->parentWidget()) {
-                QApplication::processEvents();
+                QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
                 widget->parentWidget()->adjustSize();
             }
-            QApplication::processEvents();
+            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             widget->adjustSize();
             return true;
         }

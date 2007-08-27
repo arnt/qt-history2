@@ -240,7 +240,7 @@ void Layout::finishLayout(bool needMove, QLayout *layout)
             done = true;
         }
 
-        QApplication::processEvents();
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         // We don't want to resize the form window
         if (!Utils::isCentralWidget(m_formWindow, widget))
             widget->adjustSize();

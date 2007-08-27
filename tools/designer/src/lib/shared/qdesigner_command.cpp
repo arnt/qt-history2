@@ -1542,10 +1542,10 @@ void AdjustWidgetSizeCommand::redo()
 
     m_geometry = widget->geometry();
     if (widget != m_widget && widget->parentWidget()) {
-        QApplication::processEvents();
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         widget->parentWidget()->adjustSize();
     }
-    QApplication::processEvents();
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     widget->adjustSize();
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
