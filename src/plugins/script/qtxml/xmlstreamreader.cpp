@@ -316,6 +316,7 @@ QScriptValue constructXmlStreamReaderClass(QScriptEngine *eng)
     ADD_METHOD(proto, isEntityReference);
     ADD_METHOD(proto, isProcessingInstruction);
     ADD_METHOD(proto, isStandaloneDocument);
+    ADD_METHOD(proto, isStartDocument);
     ADD_METHOD(proto, isStartElement);
     ADD_METHOD(proto, isWhitespace);
     ADD_METHOD(proto, lineNumber);
