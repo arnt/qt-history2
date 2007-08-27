@@ -98,7 +98,7 @@ public:
 #ifdef QT_ARCH_PARISC
     int _q_lock[4];
 #endif
-    volatile T *_q_value;
+    T * volatile _q_value;
 
     // Non-atomic API
     inline bool operator==(T *value) const
@@ -118,12 +118,12 @@ public:
 
     inline operator T *() const
     {
-        return const_cast<T *>(_q_value);
+        return _q_value;
     }
 
     inline T *operator->() const
     {
-        return const_cast<T *>(_q_value);
+        return _q_value;
     }
 
     inline QBasicAtomicPointer<T> &operator=(T *value)

@@ -251,20 +251,20 @@ inline int QBasicAtomicInt::fetchAndAddOrdered(int valueToAdd)
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
 {
-    return _InterlockedCompareExchangePointer(reinterpret_cast<void * volatile *>(const_cast<T **>(&_q_value)),
+    return _InterlockedCompareExchangePointer(reinterpret_cast<void * volatile *>(&_q_value),
                                               newValue, expectedValue) == long(expectedValue);
 }
 
 template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
-    return reinterpret_cast<T *>(_InterlockedExchangePointer(reinterpret_cast<void * volatile *>(const_cast<T **>(&_q_value)), newValue));
+    return reinterpret_cast<T *>(_InterlockedExchangePointer(reinterpret_cast<void * volatile *>(&_q_value), newValue));
 }
 
 template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
 {
-    return reinterpret_cast<T *>(_InterlockedExchangeAddPointer(reinterpret_cast<void * volatile *>(const_cast<T **>(&_q_value)), valueToAdd * sizeof(T)));
+    return reinterpret_cast<T *>(_InterlockedExchangeAddPointer(reinterpret_cast<void * volatile *>(&_q_value), valueToAdd * sizeof(T)));
 }
 
 #endif // _MSC_VER ...

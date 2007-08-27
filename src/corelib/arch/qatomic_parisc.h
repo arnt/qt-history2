@@ -214,7 +214,7 @@ template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
     q_atomic_lock(_q_lock);
-    T *returnValue = const_cast<T *>(_q_value);
+    T *returnValue = (_q_value);
     _q_value = newValue;
     q_atomic_unlock(_q_lock);
     return returnValue;
@@ -244,7 +244,7 @@ template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
 {
     q_atomic_lock(_q_lock);
-    T *returnValue = const_cast<T *>(_q_value);
+    T *returnValue = (_q_value);
     _q_value += valueToAdd;
     q_atomic_unlock(_q_lock);
     return returnValue;

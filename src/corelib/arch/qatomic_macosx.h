@@ -187,7 +187,7 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelaxed(T *expectedValu
 {
     return OSAtomicCompareAndSwap64(reinterpret_cast<int64_t>(expectedValue),
                                     reinterpret_cast<int64_t>(newValue),
-                                    reinterpret_cast<int64_t *>(const_cast<T **>(&_q_value)));
+                                    reinterpret_cast<int64_t *>(&_q_value));
 }
 
 template <typename T>
@@ -195,7 +195,7 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValu
 {
     return OSAtomicCompareAndSwap64Barrier(reinterpret_cast<int64_t>(expectedValue),
                                            reinterpret_cast<int64_t>(newValue),
-                                           reinterpret_cast<int64_t *>(const_cast<T **>(&_q_value)));
+                                           reinterpret_cast<int64_t *>(&_q_value));
 }
 
 template <typename T>
@@ -215,7 +215,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelaxed(T *newValue)
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetRelaxed(returnValue, newValue))
             break;
     }
@@ -227,7 +227,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetOrdered(returnValue, newValue))
             break;
     }
@@ -251,7 +251,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelaxed(qptrdiff valueTo
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetRelaxed(returnValue, returnValue + valueToAdd))
             break;
     }
@@ -263,7 +263,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueTo
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetOrdered(returnValue, returnValue + valueToAdd))
             break;
     }

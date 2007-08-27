@@ -228,7 +228,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
     while (q_atomic_swp(&q_atomic_lock, ~0) != 0)
         ;
-    T *originalValue = const_cast<T *>(_q_value);
+    T *originalValue = _q_value;
     _q_value = newValue;
     q_atomic_swp(&q_atomic_lock, 0);
     return originalValue;
@@ -259,7 +259,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueTo
 {
     while (q_atomic_swp(&q_atomic_lock, ~0) != 0)
         ;
-    T *originalValue = const_cast<T *>(_q_value);
+    T *originalValue = (_q_value);
     _q_value += valueToAdd;
     q_atomic_swp(&q_atomic_lock, 0);
     return originalValue;

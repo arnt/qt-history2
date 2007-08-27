@@ -239,7 +239,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelaxed(T *newValue)
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetRelaxed(returnValue, newValue))
             break;
     }
@@ -251,7 +251,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreAcquire(T *newValue)
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetAcquire(returnValue, newValue))
             break;
     }
@@ -263,7 +263,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelease(T *newValue)
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetRelease(returnValue, newValue))
             break;
     }
@@ -275,7 +275,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetOrdered(returnValue, newValue))
             break;
     }
@@ -287,7 +287,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelaxed(qptrdiff valueTo
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetRelaxed(returnValue, returnValue + valueToAdd))
             break;
     }
@@ -300,7 +300,7 @@ T *QBasicAtomicPointer<T>::fetchAndAddAcquire(qptrdiff valueToAdd)
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetAcquire(returnValue, returnValue + valueToAdd))
             break;
     }
@@ -312,7 +312,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelease(qptrdiff valueTo
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetRelease(returnValue, returnValue + valueToAdd))
             break;
     }
@@ -324,7 +324,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueTo
 {
     T *returnValue;
     for (;;) {
-        returnValue = const_cast<T *>(_q_value);
+        returnValue = (_q_value);
         if (testAndSetOrdered(returnValue, returnValue + valueToAdd))
             break;
     }
