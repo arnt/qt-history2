@@ -2448,7 +2448,6 @@ QRegion::~QRegion()
 
 QRegion &QRegion::operator=(const QRegion &r)
 {
-    QRegionData *x = r.d;
     r.d->ref.ref();
     if (!d->ref.deref())
         cleanUp(d);
