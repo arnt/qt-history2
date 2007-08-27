@@ -16,8 +16,8 @@
 
 QT_BEGIN_HEADER
 
-#define Q_ATOMIC_INT_TEST_AND_SET_IS_ALWAYS_NATIVE
-#define Q_ATOMIC_INT_TEST_AND_SET_IS_WAIT_FREE
+#define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_WAIT_FREE
 
 inline bool QBasicAtomicInt::isReferenceCountingNative()
 { return true; }
@@ -48,9 +48,8 @@ inline bool QBasicAtomicInt::isFetchAndAddNative()
 inline bool QBasicAtomicInt::isFetchAndAddWaitFree()
 { return true; }
 
-#define Q_ATOMIC_POINTER_SUPPORTS_TEST_AND_SET Q_ATOMIC_IS_ALWAYS_NATIVE
-#define Q_ATOMIC_POINTER_SUPPORTS_FETCH_AND_STORE Q_ATOMIC_IS_ALWAYS_NATIVE
-#define Q_ATOMIC_POINTER_SUPPORTS_FETCH_AND_ADD Q_ATOMIC_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_POINTER_TEST_AND_SET_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_POINTER_TEST_AND_SET_IS_WAIT_FREE
 
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetNative()
@@ -84,83 +83,108 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
 // MSVC++ 6.0 doesn't generate correct code when optimization are turned on!
 #if _MSC_VER < 1300 && defined (_M_IX86)
 
-inline int q_atomic_test_and_set_int(volatile int *pointer, int expected, int newval)
+inline bool QBasicAtomicInt::ref()
 {
-    __asm {
-        mov EDX,pointer
-        mov EAX,expected
-        mov ECX,newval
-        lock cmpxchg dword ptr[EDX],ECX
-        mov newval,EAX
-    }
-    return newval == expected;
-}
-
-inline int q_atomic_test_and_set_ptr(volatile void *pointer, void *expected, void *newval)
-{
-    __asm {
-        mov EDX,pointer
-        mov EAX,expected
-        mov ECX,newval
-        lock cmpxchg dword ptr[EDX],ECX
-        mov newval,EAX
-    }
-    return newval == expected;
-}
-
-inline int q_atomic_increment(volatile int *pointer)
-{
+    volatile int *pointer = &_q_value;
     unsigned char retVal;
     __asm {
         mov ECX,pointer
         lock inc DWORD ptr[ECX]
         setne retVal
     }
-    return static_cast<int>(retVal);
+    return retVal != 0;
 }
 
-inline int q_atomic_decrement(volatile int *pointer)
+inline bool QBasicAtomicInt::deref()
 {
+    volatile int *pointer = &_q_value;
     unsigned char retVal;
     __asm {
         mov ECX,pointer
         lock dec DWORD ptr[ECX]
         setne retVal
     }
-    return static_cast<int>(retVal);
+    return retVal != 0;
 }
 
-inline int q_atomic_set_int(volatile int *pointer, int newval)
+inline bool QBasicAtomicInt::testAndSetOrdered(int expectedValue, int newValue)
 {
+    volatile int *pointer = &_q_value;
     __asm {
         mov EDX,pointer
-        mov ECX,newval
-        lock xchg dword ptr[EDX],ECX
-        mov newval,ECX
+        mov EAX,expectedValue
+        mov ECX,newValue
+        lock cmpxchg dword ptr[EDX],ECX
+        mov newValue,EAX
     }
-    return newval;
+    return newValue == expectedValue;
 }
 
-inline void *q_atomic_set_ptr(volatile void *pointer, void *newval)
+
+inline int QBasicAtomicInt::fetchAndStoreOrdered(int newValue)
 {
+    volatile int *pointer = &_q_value;
     __asm {
         mov EDX,pointer
-        mov ECX,newval
+        mov ECX,newValue
         lock xchg dword ptr[EDX],ECX
-        mov newval,ECX
+        mov newValue,ECX
     }
-    return newval;
+    return newValue;
 }
 
-inline int q_atomic_fetch_and_add_int(volatile int *pointer, int value)
+
+inline int QBasicAtomicInt::fetchAndAddOrdered(int valueToAdd)
 {
+    volatile int *pointer = &_q_value;
     __asm {
         mov EDX,pointer
-        mov ECX,value
+        mov ECX,valueToAdd
         lock xadd dword ptr[EDX],ECX
-        mov value,ECX
+        mov valueToAdd,ECX
     }
-    return value;
+    return valueToAdd;
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
+{
+    void *pointer = &_q_value;
+    __asm {
+        mov EDX,pointer
+        mov EAX,expectedValue
+        mov ECX,newValue
+        lock cmpxchg dword ptr[EDX],ECX
+        mov newValue,EAX
+    }
+    return newValue == expectedValue;
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
+{
+    void *pointer = &_q_value;
+    __asm {
+        mov EDX,pointer
+        mov ECX,newValue
+        lock xchg dword ptr[EDX],ECX
+        mov newValue,ECX
+    }
+    return reinterpret_cast<T *>(newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
+{
+    void *pointer = &_q_value;
+    valueToAdd *= sizeof(T);
+    __asm {
+        mov EDX,pointer
+        mov ECX,valueToAdd
+        lock xadd dword ptr[EDX],ECX
+        mov pointer,ECX
+    }
+    return reinterpret_cast<T *>(pointer);
 }
 
 #else
