@@ -5555,6 +5555,11 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
 
     It is possible to make the item editable by setting the Qt::TextEditable flag
     using setTextInteractionFlags().
+    
+    The item's preferred text width can be set using setTextWidth() and obtained
+    using textWidth().
+
+    \note In order to align HTML text in the center, the item's text width must be set.
 
     \img graphicsview-textitem.png
 
