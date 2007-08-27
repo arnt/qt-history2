@@ -774,6 +774,8 @@ void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
 //    qDebug() << "Sending Region event to" << winid << "rgn" << rgn << "type" << type;
 
     sendEvent(&event);
+    if (d->clientLock)
+        csocket->waitForBytesWritten(); // must flush to prevent deadlock
 }
 
 extern int qt_servershmid;
