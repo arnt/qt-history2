@@ -2114,7 +2114,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     // work around 4Dwm's incompliance with ICCCM 4.1.5
                     || X11->desktopEnvironment == DE_4DWM) {
                     XMoveResizeWindow(dpy, data.winid, x, y, w, h);
-                } else if (!data.in_show && X11->isSupportedByWM(ATOM(_NET_MOVERESIZE_WINDOW))) {
+                } else if (!data.in_show
+                           && (topData()->validWMState || !topData()->posFromMove)
+                           && X11->isSupportedByWM(ATOM(_NET_MOVERESIZE_WINDOW))) {
                     XEvent e;
                     e.xclient.type = ClientMessage;
                     e.xclient.message_type = ATOM(_NET_MOVERESIZE_WINDOW);
