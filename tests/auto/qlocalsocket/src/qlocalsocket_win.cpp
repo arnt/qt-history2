@@ -13,41 +13,40 @@
 
 #include "qlocalsocket.h"
 #include "qlocalsocket_p.h"
-#include <qt_windows.h>
 
-#define BUFSIZE 512
 #include <qdebug.h>
-#include <qdatetime.h>
 
 void QLocalSocketPrivate::setErrorString(const QString &function)
 {
     Q_Q(QLocalSocket);
     BOOL windowsError = GetLastError();
+    QLocalSocket::LocalSocketState currentState = state;
     switch (windowsError) {
+    case ERROR_PIPE_NOT_CONNECTED:
     case ERROR_BROKEN_PIPE:
     case ERROR_NO_DATA:
 	error = QLocalSocket::ConnectionError;
 	errorString = QLocalSocket::tr("%1: connection error").arg(function);
         state = QLocalSocket::UnconnectedState;
-	q->emit stateChanged(state);
-	q->emit disconnected();
 	break;
     case ERROR_FILE_NOT_FOUND:
 	error = QLocalSocket::NotFoundError;
 	errorString = QLocalSocket::tr("%1: not found").arg(function);
         state = QLocalSocket::UnconnectedState;
-	q->emit stateChanged(state);
 	break;
-    case ERROR_PIPE_NOT_CONNECTED:
-	// ### handle
     default:
 	error = QLocalSocket::UnknownSocketError;
 	errorString = QLocalSocket::tr("%1: unknown error %2").arg(function).arg(windowsError);
 #if defined QLOCALSOCKET_DEBUG
-	qDebug() << errorString;
+	qWarning() << errorString;
 #endif
         state = QLocalSocket::UnconnectedState;
-	q->emit stateChanged(state);
+    }
+
+    if (currentState != state) {
+        q->emit stateChanged(state);
+        if (state == QLocalSocket::UnconnectedState)
+            q->emit disconnected();
     }
 }
 
@@ -62,13 +61,11 @@ QLocalSocketPrivate::QLocalSocketPrivate() : QIODevicePrivate(),
 void QLocalSocket::connectToName(const QString &name, OpenMode openMode)
 {
     Q_D(QLocalSocket);
-    if ((state() == ConnectedState || state() == ConnectingState))
+    if (state() == ConnectedState || state() == ConnectingState)
         return;
 
     d->state = ConnectingState;
     emit stateChanged(d->state);
-
-    QString fullName = QString("\\\\.\\pipe\\%1").arg(name);
 
     if (name.isEmpty()) {
 	d->error = QLocalSocket::NotFoundError;
@@ -78,27 +75,37 @@ void QLocalSocket::connectToName(const QString &name, OpenMode openMode)
 	return;
     }
 
+    QString fullName = QString("\\\\.\\pipe\\%1").arg(name);
     // Try to open a named pipe; wait for it, if necessary.
     HANDLE localSocket;
-    while (true) {
-        //QT_WA({CreateFileW()},{CreateFileA()});
-        // ### permisions
+    forever {
+	DWORD permissions = (openMode & QIODevice::ReadOnly) ? GENERIC_READ : 0;
+	permissions |= (openMode & QIODevice::WriteOnly) ? GENERIC_WRITE : 0;
+	QT_WA({
 	localSocket = CreateFileW(
                           (TCHAR*)fullName.utf16(),   // pipe name
-                          GENERIC_READ |  // read and write access
-                          GENERIC_WRITE,
+                          permissions,
                           0,              // no sharing
                           NULL,           // default security attributes
                           OPEN_EXISTING,  // opens existing pipe
                           0,              // default attributes
                           NULL);          // no template file
-
-	// Break if the pipe handle is valid.
+	}, {
+	localSocket = CreateFileA(
+                          fullName.toLocal8Bit().constData(),   // pipe name
+                          permissions,
+                          0,              // no sharing
+                          NULL,           // default security attributes
+                          OPEN_EXISTING,  // opens existing pipe
+                          0,              // default attributes
+                          NULL);          // no template file
+	
+	});
         if (localSocket != INVALID_HANDLE_VALUE)
             break;
 
 	DWORD error = GetLastError();
-        // Exit if an error other than ERROR_PIPE_BUSY occurs.
+        // It is really and error if error is not ERROR_PIPE_BUSY
         if (error != ERROR_PIPE_BUSY) {
 	    d->setErrorString(QLatin1String("QLocalSocket::connectToName"));
 	    return;
@@ -131,7 +138,7 @@ qint64 QLocalSocket::writeData(const char *data, qint64 maxSize)
     Q_D(QLocalSocket);
     if (!d->pipeWriter) {
         d->pipeWriter = new QWindowsPipeWriter(d->handle, this);
-	d->pipeWriter->start();
+        d->pipeWriter->start();
     }
     return d->pipeWriter->write(data, maxSize);
 }
@@ -154,42 +161,34 @@ qint64 QLocalSocket::bytesAvailable() const
 qint64 QLocalSocket::bytesToWrite() const
 {
     Q_D(const QLocalSocket);
-    qint64 size = 0;
-#ifdef Q_OS_WIN
-    if (d->pipeWriter)
-        size += d->pipeWriter->bytesToWrite();
-#endif
-    return size;
+    return (d->pipeWriter) ? d->pipeWriter->bytesToWrite() : 0;
 }
 
 bool QLocalSocket::canReadLine() const
 {
+    Q_D(const QLocalSocket);
     if (state() != ConnectedState)
         return false;
-    Q_D(const QLocalSocket);
     char line[100];
-    DWORD lpBytesRead;
-    DWORD lpTotalBytesAvail;
-    DWORD lpBytesLeftThisMessage;
-    if (PeekNamedPipe(d->handle, &line, 100, &lpBytesRead,
-			    &lpTotalBytesAvail,
-			    &lpBytesLeftThisMessage)) {
-	if (lpTotalBytesAvail > 0)
-		return true;
+    DWORD lpBytesRead = 0;
+    DWORD lpTotalBytesAvail  = 0;
+    DWORD lpBytesLeftThisMessage = true;
+    while (lpBytesLeftThisMessage
+           && PeekNamedPipe(d->handle, &line, 100, &lpBytesRead,
+                            &lpTotalBytesAvail,
+                            &lpBytesLeftThisMessage)) {
+	for (uint i = 0; i < lpBytesRead; ++i)
+	    if (line[i] == '\n')
+                return true;
     }
-    return false;
-    //d->file.canReadLine();
-    // use PeekNamedPipe();
+    return QIODevice::canReadLine();
 }
 
 void QLocalSocket::close()
 {
     Q_D(QLocalSocket);
-    //if (isValid())
-    //	FlushFileBuffers(d->handle);
-
     if (state() == UnconnectedState)
-	return;
+        return;
     d->state = ClosingState;
     emit stateChanged(d->state);
     DisconnectNamedPipe(d->handle);
@@ -198,12 +197,17 @@ void QLocalSocket::close()
     d->state = UnconnectedState;
     emit stateChanged(d->state);
     emit disconnected();
+    if (d->pipeWriter) {
+	d->pipeWriter->deleteLater();
+	d->pipeWriter = 0;
+    }
 }
 
 bool QLocalSocket::flush()
 {
-    //if (d->pipeWriter && d->pipeWriter->bytesToWrite() > 0) {
-    //    d->pipeWriter->waitForWrite(ULONG_MAX);
+    Q_D(QLocalSocket);
+    if (d->pipeWriter)
+        return d->pipeWriter->waitForWrite(0);
     return false;
 }
 
@@ -245,7 +249,6 @@ int QLocalSocket::socketDescriptor() const
 void QLocalSocketPrivate::init()
 {
     Q_Q(QLocalSocket);
-    handle = INVALID_HANDLE_VALUE;
     QObject::connect(&handleNotifier, SIGNAL(activated(HANDLE)),
 		     q, SLOT(_q_activated(HANDLE)));
 }
@@ -278,9 +281,7 @@ bool QLocalSocket::waitForConnected(int msecs)
 bool QLocalSocket::waitForDisconnected(int msecs)
 {
     Q_UNUSED(msecs);
-    if (state() == UnconnectedState)
-        return false;
-    return state() == UnconnectedState;
+    return false;
 }
 
 bool QLocalSocket::isValid() const
@@ -301,7 +302,6 @@ bool QLocalSocket::waitForReadyRead(int msecs)
             break;
     }
 
-    // ### set error
     return false;
 }
 
@@ -331,7 +331,6 @@ bool QLocalSocket::waitForBytesWritten(int msecs)
             break;
     }
 
-    // ### timeout error
     return false;
 }
 
