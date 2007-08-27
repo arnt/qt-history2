@@ -408,32 +408,34 @@
 
     \section1 Threads and Implicit Sharing
 
-    Qt uses an optimization called \l{implicit sharing} for many
-    of its value class, notably QImage and QString. In many people's
-    minds, implicit sharing and multithreading are incompatible
-    concepts, because of the way the reference counting is typically
-    done. One solution is to protect the internal reference counter
-    with a mutex, but this is prohibitively slow. Earlier versions of
-    Qt didn't provide a satisfactory solution to this problem.
-
-    Beginning with Qt 4, implicit shared classes can safely be copied
-    across threads, like any other value classes. They are fully
+    Qt uses an optimization called \l{implicit sharing} for many of
+    its value class, notably QImage and QString. Beginning with Qt 4,
+    implicit shared classes can safely be copied across threads, like
+    any other value classes. They are fully
     \l{#reentrant}{reentrant}. The implicit sharing is really
-    implicit. This is implemented using atomic reference counting
-    operations, which are implemented in assembly language for the
-    different platforms supported by Qt. Atomic reference counting is
-    very fast, much faster than using a mutex (see also \l
-    {Implementing Atomic Operations}).
+    \e implicit.
 
-    This having been said, if you access the same \e object in
-    multiple threads simultaneously (as opposed to copies of the same
-    object), you still need a mutex to serialize the accesses, just
-    like with any reentrant class.
+    In many people's minds, implicit sharing and multithreading are
+    incompatible concepts, because of the way the reference counting
+    is typically done. Qt, however, uses atomic reference counting to
+    ensure the integrity of the shared data, avoiding potential
+    corruption of the reference counter.
+
+    Note that atomic reference counting does not guarantee
+    \l{#thread-safe}{thread-safety}. Proper locking should be used
+    when sharing an instance of an implicitly shared class between
+    threads. This is the same requirement placed on all
+    \l{#reentrant}{reentrant} classes, shared or not. Atomic reference
+    counting does, however, guarantee that a thread working on its
+    own, local instance of an implicitly shared class is safe. We
+    recommend using \l{Signals and Slots Across Threads}{signals and
+    slots} to pass data between threads, as this can be done without
+    the need for any explicit locking.
 
     To sum it up, implicitly shared classes in Qt 4 are really \e
     implicitly shared. Even in multithreaded applications, you can
     safely use them as if they were plain, non-shared, reentrant
-    classes.
+    value-based classes.
 
     \section1 Threads and the SQL Module
 
