@@ -836,6 +836,7 @@ void QWSDisplay::Data::fillQueue()
 #endif
             }
         } else if (e->type == QWSEvent::Region && clientLock) {
+            // not really an unlock, decrements the semaphore
             clientLock->unlock(QWSLock::RegionEvent);
             queue.append(e);
 #if 0
