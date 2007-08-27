@@ -271,6 +271,26 @@ static int parsePrintcap(QList<QPrinterDescription> *printers, const QString& fi
     return Success;
 }
 
+/*!
+  \internal
+
+  Checks $HOME/.printers for a line matching '_default <name>' (where
+  <name> does not contain any white space). The first such match
+  results in <name> being returned.
+  If no lines match then an empty string is returned.
+*/
+static QString getDefaultFromHomePrinters()
+{
+    QFile file(QDir::homePath() + QLatin1String("/.printers"));
+    if (!file.open(QIODevice::ReadOnly))
+        return QString();
+    QString all = QString(file.readAll());
+    QStringList words = all.split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    const int i = words.indexOf(QLatin1String("_default"));
+    if (i != -1 && i < words.size() - 1)
+        return words.at(i + 1);
+    return QString();
+}
 
 // solaris, not 2.6
 static void parseEtcLpPrinters(QList<QPrinterDescription> *printers)
@@ -843,6 +863,8 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
         delete [] def;
     }
 
+    QString homePrintersDefault = getDefaultFromHomePrinters();
+
     // all printers hopefully known.  try to find a good default
     QString dollarPrinter;
     {
@@ -867,7 +889,11 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
 
         QString name = printers.at(i).name;
         QString comment = printers.at(i).comment;
-        if (quality < 4 && name == dollarPrinter) {
+        if (quality < 5 && name == dollarPrinter) {
+            best = i;
+            quality = 5;
+        } else if (quality < 4 && !homePrintersDefault.isEmpty() &&
+                   name == homePrintersDefault) {
             best = i;
             quality = 4;
         } else if (quality < 3 && !etcLpDefault.isEmpty() &&
