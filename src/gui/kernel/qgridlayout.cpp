@@ -1527,7 +1527,7 @@ void QGridLayout::addWidget(QWidget *widget, int row, int column, Qt::Alignment 
     This version adds the given \a widget to the cell grid, spanning
     multiple rows/columns. The cell will start at \a fromRow, \a
     fromColumn spanning \a rowSpan rows and \a columnSpan columns. The
-    grid will have the given \a alignment.
+    \a widget will have the given \a alignment.
 
     If \a rowSpan and/or \a columnSpan is -1, then the widget will
     extend to the bottom and/or right edge, respectively.
