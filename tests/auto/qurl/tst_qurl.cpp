@@ -2318,7 +2318,6 @@ void tst_QUrl::hasQueryItem()
 
 void tst_QUrl::nameprep()
 {
-    QSKIP("QUrl doesn't support NAMEPREP in Qt 4.0", SkipAll);
     QUrl url(QString::fromUtf8("http://www.fu""\xc3""\x9f""ball.de/"));
     QUrl url2 = QUrl::fromEncoded("http://www.xn--fuball-cta.de/");
     QCOMPARE(url2.toString(), QString::fromLatin1("http://www.fussball.de/"));
