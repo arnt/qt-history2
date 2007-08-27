@@ -51,6 +51,7 @@ public:
     void waitForConnection();
     void waitForPropertyReply();
 //    void waitForRegionAck();
+    void waitForRegionEvents(int winId);
 #endif
     void waitForCreation();
 #ifndef QT_NO_COP

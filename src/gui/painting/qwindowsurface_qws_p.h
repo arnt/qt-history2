@@ -265,6 +265,7 @@ public:
 
     QScreen *screen() const { return _screen; }
 
+    void beginPaint(const QRegion &);
     bool lock(int timeout = -1);
     void unlock();
 

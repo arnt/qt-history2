@@ -41,13 +41,12 @@ public:
     bool lock(LockType type, int timeout = -1);
     void unlock(LockType type);
     bool wait(LockType type, int timeout = -1);
+    bool hasLock(LockType type);
     int id() const { return semId; }
 
 private:
     int semId;
     int lockCount[2];
-
-    bool hasLock(LockType type);
 };
 
 #endif // QT_NO_QWS_MULTIPROCESS

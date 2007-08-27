@@ -835,6 +835,8 @@ void QWSDisplay::Data::fillQueue()
                            me->window(), mouse_event_count);
 #endif
             }
+        } else if (e->type == QWSEvent::Region && clientLock) {
+            clientLock->unlock(QWSLock::RegionEvent);
 #if 0
         } else if (e->type == QWSEvent::RegionModified) {
             QWSRegionModifiedEvent *re = static_cast<QWSRegionModifiedEvent *>(e);
@@ -989,6 +991,35 @@ void QWSDisplay::Data::waitForRegionAck()
     region_ack = 0;
 }
 #endif
+
+void QWSDisplay::Data::waitForRegionEvents(int winId)
+{
+    if (!clientLock)
+        return;
+
+    // fill queue with unreceived region events
+    if (!clientLock->hasLock(QWSLock::RegionEvent)) {
+        for (;;) {
+            fillQueue();
+            if (clientLock->hasLock(QWSLock::RegionEvent))
+                break;
+            csocket->flush();
+            csocket->waitForReadyRead(1000);
+        }
+    }
+
+    // check the queue for pending region events
+    for (int i = 0; i < queue.size(); /* nothing */) {
+        QWSEvent *e = queue.at(i);
+        if (e->type == QWSEvent::Region && e->window() == winId) {
+            qApp->qwsProcessEvent(e);
+            delete e;
+            queue.removeAt(i);
+        } else {
+            ++i;
+        }
+    }
+}
 #endif // QT_NO_QWS_MULTIPROCESS
 
 void QWSDisplay::Data::waitForCreation()

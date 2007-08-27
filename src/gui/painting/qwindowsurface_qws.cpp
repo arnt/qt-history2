@@ -1267,6 +1267,12 @@ void QWSDirectPainterSurface::setPermanentState(const QByteArray &ba)
     setSurfaceFlags(surfaceFlags() | Opaque);
 }
 
+void QWSDirectPainterSurface::beginPaint(const QRegion &region)
+{
+    QWSWindowSurface::beginPaint(region);
+    QWSDisplay::instance()->d->waitForRegionEvents(winId());
+}
+
 bool QWSDirectPainterSurface::lock(int timeout)
 {
     Q_UNUSED(timeout);

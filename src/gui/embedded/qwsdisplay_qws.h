@@ -141,6 +141,7 @@ private:
 
     friend class QWSMemorySurface;
     friend class QWSOnScreenSurface;
+    friend class QWSDirectPainterSurface;
     int getPropertyLen;
     char *getPropertyData;
     static QLock *lock;

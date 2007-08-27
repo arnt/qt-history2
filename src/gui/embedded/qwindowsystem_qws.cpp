@@ -764,6 +764,10 @@ void QWSClient::sendEvent(QWSEvent* event)
 */
 void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
 {
+    Q_D(QWSClient);
+    if (d->clientLock)
+        d->clientLock->lock(QWSLock::RegionEvent);
+
     QWSRegionEvent event;
     event.setData(winid, rgn, type);
 
