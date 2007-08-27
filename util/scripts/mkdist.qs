@@ -179,6 +179,7 @@ platformRemove["all"] = [  new RegExp("_qnx4"),
                            new RegExp("^src/plugins/gfxdrivers"),
                            new RegExp("^src/plugins/mousedrivers"),
                            new RegExp("^src/gui/embedded"),
+                           new RegExp("^tools/qdoc3/test/qsa"),
                            new RegExp("_wce") ];
 
 var licenseRemove = new Array();
