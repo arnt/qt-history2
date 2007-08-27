@@ -387,6 +387,9 @@ void QDirectPainter::regionChanged(const QRegion &region)
 void QDirectPainter::startPainting(bool lockDisplay)
 {
     Q_UNUSED(lockDisplay);
+
+    Q_D(QDirectPainter);
+    d->surface->beginPaint(d->surface->region());
 }
 
 /*!
@@ -399,6 +402,8 @@ void QDirectPainter::startPainting(bool lockDisplay)
 */
 void QDirectPainter::endPainting()
 {
+    Q_D(QDirectPainter);
+    d->surface->endPaint(d->surface->region());
 }
 
 /*!
@@ -412,6 +417,7 @@ void QDirectPainter::endPainting()
 */
 void QDirectPainter::endPainting(const QRegion &region)
 {
+    endPainting();
     flush(region);
 }
 

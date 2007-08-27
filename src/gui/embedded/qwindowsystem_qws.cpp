@@ -3261,6 +3261,8 @@ void QWSServerPrivate::update_regions()
     QRegion transparentRegion;
 
     // XXX (try?)grab display lock
+    // only really needed if there are unbuffered surfaces...
+    QWSDisplay::grab(true);
 
     for (int i = 0; i < windows.count(); ++i) {
         QWSWindow *w = windows.at(i);
@@ -3299,6 +3301,7 @@ void QWSServerPrivate::update_regions()
     if (!expose.isEmpty())
         exposeRegion(expose);
 
+    QWSDisplay::ungrab();
     // XXX ungrab display lock
 }
 

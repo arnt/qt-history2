@@ -1267,5 +1267,16 @@ void QWSDirectPainterSurface::setPermanentState(const QByteArray &ba)
     setSurfaceFlags(surfaceFlags() | Opaque);
 }
 
+bool QWSDirectPainterSurface::lock(int timeout)
+{
+    Q_UNUSED(timeout);
+    QWSDisplay::grab(true);
+    return true;
+}
+
+void QWSDirectPainterSurface::unlock()
+{
+    QWSDisplay::ungrab();
+}
 
 #endif // QT_NO_DIRECTPAINTER

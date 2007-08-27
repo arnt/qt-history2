@@ -264,6 +264,10 @@ public:
     WId windowId() const { return static_cast<WId>(winId()); }
 
     QScreen *screen() const { return _screen; }
+
+    bool lock(int timeout = -1);
+    void unlock();
+
 private:
     QScreen *_screen;
 };
