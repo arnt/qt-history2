@@ -528,6 +528,37 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QFixedPoint &point,
         return PointExact;
     }
 
+    if (QTextTable *table = qobject_cast<QTextTable *>(frame)) {
+        const int rows = table->rows();
+        const int columns = table->columns();
+        QTextTableData *td = static_cast<QTextTableData *>(data(table));
+
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < columns; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                if (cell.row() != r || cell.column() != c)
+                    continue;
+
+                QRectF cellRect = td->cellRect(cell);
+                const QFixedPoint cellPos = QFixedPoint::fromPointF(cellRect.topLeft());
+                const QFixedPoint pointInCell = relativePoint - cellPos;
+
+                const QList<QTextFrame *> childFrames = td->childFrameMap.values(r + c * rows);
+                for (int i = 0; i < childFrames.size(); ++i) {
+                    QTextFrame *child = childFrames.at(i);
+                    if (isFrameFromInlineObject(child)
+                        && child->frameFormat().position() != QTextFrameFormat::InFlow
+                        && hitTest(child, pointInCell, position, l, accuracy) == PointExact)
+                    {
+                        return PointExact;
+                    }
+                }
+            }
+        }
+
+        return hitTest(table, relativePoint, position, l, accuracy);
+    }
+
     const QList<QTextFrame *> childFrames = frame->childFrames();
     for (int i = 0; i < childFrames.size(); ++i) {
         QTextFrame *child = childFrames.at(i);
@@ -538,9 +569,6 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QFixedPoint &point,
             return PointExact;
         }
     }
-
-    if (QTextTable *table = qobject_cast<QTextTable *>(frame))
-        return hitTest(table, relativePoint, position, l, accuracy);
 
     QTextFrame::Iterator it = frame->begin();
 
