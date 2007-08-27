@@ -14,7 +14,7 @@
 #include <private/qt_mac_p.h>
 #include "qcoreapplication.h"
 
-QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0, 0 };
+QRegion::QRegionData QRegion::shared_empty = { Q_BASIC_ATOMIC_INITIALIZER(1), 0, 0 };
 
 #define RGN_CACHE_SIZE 200
 #ifdef RGN_CACHE_SIZE
