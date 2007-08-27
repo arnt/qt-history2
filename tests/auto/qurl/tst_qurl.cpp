@@ -2986,6 +2986,22 @@ void tst_QUrl::tldRestrictions()
     QString encoded = QUrl::fromAce(ascii);
     QTEST(!encoded.contains(".xn--"), "encode");
     QTEST(encoded == unicode, "encode");
+
+    QUrl url = QUrl::fromEncoded("http://www.xn--brd-1na." + tld.toLatin1());
+    QTEST(!url.host().contains(".xn--"), "encode");
+    QTEST(url.host() == unicode, "encode");
+
+    url.setUrl(QLatin1String("http://www.xn--brd-1na.") + tld);
+    QTEST(!url.host().contains(".xn--"), "encode");
+    QTEST(url.host() == unicode, "encode");
+
+    url.setUrl(QLatin1String("http://www.br\370d.") + tld);
+    QTEST(!url.host().contains(".xn--"), "encode");
+    QTEST(url.host() == unicode, "encode");
+
+    url = QUrl::fromEncoded("http://www.br%C3%B8d." + tld.toLatin1());
+    QTEST(!url.host().contains(".xn--"), "encode");
+    QTEST(url.host() == unicode, "encode");
 }
 
 void tst_QUrl::emptyQueryOrFragment()
@@ -3156,7 +3172,7 @@ void tst_QUrl::hosts_data()
     QTest::newRow("normal2") << QString("http://www.trolltech.com") << QString("www.trolltech.com");
 
     // IDN hostnames
-    QTest::newRow("idn") << QString(QLatin1String("http://\345r")) << QString(QLatin1String("\345r"));
+    QTest::newRow("idn") << QString(QLatin1String("http://\345r.no")) << QString(QLatin1String("\345r.no"));
     QTest::newRow("idn-ace") << QString("http://xn--r-1fa.no") << QString(QLatin1String("\345r.no"));
 }
 

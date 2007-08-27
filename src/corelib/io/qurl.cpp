@@ -3007,15 +3007,16 @@ static bool qt_is_idn_enabled(const QStringList &labels)
 static QString qt_from_ACE(const QString &domain)
 {
     QStringList labels = domain.split(QLatin1Char('.'), QString::SkipEmptyParts);
-    if (!labels.isEmpty() && qt_is_idn_enabled(labels)) {
+    if (!labels.isEmpty()) {
+        const bool isIdnEnabled = qt_is_idn_enabled(labels);
         for (int i = 0; i < labels.size(); ++i) {
             // Nameprep the host. If the labels in the hostname are Punycode
             // encoded, we decode them immediately, then nameprep them.
-            QString label = labels.at(i);
-            if (label.startsWith(QLatin1String("xn--")))
-                labels[i] = qt_nameprep(QUrl::fromPunycode(label.toLatin1()));
+            QByteArray label = QUrl::toPunycode(labels.at(i));
+            if (isIdnEnabled && label.startsWith("xn--"))
+                labels[i] = qt_nameprep(QUrl::fromPunycode(label));
             else
-                labels[i] = qt_nameprep(label);
+                labels[i] = qt_nameprep(QString::fromLatin1(label));
         }
         return labels.join(QLatin1String("."));
     } else {
