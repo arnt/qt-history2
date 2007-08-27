@@ -7485,6 +7485,9 @@ void QWidget::updateGeometry()
     Qt::Widget or Qt::SubWindow, it is put at position (0, 0)
     relative to its parent widget.
 
+    \note This function calls setParent() when changing the flags for 
+    a window, and the side effects documented in setParent() also apply.
+    
     \sa windowType(), {Window Flags Example}
 */
 void QWidget::setWindowFlags(Qt::WindowFlags flags)
@@ -7546,6 +7549,10 @@ void QWidget::overrideWindowFlags(Qt::WindowFlags flags)
 
     If the "new" parent widget is the old parent widget, this function
     does nothing.
+    
+    \note The widget becomes invisible as part of changing its parent,
+    even if it was previously visible. You must call show() to make the
+    widget visible again.
 
     \warning It is very unlikely that you will ever need this
     function. If you have a widget that changes its content
