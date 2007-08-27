@@ -3841,6 +3841,7 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
     // Create result image, copy colormap
     QImage result(d->width, d->height, d->format);
     result.d->colortable = d->colortable;
+    result.d->has_alpha_clut = d->has_alpha_clut;
 
     if (depth() == 1)
         w = (w+7)/8;
