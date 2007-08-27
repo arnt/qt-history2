@@ -601,11 +601,12 @@ QByteArray::Data QByteArray::shared_empty = { Q_BASIC_ATOMIC_INITIALIZER(1),
     position from which to start erasing and the number of bytes that
     should be erased.
 
-    If you are building a QByteArray gradually and know in advance
-    approximately how many bytes the QByteArray will contain,
-    you can call reserve(), asking QByteArray to preallocate a
-    certain amount of memory. You can also call capacity() to find
-    out how much memory QByteArray actually allocated.
+    When you append() data to a non-empty array, the array will be
+    reallocated and the new data copied to it. You can avoid this
+    behavior by calling reserve(), which preallocates a certain amount
+    of memory. You can also call capacity() to find out how much
+    memory QByteArray actually allocated. Data appended to an empty
+    array is not copied.
 
     A frequent requirement is to remove whitespace characters from a
     byte array ('\\n', '\\t', ' ', etc.). If you want to remove
