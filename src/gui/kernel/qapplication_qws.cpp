@@ -1011,15 +1011,20 @@ void QWSDisplay::Data::waitForRegionEvents(int winId)
     }
 
     // check the queue for pending region events
+    QWSEvent *regionEvent = 0;
     for (int i = 0; i < queue.size(); /* nothing */) {
         QWSEvent *e = queue.at(i);
         if (e->type == QWSEvent::Region && e->window() == winId) {
-            qApp->qwsProcessEvent(e);
-            delete e;
+            delete regionEvent;
+            regionEvent = e;
             queue.removeAt(i);
         } else {
             ++i;
         }
+    }
+    if (regionEvent) {
+        qApp->qwsProcessEvent(regionEvent);
+        delete regionEvent;
     }
 }
 #endif // QT_NO_QWS_MULTIPROCESS
