@@ -219,7 +219,7 @@ public:
 
     QByteArray toEncoded(QUrl::FormattingOptions options = QUrl::None) const;
 
-    QAtomic ref;
+    QAtomicInt ref;
 
     QString scheme;
     QString userName;

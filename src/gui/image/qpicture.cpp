@@ -977,9 +977,9 @@ void QPicture::detach_helper()
     x->formatMinor = d->formatMinor;
     x->brect = d->brect;
     x->override_rect = d->override_rect;
-    x = qAtomicSetPtr(&d_ptr, x);
-    if (!x->ref.deref())
-        delete x;
+    if (!d->ref.deref())
+        delete d;
+    d_ptr = x;
 }
 
 /*!

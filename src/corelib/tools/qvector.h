@@ -32,7 +32,7 @@ QT_MODULE(Core)
 
 struct Q_CORE_EXPORT QVectorData
 {
-    QBasicAtomic ref;
+    QBasicAtomicInt ref;
     int alloc;
     int size;
 #if defined(Q_OS_SOLARIS) && defined(Q_CC_GNU) && defined(__LP64__) && defined(QT_BOOTSTRAPPED)
@@ -52,7 +52,7 @@ struct Q_CORE_EXPORT QVectorData
 template <typename T>
 struct QVectorTypedData
 {
-    QBasicAtomic ref;
+    QBasicAtomicInt ref;
     int alloc;
     int size;
 #if defined(Q_OS_SOLARIS) && defined(Q_CC_GNU) && defined(__LP64__) && defined(QT_BOOTSTRAPPED)
@@ -324,11 +324,10 @@ inline void QVector<T>::replace(int i, const T &t)
 template <typename T>
 QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 {
-    typename QVector::Data *x = v.d;
-    x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        free(x);
+    v.d->ref.ref();
+    if (!d->ref.deref())
+        free(d);
+    d = v.d;
     if (!d->sharable)
         detach_helper();
     return *this;
@@ -344,7 +343,7 @@ template <typename T>
 QVector<T>::QVector(int asize)
 {
     p = malloc(asize);
-    d->ref.init(1);
+    d->ref = 1;
     d->alloc = d->size = asize;
     d->sharable = true;
     d->capacity = false;
@@ -362,7 +361,7 @@ template <typename T>
 QVector<T>::QVector(int asize, const T &t)
 {
     p = malloc(asize);
-    d->ref.init(1);
+    d->ref = 1;
     d->alloc = d->size = asize;
     d->sharable = true;
     d->capacity = false;
@@ -426,7 +425,7 @@ void QVector<T>::realloc(int asize, int aalloc)
             }
             x.p = p = static_cast<QVectorData *>(qRealloc(p, sizeof(Data) + (aalloc - 1) * sizeof(T)));
         }
-        x.d->ref.init(1);
+        x.d->ref = 1;
         x.d->sharable = true;
         x.d->capacity = d->capacity;
 
@@ -456,9 +455,9 @@ void QVector<T>::realloc(int asize, int aalloc)
     x.d->size = asize;
     x.d->alloc = aalloc;
     if (d != x.d) {
-        x.d = qAtomicSetPtr(&d, x.d);
-        if (!x.d->ref.deref())
-            free(x.d);
+        if (!d->ref.deref())
+            free(d);
+        d = x.d;
     }
 }
 

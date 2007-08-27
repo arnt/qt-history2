@@ -67,7 +67,7 @@ private:
     int threadFinishedCount;
 };
 
-static QBasicAtomic counter;
+static QBasicAtomicInt counter;
 
 class QtTestSqlThread : public QThread
 {
@@ -209,7 +209,7 @@ public:
             for (int j = 0; j < ProdConIterations; ++j) {
                 QVERIFY_SQL(q, q.exec(QString("insert into " + qTableName("test")
                                 + " (id, name) values(%1, '%2')")
-                                      .arg(counter.fetchAndAdd(1)).arg("Robert")));
+                                      .arg(counter.fetchAndAddRelaxed(1)).arg("Robert")));
             }
             break; }
         case PreparedReading: {
@@ -228,7 +228,7 @@ public:
             QVERIFY_SQL(q, q.prepare("insert into " + qTableName("test") + " (id, name) "
                                      "values(?, ?)"));
             for (int i = 0; i < ProdConIterations; ++i) {
-                q.addBindValue(counter.fetchAndAdd(1));
+                q.addBindValue(counter.fetchAndAddRelaxed(1));
                 q.addBindValue("Robert");
                 QVERIFY_SQL(q, q.exec());
             }

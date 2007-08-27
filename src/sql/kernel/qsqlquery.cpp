@@ -29,7 +29,7 @@ class QSqlQueryPrivate
 public:
     QSqlQueryPrivate(QSqlResult* result);
     ~QSqlQueryPrivate();
-    QAtomic ref;
+    QAtomicInt ref;
     QSqlResult* sqlResult;
     QSql::NumericalPrecisionPolicy precisionPolicy;
 

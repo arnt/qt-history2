@@ -102,7 +102,7 @@ class QDomImplementationPrivate
 public:
     QDomImplementationPrivate() { ref = 1; }
     QDomImplementationPrivate* clone();
-    QAtomic ref;
+    QAtomicInt ref;
     static QDomImplementation::InvalidDataPolicy invalidDataPolicy;
 };
 
@@ -162,7 +162,7 @@ public:
     void setLocation(int lineNumber, int columnNumber);
 
     // Variables
-    QAtomic ref;
+    QAtomicInt ref;
     QDomNodePrivate* prev;
     QDomNodePrivate* next;
     QDomNodePrivate* ownerNode; // either the node's parent or the node's owner document
@@ -195,7 +195,7 @@ public:
     QDomNodePrivate* item(int index);
     uint length() const;
 
-    QAtomic ref;
+    QAtomicInt ref;
     QDomNodePrivate* node_impl;
     QString tagname;
     QString nsURI;
@@ -244,7 +244,7 @@ public:
     QDomNamedNodeMapPrivate* clone(QDomNodePrivate* parent);
 
     // Variables
-    QAtomic ref;
+    QAtomicInt ref;
     QHash<QString, QDomNodePrivate *> map;
     QDomNodePrivate* parent;
     bool readonly;
@@ -879,12 +879,11 @@ QDomImplementation::QDomImplementation(QDomImplementationPrivate *p)
 */
 QDomImplementation& QDomImplementation::operator=(const QDomImplementation &x)
 {
-    QDomImplementationPrivate *p = x.impl;
-    if (p)
-        p->ref.ref();
-    p = qAtomicSetPtr(&impl, p);
-    if (p && !p->ref.deref())
-        delete p;
+    if (x.impl)
+        x.impl->ref.ref();
+    if (impl && !impl->ref.deref())
+        delete impl;
+    impl = x.impl;
     return *this;
 }
 
@@ -1282,12 +1281,11 @@ QDomNodeList::QDomNodeList(const QDomNodeList& n)
 */
 QDomNodeList& QDomNodeList::operator=(const QDomNodeList &n)
 {
-    QDomNodeListPrivate *x = n.impl;
-    if (x)
-        x->ref.ref();
-    x = qAtomicSetPtr(&impl, x);
-    if (x && !x->ref.deref())
-        delete x;
+    if (n.impl)
+        n.impl->ref.ref();
+    if (impl && !impl->ref.deref())
+        delete impl;
+    impl = n.impl;
     return *this;
 }
 
@@ -2006,12 +2004,11 @@ QDomNode::QDomNode(QDomNodePrivate *n)
 */
 QDomNode& QDomNode::operator=(const QDomNode &n)
 {
-    QDomNodePrivate *x = n.impl;
-    if (x)
-        x->ref.ref();
-    x = qAtomicSetPtr(&impl, x);
-    if (x && !x->ref.deref())
-        delete x;
+    if (n.impl)
+        n.impl->ref.ref();
+    if (impl && !impl->ref.deref())
+        delete impl;
+    impl = n.impl;
     return *this;
 }
 
@@ -3232,12 +3229,11 @@ QDomNamedNodeMap::QDomNamedNodeMap(QDomNamedNodeMapPrivate *n)
 */
 QDomNamedNodeMap& QDomNamedNodeMap::operator=(const QDomNamedNodeMap &n)
 {
-    QDomNamedNodeMapPrivate *x = n.impl;
-    if (x)
-        x->ref.ref();
-    x = qAtomicSetPtr(&impl, x);
-    if (x && !x->ref.deref())
-        delete x;
+    if (n.impl)
+        n.impl->ref.ref();
+    if (impl && !impl->ref.deref())
+        delete impl;
+    impl = n.impl;
     return *this;
 }
 

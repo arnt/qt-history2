@@ -1385,14 +1385,14 @@ public:
 #else
 
 // forward declaration, since qatomic.h needs qglobal.h
-template <typename T> struct QBasicAtomicPointer;
+template <typename T> class QBasicAtomicPointer;
 
 // POD for Q_GLOBAL_STATIC
 template <typename T>
 class QGlobalStatic
 {
 public:
-    T *pointer;
+    QBasicAtomicPointer<T> pointer;
     bool destroyed;
 };
 
@@ -1414,14 +1414,8 @@ public:
     }
 };
 
-#if (defined Q_OS_HPUX && defined Q_CC_HPACC && !defined __ia64)
-// aCC 3.x bug
-#  define Q_GLOBAL_STATIC_INIT(TYPE, NAME)                              \
-    static QGlobalStatic<TYPE > this_##NAME
-#else
-#  define Q_GLOBAL_STATIC_INIT(TYPE, NAME)                              \
-    static QGlobalStatic<TYPE > this_##NAME = { 0, false }
-#endif
+#define Q_GLOBAL_STATIC_INIT(TYPE, NAME)                              \
+    static QGlobalStatic<TYPE > this_##NAME = { Q_BASIC_ATOMIC_INITIALIZER(0), false }
 
 #define Q_GLOBAL_STATIC(TYPE, NAME)                                     \
     Q_GLOBAL_STATIC_INIT(TYPE, NAME);                                   \
@@ -1429,7 +1423,7 @@ public:
     {                                                                   \
         if (!this_##NAME.pointer && !this_##NAME.destroyed) {           \
             TYPE *x = new TYPE;                                         \
-            if (!q_atomic_test_and_set_ptr(&this_##NAME.pointer, 0, x)) \
+            if (!this_##NAME.pointer.testAndSetOrdered(0, x))           \
                 delete x;                                               \
             else                                                        \
                 static QGlobalStaticDeleter<TYPE > cleanup(this_##NAME); \
@@ -1443,7 +1437,7 @@ public:
     {                                                                   \
         if (!this_##NAME.pointer && !this_##NAME.destroyed) {           \
             TYPE *x = new TYPE ARGS;                                    \
-            if (!q_atomic_test_and_set_ptr(&this_##NAME.pointer, 0, x)) \
+            if (!this_##NAME.pointer.testAndSetOrdered(0, x))           \
                 delete x;                                               \
             else                                                        \
                 static QGlobalStaticDeleter<TYPE > cleanup(this_##NAME); \

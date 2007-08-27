@@ -31,7 +31,7 @@ struct QImageData {        // internal image data
     static QImageData *create(const QSize &size, QImage::Format format, int numColors = 0);
     static QImageData *create(uchar *data, int w, int h,  int bpl, QImage::Format format, bool readOnly);
 
-    QAtomic ref;
+    QAtomicInt ref;
 
     int width;
     int height;

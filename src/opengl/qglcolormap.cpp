@@ -84,7 +84,7 @@
 
 #include "qglcolormap.h"
 
-QGLColormap::QGLColormapData QGLColormap::shared_null = { Q_ATOMIC_INIT(1), 0, 0 };
+QGLColormap::QGLColormapData QGLColormap::shared_null = { Q_BASIC_ATOMIC_INITIALIZER(1), 0, 0 };
 
 /*!
     Construct a QGLColormap.
@@ -127,11 +127,10 @@ void QGLColormap::cleanup(QGLColormap::QGLColormapData *x)
 */
 QGLColormap & QGLColormap::operator=(const QGLColormap &map)
 {
-    QGLColormapData *x = map.d;
-    x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        cleanup(x);
+    map.d->ref.ref();
+    if (!d->ref.deref())
+        cleanup(d);
+    d = map.d;
     return *this;
 }
 
@@ -145,16 +144,16 @@ QGLColormap & QGLColormap::operator=(const QGLColormap &map)
 void QGLColormap::detach_helper()
 {
     QGLColormapData *x = new QGLColormapData;
-    x->ref.init(1);
+    x->ref = 1;
     x->cmapHandle = 0;
     x->cells = 0;
     if (d->cells) {
         x->cells = new QVector<QRgb>(256);
         *x->cells = *d->cells;
     }
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        cleanup(x);
+    if (!d->ref.deref())
+        cleanup(d);
+    d = x;
 }
 
 /*!

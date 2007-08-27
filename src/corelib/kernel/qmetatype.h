@@ -182,19 +182,19 @@ inline int qRegisterMetaType(
 #endif
 }
 
-#define Q_DECLARE_METATYPE(TYPE) \
-template <> \
-struct QMetaTypeId< TYPE > \
-{ \
-    enum { Defined = 1 }; \
-    static int qt_metatype_id() \
-    { \
-        static QBasicAtomic metatype_id = Q_ATOMIC_INIT(0);     \
-        if (!metatype_id)                                       \
-            metatype_id = qRegisterMetaType< TYPE >(#TYPE);     \
-        return metatype_id;                                     \
-    } \
-};
+#define Q_DECLARE_METATYPE(TYPE)                                        \
+    template <>                                                         \
+    struct QMetaTypeId< TYPE >                                          \
+    {                                                                   \
+        enum { Defined = 1 };                                           \
+        static int qt_metatype_id()                                     \
+            {                                                           \
+                static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0); \
+                if (!metatype_id)                                       \
+                    metatype_id = qRegisterMetaType< TYPE >(#TYPE);     \
+                return metatype_id;                                     \
+            }                                                           \
+    };
 
 #define Q_DECLARE_BUILTIN_METATYPE(TYPE, NAME) \
 template<> struct QMetaTypeId2<TYPE> \

@@ -133,7 +133,7 @@ private:
 
     void exec(const QByteArray &ba, int ver = 0);
     struct QRegionData {
-        QBasicAtomic ref;
+        QBasicAtomicInt ref;
 #if defined(Q_WS_WIN)
         HRGN   rgn;
 #elif defined(Q_WS_X11)

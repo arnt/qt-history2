@@ -543,8 +543,10 @@ const QString::Null QString::null = QString::Null();
     \sa split()
 */
 
-QString::Data QString::shared_null = { Q_ATOMIC_INIT(1), 0, 0, shared_null.array, 0, 0, 0, 0, 0, 0, {0} };
-QString::Data QString::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_empty.array, 0, 0, 0, 0, 0, 0, {0} };
+QString::Data QString::shared_null = { Q_BASIC_ATOMIC_INITIALIZER(1),
+                                       0, 0, shared_null.array, 0, 0, 0, 0, 0, 0, {0} };
+QString::Data QString::shared_empty = { Q_BASIC_ATOMIC_INITIALIZER(1),
+                                        0, 0, shared_empty.array, 0, 0, 0, 0, 0, 0, {0} };
 
 int QString::grow(int size)
 {
@@ -763,7 +765,7 @@ QString::QString(const QChar *unicode, int size)
         d->ref.ref();
     } else {
         d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
-        d->ref.init(1);
+        d->ref = 1;
         d->alloc = d->size = size;
         d->clean = d->asciiCache = d->simpletext = d->righttoleft = d->capacity = 0;
         d->data = d->array;
@@ -786,7 +788,7 @@ QString::QString(int size, QChar ch)
         d->ref.ref();
     } else {
         d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
-        d->ref.init(1);
+        d->ref = 1;
         d->alloc = d->size = size;
         d->clean = d->asciiCache = d->simpletext = d->righttoleft = d->capacity = 0;
         d->data = d->array;
@@ -812,7 +814,7 @@ QString::QString(int size, QChar ch)
 QString::QString(QChar ch)
 {
     d = (Data *)qMalloc(sizeof(Data) + sizeof(QChar));
-    d->ref.init(1);
+    d->ref = 1;
     d->alloc = d->size = 1;
     d->clean = d->asciiCache = d->simpletext = d->righttoleft = d->capacity = 0;
     d->data = d->array;
@@ -913,9 +915,9 @@ void QString::resize(int size)
     if (size <= 0 && !d->capacity) {
         Data *x = &shared_empty;
         x->ref.ref();
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            free(x);
+        if (!d->ref.deref())
+            free(d);
+        d = x;
     } else {
         if (d->ref != 1 || size > d->alloc || (!d->capacity && size < d->size && size < d->alloc >> 1))
             realloc(grow(size));
@@ -991,16 +993,16 @@ void QString::realloc(int alloc)
         ::memcpy(x->array, d->data, x->size * sizeof(QChar));
         x->array[x->size] = 0;
         x->asciiCache = 0;
-        x->ref.init(1);
+        x->ref = 1;
         x->alloc = alloc;
         x->clean = d->clean;
         x->simpletext = d->simpletext;
         x->righttoleft = d->righttoleft;
         x->capacity = d->capacity;
         x->data = x->array;
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            free(x);
+        if (!d->ref.deref())
+            free(d);
+        d = x;
     } else {
 #ifdef QT3_SUPPORT
         if (d->asciiCache) {
@@ -1049,11 +1051,10 @@ void QString::expand(int i)
 
 QString &QString::operator=(const QString &other)
 {
-    Data *x = other.d;
-    x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        free(x);
+    other.d->ref.ref();
+    if (!d->ref.deref())
+        free(d);
+    d = other.d;
     return *this;
 }
 
@@ -3144,7 +3145,7 @@ QString::Data *QString::fromLatin1_helper(const char *str, int size)
         if (size < 0)
             size = qstrlen(str);
         d = static_cast<Data *>(qMalloc(sizeof(Data) + size * sizeof(QChar)));
-        d->ref.init(1);
+        d->ref = 1;
         d->alloc = d->size = size;
         d->clean = d->asciiCache = d->simpletext = d->righttoleft = d->capacity = 0;
         d->data = d->array;
@@ -3448,7 +3449,7 @@ QString QString::fromUtf8(const char *str, int size)
     }
     if (need) {
         // we have some invalid characters remaining we need to add to the string
-        for (int i = error; i < size; ++i) 
+        for (int i = error; i < size; ++i)
             *qch++ = QChar::ReplacementCharacter;
     }
 
@@ -5922,7 +5923,7 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \overload
 
     This is the same as calling \c
-    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5)}, except that the strings 
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5)}, except that the strings
     \a a1, \a a2, \a a3, \a a4, and \a a5 are replaced in one pass.
 */
 
@@ -6461,7 +6462,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
         x->data = x->array;
         size = 0;
     }
-    x->ref.init(1);
+    x->ref = 1;
     x->alloc = x->size = size;
     *x->array = '\0';
     x->clean = x->asciiCache = x->simpletext = x->righttoleft = x->capacity = 0;
@@ -6567,7 +6568,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! 
+/*!
     \fn bool QLatin1String::operator==(const char *other) const
     \since 4.3
     \overload
@@ -6592,7 +6593,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! 
+/*!
     \fn bool QLatin1String::operator!=(const char *other) const
     \since 4.3
     \overload
@@ -6606,7 +6607,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     go through QObject::tr(), for example.
 */
 
-/*! 
+/*!
     \fn bool QLatin1String::operator>(const QString &other) const
 
     Returns true if this string is lexically greater than string \a
@@ -6618,7 +6619,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! 
+/*!
     \fn bool QLatin1String::operator>(const char *other) const
     \since 4.3
     \overload
@@ -6644,7 +6645,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare() function.
 */
 
-/*! 
+/*!
     \fn bool QLatin1String::operator<(const char *other) const
     \since 4.3
     \overload
@@ -6658,7 +6659,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     go through QObject::tr(), for example.
 */
 
-/*! 
+/*!
     \fn bool QLatin1String::operator>=(const QString &other) const
 
     Returns true if this string is lexically greater than or equal
@@ -6670,7 +6671,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! 
+/*!
     \fn bool QLatin1String::operator>=(const char *other) const
     \since 4.3
     \overload
@@ -6695,7 +6696,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! 
+/*!
     \fn bool QLatin1String::operator<=(const char *other) const
     \since 4.3
     \overload

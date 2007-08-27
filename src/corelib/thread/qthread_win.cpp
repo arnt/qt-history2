@@ -70,8 +70,9 @@ QThreadData *QThreadData::current()
             threadData->deref();
         }
 
-        const bool isMainThread = q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, threadData->thread);
-        if (!isMainThread) {
+        if (!QCoreApplicationPrivate::theMainThread) {
+            QCoreApplicationPrivate::theMainThread = threadData->thread;
+        } else {
             HANDLE realHandle;
             DuplicateHandle(GetCurrentProcess(),
                     GetCurrentThread(),

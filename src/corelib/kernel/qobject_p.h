@@ -123,7 +123,7 @@ public:
         QObject *receiver;
         int method;
         uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
-        int *argumentTypes;
+        QBasicAtomicPointer<int> argumentTypes;
     };
     typedef QList<Connection> ConnectionList;
 

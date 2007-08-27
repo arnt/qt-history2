@@ -86,7 +86,7 @@ struct QFreetypeFace
 private:
     QFreetypeFace() : _lock(QMutex::Recursive) {}
     ~QFreetypeFace() {}
-    QAtomic ref;
+    QAtomicInt ref;
     QMutex _lock;
     QByteArray fontData;
 };

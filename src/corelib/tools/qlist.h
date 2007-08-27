@@ -34,7 +34,7 @@ template <typename T> class QSet;
 
 struct Q_CORE_EXPORT QListData {
     struct Data {
-        QBasicAtomic ref;
+        QBasicAtomicInt ref;
         int alloc, begin, end;
         uint sharable : 1;
         void *array[1];
@@ -339,11 +339,10 @@ template <typename T>
 Q_INLINE_TEMPLATE QList<T> &QList<T>::operator=(const QList<T> &l)
 {
     if (d != l.d) {
-        QListData::Data *x = l.d;
-        x->ref.ref();
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            free(x);
+        l.d->ref.ref();
+        if (!d->ref.deref())
+            free(d);
+        d = l.d;
         if (!d->sharable)
             detach_helper();
     }
@@ -497,12 +496,8 @@ Q_OUTOFLINE_TEMPLATE void QList<T>::detach_helper()
 template <typename T>
 Q_OUTOFLINE_TEMPLATE QList<T>::~QList()
 {
-    if (!d)
-        return;
-    QListData::Data *x = &QListData::shared_null;
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        free(x);
+    if (d && !d->ref.deref())
+        free(d);
 }
 
 template <typename T>

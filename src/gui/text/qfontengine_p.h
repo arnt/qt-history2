@@ -164,7 +164,7 @@ public:
     static const uchar *getCMap(const uchar *table, uint tableSize, bool *isSymbolFont, int *cmapSize);
     static quint32 getTrueTypeGlyphIndex(const uchar *cmap, uint unicode);
 
-    QAtomic     ref;
+    QAtomicInt ref;
     QFontDef fontDef;
     uint cache_cost; // amount of mem used in kb by the font
     int cache_count;

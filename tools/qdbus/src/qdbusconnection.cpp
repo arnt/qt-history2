@@ -268,11 +268,9 @@ QDBusConnection &QDBusConnection::operator=(const QDBusConnection &other)
 {
     if (other.d)
         other.d->ref.ref();
-    QDBusConnectionPrivate *old = static_cast<QDBusConnectionPrivate *>(
-            q_atomic_set_ptr(&d, other.d));
-    if (old && !old->ref.deref())
-        delete old;
-
+    if (d && !d->ref.deref())
+        delete d;
+    d = other.d;
     return *this;
 }
 

@@ -20,7 +20,7 @@ static int qt_palette_count = 1;
 class QPalettePrivate {
 public:
     QPalettePrivate() : ref(1), ser_no(qt_palette_count++), detach_no(0) { }
-    QAtomic ref;
+    QAtomicInt ref;
     QBrush br[QPalette::NColorGroups][QPalette::NColorRoles];
     int ser_no;
     int detach_no;
@@ -663,13 +663,12 @@ void QPalette::init() {
 */
 QPalette &QPalette::operator=(const QPalette &p)
 {
-    QPalettePrivate *x = p.d;
-    x->ref.ref();
+    p.d->ref.ref();
     resolve_mask = p.resolve_mask;
     current_group = p.current_group;
-    x = qAtomicSetPtr(&d, x);
-    if(!x->ref.deref())
-        delete x;
+    if(!d->ref.deref())
+        delete d;
+    d = p.d;
     return *this;
 }
 
@@ -776,9 +775,9 @@ void QPalette::detach()
             for(int role = 0; role < (int)NColorRoles; role++)
                 x->br[grp][role] = d->br[grp][role];
         }
-        x = qAtomicSetPtr(&d, x);
-        if(!x->ref.deref())
-            delete x;
+        if(!d->ref.deref())
+            delete d;
+        d = x;
     }
     ++d->detach_no;
 }

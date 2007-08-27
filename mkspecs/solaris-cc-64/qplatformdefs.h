@@ -14,17 +14,17 @@
 #ifndef QPLATFORMDEFS_H
 #define QPLATFORMDEFS_H
 
+// Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
+#define _XOPEN_SOURCE 500
+#define __EXTENSIONS__
+
 // Get Qt defines/settings
 
 #include "qglobal.h"
 
-// Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
-
 #include <unistd.h>
 
-
 // We are hot - unistd.h should have turned on the specific APIs we requested
-
 
 #include <pthread.h>
 #include <dirent.h>

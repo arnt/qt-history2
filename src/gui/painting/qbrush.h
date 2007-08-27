@@ -126,7 +126,7 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QBrush &);
 
 struct QBrushData
 {
-    QAtomic ref;
+    QAtomicInt ref;
     Qt::BrushStyle style;
     QColor color;
     QTransform transform;

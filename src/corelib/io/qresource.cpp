@@ -44,7 +44,7 @@ class QResourceRoot
     QString name(int node) const;
     short flags(int node) const;
 public:
-    mutable QAtomic ref;
+    mutable QAtomicInt ref;
 
     inline QResourceRoot(): tree(0), names(0), payloads(0) {}
     inline QResourceRoot(const uchar *t, const uchar *n, const uchar *d) { setSource(t, n, d); }

@@ -216,22 +216,22 @@ public:
     } data;
     bool is_ba;
 
-    static QBasicAtomic idCounter;
+    static QBasicAtomicInt idCounter;
 };
 
-QBasicAtomic QFtpCommand::idCounter = Q_ATOMIC_INIT(1);
+QBasicAtomicInt QFtpCommand::idCounter = Q_BASIC_ATOMIC_INITIALIZER(1);
 
 QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, const QByteArray &ba)
     : command(cmd), rawCmds(raw), is_ba(true)
 {
-    id = idCounter.fetchAndAdd(1);
+    id = idCounter.fetchAndAddRelaxed(1);
     data.ba = new QByteArray(ba);
 }
 
 QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, QIODevice *dev)
     : command(cmd), rawCmds(raw), is_ba(false)
 {
-    id = idCounter.fetchAndAdd(1);
+    id = idCounter.fetchAndAddRelaxed(1);
     data.dev = dev;
 }
 

@@ -39,7 +39,7 @@ class QHttpRequest
 {
 public:
     QHttpRequest()
-    { id = idCounter.fetchAndAdd(1); }
+    { id = idCounter.fetchAndAddRelaxed(1); }
     virtual ~QHttpRequest()
     { }
 
@@ -53,7 +53,7 @@ public:
     int id;
 
 private:
-    static QBasicAtomic idCounter;
+    static QBasicAtomicInt idCounter;
 };
 
 class QHttpPrivate : public QObjectPrivate
@@ -135,7 +135,7 @@ public:
     bool repost;
 };
 
-QBasicAtomic QHttpRequest::idCounter = Q_ATOMIC_INIT(1);
+QBasicAtomicInt QHttpRequest::idCounter = Q_BASIC_ATOMIC_INITIALIZER(1);
 
 bool QHttpRequest::hasRequestHeader()
 {
@@ -1541,8 +1541,8 @@ QHttp::QHttp(const QString &hostName, ConnectionMode mode, quint16 port, QObject
     d->init();
 
     d->hostName = hostName;
-    if (port == 0) 
-        port = (mode == ConnectionModeHttp) ? 80 : 443;        
+    if (port == 0)
+        port = (mode == ConnectionModeHttp) ? 80 : 443;
     d->port = port;
     d->mode = mode;
 }
@@ -2027,8 +2027,8 @@ int QHttp::setHost(const QString &hostName, quint16 port)
 int QHttp::setHost(const QString &hostName, ConnectionMode mode, quint16 port)
 {
     Q_D(QHttp);
-    if (port == 0) 
-        port = (mode == ConnectionModeHttp) ? 80 : 443;        
+    if (port == 0)
+        port = (mode == ConnectionModeHttp) ? 80 : 443;
     return d->addRequest(new QHttpSetHostRequest(hostName, port, mode));
 }
 
@@ -2948,7 +2948,7 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
 #endif
             socket = new QTcpSocket();
     }
-    
+
     // connect all signals
     QObject::connect(socket, SIGNAL(connected()), q, SLOT(_q_slotConnected()));
     QObject::connect(socket, SIGNAL(disconnected()), q, SLOT(_q_slotClosed()));

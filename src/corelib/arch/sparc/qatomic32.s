@@ -68,6 +68,7 @@ q_atomic_unlock:
 	.global q_atomic_set_int
 q_atomic_set_int:
 	swap [%o0],%o1
+        stbar
 	retl
 	mov %o1,%o0
 	.size q_atomic_set_int,.-q_atomic_set_int
@@ -80,6 +81,7 @@ q_atomic_set_int:
 	.global q_atomic_set_ptr
 q_atomic_set_ptr:
 	swap [%o0],%o1
+        stbar
 	retl
 	mov %o1,%o0
 	.size q_atomic_set_ptr,.-q_atomic_set_ptr

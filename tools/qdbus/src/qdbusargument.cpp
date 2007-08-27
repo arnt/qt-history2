@@ -82,10 +82,9 @@ bool QDBusArgumentPrivate::checkWrite(QDBusArgumentPrivate *&d)
             dd->message = dbus_message_copy(d->message);
             dbus_message_iter_init_append(dd->message, &dd->iterator);
 
-            QDBusArgumentPrivate *old =
-                qAtomicSetPtr(&d, static_cast<QDBusArgumentPrivate *>(dd));
-            if (!old->ref.deref())
-                delete old;
+            if (!d->ref.deref())
+                delete d;
+            d = dd;
         }
         return true;
     }
@@ -126,10 +125,9 @@ bool QDBusArgumentPrivate::checkReadAndDetach(QDBusArgumentPrivate *&d)
     dd->message = dbus_message_ref(d->message);
     dd->iterator = static_cast<QDBusDemarshaller*>(d)->iterator;
 
-    QDBusArgumentPrivate *old =
-        qAtomicSetPtr(&d, static_cast<QDBusArgumentPrivate *>(dd));
-    if (!old->ref.deref())
-        delete old;
+    if (!d->ref.deref())
+        delete d;
+    d = dd;
     return true;
 }
 

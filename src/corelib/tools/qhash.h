@@ -92,7 +92,7 @@ struct Q_CORE_EXPORT QHashData
 
     Node *fakeNext;
     Node **buckets;
-    QBasicAtomic ref;
+    QBasicAtomicInt ref;
     int size;
     int nodeSize;
     short userNumBits;
@@ -523,20 +523,19 @@ Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::detach_helper()
 {
     QHashData *x = d->detach_helper(duplicateNode,
         QTypeInfo<T>::isDummy ? sizeof(DummyNode) : sizeof(Node));
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        freeData(x);
+    if (!d->ref.deref())
+        freeData(d);
+    d = x;
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator=(const QHash<Key, T> &other)
 {
     if (d != other.d) {
-        QHashData *x = other.d;
-        x->ref.ref();
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            freeData(x);
+        other.d->ref.ref();
+        if (!d->ref.deref())
+            freeData(d);
+        d = other.d;
         if (!d->sharable)
             detach_helper();
     }

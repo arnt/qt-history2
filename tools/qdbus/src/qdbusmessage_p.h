@@ -43,7 +43,7 @@ public:
     int type;
     int timeout;
     mutable QDBusMessage *localReply;
-    QAtomic ref;
+    QAtomicInt ref;
 
     mutable uint delayedReply : 1;
     uint localMessage : 1;

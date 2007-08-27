@@ -183,7 +183,7 @@ void tst_QReadWriteLock::readWriteLockUnlockLoop()
 
 }
 
-QAtomic lockCount(0);
+QAtomicInt lockCount(0);
 QReadWriteLock readWriteLock;
 QSemaphore testsTurn;
 QSemaphore threadsTurn;
@@ -261,21 +261,21 @@ void tst_QReadWriteLock::tryReadLock()
 
         testsTurn.acquire();
         readWriteLock.lockForWrite();
-        QVERIFY(lockCount.testAndSet(0, 1));
+        QVERIFY(lockCount.testAndSetRelaxed(0, 1));
         threadsTurn.release();
 
         testsTurn.acquire();
-        QVERIFY(lockCount.testAndSet(1, 0));
+        QVERIFY(lockCount.testAndSetRelaxed(1, 0));
         readWriteLock.unlock();
         threadsTurn.release();
 
         testsTurn.acquire();
         readWriteLock.lockForWrite();
-        QVERIFY(lockCount.testAndSet(0, 1));
+        QVERIFY(lockCount.testAndSetRelaxed(0, 1));
         threadsTurn.release();
 
         testsTurn.acquire();
-        QVERIFY(lockCount.testAndSet(1, 0));
+        QVERIFY(lockCount.testAndSetRelaxed(1, 0));
         readWriteLock.unlock();
         threadsTurn.release();
 
@@ -320,8 +320,8 @@ void tst_QReadWriteLock::tryWriteLock()
 
                 threadsTurn.acquire();
                 Q_ASSERT(readWriteLock.tryLockForWrite());
-                Q_ASSERT(lockCount.testAndSet(0, 1));
-                Q_ASSERT(lockCount.testAndSet(1, 0));
+                Q_ASSERT(lockCount.testAndSetRelaxed(0, 1));
+                Q_ASSERT(lockCount.testAndSetRelaxed(1, 0));
                 readWriteLock.unlock();
                 testsTurn.release();
 
@@ -331,8 +331,8 @@ void tst_QReadWriteLock::tryWriteLock()
 
                 threadsTurn.acquire();
                 Q_ASSERT(readWriteLock.tryLockForWrite(1000));
-                Q_ASSERT(lockCount.testAndSet(0, 1));
-                Q_ASSERT(lockCount.testAndSet(1, 0));
+                Q_ASSERT(lockCount.testAndSetRelaxed(0, 1));
+                Q_ASSERT(lockCount.testAndSetRelaxed(1, 0));
                 readWriteLock.unlock();
                 testsTurn.release();
 

@@ -80,7 +80,7 @@ public:
 
 class Q_CORE_EXPORT QThreadData
 {
-    QAtomic _ref;
+    QAtomicInt _ref;
 
 public:
     QThreadData(int initialRefCount = 1);

@@ -27,13 +27,13 @@
 #  define DEBUG if(false)qDebug
 #endif
 
-static QBasicAtomic idCounter = Q_ATOMIC_INIT(0);
+static QBasicAtomicInt idCounter = Q_BASIC_ATOMIC_INITIALIZER(0);
 Q_GLOBAL_STATIC(QMutex, mutex)
 typedef QHash<int, void (*)(void *)> DestructorHash;
 Q_GLOBAL_STATIC(DestructorHash, destructors)
 
 QThreadStorageData::QThreadStorageData(void (*func)(void *))
-    : id(idCounter.fetchAndAdd(1))
+    : id(idCounter.fetchAndAddRelaxed(1))
 {
     QMutexLocker locker(mutex());
     destructors()->insert(id, func);

@@ -177,7 +177,7 @@ QWidget *QWindowsXPStylePrivate::limboWidget = 0;
 QPixmap *QWindowsXPStylePrivate::tabbody = 0;
 QMap<QString,HTHEME> *QWindowsXPStylePrivate::handleMap = 0;
 bool QWindowsXPStylePrivate::use_xp = false;
-QAtomic QWindowsXPStylePrivate::ref = QAtomic(-1); // -1 based refcounting
+QBasicAtomicInt QWindowsXPStylePrivate::ref = Q_BASIC_ATOMIC_INITIALIZER(-1); // -1 based refcounting
 
 /* \internal
     Checks if the theme engine can/should be used, or if we should
@@ -1837,8 +1837,8 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             name = QLatin1String("BUTTON");
             partId = BP_PUSHBUTTON;
             bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken))
-                || (btn->features & QStyleOptionButton::CommandLinkButton 
-                    && !(flags & State_MouseOver) 
+                || (btn->features & QStyleOptionButton::CommandLinkButton
+                    && !(flags & State_MouseOver)
                     && !(btn->features & QStyleOptionButton::DefaultButton));
             if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
                 stateId = PBS_DISABLED;
@@ -3393,7 +3393,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
                         rect.adjust(0, 0, -buttonWidth - 2, 0);
                 }
                 break;
-            
+
             case SC_TitleBarContextHelpButton:
                 if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
                     offset += delta;

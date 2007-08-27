@@ -306,7 +306,7 @@ private:
     void showProperties(XPThemeData &themeData);
 #endif
 
-    static QAtomic ref;
+    static QBasicAtomicInt ref;
     static bool use_xp;
     static QWidget *limboWidget;
     static QPixmap *tabbody;

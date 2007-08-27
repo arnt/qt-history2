@@ -83,7 +83,7 @@ public:
             cachedFlags = 0;
         }
 
-        mutable QAtomic ref;
+        mutable QAtomicInt ref;
 
         QAbstractFileEngine *fileEngine;
         mutable QString fileName;

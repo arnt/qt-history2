@@ -488,8 +488,10 @@ static inline char qToLower(char c)
         return c;
 }
 
-Q_CORE_EXPORT QByteArray::Data QByteArray::shared_null = {Q_ATOMIC_INIT(1), 0, 0, shared_null.array, {0} };
-QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_empty.array, {0} };
+Q_CORE_EXPORT QByteArray::Data QByteArray::shared_null = {Q_BASIC_ATOMIC_INITIALIZER(1),
+                                                          0, 0, shared_null.array, {0} };
+QByteArray::Data QByteArray::shared_empty = { Q_BASIC_ATOMIC_INITIALIZER(1),
+                                              0, 0, shared_empty.array, {0} };
 
 /*!
     \class QByteArray
@@ -779,11 +781,10 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 */
 QByteArray &QByteArray::operator=(const QByteArray & other)
 {
-    Data *x = other.d;
-    x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        qFree(x);
+    other.d->ref.ref();
+    if (!d->ref.deref())
+        qFree(d);
+    d = other.d;
     return *this;
 }
 
@@ -810,9 +811,9 @@ QByteArray &QByteArray::operator=(const char *str)
         x->size = len;
     }
     x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-         qFree(x);
+    if (!d->ref.deref())
+         qFree(d);
+    d = x;
     return *this;
 }
 
@@ -1203,7 +1204,7 @@ QByteArray::QByteArray(const char *str)
         if (!d) {
             d = &shared_null;
         } else {
-            d->ref.init(0);
+            d->ref = 0;;
             d->alloc = d->size = len;
             d->data = d->array;
             memcpy(d->array, str, len+1); // include null terminator
@@ -1234,7 +1235,7 @@ QByteArray::QByteArray(const char *data, int size)
         if (!d) {
             d = &shared_null;
         } else {
-            d->ref.init(0);
+            d->ref = 0;
             d->alloc = d->size = size;
             d->data = d->array;
             memcpy(d->array, data, size);
@@ -1260,7 +1261,7 @@ QByteArray::QByteArray(int size, char ch)
         if (!d) {
             d = &shared_null;
         } else {
-            d->ref.init(0);
+            d->ref = 0;
             d->alloc = d->size = size;
             d->data = d->array;
             d->array[size] = '\0';
@@ -1288,10 +1289,10 @@ void QByteArray::resize(int size)
     if (size <= 0) {
         Data *x = &shared_empty;
         x->ref.ref();
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            qFree(x);
-    } else if ( d == &shared_null ) {
+        if (!d->ref.deref())
+            qFree(d);
+        d = x;
+    } else if (d == &shared_null) {
         //
         // Optimize the idiom:
         //    QByteArray a;
@@ -1303,12 +1304,12 @@ void QByteArray::resize(int size)
         Data *x = static_cast<Data *>(qMalloc(sizeof(Data)+size));
         if (!x)
             return;
-        x->ref.init(1);
+        x->ref = 1;
         x->alloc = x->size = size;
         x->data = x->array;
         x->array[size] = '\0';
-        x = qAtomicSetPtr(&d, x);
-        (void) x->ref.deref(); // cannot be 0, x points to shared_null
+        (void) d->ref.deref(); // cannot be 0, x points to shared_null
+        d = x;
     } else {
         if (d->ref != 1 || size > d->alloc || (size < d->size && size < d->alloc >> 1))
             realloc(qAllocMore(size, sizeof(Data)));
@@ -1356,12 +1357,12 @@ void QByteArray::realloc(int alloc)
         x->size = qMin(alloc, d->size);
         ::memcpy(x->array, d->data, x->size);
         x->array[x->size] = '\0';
-        x->ref.init(1);
+        x->ref = 1;
         x->alloc = alloc;
         x->data = x->array;
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            qFree(x);
+        if (!d->ref.deref())
+            qFree(d);
+        d = x;
     } else {
         Data *x = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc));
         if (!x)
@@ -3621,7 +3622,7 @@ QByteArray QByteArray::fromRawData(const char *data, int size)
         x->data = x->array;
         size = 0;
     }
-    x->ref.init(1);
+    x->ref = 1;
     x->alloc = x->size = size;
     *x->array = '\0';
     return QByteArray(x, 0, 0);

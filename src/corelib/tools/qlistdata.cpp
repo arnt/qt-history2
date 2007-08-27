@@ -26,7 +26,7 @@
     the number of elements in the list.
 */
 
-QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, true, { 0 } };
+QListData::Data QListData::shared_null = { Q_BASIC_ATOMIC_INITIALIZER(1), 0, 0, 0, true, { 0 } };
 
 static int grow(int size)
 {
@@ -46,12 +46,12 @@ QListData::Data *QListData::detach()
 
     ::memcpy(x, d, DataHeaderSize + d->alloc * sizeof(void *));
     x->alloc = d->alloc;
-    x->ref.init(1);
+    x->ref = 1;
     x->sharable = true;
     if (!x->alloc)
         x->begin = x->end = 0;
 
-    x = qAtomicSetPtr(&d, x);
+    qSwap(d, x);
     if (!x->ref.deref())
         return x;
     return 0;
@@ -60,18 +60,19 @@ QListData::Data *QListData::detach()
 // Returns the old (shared) data, it is up to the caller to deref() and free()
 QListData::Data *QListData::detach2()
 {
-    Data *x = static_cast<Data *>(qMalloc(DataHeaderSize + d->alloc * sizeof(void *)));
-    if (!x)
+    Data *x = d;
+    d = static_cast<Data *>(qMalloc(DataHeaderSize + x->alloc * sizeof(void *)));
+    if (!d)
         qFatal("QList: Out of memory");
 
-    ::memcpy(x, d, DataHeaderSize + d->alloc * sizeof(void *));
-    x->alloc = d->alloc;
-    x->ref.init(1);
-    x->sharable = true;
-    if (!x->alloc)
-        x->begin = x->end = 0;
+    ::memcpy(d, x, DataHeaderSize + x->alloc * sizeof(void *));
+    d->alloc = x->alloc;
+    d->ref = 1;
+    d->sharable = true;
+    if (!d->alloc)
+        d->begin = d->end = 0;
 
-    return qAtomicSetPtr(&d, x);
+    return x;
 }
 
 void QListData::realloc(int alloc)

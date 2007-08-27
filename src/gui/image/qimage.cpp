@@ -100,11 +100,11 @@ extern int qt_defaultDpi();
 extern int qt_defaultDpiX();
 extern int qt_defaultDpiY();
 
-QBasicAtomic qimage_serial_number = Q_ATOMIC_INIT(1);
+QBasicAtomicInt qimage_serial_number = Q_BASIC_ATOMIC_INITIALIZER(1);
 
 QImageData::QImageData()
 {
-    ser_no = qimage_serial_number.fetchAndAdd(1);
+    ser_no = qimage_serial_number.fetchAndAddRelaxed(1);
     detach_no = 0;
     ref = 0;
 
@@ -1219,11 +1219,11 @@ QImage::~QImage()
 QImage &QImage::operator=(const QImage &image)
 {
     QImageData *x = image.d;
-    if (x)
-        x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (x && !x->ref.deref())
-        delete x;
+    if (image.d)
+        image.d->ref.ref();
+    if (d && !d->ref.deref())
+        delete d;
+    d = image.d;
     return *this;
 }
 

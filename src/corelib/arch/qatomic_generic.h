@@ -11,78 +11,236 @@
 **
 ****************************************************************************/
 
-#ifndef GENERIC_QATOMIC_H
-#define GENERIC_QATOMIC_H
-
-#include <QtCore/qglobal.h>
+#ifndef QATOMIC_GENERIC_H
+#define QATOMIC_GENERIC_H
 
 QT_BEGIN_HEADER
 
-inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+#define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_NOT_NATIVE
+
+inline bool QBasicAtomicInt::isReferenceCountingNative()
+{ return false; }
+inline bool QBasicAtomicInt::isReferenceCountingWaitFree()
+{ return false; }
+
+#define Q_ATOMIC_INT_TEST_AND_SET_IS_NOT_NATIVE
+
+inline bool QBasicAtomicInt::isTestAndSetNative()
+{ return false; }
+inline bool QBasicAtomicInt::isTestAndSetWaitFree()
+{ return false; }
+
+#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_NOT_NATIVE
+
+inline bool QBasicAtomicInt::isFetchAndStoreNative()
+{ return false; }
+inline bool QBasicAtomicInt::isFetchAndStoreWaitFree()
+{ return false; }
+
+#define Q_ATOMIC_INT_FETCH_AND_ADD_IS_NOT_NATIVE
+
+inline bool QBasicAtomicInt::isFetchAndAddNative()
+{ return false; }
+inline bool QBasicAtomicInt::isFetchAndAddWaitFree()
+{ return false; }
+
+#define Q_ATOMIC_POINTER_TEST_AND_SET_IS_NOT_NATIVE
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetNative()
+{ return false; }
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetWaitFree()
+{ return false; }
+
+#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_NOT_NATIVE
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreNative()
+{ return false; }
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreWaitFree()
+{ return false; }
+
+#define Q_ATOMIC_POINTER_FETCH_AND_ADD_IS_NOT_NATIVE
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddNative()
+{ return false; }
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
+{ return false; }
+
+Q_CORE_EXPORT bool QBasicAtomicInt_testAndSetOrdered(volatile int *, int, int);
+Q_CORE_EXPORT int QBasicAtomicInt_fetchAndStoreOrdered(volatile int *, int);
+Q_CORE_EXPORT int QBasicAtomicInt_fetchAndAddOrdered(volatile int *, int);
+
+Q_CORE_EXPORT bool QBasicAtomicPointer_testAndSetOrdered(volatile void **, void *, void *);
+Q_CORE_EXPORT void *QBasicAtomicPointer_fetchAndStoreOrdered(volatile void **, void *);
+Q_CORE_EXPORT void *QBasicAtomicPointer_fetchAndAddOrdered(volatile void **, qptrdiff);
+
+// Reference counting
+
+inline bool QBasicAtomicInt::ref()
 {
-    if (*ptr == expected) {
-        *ptr = newval;
-        return 1;
-    }
-    return 0;
+    return QBasicAtomicInt_fetchAndAddOrdered(&_q_value, 1) != -1;
 }
 
-inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+inline bool QBasicAtomicInt::deref()
 {
-    return q_atomic_test_and_set_int(ptr, expected, newval);
+    return QBasicAtomicInt_fetchAndAddOrdered(&_q_value, -1) != 1;
 }
 
-inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+// Test and set for integers
+
+inline bool QBasicAtomicInt::testAndSetOrdered(int expectedValue, int newValue)
 {
-    return q_atomic_test_and_set_int(ptr, expected, newval);
+    return QBasicAtomicInt_testAndSetOrdered(&_q_value, expectedValue, newValue);
 }
 
-inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
+inline bool QBasicAtomicInt::testAndSetRelaxed(int expectedValue, int newValue)
 {
-    if (*reinterpret_cast<void * volatile *>(ptr) == expected) {
-        *reinterpret_cast<void * volatile *>(ptr) = newval;
-        return 1;
-    }
-    return 0;
+    return testAndSetOrdered(expectedValue, newValue);
 }
 
-inline int q_atomic_increment(volatile int *ptr)
-{ return ++(*ptr); }
-
-inline int q_atomic_decrement(volatile int *ptr)
-{ return --(*ptr); }
-
-inline int q_atomic_set_int(volatile int *ptr, int newval)
+inline bool QBasicAtomicInt::testAndSetAcquire(int expectedValue, int newValue)
 {
-    register int ret = *ptr;
-    *ptr = newval;
-    return ret;
+    return testAndSetOrdered(expectedValue, newValue);
 }
 
-inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+inline bool QBasicAtomicInt::testAndSetRelease(int expectedValue, int newValue)
 {
-    register void *ret = *reinterpret_cast<void * volatile *>(ptr);
-    *reinterpret_cast<void * volatile *>(ptr) = newval;
-    return ret;
+    return testAndSetOrdered(expectedValue, newValue);
 }
 
-inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
+// Fetch and store for integers
+
+inline int QBasicAtomicInt::fetchAndStoreOrdered(int newValue)
 {
-    int originalValue = *ptr;
-    *ptr += value;
-    return originalValue;
+    return QBasicAtomicInt_fetchAndStoreOrdered(&_q_value, newValue);
 }
 
-inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
+inline int QBasicAtomicInt::fetchAndStoreRelaxed(int newValue)
 {
-    return q_atomic_fetch_and_add_int(ptr, value);
+    return fetchAndStoreOrdered(newValue);
 }
 
-inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
+inline int QBasicAtomicInt::fetchAndStoreAcquire(int newValue)
 {
-    return q_atomic_fetch_and_add_int(ptr, value);
+    return fetchAndStoreOrdered(newValue);
+}
+
+inline int QBasicAtomicInt::fetchAndStoreRelease(int newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+// Fetch and add for integers
+
+inline int QBasicAtomicInt::fetchAndAddOrdered(int valueToAdd)
+{
+    return QBasicAtomicInt_fetchAndAddOrdered(&_q_value, valueToAdd);
+}
+
+inline int QBasicAtomicInt::fetchAndAddRelaxed(int valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+inline int QBasicAtomicInt::fetchAndAddAcquire(int valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+inline int QBasicAtomicInt::fetchAndAddRelease(int valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+// Test and set for pointers
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
+{
+    return QBasicAtomicPointer_testAndSetOrdered(reinterpret_cast<volatile void **>(&_q_value),
+                                                 expectedValue,
+                                                 newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelaxed(T *expectedValue, T *newValue)
+{
+    return testAndSetOrdered(expectedValue, newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetAcquire(T *expectedValue, T *newValue)
+{
+    return testAndSetOrdered(expectedValue, newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValue, T *newValue)
+{
+    return testAndSetOrdered(expectedValue, newValue);
+}
+
+// Fetch and store for pointers
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
+{
+    return reinterpret_cast<T *>
+        (QBasicAtomicPointer_fetchAndStoreOrdered(reinterpret_cast<volatile void **>(&_q_value),
+                                                  newValue));
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelaxed(T *newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreAcquire(T *newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelease(T *newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+// Fetch and add for pointers
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
+{
+    return reinterpret_cast<T *>
+        (QBasicAtomicPointer_fetchAndAddOrdered(reinterpret_cast<volatile void **>(&_q_value),
+                                                valueToAdd));
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelaxed(qptrdiff valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddAcquire(qptrdiff valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelease(qptrdiff valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
 }
 
 QT_END_HEADER
 
-#endif // GENERIC_QATOMIC_H
+#endif // QATOMIC_GENERIC_H

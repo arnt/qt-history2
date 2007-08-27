@@ -104,7 +104,7 @@ public:
     void copy(const QSqlDatabasePrivate *other);
     void disable();
 
-    QAtomic ref;
+    QAtomicInt ref;
     QSqlDriver* driver;
     QString dbname;
     QString uname;

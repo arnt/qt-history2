@@ -19,7 +19,7 @@
 #include <private/qcoreapplication_p.h>
 
 
-static QBasicAtomic timerId = Q_ATOMIC_INIT(1);
+static QBasicAtomicInt timerId = Q_BASIC_ATOMIC_INITIALIZER(1);
 
 
 void QAbstractEventDispatcherPrivate::init()
@@ -177,7 +177,7 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 */
 int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
 {
-    int id = timerId.fetchAndAdd(1);
+    int id = timerId.fetchAndAddRelaxed(1);
     registerTimer(id, interval, object);
     return id;
 }

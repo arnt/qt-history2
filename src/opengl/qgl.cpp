@@ -72,6 +72,12 @@ static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
 #define APIENTRY
 #endif
 
+Q_GLOBAL_STATIC(QGLSignalProxy, signalProxy)
+QGLSignalProxy *QGLSignalProxy::instance()
+{
+    return ::signalProxy();
+}
+
 /*!
     \namespace QGL
 
@@ -1466,7 +1472,7 @@ QGLContext::~QGLContext()
         }
     }
 
-    QGLProxy::signalProxy()->emitAboutToDestroyContext(this);
+    QGLSignalProxy::instance()->emitAboutToDestroyContext(this);
     reset();
     delete d;
 }

@@ -91,7 +91,8 @@ QThreadData *QThreadData::current()
             data->thread = new QAdoptedThread(data);
             data->deref();
         }
-        (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, data->thread);
+        if (!QCoreApplicationPrivate::theMainThread)
+            QCoreApplicationPrivate::theMainThread = data->thread;
     }
     return data;
 }

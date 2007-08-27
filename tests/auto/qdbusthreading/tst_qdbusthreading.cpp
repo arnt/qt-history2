@@ -28,7 +28,7 @@ class tst_QDBusThreading : public QObject
 {
     Q_OBJECT
     static tst_QDBusThreading *_self;
-    QAtomic threadJoinCount;
+    QAtomicInt threadJoinCount;
     QSemaphore threadJoin;
 public:
     QSemaphore sem1, sem2;

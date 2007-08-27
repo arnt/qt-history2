@@ -182,7 +182,7 @@ class QPainterPathPrivate
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPainterPath &);
 #endif
 private:
-    QAtomic ref;
+    QAtomicInt ref;
     QVector<QPainterPath::Element> elements;
 };
 

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include "qfsfileengine_iterator_p.h"
 #include "qplatformdefs.h"
+#include "qfsfileengine_iterator_p.h"
 
 #include <QtCore/qvariant.h>
 

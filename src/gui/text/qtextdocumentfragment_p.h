@@ -75,7 +75,7 @@ public:
 
     void insert(QTextCursor &cursor) const;
 
-    QAtomic ref;
+    QAtomicInt ref;
     QTextDocument *doc;
 
     uint importedFromPlainText : 1;

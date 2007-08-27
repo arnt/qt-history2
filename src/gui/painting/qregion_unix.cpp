@@ -203,7 +203,7 @@ bool QRegionPrivate::canPrepend(const QRegionPrivate *r) const
 # include "qregion_mac.cpp"
 #elif defined(Q_WS_QWS)
 static QRegionPrivate qrp;
-QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), &qrp};
+QRegion::QRegionData QRegion::shared_empty = {Q_BASIC_ATOMIC_INITIALIZER(1), &qrp};
 #endif
 
 typedef void (*OverlapFunc)(register QRegionPrivate &dest, register const QRect *r1, const QRect *r1End,
@@ -2327,7 +2327,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
         d->ref.ref();
     } else {
         d = new QRegionData;
-        d->ref.init(1);
+        d->ref = 1;
 #if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
@@ -2361,7 +2361,7 @@ QRegion::QRegion(const QPolygon &a, Qt::FillRule fillRule)
 {
     if (a.count() > 2) {
         d =  new QRegionData;
-        d->ref.init(1);
+        d->ref = 1;
 #if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
@@ -2405,7 +2405,7 @@ QRegion::QRegion(const QBitmap &bm)
         d->ref.ref();
     } else {
         d = new QRegionData;
-        d->ref.init(1);
+        d->ref = 1;
 #if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
@@ -2449,10 +2449,10 @@ QRegion::~QRegion()
 QRegion &QRegion::operator=(const QRegion &r)
 {
     QRegionData *x = r.d;
-    x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        cleanUp(x);
+    r.d->ref.ref();
+    if (!d->ref.deref())
+        cleanUp(d);
+    d = r.d;
     return *this;
 }
 
@@ -2465,7 +2465,7 @@ QRegion QRegion::copy() const
 {
     QRegion r;
     QRegionData *x = new QRegionData;
-    x->ref.init(1);
+    x->ref = 1;
 #if defined(Q_WS_X11)
     x->rgn = 0;
     x->xrectangles = 0;
@@ -2476,9 +2476,9 @@ QRegion QRegion::copy() const
         x->qt_rgn = new QRegionPrivate(*d->qt_rgn);
     else
         x->qt_rgn = new QRegionPrivate;
-    x = qAtomicSetPtr(&r.d, x);
-    if (!x->ref.deref())
-        cleanUp(x);
+    if (!r.d->ref.deref())
+        cleanUp(r.d);
+    r.d = x;
     return r;
 }
 

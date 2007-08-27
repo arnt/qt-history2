@@ -31,7 +31,7 @@
 
 inline QScriptValuePrivate::QScriptValuePrivate()
 {
-    ref.init();
+    ref = 0;
 }
 
 inline QScriptValuePrivate *QScriptValuePrivate::create()

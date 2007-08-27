@@ -97,7 +97,7 @@ private:
         inline void clear() {
             listsDirty = 1;
         }
-        mutable QAtomic ref;
+        mutable QAtomicInt ref;
 
         QString path;
         QStringList nameFilters;

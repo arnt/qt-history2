@@ -33,7 +33,7 @@ public:
           r_shift(0), g_shift(0), b_shift(0)
     {}
 
-    QAtomic ref;
+    QAtomicInt ref;
 
     QColormap::Mode mode;
     int depth;

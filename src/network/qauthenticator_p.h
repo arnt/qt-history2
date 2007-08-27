@@ -38,7 +38,7 @@ public:
     enum Method { None, Basic, Plain, Login, Ntlm, CramMd5, DigestMd5 };
     QAuthenticatorPrivate();
 
-    QAtomic ref;
+    QAtomicInt ref;
     QString user;
     QString password;
     QHash<QByteArray, QByteArray> options;
@@ -48,7 +48,7 @@ public:
 
     enum Phase {
         Start,
-        Phase2, 
+        Phase2,
         Done
     };
     Phase phase;
@@ -59,7 +59,7 @@ public:
 
     // ntlm specific
     QString workstation;
-    
+
     QByteArray calculateResponse(const QByteArray &method, const QByteArray &path);
 
     inline static QAuthenticatorPrivate *getPrivate(QAuthenticator &auth) { return auth.d; }

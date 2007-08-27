@@ -69,8 +69,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 static void qt_ignore_sigpipe()
 {
     // Set to ignore SIGPIPE once only.
-    static QBasicAtomic atom = Q_ATOMIC_INIT(0);
-    if (atom.testAndSet(0, 1)) {
+    static QBasicAtomicInt atom = Q_BASIC_ATOMIC_INITIALIZER(0);
+    if (atom.testAndSetRelaxed(0, 1)) {
         struct sigaction noaction;
         memset(&noaction, 0, sizeof(noaction));
         noaction.sa_handler = SIG_IGN;

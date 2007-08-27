@@ -14,163 +14,233 @@
 #ifndef QATOMIC_H
 #define QATOMIC_H
 
-#if defined(QT_MOC) || defined(QT_BUILD_QMAKE) || defined(QT_RCC) || defined(QT_UIC)
-#  include <QtCore/qatomic_generic.h>
-#else
-#  include <QtCore/qatomic_arch.h>
-#endif
 #include <QtCore/qglobal.h>
 
 QT_BEGIN_HEADER
 
 QT_MODULE(Core)
 
-#ifndef Q_SPECIALIZED_QATOMIC
-
-/*
-    We assume that the following 11 functions have been declared by the
-    platform specific qatomic.h:
-
-    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
-    int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval);
-    int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval);
-
-    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
-    int q_atomic_increment(volatile int *ptr);
-    int q_atomic_decrement(volatile int *ptr);
-    int q_atomic_set_int(volatile int *ptr, int newval);
-    void *q_atomic_set_ptr(volatile void *ptr, void *newval);
-
-    int q_atomic_fetch_and_add_int(volatile int *ptr, value);
-    int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, value);
-    int q_atomic_fetch_and_add_release_int(volatile int *ptr, value);
-
-    If you cannot implement these functions efficiently on your
-    platform without great difficulty, consider defining
-    Q_SPECIALIZED_QATOMIC.  By doing this, you need to implement:
-
-    struct QBasicAtomic;
-    template <typename T> struct QBasicAtomicPointer<T>;
-    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
-    void *q_atomic_set_ptr(volatile void *ptr, void *newval);
-*/
-
-struct QBasicAtomic {
-    volatile int value;
-
-    void init(int x = 0)
-    { value = x; }
-
-    inline bool ref()
-    { return q_atomic_increment(&value) != 0; }
-
-    inline bool deref()
-    { return q_atomic_decrement(&value) != 0; }
-
-    inline bool operator==(int x) const
-    { return value == x; }
-
-    inline bool operator!=(int x) const
-    { return value != x; }
-
-    inline bool operator!() const
-    { return value == 0; }
-
-    inline operator int() const
-    { return value; }
-
-    inline QBasicAtomic &operator=(int x)
-    {
-        value = x;
-        return *this;
-    }
-
-    inline bool testAndSet(int expected, int newval)
-    { return q_atomic_test_and_set_int(&value, expected, newval) != 0; }
-
-    inline bool testAndSetAcquire(int expected, int newval)
-    { return q_atomic_test_and_set_acquire_int(&value, expected, newval) != 0; }
-
-    inline bool testAndSetRelease(int expected, int newval)
-    { return q_atomic_test_and_set_release_int(&value, expected, newval) != 0; }
-
-    inline int exchange(int newval)
-    { return q_atomic_set_int(&value, newval); }
-
-    inline int fetchAndAdd(int aValue)
-    { return q_atomic_fetch_and_add_int(&value, aValue); }
-
-    inline int fetchAndAddAcquire(int aValue)
-    { return q_atomic_fetch_and_add_acquire_int(&value, aValue); }
-
-    inline int fetchAndAddRelease(int aValue)
-    { return q_atomic_fetch_and_add_release_int(&value, aValue); }
-};
-
-template <typename T>
-struct QBasicAtomicPointer
-{
-    volatile T *value;
-
-    void init(T *t = 0)
-    { value = t; }
-
-    inline bool operator==(T *t) const
-    { return value == t; }
-
-    inline bool operator!=(T *t) const
-    { return !operator==(t); }
-
-    inline bool operator!() const
-    { return operator==(0); }
-
-    inline operator T *() const
-    { return const_cast<T *>(value); }
-
-    inline T *operator->() const
-    { return const_cast<T *>(value); }
-
-    inline QBasicAtomicPointer<T> &operator=(T *t)
-    {
-        value = t;
-        return *this;
-    }
-
-    inline bool testAndSet(T *expected, T *newval)
-    { return q_atomic_test_and_set_ptr(&value, expected, newval); }
-
-    inline T *exchange(T * newval)
-    { return static_cast<T *>(q_atomic_set_ptr(&value, newval)); }
-};
-
-#define Q_ATOMIC_INIT(a) { (a) }
-
-#endif // Q_SPECIALIZED_QATOMIC
-
-template <typename T>
-inline T qAtomicSetPtr(volatile T *ptr, T newval)
-{ return static_cast<T>(q_atomic_set_ptr(ptr, newval)); }
-
-// High-level atomic integer operations
-class QAtomic : public QBasicAtomic
+class Q_CORE_EXPORT QBasicAtomicInt
 {
 public:
-    inline QAtomic(int x = 0)
-    { init(x); }
-    inline QAtomic(const QAtomic &copy)
-    { init(copy); }
+#ifdef QT_ARCH_PARISC
+    int _q_lock[4];
+#endif
+    volatile int _q_value;
 
-    inline QAtomic &operator=(int x)
+    // Non-atomic API
+    inline bool operator==(int value) const
     {
-        (void) QBasicAtomic::operator=(x);
+        return _q_value == value;
+    }
+
+    inline bool operator!=(int value) const
+    {
+        return _q_value != value;
+    }
+
+    inline bool operator!() const
+    {
+        return _q_value == 0;
+    }
+
+    inline operator int() const
+    {
+        return _q_value;
+    }
+
+    inline QBasicAtomicInt &operator=(int value)
+    {
+#ifdef QT_ARCH_PARISC
+        _q_lock[0] = _q_lock[1] = _q_lock[2] = _q_lock[3] = -1;
+#endif
+        _q_value = value;
         return *this;
     }
 
-    inline QAtomic &operator=(const QAtomic &copy)
+    // Atomic API, implemented in qatomic_XXX.h
+
+    static bool isReferenceCountingNative();
+    static bool isReferenceCountingWaitFree();
+
+    bool ref();
+    bool deref();
+
+    static bool isTestAndSetNative();
+    static bool isTestAndSetWaitFree();
+
+    bool testAndSetRelaxed(int expectedValue, int newValue);
+    bool testAndSetAcquire(int expectedValue, int newValue);
+    bool testAndSetRelease(int expectedValue, int newValue);
+    bool testAndSetOrdered(int expectedValue, int newValue);
+
+    static bool isFetchAndStoreNative();
+    static bool isFetchAndStoreWaitFree();
+
+    int fetchAndStoreRelaxed(int newValue);
+    int fetchAndStoreAcquire(int newValue);
+    int fetchAndStoreRelease(int newValue);
+    int fetchAndStoreOrdered(int newValue);
+
+    static bool isFetchAndAddNative();
+    static bool isFetchAndAddWaitFree();
+
+    int fetchAndAddRelaxed(int valueToAdd);
+    int fetchAndAddAcquire(int valueToAdd);
+    int fetchAndAddRelease(int valueToAdd);
+    int fetchAndAddOrdered(int valueToAdd);
+};
+
+template <typename T>
+class QBasicAtomicPointer
+{
+public:
+#ifdef QT_ARCH_PARISC
+    int _q_lock[4];
+#endif
+    volatile T *_q_value;
+
+    // Non-atomic API
+    inline bool operator==(T *value) const
     {
-        (void) QBasicAtomic::operator=(copy);
+        return _q_value == value;
+    }
+
+    inline bool operator!=(T *value) const
+    {
+        return !operator==(value);
+    }
+
+    inline bool operator!() const
+    {
+        return operator==(0);
+    }
+
+    inline operator T *() const
+    {
+        return const_cast<T *>(_q_value);
+    }
+
+    inline T *operator->() const
+    {
+        return const_cast<T *>(_q_value);
+    }
+
+    inline QBasicAtomicPointer<T> &operator=(T *value)
+    {
+#ifdef QT_ARCH_PARISC
+        _q_lock[0] = _q_lock[1] = _q_lock[2] = _q_lock[3] = -1;
+#endif
+        _q_value = value;
         return *this;
     }
+
+    // Atomic API, implemented in qatomic_XXX.h
+
+    static bool isTestAndSetNative();
+    static bool isTestAndSetWaitFree();
+
+    bool testAndSetRelaxed(T *expectedValue, T *newValue);
+    bool testAndSetAcquire(T *expectedValue, T *newValue);
+    bool testAndSetRelease(T *expectedValue, T *newValue);
+    bool testAndSetOrdered(T *expectedValue, T *newValue);
+
+    static bool isFetchAndStoreNative();
+    static bool isFetchAndStoreWaitFree();
+
+    T *fetchAndStoreRelaxed(T *newValue);
+    T *fetchAndStoreAcquire(T *newValue);
+    T *fetchAndStoreRelease(T *newValue);
+    T *fetchAndStoreOrdered(T *newValue);
+
+    static bool isFetchAndAddNative();
+    static bool isFetchAndAddWaitFree();
+
+    T *fetchAndAddRelaxed(qptrdiff valueToAdd);
+    T *fetchAndAddAcquire(qptrdiff valueToAdd);
+    T *fetchAndAddRelease(qptrdiff valueToAdd);
+    T *fetchAndAddOrdered(qptrdiff valueToAdd);
+};
+
+#ifdef QT_ARCH_PARISC
+#  define Q_BASIC_ATOMIC_INITIALIZER(a) {{-1,-1,-1,-1},(a)}
+#else
+#  define Q_BASIC_ATOMIC_INITIALIZER(a) { (a) }
+#endif
+
+#if defined(QT_MOC) || defined(QT_BUILD_QMAKE) || defined(QT_RCC) || defined(QT_UIC)
+#  include <QtCore/qatomic_bootstrap.h>
+#else
+#  include <QtCore/qatomic_arch.h>
+#endif
+
+// High-level atomic integer operations
+class Q_CORE_EXPORT QAtomicInt : public QBasicAtomicInt
+{
+public:
+    inline QAtomicInt(int value = 0)
+    {
+#ifdef QT_ARCH_PARISC
+        _q_lock[0] = _q_lock[1] = _q_lock[2] = _q_lock[3] = -1;
+#endif
+        _q_value = value;
+    }
+    inline QAtomicInt(const QAtomicInt &other)
+    {
+#ifdef QT_ARCH_PARISC
+        _q_lock[0] = _q_lock[1] = _q_lock[2] = _q_lock[3] = -1;
+#endif
+        _q_value = other._q_value;
+    }
+
+    inline QAtomicInt &operator=(int value)
+    {
+        (void) QBasicAtomicInt::operator=(value);
+        return *this;
+    }
+
+    inline QAtomicInt &operator=(const QAtomicInt &other)
+    {
+        (void) QBasicAtomicInt::operator=(other);
+        return *this;
+    }
+
+#ifdef qdoc
+    bool operator==(int value) const;
+    bool operator!=(int value) const;
+    bool operator!() const;
+    operator int() const;
+
+    static bool isReferenceCountingNative();
+    static bool isReferenceCountingWaitFree();
+
+    bool ref();
+    bool deref();
+
+    static bool isTestAndSetNative();
+    static bool isTestAndSetWaitFree();
+
+    bool testAndSetRelaxed(int expectedValue, int newValue);
+    bool testAndSetAcquire(int expectedValue, int newValue);
+    bool testAndSetRelease(int expectedValue, int newValue);
+    bool testAndSetOrdered(int expectedValue, int newValue);
+
+    static bool isFetchAndStoreNative();
+    static bool isFetchAndStoreWaitFree();
+
+    int fetchAndStoreRelaxed(int newValue);
+    int fetchAndStoreAcquire(int newValue);
+    int fetchAndStoreRelease(int newValue);
+    int fetchAndStoreOrdered(int newValue);
+
+    static bool isFetchAndAddNative();
+    static bool isFetchAndAddWaitFree();
+
+    int fetchAndAddRelaxed(int valueToAdd);
+    int fetchAndAddAcquire(int valueToAdd);
+    int fetchAndAddRelease(int valueToAdd);
+    int fetchAndAddOrdered(int valueToAdd);
+#endif
 };
 
 // High-level atomic pointer operations
@@ -178,22 +248,64 @@ template <typename T>
 class QAtomicPointer : public QBasicAtomicPointer<T>
 {
 public:
-    inline QAtomicPointer(T *t = 0)
-    { init(t); }
-    inline QAtomicPointer(const QAtomicPointer<T> &copy)
-    { init(copy); }
-
-    inline QAtomicPointer<T> &operator=(T *t)
+    inline QAtomicPointer(T *value = 0)
     {
-        (void) QBasicAtomicPointer<T>::operator=(t);
+#ifdef QT_ARCH_PARISC
+        _q_lock[0] = _q_lock[1] = _q_lock[2] = _q_lock[3] = -1;
+#endif
+        QBasicAtomicPointer<T>::_q_value = value;
+    }
+    inline QAtomicPointer(const QAtomicPointer<T> &other)
+    {
+#ifdef QT_ARCH_PARISC
+        _q_lock[0] = _q_lock[1] = _q_lock[2] = _q_lock[3] = -1;
+#endif
+        QBasicAtomicPointer<T>::_q_value = other._q_value;
+    }
+
+    inline QAtomicPointer<T> &operator=(T *value)
+    {
+        (void) QBasicAtomicPointer<T>::operator=(value);
         return *this;
     }
 
-    inline QAtomicPointer<T> &operator=(const QAtomicPointer<T> &copy)
+    inline QAtomicPointer<T> &operator=(const QAtomicPointer<T> &other)
     {
-        (void) QBasicAtomicPointer<T>::operator=(copy);
+        (void) QBasicAtomicPointer<T>::operator=(other);
         return *this;
     }
+
+#ifdef qdoc
+    bool operator==(T *value) const;
+    bool operator!=(T *value) const;
+    bool operator!() const;
+    operator T *() const;
+    T *operator->() const;
+
+    static bool isTestAndSetNative();
+    static bool isTestAndSetWaitFree();
+
+    bool testAndSetRelaxed(T *expectedValue, T *newValue);
+    bool testAndSetAcquire(T *expectedValue, T *newValue);
+    bool testAndSetRelease(T *expectedValue, T *newValue);
+    bool testAndSetOrdered(T *expectedValue, T *newValue);
+
+    static bool isFetchAndStoreNative();
+    static bool isFetchAndStoreWaitFree();
+
+    T *fetchAndStoreRelaxed(T *newValue);
+    T *fetchAndStoreAcquire(T *newValue);
+    T *fetchAndStoreRelease(T *newValue);
+    T *fetchAndStoreOrdered(T *newValue);
+
+    static bool isFetchAndAddNative();
+    static bool isFetchAndAddWaitFree();
+
+    T *fetchAndAddRelaxed(qptrdiff valueToAdd);
+    T *fetchAndAddAcquire(qptrdiff valueToAdd);
+    T *fetchAndAddRelease(qptrdiff valueToAdd);
+    T *fetchAndAddOrdered(qptrdiff valueToAdd);
+#endif
 };
 
 /*!

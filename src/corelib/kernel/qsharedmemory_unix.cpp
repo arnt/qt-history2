@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
+
 #include "qsharedmemory.h"
 #include "qsharedmemory_p.h"
 #include "qsystemsemaphore.h"

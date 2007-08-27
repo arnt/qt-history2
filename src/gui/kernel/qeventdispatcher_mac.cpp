@@ -539,7 +539,7 @@ int qt_mac_send_zero_timers()
 
 class QMacBlockingFunction::Object : public QObject
 {
-    QAtomic ref;
+    QAtomicInt ref;
 public:
     Object() { startTimer(10); }
 

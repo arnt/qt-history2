@@ -29,7 +29,6 @@ CFLAGS      = /Zc:wchar_t-
 CFLAGS	     = -c -Fo$@ \
               -W3 -nologo -O2 \
               -I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac \
-              -I$(SOURCE_PATH)\src\corelib\arch\generic \
 	      -I$(BUILD_PATH)\include -I$(BUILD_PATH)\include\QtCore \
 	      -I$(SOURCE_PATH)\include -I$(SOURCE_PATH)\include\QtCore \
 	      -I$(BUILD_PATH)\src\corelib\global \
@@ -56,7 +55,6 @@ CXX	    = bcc32
 CFLAGS	    = -c -o$@ \
 	-tWR -w -w-hid -w-use -O1 \
 	-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac \
-        -I$(SOURCE_PATH)\src\corelib\arch\generic \
 	-I$(BUILD_PATH)\include -I$(BUILD_PATH)\include\QtCore \
 	-I$(SOURCE_PATH)\include -I$(SOURCE_PATH)\include\QtCore \
 	-I$(BUILD_PATH)\src\corelib\global \

@@ -527,7 +527,7 @@ private:
 #endif
 
     struct Data {
-        QBasicAtomic ref;
+        QBasicAtomicInt ref;
         int alloc, size;
         ushort *data;
         ushort clean : 1;

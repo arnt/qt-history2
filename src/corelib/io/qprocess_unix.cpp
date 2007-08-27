@@ -299,7 +299,7 @@ void QProcessManager::catchDeadChildren()
     }
 }
 
-static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);
+static QBasicAtomicInt idCounter = Q_BASIC_ATOMIC_INITIALIZER(1);
 
 void QProcessManager::add(pid_t pid, QProcess *process)
 {
@@ -314,7 +314,7 @@ void QProcessManager::add(pid_t pid, QProcess *process)
     info->exitResult = 0;
     info->pid = pid;
 
-    int serial = idCounter.fetchAndAdd(1);
+    int serial = idCounter.fetchAndAddRelaxed(1);
     process->d_func()->serial = serial;
     children.insert(serial, info);
 }
@@ -632,7 +632,7 @@ void QProcessPrivate::startProcess()
                 pathc = pathEntries.size();
                 path = new char *[pathc + 1];
                 path[pathc] = 0;
-                
+
                 for (int k = 0; k < pathEntries.size(); ++k) {
                     QByteArray tmp = QFile::encodeName(pathEntries.at(k));
                     if (!tmp.endsWith('/')) tmp += '/';
@@ -840,8 +840,8 @@ qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
 static void qt_ignore_sigpipe()
 {
     // Set to ignore SIGPIPE once only.
-    static QBasicAtomic atom = Q_ATOMIC_INIT(0);
-    if (atom.testAndSet(0, 1)) {
+    static QBasicAtomicInt atom = Q_BASIC_ATOMIC_INITIALIZER(0);
+    if (atom.testAndSetRelaxed(0, 1)) {
         struct sigaction noaction;
         memset(&noaction, 0, sizeof(noaction));
         noaction.sa_handler = SIG_IGN;

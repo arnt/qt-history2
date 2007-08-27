@@ -48,7 +48,7 @@ protected:
 
 private:
     struct QGLColormapData {
-        QBasicAtomic ref;
+        QBasicAtomicInt ref;
         QVector<QRgb> *cells;
         Qt::HANDLE cmapHandle;
     };

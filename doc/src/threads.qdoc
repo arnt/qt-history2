@@ -51,6 +51,8 @@
     \o QSemaphore provides an integer semaphore (a generalization of a mutex).
     \o QWaitCondition provides a way for threads to go to sleep until
        woken up by another thread.
+    \o QAtomicInt provides atomic operations on integers.
+    \o QAtomicPointer provides atomic operations on pointers.
     \endlist
 
     \note Qt's threading classes are implemented with native threading APIs;

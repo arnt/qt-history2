@@ -112,7 +112,7 @@ public:
     };
 
     inline QPicturePrivate() : dont_stream_pixmaps(false), q_ptr(0) { ref = 1; }
-    QAtomic ref;
+    QAtomicInt ref;
 
     bool checkFormat();
     void resetFormat();

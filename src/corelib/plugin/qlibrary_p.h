@@ -77,8 +77,8 @@ private:
     bool unload_sys();
     void *resolve_sys(const char *);
 
-    QAtomic libraryRefCount;
-    QAtomic libraryUnloadCount;
+    QAtomicInt libraryRefCount;
+    QAtomicInt libraryUnloadCount;
 
     enum {IsAPlugin, IsNotAPlugin, MightBeAPlugin } pluginState;
     friend class QLibraryPrivateHasFriends;

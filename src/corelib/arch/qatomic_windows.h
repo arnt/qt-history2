@@ -11,14 +11,75 @@
 **
 ****************************************************************************/
 
-#ifndef WINDOWS_QATOMIC_H
-#define WINDOWS_QATOMIC_H
-
-#include <QtCore/qglobal.h>
+#ifndef QATOMIC_WINDOWS_H
+#define QATOMIC_WINDOWS_H
 
 QT_BEGIN_HEADER
 
-#if !defined(Q_CC_GNU) && !defined(Q_CC_BOR)
+#define Q_ATOMIC_INT_TEST_AND_SET_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_INT_TEST_AND_SET_IS_WAIT_FREE
+
+inline bool QBasicAtomicInt::isReferenceCountingNative()
+{ return true; }
+inline bool QBasicAtomicInt::isReferenceCountingWaitFree()
+{ return true; }
+
+#define Q_ATOMIC_INT_TEST_AND_SET_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_INT_TEST_AND_SET_IS_WAIT_FREE
+
+inline bool QBasicAtomicInt::isTestAndSetNative()
+{ return true; }
+inline bool QBasicAtomicInt::isTestAndSetWaitFree()
+{ return true; }
+
+#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_WAIT_FREE
+
+inline bool QBasicAtomicInt::isFetchAndStoreNative()
+{ return true; }
+inline bool QBasicAtomicInt::isFetchAndStoreWaitFree()
+{ return true; }
+
+#define Q_ATOMIC_INT_FETCH_AND_ADD_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_INT_FETCH_AND_ADD_IS_WAIT_FREE
+
+inline bool QBasicAtomicInt::isFetchAndAddNative()
+{ return true; }
+inline bool QBasicAtomicInt::isFetchAndAddWaitFree()
+{ return true; }
+
+#define Q_ATOMIC_POINTER_SUPPORTS_TEST_AND_SET Q_ATOMIC_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_POINTER_SUPPORTS_FETCH_AND_STORE Q_ATOMIC_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_POINTER_SUPPORTS_FETCH_AND_ADD Q_ATOMIC_IS_ALWAYS_NATIVE
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetNative()
+{ return true; }
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetWaitFree()
+{ return true; }
+
+#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_WAIT_FREE
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreNative()
+{ return true; }
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreWaitFree()
+{ return true; }
+
+#define Q_ATOMIC_POINTER_FETCH_AND_ADD_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_POINTER_FETCH_AND_ADD_IS_WAIT_FREE
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddNative()
+{ return true; }
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
+{ return true; }
+
+#if defined(Q_CC_MSVC)
 
 // MSVC++ 6.0 doesn't generate correct code when optimization are turned on!
 #if _MSC_VER < 1300 && defined (_M_IX86)
@@ -103,6 +164,7 @@ inline int q_atomic_fetch_and_add_int(volatile int *pointer, int value)
 }
 
 #else
+
 // use compiler intrinsics for all atomic functions
 extern "C" {
     long _InterlockedIncrement(volatile long *);
@@ -121,37 +183,64 @@ extern "C" {
 extern "C" {
     void *_InterlockedCompareExchangePointer(void * volatile *, void *, void *);
     void *_InterlockedExchangePointer(void * volatile *, void *);
+    __int64 _InterlockedExchangeAdd64(__int64 volatile * Addend, __int64 Value);
 }
 #    pragma intrinsic (_InterlockedCompareExchangePointer)
 #    pragma intrinsic (_InterlockedExchangePointer)
+#    pragma intrinsic (_InterlockedExchangeAdd64)
+#    define _InterlockedExchangeAddPointer(a,b)
+        _InterlockedExchangeAdd64(reinterpret_cast<volatile __int64 *>(a), __int64(b)))
 #  else
 #    define _InterlockedCompareExchangePointer(a,b,c) \
-        reinterpret_cast<void *>(_InterlockedCompareExchange(reinterpret_cast<volatile long *>(a), reinterpret_cast<long>(b), reinterpret_cast<long>(c)))
+        _InterlockedCompareExchange(reinterpret_cast<volatile long *>(a), long(b), long(c))
 #    define _InterlockedExchangePointer(a, b) \
-        reinterpret_cast<void *>(_InterlockedExchange(reinterpret_cast<volatile long *>(a), reinterpret_cast<long>(b)))
+        _InterlockedExchange(reinterpret_cast<volatile long *>(a), long(b))
+#    define _InterlockedExchangeAddPointer(a,b) \
+        _InterlockedExchangeAdd(reinterpret_cast<volatile long *>(a), long(b))
 #  endif
 
-inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
-{ return _InterlockedCompareExchange(reinterpret_cast<volatile long *>(ptr), newval, expected) == expected; }
-
-inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
-{ return _InterlockedCompareExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval, expected) == expected; }
-
-inline int q_atomic_increment(volatile int *ptr)
-{ return _InterlockedIncrement(reinterpret_cast<volatile long *>(ptr)); }
-
-inline int q_atomic_decrement(volatile int *ptr)
-{ return _InterlockedDecrement(reinterpret_cast<volatile long *>(ptr)); }
-
-inline int q_atomic_set_int(volatile int *ptr, int newval)
-{ return _InterlockedExchange(reinterpret_cast<volatile long *>(ptr), newval); }
-
-inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
-{ return _InterlockedExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval); }
-
-inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
+inline bool QBasicAtomicInt::ref()
 {
-    return _InterlockedExchangeAdd(reinterpret_cast<volatile long *>(ptr), value);
+    return _InterlockedIncrement(reinterpret_cast<volatile long *>(&_q_value)) != 0;
+}
+
+inline bool QBasicAtomicInt::deref()
+{
+    return _InterlockedDecrement(reinterpret_cast<volatile long *>(&_q_value)) != 0;
+}
+
+inline bool QBasicAtomicInt::testAndSetOrdered(int expectedValue, int newValue)
+{
+    return _InterlockedCompareExchange(reinterpret_cast<volatile long *>(&_q_value), newValue, expectedValue) == expectedValue;
+}
+
+inline int QBasicAtomicInt::fetchAndStoreOrdered(int newValue)
+{
+    return _InterlockedExchange(reinterpret_cast<volatile long *>(&_q_value), newValue);
+}
+
+inline int QBasicAtomicInt::fetchAndAddOrdered(int valueToAdd)
+{
+    return _InterlockedExchangeAdd(reinterpret_cast<volatile long *>(&_q_value), valueToAdd);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
+{
+    return _InterlockedCompareExchangePointer(reinterpret_cast<void * volatile *>(const_cast<T **>(&_q_value)),
+                                              newValue, expectedValue) == long(expectedValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
+{
+    return reinterpret_cast<T *>(_InterlockedExchangePointer(reinterpret_cast<void * volatile *>(const_cast<T **>(&_q_value)), newValue));
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
+{
+    return reinterpret_cast<T *>(_InterlockedExchangeAddPointer(reinterpret_cast<void * volatile *>(const_cast<T **>(&_q_value)), valueToAdd * sizeof(T)));
 }
 
 #endif // _MSC_VER ...
@@ -208,26 +297,105 @@ inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 
 #endif // Q_CC_GNU
 
-inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+inline bool QBasicAtomicInt::testAndSetRelaxed(int expectedValue, int newValue)
 {
-    return q_atomic_test_and_set_int(ptr, expected, newval);
+    return testAndSetOrdered(expectedValue, newValue);
 }
 
-inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+inline bool QBasicAtomicInt::testAndSetAcquire(int expectedValue, int newValue)
 {
-    return q_atomic_test_and_set_int(ptr, expected, newval);
+    return testAndSetOrdered(expectedValue, newValue);
 }
 
-inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
+inline bool QBasicAtomicInt::testAndSetRelease(int expectedValue, int newValue)
 {
-    return q_atomic_fetch_and_add_int(ptr, value);
+    return testAndSetOrdered(expectedValue, newValue);
 }
 
-inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
+inline int QBasicAtomicInt::fetchAndStoreRelaxed(int newValue)
 {
-    return q_atomic_fetch_and_add_int(ptr, value);
+    return fetchAndStoreOrdered(newValue);
+}
+
+inline int QBasicAtomicInt::fetchAndStoreAcquire(int newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+inline int QBasicAtomicInt::fetchAndStoreRelease(int newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+inline int QBasicAtomicInt::fetchAndAddRelaxed(int valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+inline int QBasicAtomicInt::fetchAndAddAcquire(int valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+inline int QBasicAtomicInt::fetchAndAddRelease(int valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelaxed(T *expectedValue, T *newValue)
+{
+    return testAndSetOrdered(expectedValue, newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetAcquire(T *expectedValue, T *newValue)
+{
+    return testAndSetOrdered(expectedValue, newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValue, T *newValue)
+{
+    return testAndSetOrdered(expectedValue, newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelaxed(T *newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreAcquire(T *newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelease(T *newValue)
+{
+    return fetchAndStoreOrdered(newValue);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelaxed(qptrdiff valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddAcquire(qptrdiff valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelease(qptrdiff valueToAdd)
+{
+    return fetchAndAddOrdered(valueToAdd);
 }
 
 QT_END_HEADER
 
-#endif // WINDOWS_QATOMIC_H
+#endif // QATOMIC_WINDOWS_H

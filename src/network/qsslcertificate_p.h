@@ -53,7 +53,7 @@ class QSslCertificatePrivate
 public:
     QSslCertificatePrivate()
         : null(true), x509(0)
-    { 
+    {
         QSslSocketPrivate::ensureInitialized();
         ref = 1;
     }
@@ -63,7 +63,7 @@ public:
         if (x509)
             q_X509_free(x509);
     }
-    
+
     bool null;
     QByteArray versionString;
     QByteArray serialNumberString;
@@ -84,7 +84,7 @@ public:
 
     friend class QSslSocketBackendPrivate;
 
-    QAtomic ref;
+    QAtomicInt ref;
 };
 
 #endif

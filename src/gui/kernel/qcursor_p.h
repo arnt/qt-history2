@@ -47,7 +47,7 @@ struct QCursorData {
     static void initialize();
     static void cleanup();
 
-    QAtomic ref;
+    QAtomicInt ref;
     Qt::CursorShape cshape;
     QBitmap  *bm, *bmm;
     QPixmap pixmap;

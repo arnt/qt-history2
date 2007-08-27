@@ -186,7 +186,7 @@ namespace QTest
     template <typename T1, typename T2>
     bool qCompare(T1 const &, T2 const &, const char *, const char *, const char *, int);
 
-#if defined(QT_COORD_TYPE) || defined(__arm__)
+#if defined(QT_COORD_TYPE) || defined(QT_NO_FPU)
     template <>
     inline bool qCompare<qreal, double>(qreal const &t1, double const &t2, const char *actual,
                                  const char *expected, const char *file, int line)

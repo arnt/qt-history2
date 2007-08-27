@@ -47,7 +47,7 @@ public:
     static inline QScriptValueImplList toImplList(const QScriptValueList &lst);
 
     QScriptValueImpl value;
-    QBasicAtomic ref;
+    QBasicAtomicInt ref;
 };
 
 #endif // QT_NO_SCRIPT

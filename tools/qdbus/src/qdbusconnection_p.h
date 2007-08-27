@@ -203,7 +203,7 @@ signals:
     void newServerConnection(const QDBusConnection &connection);
 
 public:
-    QAtomic ref;
+    QAtomicInt ref;
     QString name;               // this connection's name
     QString baseService;        // this connection's base service
 

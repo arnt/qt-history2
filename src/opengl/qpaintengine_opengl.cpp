@@ -406,7 +406,7 @@ public:
           activated(false),
           bound(false)
     {
-        connect(QGLProxy::signalProxy(),
+        connect(QGLSignalProxy::instance(),
                 SIGNAL(aboutToDestroyContext(const QGLContext *)),
                 SLOT(cleanupGLContextRefs(const QGLContext *)));
     }
@@ -662,7 +662,7 @@ public:
     QGLPrivateCleanup(QOpenGLPaintEnginePrivate *priv)
         : p(priv)
     {
-        connect(QGLProxy::signalProxy(),
+        connect(QGLSignalProxy::instance(),
                 SIGNAL(aboutToDestroyContext(const QGLContext *)),
                 SLOT(cleanupGLContextRefs(const QGLContext *)));
     }
@@ -938,7 +938,7 @@ class QGLGradientCache : public QObject
 public:
     QGLGradientCache() : QObject(), buffer_ctx(0)
     {
-        connect(QGLProxy::signalProxy(),
+        connect(QGLSignalProxy::instance(),
                 SIGNAL(aboutToDestroyContext(const QGLContext *)),
                 SLOT(cleanupGLContextRefs(const QGLContext *)));
     }
@@ -4137,8 +4137,9 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
         if (context->isValid() && context->device()->devType() == QInternal::Widget) {
             QWidget *widget = static_cast<QWidget *>(context->device());
             connect(widget, SIGNAL(destroyed(QObject*)), SLOT(widgetDestroyed(QObject*)));
-            connect(QGLProxy::signalProxy(), SIGNAL(aboutToDestroyContext(const QGLContext*)),
-                    SLOT(cleanupContext(const QGLContext*)));
+            connect(QGLSignalProxy::instance(),
+                    SIGNAL(aboutToDestroyContext(const QGLContext *)),
+                    SLOT(cleanupGLContextRefs(const QGLContext *)));
         }
     } else {
         font_cache = dev_it.value();

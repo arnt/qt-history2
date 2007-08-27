@@ -389,9 +389,9 @@ void QCursor::setShape(Qt::CursorShape shape)
     if (!d) {
         d = c;
     } else {
-        c = qAtomicSetPtr(&d, c);
-        if (!c->ref.deref())
-            delete c;
+        if (!d->ref.deref())
+            delete d;
+        d = c;
     }
 }
 
@@ -476,9 +476,9 @@ QCursor &QCursor::operator=(const QCursor &c)
         QCursorData::initialize();
     if (c.d)
         c.d->ref.ref();
-    QCursorData *x = qAtomicSetPtr(&d, c.d);
-    if (x && !x->ref.deref())
-        delete x;
+    if (d && !d->ref.deref())
+        delete d;
+    d = c.d;
     return *this;
 }
 

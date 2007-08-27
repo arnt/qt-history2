@@ -11,7 +11,8 @@
 **
 ****************************************************************************/
 
-#include <qhash.h>
+#include <QtCore/qglobal.h>
+#include <QtCore/qhash.h>
 
 #define UNLOCKED    {-1,-1,-1,-1}
 #define UNLOCKED2      UNLOCKED,UNLOCKED
@@ -49,29 +50,5 @@ extern "C" {
 
     void q_atomic_unlock(int *lock)
     { lock[0] = lock[1] = lock[2] = lock[3] = -1; }
-
-    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
-    {
-	int *lock = getLock(ptr);
-	q_atomic_lock(lock);
-        if (*reinterpret_cast<void * volatile *>(ptr) == expected) {
-	    *reinterpret_cast<void * volatile *>(ptr) = newval;
-	    q_atomic_unlock(lock);
-	    return 1;
-        }
-	q_atomic_unlock(lock);
-	return 0;
-    }
-
-    void *q_atomic_set_ptr(volatile void *ptr, void *newval)
-    {
-        int *lock = getLock(ptr);
-	q_atomic_lock(lock);
-	void *oldval = *reinterpret_cast<void * volatile *>(ptr);
-        *reinterpret_cast<void * volatile *>(ptr) = newval;
-	q_atomic_unlock(lock);
-        return oldval;
-    }
-
 }
 

@@ -59,15 +59,15 @@
 
 extern Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
 
-QBasicAtomic serialNumCounter = Q_ATOMIC_INIT(1);
+QBasicAtomicInt serialNumCounter = Q_BASIC_ATOMIC_INITIALIZER(1);
 
 class QIconPrivate
 {
 public:
-    QIconPrivate():ref(1), engine(0), serialNum(serialNumCounter.fetchAndAdd(1)), detach_no(0), engine_version(2) {}
+    QIconPrivate():ref(1), engine(0), serialNum(serialNumCounter.fetchAndAddRelaxed(1)), detach_no(0), engine_version(2) {}
 
     ~QIconPrivate() { delete engine; }
-    QAtomic ref;
+    QAtomicInt ref;
     QIconEngine *engine;
     int serialNum;
     int detach_no;
@@ -392,11 +392,11 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loaderV2,
   \endcode
 
   To undo a QIcon, simply set a null icon in its place:
-  
+
   \code
    button->setIcon(QIcon());
   \endcode
-  
+
   Use the QImageReader::supportedImageFormats() and
   QImageWriter::supportedImageFormats() functions to retrieve a
   complete list of the supported file formats.
@@ -559,12 +559,11 @@ QIcon::~QIcon()
 */
 QIcon &QIcon::operator=(const QIcon &other)
 {
-    QIconPrivate *x = other.d;
-    if (x)
-        x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (x && !x->ref.deref())
-        delete x;
+    if (other.d)
+        other.d->ref.ref();
+    if (d && !d->ref.deref())
+        delete d;
+    d = other.d;
     return *this;
 }
 
@@ -721,9 +720,9 @@ void QIcon::detach()
                 x->engine = d->engine;
             }
             x->engine_version = d->engine_version;
-            x = qAtomicSetPtr(&d, x);
-            if (!x->ref.deref())
-                delete x;
+            if (!d->ref.deref())
+                delete d;
+            d = x;
         }
         ++d->detach_no;
     }

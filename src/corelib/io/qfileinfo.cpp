@@ -57,7 +57,7 @@ public:
             fileFlags = 0;
             cachedFlags = 0;
         }
-        mutable QAtomic ref;
+        mutable QAtomicInt ref;
 
         QAbstractFileEngine *fileEngine;
         mutable QString fileName;
@@ -174,8 +174,8 @@ uint
 QFileInfoPrivate::getFileFlags(QAbstractFileEngine::FileFlags request) const
 {
     // We split the testing into tests for for LinkType, BundleType and the rest.
-    // In order to determine if a file is a symlink or not, we have to lstat(). 
-    // If we're not interested in that information, we might as well avoid one 
+    // In order to determine if a file is a symlink or not, we have to lstat().
+    // If we're not interested in that information, we might as well avoid one
     // extra syscall. Bundle detecton on Mac can be slow, expecially on network
     // paths, so we separate out that as well.
 

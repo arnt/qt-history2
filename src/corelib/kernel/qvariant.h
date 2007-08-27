@@ -300,7 +300,7 @@ class Q_CORE_EXPORT QVariant
         inline PrivateShared() : ref(1) { }
         inline PrivateShared(void *v) : ptr(v), ref(1) { }
         void *ptr;
-        QAtomic ref;
+        QAtomicInt ref;
     };
     struct Private
     {

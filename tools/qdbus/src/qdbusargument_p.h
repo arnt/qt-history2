@@ -56,7 +56,7 @@ public:
 
 public:
     DBusMessage *message;
-    QAtomic ref;
+    QAtomicInt ref;
     enum Direction {
         Marshalling,
         Demarshalling

@@ -52,7 +52,7 @@ public:
         : ref(1), date(other.date), time(other.time), spec(other.spec), utcOffset(other.utcOffset)
     {}
 
-    QAtomic ref;
+    QAtomicInt ref;
     QDate date;
     QTime time;
     Spec spec;

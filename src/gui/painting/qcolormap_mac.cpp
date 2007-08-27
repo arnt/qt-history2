@@ -22,7 +22,7 @@ public:
         : ref(1)
     { }
 
-    QAtomic ref;
+    QAtomicInt ref;
 };
 static QColormap *qt_mac_global_map = 0;
 

@@ -74,7 +74,7 @@ public:
     RSA *rsa;
     DSA *dsa;
 
-    QAtomic ref;
+    QAtomicInt ref;
 };
 
 #endif // QSSLKEY_P_H

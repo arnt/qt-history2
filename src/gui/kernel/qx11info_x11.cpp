@@ -58,12 +58,11 @@ QX11Info::QX11Info(const QX11Info &other)
 */
 QX11Info &QX11Info::operator=(const QX11Info &other)
 {
-    QX11InfoData *x = other.x11data;
-    if (x)
-        ++x->ref;
-    x = qAtomicSetPtr(&x11data, x);
-    if (x && !--x->ref)
-        delete x;
+    if (other.x11data)
+        ++other.x11data->ref;
+    if (x11data && !--x11data->ref)
+        delete x11data;
+    x11data = other.x11data;
     return *this;
 }
 

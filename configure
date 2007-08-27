@@ -5886,9 +5886,10 @@ cat <<EOF
         NOTICE: Atomic operations are not yet supported for this
         architecture.
 
-        Qt will use the 'generic' architecture instead, which will use
-        non-atomic operations instead.  Applications that rely on atomic
-        operation support will NOT work with this library!
+        Qt will use the 'generic' architecture instead, which uses a
+        single pthread_mutex_t to protect all atomic operations. This
+        implementation is the slow (but safe) fallback implementation
+        for architectures Qt does not yet support.
 EOF
 fi
 

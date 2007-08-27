@@ -107,7 +107,7 @@ public:
     QFontEngineData();
     ~QFontEngineData();
 
-    QAtomic ref;
+    QAtomicInt ref;
 
 #if !defined(Q_WS_MAC)
     QFontEngine *engines[QUnicodeTables::ScriptCount];
@@ -148,7 +148,7 @@ public:
     }
 #endif
 
-    QAtomic ref;
+    QAtomicInt ref;
     QFontDef request;
     mutable QFontEngineData *engineData;
     int dpi;

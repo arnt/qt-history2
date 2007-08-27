@@ -128,7 +128,7 @@ public:
     ParsedSettingsMap originalKeys;
     ParsedSettingsMap addedKeys;
     ParsedSettingsMap removedKeys;
-    QAtomic ref;
+    QAtomicInt ref;
     QMutex mutex;
     bool userPerms;
 

@@ -52,14 +52,14 @@ public:
         key[2] = copy.key[2];
         key[3] = copy.key[3];
     }
-    QAtomic ref;
+    QAtomicInt ref;
     int key[4];
     static QString encodeString(int key, QKeySequence::SequenceFormat format);
     static int decodeString(const QString &keyStr, QKeySequence::SequenceFormat format);
 
     static const QKeyBinding keyBindings[];
     static const uint numberOfKeyBindings;
-    
+
 };
 #endif // QT_NO_SHORTCUT
 

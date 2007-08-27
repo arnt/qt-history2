@@ -23,7 +23,7 @@ public:
         : ref(1), mode(QColormap::Direct), depth(0), hpal(0)
     { }
 
-    QAtomic ref;
+    QAtomicInt ref;
 
     QColormap::Mode mode;
     int depth;

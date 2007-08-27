@@ -30,7 +30,7 @@ public:
     QString createField(int index, const QString &prefix) const;
 
     QVector<QSqlField> fields;
-    QAtomic ref;
+    QAtomicInt ref;
 };
 
 QSqlRecordPrivate::QSqlRecordPrivate()

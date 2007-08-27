@@ -92,7 +92,7 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
     \sa QAbstractSocket, {http://www.rfc-editor.org/rfc/rfc3492.txt}{RFC 3492}
 */
 
-static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);
+static QBasicAtomicInt idCounter = Q_BASIC_ATOMIC_INITIALIZER(1);
 
 /*!
     Looks up the IP address(es) associated with host name \a name, and
@@ -165,7 +165,7 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
     QHostInfoResult *result = new QHostInfoResult;
     QObject::connect(result, SIGNAL(resultsReady(QHostInfo)),
                      receiver, member);
-    int id = result->lookupId = ::idCounter.fetchAndAdd(1);
+    int id = result->lookupId = ::idCounter.fetchAndAddRelaxed(1);
     agent->addHostName(lookup, result);
 
 #if !defined QT_NO_THREAD

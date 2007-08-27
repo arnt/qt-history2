@@ -133,7 +133,7 @@ static int countBits(int hint)
 const int MinNumBits = 4;
 
 QHashData QHashData::shared_null = {
-    0, 0, Q_ATOMIC_INIT(1), 0, 0, MinNumBits, 0, 0, true
+    0, 0, Q_BASIC_ATOMIC_INITIALIZER(1), 0, 0, MinNumBits, 0, 0, true
 };
 
 void *QHashData::allocateNode()
@@ -155,7 +155,7 @@ QHashData *QHashData::detach_helper(void (*node_duplicate)(Node *, void *), int 
     d = new QHashData;
     d->fakeNext = 0;
     d->buckets = 0;
-    d->ref.init(1);
+    d->ref = 1;
     d->size = size;
     d->nodeSize = nodeSize;
     d->userNumBits = userNumBits;
@@ -892,7 +892,7 @@ void QHashData::checkSanity()
     \sa value(), keys()
 */
 
-/*! 
+/*!
     \fn Key QHash::key(const T &value, const Key &defaultKey) const
     \since 4.3
     \overload
@@ -1722,7 +1722,7 @@ void QHashData::checkSanity()
     Returns the hash value for \a key.
 */
 
-/*! 
+/*!
     \fn uint qHash(const QPair<T1, T2> &key)
     \relates QHash
     \since 4.3

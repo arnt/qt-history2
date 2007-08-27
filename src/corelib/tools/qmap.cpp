@@ -17,7 +17,8 @@
 
 QMapData QMapData::shared_null = {
     &shared_null,
-    { &shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0, 0, 0, false, true
+    { &shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    Q_BASIC_ATOMIC_INITIALIZER(1), 0, 0, 0, false, true
 };
 
 QMapData *QMapData::createData()
@@ -26,7 +27,7 @@ QMapData *QMapData::createData()
     Node *e = reinterpret_cast<Node *>(d);
     e->backward = e;
     e->forward[0] = e;
-    d->ref.init(1);
+    d->ref = 1;
     d->topLevel = 0;
     d->size = 0;
     d->randomBits = 0;
@@ -448,7 +449,7 @@ void QMapData::dump()
     \sa isEmpty(), count()
 */
 
-/*! 
+/*!
     \fn bool QMap::isEmpty() const
 
     Returns true if the map contains no items; otherwise returns
@@ -621,7 +622,7 @@ void QMapData::dump()
     \sa value(), keys()
 */
 
-/*! 
+/*!
     \fn Key QMap::key(const T &value, const Key &defaultKey) const
     \since 4.3
     \overload
@@ -903,7 +904,7 @@ void QMapData::dump()
     Typedef for int. Provided for STL compatibility.
 */
 
-/*! 
+/*!
     \fn bool QMap::empty() const
 
     This function is provided for STL compatibility. It is equivalent

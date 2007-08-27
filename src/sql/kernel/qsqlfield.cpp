@@ -53,7 +53,7 @@ public:
                 && autoval == other.autoval);
     }
 
-    QAtomic ref;
+    QAtomicInt ref;
     QString nm;
     uint ro: 1;
     QVariant::Type type;

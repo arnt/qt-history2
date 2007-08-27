@@ -222,7 +222,7 @@ public:
     QPenPrivate(const QBrush &brush, qreal width, Qt::PenStyle, Qt::PenCapStyle,
                 Qt::PenJoinStyle _joinStyle);
 
-    QAtomic ref;
+    QAtomicInt ref;
     qreal width;
     QBrush brush;
     Qt::PenStyle style;
@@ -251,47 +251,49 @@ static const Qt::PenCapStyle qpen_default_cap = Qt::SquareCap;
 static const Qt::PenJoinStyle qpen_default_join = Qt::BevelJoin;
 
 
-class QPenStatic
+class QPenStaticDeleter
 {
 public:
-    QPenPrivate *pointer;
-    bool destroyed;
-
-    inline QPenStatic()
-        : pointer(0), destroyed(false)
+    QGlobalStatic<QPenPrivate> &globalStatic;
+    QPenStaticDeleter(QGlobalStatic<QPenPrivate> &globalStatic)
+        : globalStatic(globalStatic)
     { }
 
-    inline ~QPenStatic()
+    inline ~QPenStaticDeleter()
     {
-        if (!pointer->ref.deref())
-            delete pointer;
-        pointer = 0;
-        destroyed = true;
+        if (!globalStatic.pointer->ref.deref())
+            delete globalStatic.pointer;
+        globalStatic.pointer = 0;
+        globalStatic.destroyed = true;
     }
 };
 
-
+static QGlobalStatic<QPenPrivate> defaultPen;
 static QPenPrivate *defaultPenInstance()
 {
-    static QPenStatic defaultPen;
     if (!defaultPen.pointer && !defaultPen.destroyed) {
         QPenPrivate *x = new QPenPrivate(Qt::black, 0, Qt::SolidLine,
                                          qpen_default_cap, qpen_default_join);
-        if (!q_atomic_test_and_set_ptr(&defaultPen.pointer, 0, x))
+        if (!defaultPen.pointer.testAndSetOrdered(0, x))
             delete x;
+        else
+            static QPenStaticDeleter cleanup(defaultPen);
     }
     return defaultPen.pointer;
 }
 
+static QGlobalStatic<QPenPrivate> nullPen;
 static QPenPrivate *nullPenInstance()
 {
-    static QPenStatic defaultPen;
-    if (!defaultPen.pointer && !defaultPen.destroyed) {
-        QPenPrivate *x = new QPenPrivate(Qt::black, 0, Qt::NoPen, qpen_default_cap, qpen_default_join);
-        if (!q_atomic_test_and_set_ptr(&defaultPen.pointer, 0, x))
+    if (!nullPen.pointer && !nullPen.destroyed) {
+        QPenPrivate *x = new QPenPrivate(Qt::black, 0, Qt::NoPen,
+                                         qpen_default_cap, qpen_default_join);
+        if (!nullPen.pointer.testAndSetOrdered(0, x))
             delete x;
+        else
+            static QPenStaticDeleter cleanup(nullPen);
     }
-    return defaultPen.pointer;
+    return nullPen.pointer;
 }
 
 /*!
@@ -391,9 +393,9 @@ void QPen::detach()
     x->dashPattern = d->dashPattern;
     x->dashOffset = d->dashOffset;
     x->cosmetic = d->cosmetic;
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        delete x;
+    if (!d->ref.deref())
+        delete d;
+    d = x;
 }
 
 

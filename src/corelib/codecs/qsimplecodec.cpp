@@ -643,7 +643,7 @@ QByteArray QSimpleTextCodec::convertFromUnicode(const QChar *in, int length, Con
 
     if (!reverseMap){
         QByteArray *tmp = buildReverseMap(this->forwardIndex);
-        if (!reverseMap.testAndSet(0, tmp))
+        if (!reverseMap.testAndSetOrdered(0, tmp))
             delete tmp;
     }
 

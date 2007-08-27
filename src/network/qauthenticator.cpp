@@ -151,12 +151,12 @@ void QAuthenticator::detach()
         d->ref.ref();
         return;
     }
-    
+
     if (d->ref.ref() != 1) {
         QAuthenticatorPrivate *x = new QAuthenticatorPrivate(*d);
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            delete x;
+        if (!d->ref.deref())
+            delete d;
+        d = x;
     }
     d->phase = QAuthenticatorPrivate::Start;
 }
@@ -298,7 +298,7 @@ QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestMet
             response = qNtlmPhase3(this, QByteArray::fromBase64(challenge)).toBase64();
             phase = Done;
         }
-            
+
         break;
     }
     return QByteArray(methodString) + response;
@@ -324,7 +324,7 @@ QHash<QByteArray, QByteArray> QAuthenticatorPrivate::parseDigestAuthenticationCh
         if (d >= end)
             break;
         bool quote = (*d == '"');
-        if (quote) 
+        if (quote)
             ++d;
         if (d >= end)
             break;
@@ -368,13 +368,13 @@ QHash<QByteArray, QByteArray> QAuthenticatorPrivate::parseDigestAuthenticationCh
 //             qop = QByteArray();
         options["qop"] = "auth";
     }
-    
+
     return options;
 }
 
 /*
   Digest MD5 implementation
-  
+
   Code taken from RFC 2617
 
   Currently we don't support the full SASL authentication mechanism (which includes cyphers)
@@ -413,7 +413,7 @@ static QByteArray digestMd5Response(
         ha1 = hash.result();
     };
     ha1 = ha1.toHex();
-      
+
     // calculate H(A2)
     hash.reset();
     hash.addData(method);
@@ -451,11 +451,11 @@ QByteArray QAuthenticatorPrivate::digestMd5Response(const QByteArray &challenge,
     QByteArray nonceCountString = QByteArray::number(nonceCount, 16);
     while (nonceCountString.length() < 8)
         nonceCountString.prepend('0');
-    
+
     QByteArray nonce = options.value("nonce");
     QByteArray opaque = options.value("opaque");
     QByteArray qop = options.value("qop");
-    
+
     qDebug() << "calculating digest: method=" << method << "path=" << path;
     QByteArray response = ::digestMd5Response(options.value("algorithm"), user.toLatin1(),
                                               realm.toLatin1(), password.toLatin1(),
@@ -497,115 +497,115 @@ QByteArray QAuthenticatorPrivate::digestMd5Response(const QByteArray &challenge,
 
 /*
  * Indicates that Unicode strings are supported for use in security
- * buffer data. 
+ * buffer data.
  */
-#define NTLMSSP_NEGOTIATE_UNICODE 0x00000001 
+#define NTLMSSP_NEGOTIATE_UNICODE 0x00000001
 
 /*
  * Indicates that OEM strings are supported for use in security buffer data.
  */
-#define NTLMSSP_NEGOTIATE_OEM 0x00000002 
+#define NTLMSSP_NEGOTIATE_OEM 0x00000002
 
 /*
  * Requests that the server's authentication realm be included in the
- * Type 2 message. 
+ * Type 2 message.
  */
-#define NTLMSSP_REQUEST_TARGET 0x00000004 
+#define NTLMSSP_REQUEST_TARGET 0x00000004
 
 /*
  * Specifies that authenticated communication between the client and server
- * should carry a digital signature (message integrity). 
+ * should carry a digital signature (message integrity).
  */
-#define NTLMSSP_NEGOTIATE_SIGN 0x00000010 
+#define NTLMSSP_NEGOTIATE_SIGN 0x00000010
 
 /*
  * Specifies that authenticated communication between the client and server
  * should be encrypted (message confidentiality).
  */
-#define NTLMSSP_NEGOTIATE_SEAL 0x00000020 
+#define NTLMSSP_NEGOTIATE_SEAL 0x00000020
 
 /*
- * Indicates that datagram authentication is being used. 
+ * Indicates that datagram authentication is being used.
  */
-#define NTLMSSP_NEGOTIATE_DATAGRAM 0x00000040 
+#define NTLMSSP_NEGOTIATE_DATAGRAM 0x00000040
 
 /*
  * Indicates that the LAN Manager session key should be
  * used for signing and sealing authenticated communications.
  */
-#define NTLMSSP_NEGOTIATE_LM_KEY 0x00000080 
+#define NTLMSSP_NEGOTIATE_LM_KEY 0x00000080
 
 /*
- * Indicates that NTLM authentication is being used. 
+ * Indicates that NTLM authentication is being used.
  */
-#define NTLMSSP_NEGOTIATE_NTLM 0x00000200 
+#define NTLMSSP_NEGOTIATE_NTLM 0x00000200
 
 /*
  * Sent by the client in the Type 1 message to indicate that the name of the
  * domain in which the client workstation has membership is included in the
  * message. This is used by the server to determine whether the client is
- * eligible for local authentication. 
+ * eligible for local authentication.
  */
-#define NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED 0x00001000 
+#define NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED 0x00001000
 
 /*
  * Sent by the client in the Type 1 message to indicate that the client
  * workstation's name is included in the message. This is used by the server
  * to determine whether the client is eligible for local authentication.
  */
-#define NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED 0x00002000 
+#define NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED 0x00002000
 
 /*
  * Sent by the server to indicate that the server and client are on the same
  * machine. Implies that the client may use the established local credentials
  * for authentication instead of calculating a response to the challenge.
  */
-#define NTLMSSP_NEGOTIATE_LOCAL_CALL 0x00004000 
+#define NTLMSSP_NEGOTIATE_LOCAL_CALL 0x00004000
 
 /*
  * Indicates that authenticated communication between the client and server
- * should be signed with a "dummy" signature. 
+ * should be signed with a "dummy" signature.
  */
-#define NTLMSSP_NEGOTIATE_ALWAYS_SIGN 0x00008000 
+#define NTLMSSP_NEGOTIATE_ALWAYS_SIGN 0x00008000
 
 /*
  * Sent by the server in the Type 2 message to indicate that the target
  * authentication realm is a domain.
  */
-#define NTLMSSP_TARGET_TYPE_DOMAIN 0x00010000 
+#define NTLMSSP_TARGET_TYPE_DOMAIN 0x00010000
 
 /*
  * Sent by the server in the Type 2 message to indicate that the target
- * authentication realm is a server. 
+ * authentication realm is a server.
  */
-#define NTLMSSP_TARGET_TYPE_SERVER 0x00020000 
+#define NTLMSSP_TARGET_TYPE_SERVER 0x00020000
 
 /*
  * Sent by the server in the Type 2 message to indicate that the target
  * authentication realm is a share. Presumably, this is for share-level
- * authentication. Usage is unclear. 
+ * authentication. Usage is unclear.
  */
-#define NTLMSSP_TARGET_TYPE_SHARE 0x00040000 
+#define NTLMSSP_TARGET_TYPE_SHARE 0x00040000
 
 /*
  * Indicates that the NTLM2 signing and sealing scheme should be used for
  * protecting authenticated communications. Note that this refers to a
  * particular session security scheme, and is not related to the use of
  * NTLMv2 authentication.
- */ 
-#define NTLMSSP_NEGOTIATE_NTLM2 0x00080000 
+ */
+#define NTLMSSP_NEGOTIATE_NTLM2 0x00080000
 
 /*
  * Sent by the server in the Type 2 message to indicate that it is including
  * a Target Information block in the message. The Target Information block
  * is used in the calculation of the NTLMv2 response.
  */
-#define NTLMSSP_NEGOTIATE_TARGET_INFO 0x00800000 
+#define NTLMSSP_NEGOTIATE_TARGET_INFO 0x00800000
 
 /*
- * Indicates that 128-bit encryption is supported. 
+ * Indicates that 128-bit encryption is supported.
  */
-#define NTLMSSP_NEGOTIATE_128 0x20000000 
+#define NTLMSSP_NEGOTIATE_128 0x20000000
 
 /*
  * Indicates that the client will provide an encrypted master session key in
@@ -613,12 +613,12 @@ QByteArray QAuthenticatorPrivate::digestMd5Response(const QByteArray &challenge,
  * sealing, and is RC4-encrypted using the previous session key as the
  * encryption key.
  */
-#define NTLMSSP_NEGOTIATE_KEY_EXCHANGE 0x40000000 
+#define NTLMSSP_NEGOTIATE_KEY_EXCHANGE 0x40000000
 
 /*
  * Indicates that 56-bit encryption is supported.
  */
-#define NTLMSSP_NEGOTIATE_56 0x80000000 
+#define NTLMSSP_NEGOTIATE_56 0x80000000
 
 
 /* usage:
@@ -699,7 +699,7 @@ static void qStreamNtlmString(QDataStream& ds, const QString& s, bool unicode)
         return;
     }
     const ushort *d = s.utf16();
-    for (int i = 0; i < s.length(); ++i) 
+    for (int i = 0; i < s.length(); ++i)
         ds << d[i];
 }
 
@@ -782,15 +782,15 @@ public:
 
 static QDataStream& operator<<(QDataStream& s, const QNtlmPhase1Block& b) {
     bool unicode = (b.flags & NTLMSSP_NEGOTIATE_UNICODE);
-    
+
     s.writeRawData(b.magic, sizeof(b.magic));
     s << b.type;
     s << b.flags;
     s << b.domain;
     s << b.workstation;
-    if (!b.domainStr.isEmpty()) 
+    if (!b.domainStr.isEmpty())
         qStreamNtlmString(s, b.domainStr, unicode);
-    if (!b.workstationStr.isEmpty()) 
+    if (!b.workstationStr.isEmpty())
         qStreamNtlmString(s, b.workstationStr, unicode);
     return s;
 }
@@ -808,18 +808,18 @@ static QDataStream& operator<<(QDataStream& s, const QNtlmPhase3Block& b) {
     s << b.sessionKey;
     s << b.flags;
 
-    if (!b.domainStr.isEmpty()) 
+    if (!b.domainStr.isEmpty())
         qStreamNtlmString(s, b.domainStr, unicode);
 
     qStreamNtlmString(s, b.userStr, unicode);
 
-    if (!b.workstationStr.isEmpty()) 
+    if (!b.workstationStr.isEmpty())
         qStreamNtlmString(s, b.workstationStr, unicode);
 
     // Send auth info
     qStreamNtlmBuffer(s, b.lmResponseBuf);
     qStreamNtlmBuffer(s, b.ntlmResponseBuf);
-    
+
 
     return s;
 }
@@ -905,21 +905,21 @@ static QByteArray qEncodeLmResponse(const QAuthenticatorPrivate *ctx, const QNtl
 static bool qNtlmDecodePhase2(const QByteArray& data, QNtlmPhase2Block& ch)
 {
     Q_ASSERT(QNtlmPhase2BlockBase::Size == sizeof(QNtlmPhase2BlockBase));
-    if (data.size() < QNtlmPhase2BlockBase::Size) 
+    if (data.size() < QNtlmPhase2BlockBase::Size)
         return false;
 
-    
+
     QDataStream ds(data);
     ds.setByteOrder(QDataStream::LittleEndian);
     if (ds.readRawData(ch.magic, 8) < 8)
         return false;
     if (strncmp(ch.magic, "NTLMSSP", 8) != 0)
         return false;
-    
+
     ds >> ch.type;
     if (ch.type != 2)
         return false;
-    
+
     ds >> ch.targetName;
     ds >> ch.flags;
     if (ds.readRawData((char *)ch.challenge, 8) < 8)
@@ -928,7 +928,7 @@ static bool qNtlmDecodePhase2(const QByteArray& data, QNtlmPhase2Block& ch)
     ds >> ch.targetInfo;
 
     if (ch.targetName.len > 0) {
-        if (ch.targetName.len + ch.targetName.offset >= (unsigned)data.size()) 
+        if (ch.targetName.len + ch.targetName.offset >= (unsigned)data.size())
             return false;
 
         ch.targetNameStr = qStringFromUcs2Le(data.mid(ch.targetName.offset, ch.targetName.len));
@@ -947,7 +947,7 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
     QNtlmPhase2Block ch;
     if (!qNtlmDecodePhase2(phase2data, ch))
         return QByteArray();
-    
+
     QByteArray rc;
     QDataStream ds(&rc, QIODevice::WriteOnly);
     ds.setByteOrder(QDataStream::LittleEndian);
@@ -962,14 +962,13 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
         pb.flags |= NTLMSSP_NEGOTIATE_UNICODE;
     else
         pb.flags |= NTLMSSP_NEGOTIATE_OEM;
-    
+
 
     int offset = QNtlmPhase3BlockBase::Size;
     Q_ASSERT(QNtlmPhase3BlockBase::Size == sizeof(QNtlmPhase3BlockBase));
     
     offset = qEncodeNtlmString(pb.domain, offset, ctx->realm, unicode);
     pb.domainStr = ctx->realm;
-    
     offset = qEncodeNtlmString(pb.user, offset, ctx->user, unicode);
     pb.userStr = ctx->user;
 
@@ -979,7 +978,7 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
     // Get LM response
     pb.lmResponseBuf = qEncodeLmResponse(ctx, ch);
     offset = qEncodeNtlmBuffer(pb.lmResponse, offset, pb.lmResponseBuf);
-    
+
     // Get NTLM response
     pb.ntlmResponseBuf = qEncodeNtlmResponse(ctx, ch);
     offset = qEncodeNtlmBuffer(pb.ntlmResponse, offset, pb.ntlmResponseBuf);

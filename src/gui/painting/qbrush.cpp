@@ -245,35 +245,20 @@ struct QGradientBrushData : public QBrushData
     \sa Qt::BrushStyle, QPainter, QColor
 */
 
-class QBrushStatic
-{
-public:
-    QBrushData *pointer;
-    bool destroyed;
-
-    inline QBrushStatic()
-        : pointer(0), destroyed(false)
-    { }
-
-    inline ~QBrushStatic()
-    {
-        if (!pointer->ref.deref())
-            delete pointer;
-        pointer = 0;
-        destroyed = true;
-    }
-};
-
+static QGlobalStatic<QBrushData> defaultBrush;
 static QBrushData *nullBrushInstance()
 {
-    static QBrushStatic defaultBrush;
     if (!defaultBrush.pointer && !defaultBrush.destroyed) {
         QBrushData *x = new QBrushData;
-        x->ref = 1; x->style = Qt::BrushStyle(0); x->color = Qt::black;
+        x->ref = 1;
+        x->style = Qt::BrushStyle(0);
+        x->color = Qt::black;
         x->hasTransform = false;
         x->forceTextureClamp = false;
-        if (!q_atomic_test_and_set_ptr(&defaultBrush.pointer, 0, x))
+        if (!defaultBrush.pointer.testAndSetOrdered(0, x))
             delete x;
+        else
+            static QGlobalStaticDeleter<QBrushData> cleanup(defaultBrush);
     }
     return defaultBrush.pointer;
 }
@@ -539,9 +524,9 @@ void QBrush::detach(Qt::BrushStyle newStyle)
     x->transform = d->transform;
     x->hasTransform = d->hasTransform;
     x->forceTextureClamp = d->forceTextureClamp;
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        cleanUp(x);
+    if (!d->ref.deref())
+        cleanUp(d);
+    d = x;
 }
 
 
@@ -554,11 +539,10 @@ void QBrush::detach(Qt::BrushStyle newStyle)
 
 QBrush &QBrush::operator=(const QBrush &b)
 {
-    QBrushData *x = b.d;
-    x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        cleanUp(x);
+    b.d->ref.ref();
+    if (!d->ref.deref())
+        cleanUp(d);
+    d = b.d;
     return *this;
 }
 

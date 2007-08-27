@@ -1478,7 +1478,7 @@ void GAREnforcer::logAuthAttempt( QDateTime time )
     {
 #if defined(SXE_DISCOVERY)
         if ( QTransportAuth::getInstance()->isDiscoveryMode() ) {
-            static QBasicAtomic reported = {0};
+            static QBasicAtomicInt reported = Q_BASIC_ATOMIC_INITIALIZER(0);
             if ( reported.testAndSet(0,1) ) {
 #ifndef QT_NO_TEXTSTREAM
                 QString logFilePath = QTransportAuth::getInstance()->logFilePath();
@@ -1489,19 +1489,19 @@ void GAREnforcer::logAuthAttempt( QDateTime time )
                                  qPrintable(logFilePath) );
                     } else {
                         QTextStream ts( &log );
-                        ts << "\t\tWarning: Global Authentication rate of " <<  minutelyRate << "\n" 
+                        ts << "\t\tWarning: Global Authentication rate of " <<  minutelyRate << "\n"
                            << "\t\tserver connections/authentications per minute has been exceeded,\n"
                            << "\t\tno further warnings will be issued\n";
                     }
                 }
-            }      
+            }
 #endif
             reset();
             return;
         }
 #endif
         syslog( LOG_ERR | LOG_LOCAL6, "%s %s",
-                qPrintable( GAREnforcer::SxeTag ), 
+                qPrintable( GAREnforcer::SxeTag ),
                 qPrintable( GAREnforcer::GARMessage ) );
         reset();
     }
@@ -1511,7 +1511,7 @@ void GAREnforcer::reset()
 {
     QDateTime nullDateTime = QDateTime();
     for (int i = 0; i < minutelyRate; i++ )
-        authAttempts[i] = nullDateTime; 
+        authAttempts[i] = nullDateTime;
 }
 
 #include "moc_qtransportauth_qws_p.cpp"

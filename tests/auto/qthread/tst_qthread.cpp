@@ -78,7 +78,7 @@ class SignalRecorder : public QObject
 {
     Q_OBJECT
 public:
-    QAtomic activationCount;
+    QAtomicInt activationCount;
 
     inline SignalRecorder()
     { activationCount = 0; }

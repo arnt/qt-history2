@@ -36,7 +36,7 @@ public:
     void wakeUp();
 
     const bool recursive;
-    QAtomic contenders;
+    QAtomicInt contenders;
     ulong owner;
     uint count;
 

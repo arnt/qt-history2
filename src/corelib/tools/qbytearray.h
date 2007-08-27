@@ -297,7 +297,7 @@ public:
 private:
     operator QNoImplicitBoolCast() const;
     struct Data {
-        QBasicAtomic ref;
+        QBasicAtomicInt ref;
         int alloc, size;
         char *data;
         char array[1];

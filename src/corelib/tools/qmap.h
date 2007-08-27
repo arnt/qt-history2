@@ -39,7 +39,7 @@ struct Q_CORE_EXPORT QMapData
 
     QMapData *backward;
     QMapData *forward[QMapData::LastLevel + 1];
-    QBasicAtomic ref;
+    QBasicAtomicInt ref;
     int topLevel;
     int size;
     uint randomBits;
@@ -357,11 +357,10 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator=(const QMap<Key, T> &other)
 {
     if (d != other.d) {
-        QMapData *x = other.d;
-        x->ref.ref();
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            freeData(x);
+        other.d->ref.ref();
+        if (!d->ref.deref())
+            freeData(d);
+        d = other.d;
         if (!d->sharable)
             detach_helper();
     }
@@ -673,9 +672,9 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::detach_helper()
         }
         x.d->insertInOrder = false;
     }
-    x.d = qAtomicSetPtr(&d, x.d);
-    if (!x.d->ref.deref())
-        freeData(x.d);
+    if (!d->ref.deref())
+        freeData(d);
+    d = x.d;
 }
 
 template <class Key, class T>

@@ -2789,7 +2789,15 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
 
     QWriteLocker locker(QObjectPrivate::signalSlotLock());
 
-    QObjectPrivate::Connection c = { r, method_index, type, types };
+#if defined(Q_CC_HPACC) && defined(QT_ARCH_PARISC)
+    QObjectPrivate::Connection c;
+    c.receiver = r;
+    c.method = method_index;
+    c.connectionType = type;
+    c.argumentTypes = types;
+#else
+    QObjectPrivate::Connection c = { r, method_index, type, Q_BASIC_ATOMIC_INITIALIZER(types) };
+#endif
     s->d_func()->addConnection(signal_index, &c);
     r->d_func()->refSender(s, signal_index);
 
@@ -2942,7 +2950,7 @@ static void queued_activate(QObject *sender, int signal, const QObjectPrivate::C
         int *tmp = ::queuedConnectionTypes(m.parameterTypes());
         if (!tmp) // cannot queue arguments
             tmp = &DIRECT_CONNECTION_ONLY;
-        if (!q_atomic_test_and_set_ptr(&x.argumentTypes, 0, tmp)) {
+        if (!x.argumentTypes.testAndSetOrdered(0, tmp)) {
             if (tmp != &DIRECT_CONNECTION_ONLY)
                 qFree(tmp);
         }

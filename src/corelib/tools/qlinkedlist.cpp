@@ -14,7 +14,8 @@
 #include "qlinkedlist.h"
 
 QLinkedListData QLinkedListData::shared_null = {
-    &QLinkedListData::shared_null, &QLinkedListData::shared_null, Q_ATOMIC_INIT(1), 0, true
+    &QLinkedListData::shared_null, &QLinkedListData::shared_null,
+    Q_BASIC_ATOMIC_INITIALIZER(1), 0, true
 };
 
 /*! \class QLinkedList
@@ -1042,7 +1043,7 @@ QLinkedListData QLinkedListData::shared_null = {
     This function returns an iterator to the item at \a j positions backward from
     this iterator. (If \a j is negative, the iterator goes forward.)
 
-    This operation can be slow for large \a j values. 
+    This operation can be slow for large \a j values.
 
     \sa operator+()
 */

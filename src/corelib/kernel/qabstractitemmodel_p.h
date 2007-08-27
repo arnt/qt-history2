@@ -35,7 +35,7 @@ public:
     QPersistentModelIndexData() : model(0) {}
     QPersistentModelIndexData(const QModelIndex &idx) : index(idx), model(idx.model()) {}
     QModelIndex index;
-    QAtomic ref;
+    QAtomicInt ref;
     const QAbstractItemModel *model;
     static QPersistentModelIndexData *create(const QModelIndex &index);
     static void destroy(QPersistentModelIndexData *data);

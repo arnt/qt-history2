@@ -29,7 +29,7 @@ QT_MODULE(Core)
 struct Q_CORE_EXPORT QLinkedListData
 {
     QLinkedListData *n, *p;
-    QBasicAtomic ref;
+    QBasicAtomicInt ref;
     int size;
     uint sharable : 1;
 
@@ -230,7 +230,7 @@ void QLinkedList<T>::detach_helper()
 {
     union { QLinkedListData *d; Node *e; } x;
     x.d = new QLinkedListData;
-    x.d->ref.init(1);
+    x.d->ref = 1;
     x.d->size = d->size;
     x.d->sharable = true;
     Node *i = e->n, *j = x.e;
@@ -242,9 +242,9 @@ void QLinkedList<T>::detach_helper()
     }
     j->n = x.e;
     x.e->p = j;
-    x.d = qAtomicSetPtr(&d, x.d);
-    if (!x.d->ref.deref())
-        free(x.d);
+    if (!d->ref.deref())
+        free(d);
+    d = x.d;
 }
 
 template <typename T>
@@ -272,11 +272,10 @@ template <typename T>
 QLinkedList<T> &QLinkedList<T>::operator=(const QLinkedList<T> &l)
 {
     if (d != l.d) {
-        QLinkedListData *x = l.d;
-        x->ref.ref();
-        x = qAtomicSetPtr(&d, x);
-        if (!x->ref.deref())
-            free(x);
+        l.d->ref.ref();
+        if (!d->ref.deref())
+            free(d);
+        d = l.d;
         if (!d->sharable)
             detach_helper();
     }
