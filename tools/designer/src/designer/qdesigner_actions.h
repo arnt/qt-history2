@@ -65,6 +65,7 @@ public:
     QAction *editWidgets() const;
     // form actions
     QAction *previewFormAction() const;
+    QAction *viewCodeAction() const;
 
     void setBringAllToFrontVisible(bool visible);
     void setWindowListSeparatorVisible(bool visible);
@@ -86,6 +87,7 @@ private slots:
     void saveFormAsTemplate();
     void previewForm(QAction *action = 0);
     void previewFormLater(QAction *action = 0);
+    void viewCode();
     void notImplementedYet();
     void shutdown();
     void editWidgetsSlot();
@@ -156,6 +158,8 @@ private:
     QAction *m_quitAction;
 
     QAction *m_previewFormAction;
+    QAction *m_viewCodeAction;
+
     QAction *m_formSettings;
 
     QAction *m_minimizeAction;

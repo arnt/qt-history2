@@ -82,7 +82,8 @@ HEADERS += \
     $$PWD/extensionfactory_p.h \
     $$PWD/dialoggui_p.h \
     $$PWD/previewmanager_p.h \
-    $$PWD/previewconfigurationwidget_p.h
+    $$PWD/previewconfigurationwidget_p.h \
+    $$PWD/codedialog_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -149,4 +150,5 @@ SOURCES += \
     $$PWD/signalslotdialog.cpp \
     $$PWD/dialoggui.cpp \
     $$PWD/previewmanager.cpp \
-    $$PWD/previewconfigurationwidget.cpp
+    $$PWD/previewconfigurationwidget.cpp \
+    $$PWD/codedialog.cpp

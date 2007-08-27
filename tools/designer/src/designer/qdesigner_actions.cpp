@@ -33,6 +33,8 @@
 #include <iconloader_p.h>
 #include <qsimpleresource_p.h>
 #include <previewmanager_p.h>
+#include <codedialog_p.h>
+
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -163,7 +165,8 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_savePreviewImageAction(new QAction(tr("Save &Image..."), this)),
       m_printPreviewAction(new QAction(tr("&Print..."), this)),
       m_quitAction(new QAction(tr("&Quit"), this)),
-      m_previewFormAction(new QAction(tr("&Preview"), this)),
+      m_previewFormAction(new QAction(tr("&Preview..."), this)),
+      m_viewCodeAction(new QAction(tr("View &Code..."), this)),
       m_formSettings(new QAction(tr("Form &Settings..."), this)),
       m_minimizeAction(new QAction(tr("&Minimize"), this)),
       m_bringAllToFrontSeparator(createSeparator(this)),
@@ -194,6 +197,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_closeFormAction->setObjectName(QLatin1String("__qt_close_form_action"));
     m_quitAction->setObjectName(QLatin1String("__qt_quit_action"));
     m_previewFormAction->setObjectName(QLatin1String("__qt_preview_form_action"));
+    m_viewCodeAction->setObjectName(QLatin1String("__qt_preview_code_action"));
     m_formSettings->setObjectName(QLatin1String("__qt_form_settings_action"));
     m_minimizeAction->setObjectName(QLatin1String("__qt_minimize_action"));
     m_bringAllToFrontAction->setObjectName(QLatin1String("__qt_bring_all_to_front_action"));
@@ -350,6 +354,11 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     connect(m_previewManager, SIGNAL(firstPreviewOpened()), this, SLOT(updateCloseAction()));
     connect(m_previewManager, SIGNAL(lastPreviewClosed()), this, SLOT(updateCloseAction()));
 
+    connect(m_viewCodeAction, SIGNAL(triggered()), this, SLOT(viewCode()));
+    // Preview code only in Cpp
+    if (qt_extension<QDesignerLanguageExtension *>(m_core->extensionManager(), m_core) == 0)
+        m_formActions->addAction(m_viewCodeAction);
+
     connect(m_styleActions, SIGNAL(triggered(QAction*)), this, SLOT(previewForm(QAction*)));
 
     m_formActions->addAction(createSeparator(this));
@@ -461,6 +470,9 @@ QActionGroup *QDesignerActions::styleActions() const
 
 QAction *QDesignerActions::previewFormAction() const
 { return m_previewFormAction; }
+
+QAction *QDesignerActions::viewCodeAction() const
+{ return m_viewCodeAction; }
 
 
 void QDesignerActions::editWidgetsSlot()
@@ -660,6 +672,16 @@ void QDesignerActions::previewForm(QAction *action)
     QString errorMessage;
     if (!m_previewManager->showPreview(fw, pc, &errorMessage))
         QMessageBox::warning(fw, tr("Preview failed"), errorMessage);
+}
+
+void  QDesignerActions::viewCode()
+{
+    QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow();
+    if (!fw)
+        return;
+    QString errorMessage;
+    if (!qdesigner_internal::CodeDialog::showCodeDialog(fw, fw, &errorMessage))
+        QMessageBox::warning(fw, tr("Code generation failed"), errorMessage);
 }
 
 void QDesignerActions::fixActionContext()
@@ -872,6 +894,7 @@ void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *for
     m_formSettings->setEnabled(enable);
 
     m_previewFormAction->setEnabled(enable);
+    m_viewCodeAction->setEnabled(enable);
     m_styleActions->setEnabled(enable);
 }
 
