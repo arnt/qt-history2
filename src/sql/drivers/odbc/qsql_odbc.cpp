@@ -1538,7 +1538,12 @@ bool QODBCDriver::open(const QString & db,
         connQStr = db;
     else
         connQStr = QLatin1String("DSN=") + db;
-    connQStr += QLatin1String(";UID=") + user + QLatin1String(";PWD=") + password;
+
+    if (!user.isEmpty())
+        connQStr += QLatin1String(";UID=") + user;
+    if (!password.isEmpty())
+        connQStr += QLatin1String(";PWD=") + password;
+    
     SQLSMALLINT cb;
     SQLTCHAR connOut[1024];
     r = SQLDriverConnect(d->hDbc,
