@@ -543,10 +543,10 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
         SQLUINTEGER v = 0;
 
         r = SQL_SUCCESS;
-        if (opt == QLatin1String("SQL_ATTR_ACCESS_MODE")) {
-            if (val == QLatin1String("SQL_MODE_READ_ONLY")) {
+        if (opt.toUpper() == QLatin1String("SQL_ATTR_ACCESS_MODE")) {
+            if (val.toUpper() == QLatin1String("SQL_MODE_READ_ONLY")) {
                 v = SQL_MODE_READ_ONLY;
-            } else if (val == QLatin1String("SQL_MODE_READ_WRITE")) {
+            } else if (val.toUpper() == QLatin1String("SQL_MODE_READ_WRITE")) {
                 v = SQL_MODE_READ_WRITE;
             } else {
                 qWarning("QODBCDriver::open: Unknown option value '%s'",
@@ -554,13 +554,13 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
                 continue;
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0);
-        } else if (opt == QLatin1String("SQL_ATTR_CONNECTION_TIMEOUT")) {
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_CONNECTION_TIMEOUT")) {
             v = val.toUInt();
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_CONNECTION_TIMEOUT, (SQLPOINTER) v, 0);
-        } else if (opt == QLatin1String("SQL_ATTR_LOGIN_TIMEOUT")) {
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_LOGIN_TIMEOUT")) {
             v = val.toUInt();
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0);
-        } else if (opt == QLatin1String("SQL_ATTR_CURRENT_CATALOG")) {
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_CURRENT_CATALOG")) {
             val.utf16(); // 0 terminate
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_CURRENT_CATALOG,
 #ifdef UNICODE
@@ -569,10 +569,10 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
                                     (SQLCHAR*) val.toLatin1().constData(),
 #endif
                                     SQL_NTS);
-        } else if (opt == QLatin1String("SQL_ATTR_METADATA_ID")) {
-            if (val == QLatin1String("SQL_TRUE")) {
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_METADATA_ID")) {
+            if (val.toUpper() == QLatin1String("SQL_TRUE")) {
                 v = SQL_TRUE;
-            } else if (val == QLatin1String("SQL_FALSE")) {
+            } else if (val.toUpper() == QLatin1String("SQL_FALSE")) {
                 v = SQL_FALSE;
             } else {
                 qWarning("QODBCDriver::open: Unknown option value '%s'",
@@ -580,10 +580,10 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
                 continue;
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_METADATA_ID, (SQLPOINTER) v, 0);
-        } else if (opt == QLatin1String("SQL_ATTR_PACKET_SIZE")) {
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_PACKET_SIZE")) {
             v = val.toUInt();
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_PACKET_SIZE, (SQLPOINTER) v, 0);
-        } else if (opt == QLatin1String("SQL_ATTR_TRACEFILE")) {
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_TRACEFILE")) {
             val.utf16(); // 0 terminate
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_TRACEFILE,
 #ifdef UNICODE
@@ -592,10 +592,10 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
                                     (SQLCHAR*) val.toLatin1().constData(),
 #endif
                                     SQL_NTS);
-        } else if (opt == QLatin1String("SQL_ATTR_TRACE")) {
-            if (val == QLatin1String("SQL_OPT_TRACE_OFF")) {
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_TRACE")) {
+            if (val.toUpper() == QLatin1String("SQL_OPT_TRACE_OFF")) {
                 v = SQL_OPT_TRACE_OFF;
-            } else if (val == QLatin1String("SQL_OPT_TRACE_ON")) {
+            } else if (val.toUpper() == QLatin1String("SQL_OPT_TRACE_ON")) {
                 v = SQL_OPT_TRACE_ON;
             } else {
                 qWarning("QODBCDriver::open: Unknown option value '%s'",
@@ -604,14 +604,14 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0);
 #ifndef Q_ODBC_VERSION_2
-        } else if (opt == QLatin1String("SQL_ATTR_CONNECTION_POOLING")) {
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_CONNECTION_POOLING")) {
             if (val == QLatin1String("SQL_CP_OFF"))
                 v = SQL_CP_OFF;
-            else if (val == QLatin1String("SQL_CP_ONE_PER_DRIVER"))
+            else if (val.toUpper() == QLatin1String("SQL_CP_ONE_PER_DRIVER"))
                 v = SQL_CP_ONE_PER_DRIVER;
-            else if (val == QLatin1String("SQL_CP_ONE_PER_HENV"))
+            else if (val.toUpper() == QLatin1String("SQL_CP_ONE_PER_HENV"))
                 v = SQL_CP_ONE_PER_HENV;
-            else if (val == QLatin1String("SQL_CP_DEFAULT"))
+            else if (val.toUpper() == QLatin1String("SQL_CP_DEFAULT"))
                 v = SQL_CP_DEFAULT;
             else {
                 qWarning("QODBCDriver::open: Unknown option value '%s'",
@@ -619,12 +619,12 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
                 continue;
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)v, 0);
-        } else if (opt == QLatin1String("SQL_ATTR_CP_MATCH")) {
-            if (val == QLatin1String("SQL_CP_STRICT_MATCH"))
+        } else if (opt.toUpper() == QLatin1String("SQL_ATTR_CP_MATCH")) {
+            if (val.toUpper() == QLatin1String("SQL_CP_STRICT_MATCH"))
                 v = SQL_CP_STRICT_MATCH;
-            else if (val == QLatin1String("SQL_CP_RELAXED_MATCH"))
+            else if (val.toUpper() == QLatin1String("SQL_CP_RELAXED_MATCH"))
                 v = SQL_CP_RELAXED_MATCH;
-            else if (val == QLatin1String("SQL_CP_MATCH_DEFAULT"))
+            else if (val.toUpper() == QLatin1String("SQL_CP_MATCH_DEFAULT"))
                 v = SQL_CP_MATCH_DEFAULT;
             else {
                 qWarning("QODBCDriver::open: Unknown option value '%s'",
@@ -1531,9 +1531,10 @@ bool QODBCDriver::open(const QString & db,
     // Create the connection string
     QString connQStr;
     // support the "DRIVER={SQL SERVER};SERVER=blah" syntax
-    if (db.contains(QLatin1String(".dsn")))
+    if (db.contains(QLatin1String(".dsn"), Qt::CaseInsensitive))
         connQStr = QLatin1String("FILEDSN=") + db;
-    else if (db.contains(QLatin1String("DRIVER")) || db.contains(QLatin1String("SERVER")))
+    else if (db.contains(QLatin1String("DRIVER"), Qt::CaseInsensitive) 
+            || db.contains(QLatin1String("SERVER"), Qt::CaseInsensitive))
         connQStr = db;
     else
         connQStr = QLatin1String("DSN=") + db;
