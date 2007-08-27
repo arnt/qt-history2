@@ -1778,6 +1778,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(QMutex, libraryPathMutex, (QMutex::Recursive))
     Returns a list of paths that the application will search when
     dynamically loading libraries.
 
+    Qt provides default library paths, but they can also be set using
+    a \l{Using qt.conf}{qt.conf} file. Paths specified in this file
+    will override default values.
+
     This list will include the installation directory for plugins if
     it exists (the default installation directory for plugins is \c
     INSTALL/plugins, where \c INSTALL is the directory where Qt was
@@ -1836,11 +1840,12 @@ QStringList QCoreApplication::libraryPaths()
 
 
 /*!
-  Sets the list of directories to search when loading libraries to \a paths.
-  All existing paths will be deleted and the path list will consist of the
-  paths given in \a paths.
 
-  \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
+    Sets the list of directories to search when loading libraries to
+    \a paths. All existing paths will be deleted and the path list
+    will consist of the paths given in \a paths.
+
+    \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
  */
 void QCoreApplication::setLibraryPaths(const QStringList &paths)
 {
