@@ -33,6 +33,7 @@ private slots:
     void initTestCase();
     void setGeometry_data();
     void setGeometry();
+    void regionSynchronization();
 
 private:
     QWSWindow* getWindow(int windId);
@@ -78,6 +79,30 @@ QWSWindow* tst_QDirectPainter::getWindow(int winId)
     return 0;
 }
 
+class ColorWidget : public QWidget
+{
+public:
+    ColorWidget(QWidget *parent = 0, const QColor &c = QColor(Qt::red))
+        : QWidget(parent, Qt::FramelessWindowHint), color(c)
+    {
+        QPalette opaquePalette = palette();
+        opaquePalette.setColor(backgroundRole(), color);
+        setPalette(opaquePalette);
+        setAutoFillBackground(true);
+    }
+
+    void paintEvent(QPaintEvent *e) {
+        r += e->region();
+    }
+
+    void reset() {
+        r = QRegion();
+    }
+
+    QColor color;
+    QRegion r;
+};
+
 #define VERIFY_COLOR(rect, color) {                                     \
     const QPixmap pixmap = QPixmap::grabWindow(QDesktopWidget().winId(), \
                                                rect.left(), rect.top(), \
@@ -112,6 +137,45 @@ void tst_QDirectPainter::setGeometry()
     }
     QApplication::processEvents();
     VERIFY_COLOR(rect, bgColor);
+}
+
+void tst_QDirectPainter::regionSynchronization()
+{
+    QRect dpRect(10, 10, 50, 50);
+
+    // Start the direct painter in a different process
+    QProcess proc;
+    QStringList args;
+    args << QString::number(dpRect.x())
+         << QString::number(dpRect.y())
+         << QString::number(dpRect.width())
+         << QString::number(dpRect.height());
+
+    proc.start("runDirectPainter/runDirectPainter", args);
+    QVERIFY(proc.waitForStarted(5 * 1000));
+    QTest::qWait(500);
+    QApplication::processEvents();
+    VERIFY_COLOR(dpRect, Qt::blue); // blue hardcoded in runDirectPainter
+
+    QTime t;
+    t.start();
+    static int i = 0;
+    while (t.elapsed() < 10 * 1000) {
+        QApplication::processEvents();
+
+        ColorWidget w;
+        w.setGeometry(10, 10, 50, 50);
+        const QRect wRect = dpRect.translated(10, 0);
+        w.setGeometry(wRect);
+        w.show();
+
+        QApplication::processEvents();
+        VERIFY_COLOR(wRect, w.color);
+        ++i;
+    }
+    QVERIFY(i > 100); // sanity check
+
+    proc.kill();
 }
 
 QTEST_MAIN(tst_QDirectPainter)
