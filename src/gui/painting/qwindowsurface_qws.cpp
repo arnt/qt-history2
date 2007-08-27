@@ -1206,7 +1206,7 @@ static inline QScreen *getPrimaryScreen()
 }
 
 QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
-    : QWSWindowSurface()
+    : QWSWindowSurface(), flushingRegionEvents(false)
 {
     setSurfaceFlags(Opaque);
 
@@ -1270,7 +1270,9 @@ void QWSDirectPainterSurface::setPermanentState(const QByteArray &ba)
 void QWSDirectPainterSurface::beginPaint(const QRegion &region)
 {
     QWSWindowSurface::beginPaint(region);
+    flushingRegionEvents = true;
     QWSDisplay::instance()->d->waitForRegionEvents(winId());
+    flushingRegionEvents = false;
 }
 
 bool QWSDirectPainterSurface::lock(int timeout)

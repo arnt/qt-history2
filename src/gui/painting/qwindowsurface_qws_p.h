@@ -234,6 +234,7 @@ private:
 #ifndef QT_NO_DIRECTPAINTER
 
 class QScreen;
+class QDirectPainter;
 
 class Q_GUI_EXPORT QWSDirectPainterSurface : public QWSWindowSurface
 {
@@ -271,6 +272,9 @@ public:
 
 private:
     QScreen *_screen;
+
+    friend void qt_directpainter_region(QDirectPainter*, const QRegion&, int);
+    bool flushingRegionEvents;
 };
 
 #endif // QT_NO_DIRECTPAINTER

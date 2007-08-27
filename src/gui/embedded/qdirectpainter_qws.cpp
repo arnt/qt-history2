@@ -209,8 +209,10 @@ void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc, int type)
     if (type == QWSRegionEvent::Allocation) {
         d->surface->setClipRegion(r);
         d->seenRegion = true;
-        if (dp != QDirectPainterPrivate::staticPainter)
-            dp->regionChanged(r);
+        if (dp != QDirectPainterPrivate::staticPainter) {
+            if (!d->surface->flushingRegionEvents) // recursion guard
+                dp->regionChanged(r);
+        }
     }
 }
 
@@ -358,13 +360,17 @@ WId QDirectPainter::winId() const
     \fn void QDirectPainter::regionChanged(const QRegion &newRegion)
     \since 4.2
 
-    This function is called whenever the allocated region changes.
+    This function is called when the allocated region changes.
 
-    Note that the default implementation does nothing; reimplement
-    this function to adjust the currently running processes according
-    to the given \a newRegion.
+    This function is not called for region changes that happen while the
+    startPainting() function is executing.
 
-    \sa allocatedRegion(), {Dynamic Allocation}
+    Note that the given region is not guaranteed to be correct at the
+    time you access the display. To prevent reentrancy problems you should
+    always call startPainting() before updating the display and then use
+    allocatedRegion() to retrieve the correct region.
+
+    \sa allocatedRegion(), startPainting(), {Dynamic Allocation}
 */
 void QDirectPainter::regionChanged(const QRegion &region)
 {
@@ -381,6 +387,14 @@ void QDirectPainter::regionChanged(const QRegion &region)
 
     Set \a lockDisplay if you want startPainting() and endPainting()
     to lock() and unlock() the display automatically.
+
+    Note that for a NonReserved direct painter, you must call
+    allocatedRegion() after calling this function, since the allocated
+    region is only guaranteed to be correct after this function has
+    returned.
+
+    The regionChanged() function will not be called between startPainting()
+    and endPainting().
 
     \sa endPainting(), flush()
 */
