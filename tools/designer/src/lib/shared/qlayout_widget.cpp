@@ -79,7 +79,7 @@ static QGridLayout *recreateManagedGrid(const QDesignerFormEditorInterface *core
     const int mask = properties.fromPropertySheet(core, grid, qdesigner_internal::LayoutProperties::AllProperties);
     qdesigner_internal::LayoutInfo::deleteLayout(core, w);
     QGridLayout *rc = static_cast<QGridLayout*>(core->widgetFactory()->createLayout(w, 0, qdesigner_internal::LayoutInfo::Grid));
-    properties.toPropertySheet(core, grid, mask, true);
+    properties.toPropertySheet(core, rc, mask, true);
     return rc;
 }
 
