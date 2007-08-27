@@ -1037,7 +1037,7 @@ void QGraphicsView::setRubberBandSelectionMode(Qt::ItemSelectionMode mode)
 
     \code
         QGraphicsView view;
-        view.setBackgroundBrush(":/images/backgroundtile.png");
+        view.setBackgroundBrush(QImage(":/images/backgroundtile.png"));
         view.setCacheMode(QGraphicsView::CacheBackground);
     \endcode
 
