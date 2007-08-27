@@ -837,6 +837,7 @@ void QWSDisplay::Data::fillQueue()
             }
         } else if (e->type == QWSEvent::Region && clientLock) {
             clientLock->unlock(QWSLock::RegionEvent);
+            queue.append(e);
 #if 0
         } else if (e->type == QWSEvent::RegionModified) {
             QWSRegionModifiedEvent *re = static_cast<QWSRegionModifiedEvent *>(e);
