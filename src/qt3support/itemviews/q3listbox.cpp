@@ -3713,6 +3713,9 @@ QRect Q3ListBox::itemRect(Q3ListBoxItem *item) const
         return QRect(0, 0, -1, -1);
 
     int i = index(item);
+    if (i == -1)
+        return QRect(0, 0, -1, -1);
+    
     int col = i / numRows();
     int row = i % numRows();
 
