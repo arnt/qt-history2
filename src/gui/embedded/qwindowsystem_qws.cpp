@@ -3260,9 +3260,10 @@ void QWSServerPrivate::update_regions()
     QRegion available = QRect(0, 0, qt_screen->width(), qt_screen->height());
     QRegion transparentRegion;
 
-    // XXX (try?)grab display lock
     // only really needed if there are unbuffered surfaces...
-    QWSDisplay::grab(true);
+    const bool doLock = (clientMap.size() > 1);
+    if (doLock)
+        QWSDisplay::grab(true);
 
     for (int i = 0; i < windows.count(); ++i) {
         QWSWindow *w = windows.at(i);
@@ -3301,8 +3302,8 @@ void QWSServerPrivate::update_regions()
     if (!expose.isEmpty())
         exposeRegion(expose);
 
-    QWSDisplay::ungrab();
-    // XXX ungrab display lock
+    if (doLock)
+        QWSDisplay::ungrab();
 }
 
 void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)

@@ -1270,13 +1270,15 @@ void QWSDirectPainterSurface::setPermanentState(const QByteArray &ba)
 bool QWSDirectPainterSurface::lock(int timeout)
 {
     Q_UNUSED(timeout);
-    QWSDisplay::grab(true);
+    if (QApplication::type() == QApplication::GuiClient)
+        QWSDisplay::grab(true);
     return true;
 }
 
 void QWSDirectPainterSurface::unlock()
 {
-    QWSDisplay::ungrab();
+    if (QApplication::type() == QApplication::GuiClient)
+        QWSDisplay::ungrab();
 }
 
 #endif // QT_NO_DIRECTPAINTER
