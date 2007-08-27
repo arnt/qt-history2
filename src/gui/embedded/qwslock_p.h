@@ -32,7 +32,7 @@
 class QWSLock
 {
 public:
-    enum LockType { BackingStore, Communication };
+    enum LockType { BackingStore, Communication, RegionEvent };
 
     QWSLock();
     QWSLock(int lockId);

@@ -47,7 +47,7 @@ union semun {
 
 QWSLock::QWSLock()
 {
-    semId = semget(IPC_PRIVATE, 2, IPC_CREAT | 0666);
+    semId = semget(IPC_PRIVATE, 3, IPC_CREAT | 0666);
 
     if (semId == -1) {
         perror("QWSLock::QWSLock");
@@ -69,6 +69,12 @@ QWSLock::QWSLock()
         qFatal("Unable to initialize communication semaphore");
     }
     lockCount[Communication] = 0;
+
+    semval.val = 0;
+    if (semctl(semId, RegionEvent, SETVAL, semval) == -1) {
+        perror("QWSLock::QWSLock");
+        qFatal("Unable to initialize region event semaphore");
+    }
 }
 
 QWSLock::QWSLock(int id)
@@ -106,8 +112,49 @@ static bool forceLock(int semId, int semNum, int)
     return (ret != -1);
 }
 
+static bool up(int semId, int semNum)
+{
+    int ret;
+    do {
+        sembuf sops = { semNum, 1, 0 };
+        ret = semop(semId, &sops, 1);
+        if (ret == -1 && errno != EINTR)
+            qDebug("QWSLock::up: %s", strerror(errno));
+    } while (ret == -1 && errno == EINTR);
+
+    return (ret != -1);
+}
+
+static bool down(int semId, int semNum)
+{
+    int ret;
+    do {
+        sembuf sops = { semNum, -1, 0 };
+        ret = semop(semId, &sops, 1);
+        if (ret == -1 && errno != EINTR)
+            qDebug("QWSLock::down: %s", strerror(errno));
+    } while (ret == -1 && errno == EINTR);
+
+    return (ret != -1);
+}
+
+static int getValue(int semId, int semNum)
+{
+    int ret;
+    do {
+        ret = semctl(semId, semNum, GETVAL, 0);
+        if (ret == -1 && errno != EINTR)
+            qDebug("QWSLock::getValue: %s", strerror(errno));
+    } while (ret == -1 && errno == EINTR);
+
+    return ret;
+}
+
 bool QWSLock::lock(LockType type, int timeout)
 {
+    if (type == RegionEvent)
+        return up(semId, RegionEvent);
+
     if (hasLock(type)) {
         ++lockCount[type];
         return true;
@@ -121,11 +168,19 @@ bool QWSLock::lock(LockType type, int timeout)
 
 bool QWSLock::hasLock(LockType type)
 {
+    if (type == RegionEvent)
+        return (getValue(semId, RegionEvent) == 0);
+
     return (lockCount[type] > 0);
 }
 
 void QWSLock::unlock(LockType type)
 {
+    if (type == RegionEvent) {
+        down(semId, RegionEvent);
+        return;
+    }
+
     if (hasLock(type)) {
         --lockCount[type];
         if (hasLock(type))
