@@ -2921,7 +2921,7 @@ QDecoration &QApplication::qwsDecoration()
 /*!
     \fn void QApplication::qwsSetDecoration(QDecoration *decoration)
 
-    Set the QWSDecoration derived class to use for decorating the
+    Sets the QDecoration derived class to use for decorating the
     Qtopia Core windows to \a decoration.
 
     This method is non-portable. It is only available in Qtopia Core.
