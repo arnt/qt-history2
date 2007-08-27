@@ -1014,6 +1014,8 @@ QString QCalendarModel::dayName(Qt::DayOfWeek day) const
 {
     switch (horizontalHeaderFormat) {
         case QCalendarWidget::SingleLetterDayNames:
+            if (m_view->locale().language() == QLocale::Chinese)
+                return m_view->locale().dayName(day, QLocale::ShortFormat).right(1);
             return m_view->locale().dayName(day, QLocale::ShortFormat).left(1);
         case QCalendarWidget::ShortDayNames:
             return m_view->locale().dayName(day, QLocale::ShortFormat);
