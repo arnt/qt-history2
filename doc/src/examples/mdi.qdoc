@@ -3,7 +3,7 @@
     \title MDI Example
 
     The MDI example shows how to implement a Multiple Document Interface using Qt's
-    QWorkspace class.
+    QMdiArea class.
 
     \image mdi-example.png
 */
