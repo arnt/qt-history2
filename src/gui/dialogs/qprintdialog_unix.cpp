@@ -284,8 +284,8 @@ static QString getDefaultFromHomePrinters()
     QFile file(QDir::homePath() + QLatin1String("/.printers"));
     if (!file.open(QIODevice::ReadOnly))
         return QString();
-    QString all = QString(file.readAll());
-    QStringList words = all.split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    QString all(QLatin1String(file.readAll()));
+    QStringList words = all.split(QRegExp(QLatin1String("\\W+")), QString::SkipEmptyParts);
     const int i = words.indexOf(QLatin1String("_default"));
     if (i != -1 && i < words.size() - 1)
         return words.at(i + 1);
