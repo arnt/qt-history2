@@ -149,7 +149,7 @@ inline int QBasicAtomicInt::fetchAndAddOrdered(int valueToAdd)
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
 {
-    void *pointer = &_q_value;
+    volatile void *pointer = &_q_value;
     __asm {
         mov EDX,pointer
         mov EAX,expectedValue
@@ -163,7 +163,7 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValu
 template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
-    void *pointer = &_q_value;
+    volatile void *pointer = &_q_value;
     __asm {
         mov EDX,pointer
         mov ECX,newValue
@@ -176,7 +176,7 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
 {
-    void *pointer = &_q_value;
+    volatile void *pointer = &_q_value;
     valueToAdd *= sizeof(T);
     __asm {
         mov EDX,pointer
