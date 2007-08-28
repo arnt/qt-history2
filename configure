@@ -4261,6 +4261,10 @@ fi # X11
 
 if [ "$PLATFORM_X11" = "yes" -o "$PLATFORM_QWS" = "yes" ]; then
     # auto-detect Glib support
+    if [ "$PLATFORM_QWS" = "yes" -a "$CFG_GLIB" = "auto" ]; then
+	CFG_GLIB="no"
+    fi
+
     if [ "$CFG_GLIB" != "no" ]; then
         if [ "$QT_CROSS_COMPILE" = "no" ] && "$WHICH" pkg-config >/dev/null 2>&1; then
             QT_CFLAGS_GLIB=`pkg-config --cflags glib-2.0 gthread-2.0`
