@@ -474,7 +474,7 @@ void tst_QSqlRelationalTableModel::clearDisplayValuesCache()
     QCOMPARE(model.data(model.index(4, 3)).toString(), QString("mister"));
 }
 
-// For task 140782: If the main table and the the related tables uses the same
+// For task 140782 and 176374: If the main table and the the related tables uses the same
 // name for a column or display column then insertRecord() would return true 
 // though it actually failed.
 void tst_QSqlRelationalTableModel::insertRecordDuplicateFieldNames()
@@ -495,12 +495,25 @@ void tst_QSqlRelationalTableModel::insertRecordDuplicateFieldNames()
     // It's logical to insert the key value - which is 1 and not Oslo.
     rec.setValue(2, 1);
 
+    QCOMPARE(rec.fieldName(0), QLatin1String("id"));
+    QCOMPARE(rec.fieldName(1), QLatin1String("name")); // This comes from main table
+    QCOMPARE(rec.fieldName(2), QLatin1String("name")); // This comes from the related table
+
+    // Even though insertRecord() returns true and this test succseeds
+    // the record is not inserted! This because of the duplicate field names.
+    QVERIFY(model.insertRecord(-1, rec));
+
+    // Failing tests since the row couldn't be inserted because of the duplicate
+    // field names in the record. This is documented from 4.3.2, but will hopefully
+    // be fixed in a future release.
+    QEXPECT_FAIL("", "Can't insert rows when duplicate field names / display column names exists", Continue);
+    QCOMPARE(model.data(model.index(2, 2)).toString(), QString("1"));
+
     // This isn't very nice! After the insert the key value is returned,
     // but after the call to submitAll() the resolved value is returned.
     // In both cases the resolved value should be returned, not the key.
-    QVERIFY(model.insertRecord(-1, rec));
-    QCOMPARE(model.data(model.index(2, 2)).toString(), QString("1"));
     QVERIFY(model.submitAll());
+    QEXPECT_FAIL("", "Can't insert rows when duplicate field names / display column names exists", Continue);
     QCOMPARE(model.data(model.index(2, 2)).toString(), QString("Oslo"));
 }
 

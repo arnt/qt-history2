@@ -244,6 +244,10 @@ void QSqlRelationalTableModelPrivate::clearCache()
        rows in the referenced table, the rows containing the invalid
        keys will not be exposed through the model. The user or the
        database is responsible for keeping referential integrity.
+    \o If the display column name of a relation also exist as a field
+       name in the main table, or if it is used as display column name
+       in more than one relation when there are multiple relations,
+       inserting rows in the model will fail.
     \endlist
 
     \sa QSqlRelation, QSqlRelationalDelegate,
@@ -386,7 +390,6 @@ QString QSqlRelationalTableModel::selectStatement() const
         if (relation.isValid()) {
             QString relTableAlias = QString::fromLatin1("relTblAl_%1").arg(i);
             fList.append(d->escapedRelationField(relTableAlias, relation.displayColumn()));
-            fList.append(QString::fromLatin1(" AS %1_%2").arg(relTableAlias).arg(relation.displayColumn()));
             fList.append(QLatin1Char(','));
             if (!tables.contains(relation.tableName()))
                 tables.append(d->db.driver()->escapeIdentifier(relation.tableName(),
