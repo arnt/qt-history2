@@ -104,7 +104,7 @@ static bool allowX11ColorNames = false;
     QColor is platform and device independent. The QColormap class
     maps the color to the hardware.
 
-    For more information about painting in general, see {The Paint
+    For more information about painting in general, see \l{The Paint
     System} documentation.
 
     \tableofcontents
@@ -119,7 +119,7 @@ static bool allowX11ColorNames = false;
     and the values returned by the getRgbF() function due to rounding.
 
     While the integer based functions take values in the range 0-255
-    (except hue() which must can be specified within the range 0-359),
+    (except hue() which must have values within the range 0-359),
     the floating point functions accept values in the range 0.0 - 1.0.
 
     \section1 Alpha-Blended Drawing
