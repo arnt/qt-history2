@@ -856,7 +856,7 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
         pressPos = QPoint(q->width() / 2, titleBarHeight() - 1);
     } else if (actions[ResizeAction] && actions[ResizeAction] == action) {
         currentOperation = q->isLeftToRight() ? BottomRightResize : BottomLeftResize;
-        int offset = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth) / 2;
+        int offset = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, q) / 2;
         int x = q->isLeftToRight() ? q->width() - offset : offset;
         pressPos = QPoint(x, q->height() - offset);
     } else {
@@ -1371,7 +1371,7 @@ void QMdiSubWindowPrivate::setActive(bool activate)
         ensureWindowState(Qt::WindowActive);
     }
 
-    int frameWidth = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth);
+    int frameWidth = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, q);
     int titleBarHeight = this->titleBarHeight();
     QRegion windowDecoration = QRegion(0, 0, q->width(), q->height());
     windowDecoration -= QRegion(frameWidth, titleBarHeight, q->width() - 2 * frameWidth,
@@ -1460,7 +1460,7 @@ QRegion QMdiSubWindowPrivate::getRegion(Operation operation) const
     int width = q->width();
     int height = q->height();
     int titleBarHeight = this->titleBarHeight();
-    int frameWidth = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth);
+    int frameWidth = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, q);
     int cornerConst = titleBarHeight - frameWidth;
     int titleBarConst = 2 * titleBarHeight;
 
@@ -1632,7 +1632,7 @@ int QMdiSubWindowPrivate::titleBarHeight(const QStyleOptionTitleBar &options) co
         return 0;
     }
 
-    int height = q->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
+    int height = q->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options, q);
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     // ### Fix mac style, the +4 pixels hack is not necessary anymore
     if (qobject_cast<QMacStyle *>(q->style()))
@@ -1659,7 +1659,7 @@ void QMdiSubWindowPrivate::sizeParameters(int *margin, int *minWidth) const
     if (q->isMaximized() && !drawTitleBarWhenMaximized())
         *margin = 0;
     else
-        *margin = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth);
+        *margin = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, q);
 
     QStyleOptionTitleBar opt = this->titleBarOptions();
     int tempWidth = 0;
@@ -2069,7 +2069,7 @@ QSize QMdiSubWindowPrivate::iconSize() const
     Q_Q(const QMdiSubWindow);
     if (!q->parent() || q->windowFlags() & Qt::FramelessWindowHint)
         return QSize(-1, -1);
-    return QSize(q->style()->pixelMetric(QStyle::PM_MdiSubWindowMinimizedWidth), titleBarHeight());
+    return QSize(q->style()->pixelMetric(QStyle::PM_MdiSubWindowMinimizedWidth, 0, q), titleBarHeight());
 }
 
 #ifndef QT_NO_SIZEGRIP
