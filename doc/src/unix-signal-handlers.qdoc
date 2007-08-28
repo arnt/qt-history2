@@ -1,0 +1,174 @@
+/****************************************************************************
+**
+** How To Use Unix Signal Handlers In Qt.
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \page unix-signals.html
+    \title Calling Qt Functions From Unix Signal Handlers
+    \ingroup platform-notes
+    \brief You can't. But don't despair, there is a way...
+
+    When you use Unix signal handlers in a Qt program, you can't call
+    Qt functions from your signal handlers. The standard POSIX rule
+    applies: You can only call async-signal-safe functions from signal
+    handlers. See \l
+    {http://www.opengroup.org/onlinepubs/000095399/functions/xsh_chap02_04.html#tag_02_04_01}
+    {Signal Actions} for the complete list of functions you can call
+    from Unix signal handlers.
+
+    But don't despair, there are ways to use Unix signal handlers with
+    Qt. The strategy is to have your Unix signal handler do something
+    that will cause a Qt signal to be emitted, and then you return
+    from your Unix signal handler, back into your Qt program, where
+    that Qt signal gets emitted and then received by a slot function.
+    In that slot function, you can do whatever Qt stuff you wanted to
+    do in the Unix signal handler.
+
+    One simple way to make this happen is to declare a socket pair in
+    your class for each Unix signal you want to handle. The socket
+    pairs are declared as static data members. You also create a
+    QSocketNotifier to monitor the \e read end of each socket pair,
+    declare your Unix signal handlers to be static class methods, and
+    declare a slot function corresponding to each of your Unix signal
+    handlers. In this example, we intend to handle both the SIGHUP and
+    SIGTERM signals. Note: You should read the socketpair(2) and the
+    sigaction(2) man pages before plowing through the following code
+    snippets.
+    
+    \code
+    class MyDaemon : public QObject
+    {
+	Q_OBJECT
+      
+      public:
+        MyDaemon(QObject *parent = 0, const char *name = 0);
+        ~MyDaemon();
+    
+	// Unix signal handlers.
+	static void hupSignalHandler(int unused);
+	static void termSignalHandler(int unused);
+
+      public slots:
+        // Qt signal handlers.
+     	void handleSigHup();
+    	void handleSigTerm();
+
+      private:
+	static int sighupFd[2];
+    	static int sigtermFd[2];
+    
+	QSocketNotifier *snHup;
+    	QSocketNotifier *snTerm;
+    };
+    \endcode
+
+    In the MyDaemon constructor, use the socketpair(2) function to
+    initialize each file descriptor pair, and then create the
+    QSocketNotifier to monitor the \e read end of each pair. The
+    activated() signal of each QSocketNotifier is connected to the
+    appropriate slot function, which effectively converts the Unix
+    signal to the QSocketNotifier::activated() signal.
+
+    \code
+    MyDaemon::MyDaemon(QObject *parent, const char *name)
+    	     : QObject(parent,name)
+    {
+        if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sighupFd))
+	   qFatal("Couldn't create HUP socketpair");
+
+        if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigtermFd))
+	   qFatal("Couldn't create TERM socketpair");
+        snHup = new QSocketNotifier(sighupFd[1], QSocketNotifier::Read, this);
+        connect(snHup, SIGNAL(activated(int)), this, SLOT(handleSigHup()));
+        snTerm = new QSocketNotifier(sigtermFd[1], QSocketNotifier::Read, this);
+        connect(snTerm, SIGNAL(activated(int)), this, SLOT(handleSigTerm()));
+
+	...
+    }
+    \endcode
+
+    Somewhere else in your startup code, you install your Unix signal
+    handlers with sigaction(2).
+
+    \code
+    static int setup_unix_signal_handlers()
+    {
+	struct sigaction hup, term;
+
+	hup.sa_handler = MyDaemon::hupSignalHandler;
+    	sigemptyset(&hup.sa_mask);
+    	hup.sa_flags = 0;
+    	hup.sa_flags |= SA_RESTART;
+
+    	if (sigaction(SIGHUP, &hup, 0) > 0)
+	   return 1;
+
+    	term.sa_handler = MyDaemon::termSignalHandler;
+    	sigemptyset(&term.sa_mask);
+    	term.sa_flags |= SA_RESTART;
+
+    	if (sigaction(SIGTERM, &term, 0) > 0)
+	   return 2;
+
+	return 0;
+    }
+    \endcode
+
+    In your Unix signal handlers, you write a byte to the \e write end
+    of a socket pair and return. This will cause the corresponding
+    QSocketNotifier to emit its activated() signal, which will in turn
+    cause the appropriate Qt slott function to run.
+
+    \code
+    void MyDaemon::hupSignalHandler(int)
+    {
+	char a = 1;
+	::write(sighupFd[0], &a, sizeof(a));
+    }
+
+    void MyDaemon::termSignalHandler(int)
+    {
+	char a = 1;
+	::write(sigtermFd[0], &a, sizeof(a));
+    }
+    \endcode
+
+    In the slot functions connected to the QSocketNotifier::activated()
+    signals, you \e read the byte. Now you are safely back in Qt with 
+    your signal, and you can do all the Qt stuff you wanted to do in the
+    Unix signal handler but couldn't.
+
+    \code
+    void MyDaemon::handleSigTerm()
+    {
+        snTerm->setEnabled(false);
+        char tmp;
+        ::read(sigtermFd[1], &tmp, sizeof(tmp));
+
+	// do Qt stuff
+
+	snTerm->setEnabled(true);
+    }
+
+    void MyDaemon::handleSigHup()
+    {
+        snHup->setEnabled(false);
+        char tmp;
+        ::read(sighupFd[1], &tmp, sizeof(tmp));
+
+	// do Qt stuff
+
+        snHup->setEnabled(true);
+    }
+    \endcode
+*/
