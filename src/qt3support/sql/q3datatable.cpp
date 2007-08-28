@@ -174,7 +174,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     currentRecord(). Use the find() function to search for a string in
     the table.
 
-    Editing actions can be applied programatically. For example, the
+    Editing actions can be applied programmatically. For example, the
     insertCurrent() function reads the fields from the current record
     into the cursor and performs the insert. The updateCurrent() and
     deleteCurrent() functions perform similarly to update and delete

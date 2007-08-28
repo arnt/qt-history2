@@ -1398,7 +1398,7 @@ QAction * QDockWidget::toggleViewAction() const
     This signal is emitted when the dock widget is moved to another
     dock \a area, or is moved to a different location in its current
     dock area. This happens when the dock widget is moved
-    programatically or is dragged to a new location by the user.
+    programmatically or is dragged to a new location by the user.
 */
 
 /*!
