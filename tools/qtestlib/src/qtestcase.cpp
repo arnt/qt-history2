@@ -1580,8 +1580,13 @@ COMPARE_IMPL2(int, %d)
 COMPARE_IMPL2(uint, %u)
 COMPARE_IMPL2(long, %ld)
 COMPARE_IMPL2(ulong, %lu)
+#if defined(Q_OS_WIN)
+COMPARE_IMPL2(qint64, %I64d)
+COMPARE_IMPL2(quint64, %I64u)
+#else
 COMPARE_IMPL2(qint64, %lld)
 COMPARE_IMPL2(quint64, %llu)
+#endif
 COMPARE_IMPL2(bool, %d)
 COMPARE_IMPL2(char, %c)
 COMPARE_IMPL2(float, %g);
