@@ -129,6 +129,16 @@ embedded {
 		kernel/qsound_qws.cpp \
 		kernel/qwidget_qws.cpp \
 		kernel/qkeymapper_qws.cpp
+
+        contains(QT_CONFIG, glib) {
+            SOURCES += \
+		kernel/qwseventdispatcher_glib.cpp
+            HEADERS += \
+                kernel/qwseventdispatcher_glib_p.h
+            QMAKE_CXXFLAGS += $$QT_CFLAGS_GLIB
+	}
+
+
 }
 
 !embedded:!x11:mac {

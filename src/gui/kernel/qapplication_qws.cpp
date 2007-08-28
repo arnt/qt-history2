@@ -54,6 +54,11 @@
 #include "qsettings.h"
 #include "qdebug.h"
 #include "qeventdispatcher_qws_p.h"
+#if !defined(QT_NO_GLIB)
+#  include "qwseventdispatcher_glib_p.h"
+#endif
+
+
 #include "private/qwidget_p.h"
 #include "private/qbackingstore_p.h"
 #include "private/qwindowsurface_qws_p.h"
@@ -282,6 +287,13 @@ public:
 void QApplicationPrivate::createEventDispatcher()
 {
     Q_Q(QApplication);
+#if !defined(QT_NO_GLIB)
+    if (qgetenv("QT_NO_GLIB").isEmpty() && QEventDispatcherGlib::versionSupported())
+        eventDispatcher = (q->type() != QApplication::Tty
+                           ? new QWSEventDispatcherGlib(q)
+                           : new QEventDispatcherGlib(q));
+    else
+#endif
     eventDispatcher = (q->type() != QApplication::Tty
                        ? new QEventDispatcherQWS(q)
                        : new QEventDispatcherUNIX(q));
