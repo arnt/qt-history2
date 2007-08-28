@@ -179,7 +179,7 @@ void CodeDialog::slotSaveAs()
             break;
 
          QFile file(fileName);
-         if (!file.open(QIODevice::WriteOnly)) {
+         if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
              warning(tr("The file %1 could not be opened: %2").arg(fileName).arg(file.errorString()));
              continue;
          }
