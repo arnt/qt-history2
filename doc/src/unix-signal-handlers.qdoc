@@ -27,11 +27,11 @@
 
     But don't despair, there is a way to use Unix signal handlers with
     Qt. The strategy is to have your Unix signal handler do something
-    that will cause a Qt signal to be emitted, and then you return
-    from your Unix signal handler, back into your Qt program, where
-    that Qt signal gets emitted and then received by a slot function.
-    In that slot function, you can do whatever Qt stuff you wanted to
-    do in the Unix signal handler.
+    that will eventually cause a Qt signal to be emitted, and then you
+    simply return from your Unix signal handler. Back in your Qt
+    program, that Qt signal gets emitted and then received by your Qt
+    slot function, where you can safely do whatever Qt stuff you
+    weren't allowed to do in the Unix signal handler.
 
     One simple way to make this happen is to declare a socket pair in
     your class for each Unix signal you want to handle. The socket
