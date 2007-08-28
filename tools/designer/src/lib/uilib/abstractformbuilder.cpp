@@ -500,7 +500,7 @@ void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int
 #ifdef Q_OS_MAC
     // here we recognize ui file < 4.3 (no we don't store margin property)
     if (mar != INT_MIN) {
-        const int defaultMargin = parent->inherits("QLayoutWidget") ? 0 : defaultMargin;
+        const int defaultMargin = parent->inherits("QLayoutWidget") ? 0 : 9;
         if (mar == defaultMargin)
             mar = INT_MIN;
         if (spac == 6)
