@@ -1037,10 +1037,8 @@ void QAbstractItemModelPrivate::reset()
     if it has no parent.
 
     A common convention used in models that expose tree data structures is that
-    only items in the first column have children. When reimplementing this function
-    in a subclass that provides a tree model, you should return a model index
-    corresponding to an item in the first column by calling createIndex() with a
-    value of 0 for the column number.
+    only items in the first column have children. For that case, when reimplementing
+    this function in a subclass the column of the returned QModelIndex would be 0.
 
     \sa createIndex()
 */
