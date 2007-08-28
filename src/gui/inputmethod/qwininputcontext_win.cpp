@@ -380,7 +380,7 @@ void QWinInputContext::update()
         return;
 
     Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
-    HIMC imc = getContext(w->winId());
+    HIMC imc = getContext(w->effectiveWinId());
 
     if (!imc)
         return;
@@ -434,7 +434,7 @@ void QWinInputContext::update()
         ImmSetCandidateWindow(imc, &candf);
     }
 
-    releaseContext(w->winId(), imc);
+    releaseContext(w->effectiveWinId(), imc);
 }
 
 
@@ -455,9 +455,9 @@ bool QWinInputContext::endComposition()
 
     if (fw) {
         Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
-        HIMC imc = getContext(fw->winId());
+        HIMC imc = getContext(fw->effectiveWinId());
         notifyIME(imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
-        releaseContext(fw->winId(), imc);
+        releaseContext(fw->effectiveWinId(), imc);
         if(haveCaret) {
             DestroyCaret();
             haveCaret = false;
@@ -502,9 +502,9 @@ void QWinInputContext::reset()
 
     if (fw) {
         Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
-        HIMC imc = getContext(fw->winId());
+        HIMC imc = getContext(fw->effectiveWinId());
         notifyIME(imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
-        releaseContext(fw->winId(), imc);
+        releaseContext(fw->effectiveWinId(), imc);
     }
 
 }
@@ -523,8 +523,8 @@ bool QWinInputContext::startComposition()
     if (fw) {
         Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
         imePosition = 0;
-        haveCaret = CreateCaret(fw->winId(), 0, 1, 1);
-        HideCaret(fw->winId());
+        haveCaret = CreateCaret(fw->effectiveWinId(), 0, 1, 1);
+        HideCaret(fw->effectiveWinId());
         update();
     }
     return fw != 0;
@@ -565,7 +565,7 @@ bool QWinInputContext::composition(LPARAM lParam)
     QWidget *fw = qApp->focusWidget();
     if (fw) {
         Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
-        HIMC imc = getContext(fw->winId());
+        HIMC imc = getContext(fw->effectiveWinId());
         QInputMethodEvent e;
         if (lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS)) {
             if (imePosition == -1)
@@ -611,7 +611,7 @@ bool QWinInputContext::composition(LPARAM lParam)
         }
         result = qt_sendSpontaneousEvent(fw, &e);
         update();
-        releaseContext(fw->winId(), imc);
+        releaseContext(fw->effectiveWinId(), imc);
     }
 #ifdef Q_IME_DEBUG
     qDebug("imecomposition: cursor pos at %d, str=%x", imePosition, str[0].unicode());
@@ -632,19 +632,19 @@ void QWinInputContext::enable(QWidget *w, bool e)
         if(aimm) {
             HIMC oldimc;
             if (!e) {
-                aimm->AssociateContext(w->winId(), 0, &oldimc);
+                aimm->AssociateContext(w->effectiveWinId(), 0, &oldimc);
                 if (!defaultContext)
                     defaultContext = oldimc;
             } else if (defaultContext) {
-                aimm->AssociateContext(w->winId(), defaultContext, &oldimc);
+                aimm->AssociateContext(w->effectiveWinId(), defaultContext, &oldimc);
             }
         } else {
             if (!e) {
-                HIMC oldimc = ImmAssociateContext(w->winId(), 0);
+                HIMC oldimc = ImmAssociateContext(w->effectiveWinId(), 0);
                 if (!defaultContext)
                     defaultContext = oldimc;
             } else if (defaultContext) {
-                ImmAssociateContext(w->winId(), defaultContext);
+                ImmAssociateContext(w->effectiveWinId(), defaultContext);
             }
         }
     }
@@ -674,10 +674,10 @@ void QWinInputContext::mouseHandler(int pos, QMouseEvent *e)
 
     QWidget *fw = focusWidget();
     Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
-    HIMC himc = getContext(fw->winId());
-    HWND ime_wnd = getDefaultIMEWnd(fw->winId());
+    HIMC himc = getContext(fw->effectiveWinId());
+    HWND ime_wnd = getDefaultIMEWnd(fw->effectiveWinId());
     SendMessage(ime_wnd, WM_MSIME_MOUSE, MAKELONG(MAKEWORD(button, pos == 0 ? 2 : 1), pos), (LPARAM)himc);
-    releaseContext(fw->winId(), himc);
+    releaseContext(fw->effectiveWinId(), himc);
     //qDebug("mouseHandler: got value %d pos=%d", ret,pos);
 }
 

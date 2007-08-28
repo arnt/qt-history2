@@ -158,7 +158,7 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
     }
 
     if (reason != MenuCommand) { // MenuCommand is faked
-        ptrNotifyWinEvent(reason, w->winId(), OBJID_CLIENT, who);
+        ptrNotifyWinEvent(reason, w->effectiveWinId(), OBJID_CLIENT, who);
     }
 }
 
@@ -1115,7 +1115,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetWindow(HWND *phwnd)
     if (!o || !o->isWidgetType())
         return E_FAIL;
 
-    *phwnd = static_cast<QWidget*>(o)->winId();
+    *phwnd = static_cast<QWidget*>(o)->effectiveWinId();
     return S_OK;
 }
 

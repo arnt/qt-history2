@@ -5197,7 +5197,7 @@ void tst_QWidget::hideOpaqueChildWhileHidden()
     child2.setGeometry(10, 10, 60, 60);
 
     w.show();
-    QApplication::processEvents();
+    QTest::qWait(100);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&w);
 #endif
@@ -5206,7 +5206,7 @@ void tst_QWidget::hideOpaqueChildWhileHidden()
 
     child.hide();
     child2.hide();
-    QApplication::processEvents();
+    QTest::qWait(100);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&w);
 #endif
@@ -5214,7 +5214,7 @@ void tst_QWidget::hideOpaqueChildWhileHidden()
                  w.color);
 
     child.show();
-    QApplication::processEvents();
+    QTest::qWait(100);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&w);
 #endif

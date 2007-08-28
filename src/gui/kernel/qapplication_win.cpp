@@ -45,6 +45,8 @@
 #include "qdebug.h"
 #include <private/qkeymapper_p.h>
 
+//#define ALIEN_DEBUG
+
 #ifndef QT_NO_THREAD
 #include "qmutex.h"
 #endif
@@ -293,6 +295,7 @@ static bool replayPopupMouseEvent = false; // replay handling when popups close
 // ignore the next release event if return from a modal widget
 Q_GUI_EXPORT bool qt_win_ignoreNextMouseReleaseEvent = false;
 
+
 #if defined(QT_DEBUG)
 static bool        appNoGrab        = false;        // mouse/keyboard grabbing
 #endif
@@ -304,6 +307,7 @@ static QWidget *popupButtonFocus   = 0;
 static bool        qt_try_modal(QWidget *, MSG *, int& ret);
 
 QWidget               *qt_button_down = 0;                // widget got last button-down
+QPointer<QWidget> qt_last_mouse_receiver = 0;
 
 static HWND        autoCaptureWnd = 0;
 static void        setAutoCapture(HWND);                // automatic capture
@@ -1030,9 +1034,9 @@ void QApplication::restoreOverrideCursor()
 
 void qt_win_set_cursor(QWidget *w, const QCursor& /* c */)
 {
-    if (!curWin)
+    if (!curWin && w && w->internalWinId())
         return;
-    QWidget* cW = QWidget::find(curWin);
+    QWidget* cW = w && !w->internalWinId() ? w : QWidget::find(curWin);
     if (!cW || cW->window() != w->window() ||
          !cW->isVisible() || !cW->underMouse() || QApplication::overrideCursor())
         return;
@@ -2121,8 +2125,12 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     }
                 }
                 if (dispatch) {
-                    QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
+                    if (qt_last_mouse_receiver && !qt_last_mouse_receiver->internalWinId())
+                        QApplicationPrivate::dispatchEnterLeave(0, qt_last_mouse_receiver);
+                    else
+                        QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
                     curWin = 0;
+                    qt_last_mouse_receiver = 0;
                 }
             }
             break;
@@ -2481,6 +2489,9 @@ void QETWidget::repolishStyle(QStyle &)
 
 bool QETWidget::translateMouseEvent(const MSG &msg)
 {
+    if (!isWindow() && testAttribute(Qt::WA_NativeWindow))
+        Q_ASSERT(internalWinId());
+
     static QPoint pos;
     static POINT gpos={-1,-1};
     QEvent::Type type;                                // event parameters
@@ -2562,6 +2573,9 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         }
     }
     state  = translateButtonState(msg.wParam, type, button); // button state
+    QWidget *alienWidget = childAt(mapFromGlobal(QPoint(msg.pt.x, msg.pt.y)));
+    if (alienWidget && alienWidget->internalWinId())
+        alienWidget = 0;
 
     if (type == QEvent::MouseMove || type == QEvent::NonClientAreaMouseMove) {
         if (!(state & Qt::MouseButtonMask))
@@ -2572,8 +2586,9 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             c = QApplication::overrideCursor();
         if (c)                                // application cursor defined
             SetCursor(c->handle());
-        else if (type != QEvent::NonClientAreaMouseMove) {
-            QWidget *w = this; // use  widget cursor if widget is enabled
+        else if (type != QEvent::NonClientAreaMouseMove && !qt_button_down) {
+            // use  widget cursor if widget is enabled
+            QWidget *w = alienWidget ? alienWidget : this;
             while (!w->isWindow() && !w->isEnabled())
                 w = w->parentWidget();
             SetCursor(w->cursor().handle());
@@ -2584,7 +2599,14 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             id = 0;
 
         if (curWin != id) {                // new current window
-            QApplicationPrivate::dispatchEnterLeave(id == 0 ? 0 : this, QWidget::find(curWin));
+            if (id == 0) {
+                QApplicationPrivate::dispatchEnterLeave(0, QWidget::find(curWin));
+                qt_last_mouse_receiver = 0;
+            } else {
+                QApplicationPrivate::dispatchEnterLeave(alienWidget ? alienWidget : this,
+                                                        QWidget::find(curWin));
+                qt_last_mouse_receiver = alienWidget ? alienWidget : this;
+            }
             curWin = id;
 #ifndef Q_OS_TEMP
 
@@ -2740,34 +2762,24 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 releaseAutoCapture();
         }
 
-        QWidget *widget = this;
-        QWidget *w = QWidget::mouseGrabber();
-
-        if (((type == QEvent::MouseMove && bs)
-             || (type == QEvent::MouseButtonRelease))
-            && !qt_button_down && !w)
+        const QPoint globalPos(gpos.x,gpos.y);
+        QWidget *widget = QApplicationPrivate::pickMouseReceiver(this, globalPos, pos, type,
+                                                                 Qt::MouseButtons(bs),
+                                                                 qt_button_down, alienWidget);
+        if (!widget)
             return false; // don't send event
 
-        if (!w)
-            w = qt_button_down;
-        if (w && w != this) {
-            widget = w;
-            pos = w->mapFromGlobal(QPoint(gpos.x, gpos.y));
-        }
-
-        if (type == QEvent::MouseButtonRelease &&
-             (state & Qt::MouseButtonMask) == 0) {
-            qt_button_down = 0;
-        }
-        QMouseEvent e(type, pos, QPoint(gpos.x,gpos.y),
-                      Qt::MouseButton(button),
+        QMouseEvent e(type, pos, globalPos, Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
                       Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
-        res = QApplication::sendSpontaneousEvent(widget, &e);
+
+        res = QApplicationPrivate::sendMouseEvent(widget, &e, alienWidget, this, &qt_button_down,
+                                                  qt_last_mouse_receiver);
+
         // non client area events are only informational, you cannot "handle" them
         res = res && e.isAccepted() && !nonClientAreaEvent;
         if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
-            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), 
+            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos, 
                               qt_win_getKeyboardModifiers());
             bool res2 = QApplication::sendSpontaneousEvent(widget, &e2);
             if (!res)
@@ -3082,6 +3094,9 @@ static void initWinTabFunctions()
 //
 bool QETWidget::translatePaintEvent(const MSG &msg)
 {
+    if (!isWindow() && testAttribute(Qt::WA_NativeWindow))
+        Q_ASSERT(internalWinId());
+
     QRegion rgn(0, 0, 1, 1);
     Q_ASSERT(testAttribute(Qt::WA_WState_Created));
     int res = GetUpdateRgn(internalWinId(), rgn.handle(), FALSE);
@@ -3162,7 +3177,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
             QResizeEvent e(newSize, oldSize);
             QApplication::sendSpontaneousEvent(this, &e);
             if (!testAttribute(Qt::WA_StaticContents)) {
-                if(QWidgetBackingStore::paintOnScreen(this))
+                if(d_func()->paintOnScreen())
                     repaint();
                 else
                     qt_syncBackingStore(d_func()->clipRect(), this);

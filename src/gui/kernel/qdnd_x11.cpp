@@ -323,12 +323,12 @@ static bool xdndEnable(QWidget* w, bool on)
             // As per Xdnd4, use XdndProxy
             XGrabServer(X11->display);
             Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
-            WId proxy_id = xdndProxy(w->internalWinId());
+            WId proxy_id = xdndProxy(w->effectiveWinId());
 
             if (!proxy_id) {
                 xdnd_widget = xdnd_data.desktop_proxy = new QWidget;
-                proxy_id = xdnd_data.desktop_proxy->internalWinId();
-                XChangeProperty (X11->display, w->internalWinId(), ATOM(XdndProxy),
+                proxy_id = xdnd_data.desktop_proxy->effectiveWinId();
+                XChangeProperty (X11->display, w->effectiveWinId(), ATOM(XdndProxy),
                                  XA_WINDOW, 32, PropModeReplace, (unsigned char *)&proxy_id, 1);
                 XChangeProperty (X11->display, proxy_id, ATOM(XdndProxy),
                                  XA_WINDOW, 32, PropModeReplace, (unsigned char *)&proxy_id, 1);
@@ -339,10 +339,10 @@ static bool xdndEnable(QWidget* w, bool on)
             xdnd_widget = w->window();
         }
         if (xdnd_widget) {
-            DNDDEBUG << "setting XdndAware for" << xdnd_widget << xdnd_widget->internalWinId();
+            DNDDEBUG << "setting XdndAware for" << xdnd_widget << xdnd_widget->effectiveWinId();
             Atom atm = (Atom)xdnd_version;
             Q_ASSERT(xdnd_widget->testAttribute(Qt::WA_WState_Created));
-            XChangeProperty(X11->display, xdnd_widget->internalWinId(), ATOM(XdndAware),
+            XChangeProperty(X11->display, xdnd_widget->effectiveWinId(), ATOM(XdndAware),
                              XA_ATOM, 32, PropModeReplace, (unsigned char *)&atm, 1);
             return true;
         } else {
@@ -827,7 +827,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
     response.window = qt_xdnd_dragsource_xid;
     response.format = 32;
     response.message_type = ATOM(XdndStatus);
-    response.data.l[0] = w->internalWinId();
+    response.data.l[0] = w->effectiveWinId();
     response.data.l[1] = 0; // flags
     response.data.l[2] = 0; // x, y
     response.data.l[3] = 0; // w, h
@@ -1126,7 +1126,7 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
         finished.message_type = ATOM(XdndFinished);
         DNDDEBUG << "xdndHandleDrop"
              << "qt_xdnd_current_widget" << qt_xdnd_current_widget
-             << (qt_xdnd_current_widget ? qt_xdnd_current_widget->internalWinId() : 0)
+             << (qt_xdnd_current_widget ? qt_xdnd_current_widget->effectiveWinId() : 0)
              << "t_xdnd_current_widget->window()"
              << (qt_xdnd_current_widget ? qt_xdnd_current_widget->window() : 0)
              << (qt_xdnd_current_widget ? qt_xdnd_current_widget->window()->internalWinId() : 0);
@@ -1351,7 +1351,7 @@ void QDragManager::cancel(bool deleteSource)
 static
 Window findRealWindow(const QPoint & pos, Window w, int md)
 {
-    if (xdnd_data.deco && w == xdnd_data.deco->internalWinId())
+    if (xdnd_data.deco && w == xdnd_data.deco->effectiveWinId())
         return 0;
 
     if (md) {
@@ -1469,7 +1469,7 @@ void QDragManager::move(const QPoint & globalPos)
                 break;
             }
         }
-        if (xdnd_data.deco && (!target || target == xdnd_data.deco->internalWinId())) {
+        if (xdnd_data.deco && (!target || target == xdnd_data.deco->effectiveWinId())) {
             DNDDEBUG << "need to find real window";
             target = findRealWindow(globalPos, rootwin, 6);
             DNDDEBUG << "real window found" << QWidget::find(target) << target;
@@ -1533,7 +1533,7 @@ void QDragManager::move(const QPoint & globalPos)
             }
             if (types.size() > 3) {
                 XChangeProperty(X11->display,
-                                dragPrivate()->source->internalWinId(), ATOM(XdndTypelist),
+                                dragPrivate()->source->effectiveWinId(), ATOM(XdndTypelist),
                                 XA_ATOM, 32, PropModeReplace,
                                 (unsigned char *)types.data(),
                                 types.size());
@@ -1544,7 +1544,7 @@ void QDragManager::move(const QPoint & globalPos)
             enter.window = target;
             enter.format = 32;
             enter.message_type = ATOM(XdndEnter);
-            enter.data.l[0] = dragPrivate()->source->internalWinId();
+            enter.data.l[0] = dragPrivate()->source->effectiveWinId();
             enter.data.l[1] = flags;
             enter.data.l[2] = types.size()>0 ? types.at(0) : 0;
             enter.data.l[3] = types.size()>1 ? types.at(1) : 0;
@@ -1573,7 +1573,7 @@ void QDragManager::move(const QPoint & globalPos)
         move.format = 32;
         move.message_type = ATOM(XdndPosition);
         move.window = target;
-        move.data.l[0] = dragPrivate()->source->internalWinId();
+        move.data.l[0] = dragPrivate()->source->effectiveWinId();
         move.data.l[1] = 0; // flags
         move.data.l[2] = (globalPos.x() << 16) + globalPos.y();
         move.data.l[3] = X11->time;
@@ -1615,7 +1615,7 @@ void QDragManager::drop()
     drop.window = qt_xdnd_current_target;
     drop.format = 32;
     drop.message_type = ATOM(XdndDrop);
-    drop.data.l[0] = dragPrivate()->source->internalWinId();
+    drop.data.l[0] = dragPrivate()->source->effectiveWinId();
     drop.data.l[1] = 0; // flags
     drop.data.l[2] = X11->time;
 
@@ -1794,19 +1794,19 @@ static QVariant xdndObtainData(const char *format, QVariant::Type requestedType)
     if (!qt_xdnd_current_widget || (qt_xdnd_current_widget->windowType() == Qt::Desktop))
         tw = new QWidget;
 
-    XConvertSelection(X11->display, ATOM(XdndSelection), a, ATOM(XdndSelection), tw->internalWinId(),
+    XConvertSelection(X11->display, ATOM(XdndSelection), a, ATOM(XdndSelection), tw->effectiveWinId(),
                       qt_xdnd_target_current_time);
     XFlush(X11->display);
 
     XEvent xevent;
-    bool got=X11->clipboardWaitForEvent(tw->internalWinId(), SelectionNotify, &xevent, 5000);
+    bool got=X11->clipboardWaitForEvent(tw->effectiveWinId(), SelectionNotify, &xevent, 5000);
     if (got) {
         Atom type;
 
-        if (X11->clipboardReadProperty(tw->internalWinId(), ATOM(XdndSelection), true, &result, 0, &type, 0, false)) {
+        if (X11->clipboardReadProperty(tw->effectiveWinId(), ATOM(XdndSelection), true, &result, 0, &type, 0, false)) {
             if (type == ATOM(INCR)) {
                 int nbytes = result.size() >= 4 ? *((int*)result.data()) : 0;
-                result = X11->clipboardReadIncrementalProperty(tw->internalWinId(), ATOM(XdndSelection), nbytes, false);
+                result = X11->clipboardReadIncrementalProperty(tw->effectiveWinId(), ATOM(XdndSelection), nbytes, false);
             } else if (type != a && type != XNone) {
                 DEBUG("Qt clipboard: unknown atom %ld", type);
             }

@@ -450,7 +450,7 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
             }
             if (!d->treeViewHelper) {
                 d->treeViewHelper = new QWidget(0);
-                pSetWindowTheme(d->treeViewHelper ->winId(), L"explorer", NULL);
+                pSetWindowTheme(d->treeViewHelper->winId(), L"explorer", NULL);
             }
             XPThemeData theme(d->treeViewHelper, painter, QLatin1String("TREEVIEW"));
             static const int decoration_size = 16;
@@ -1354,7 +1354,11 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
                         drawComplexControl(control, &startSlider, &startPainter, 0 /* Intentional */);
                         t->setStartImage(startImage);
                     } else {
-                        t->setStartImage(QPixmap::grabWindow(widget->winId(), 0, 0 , option->rect.width(), option->rect.height()).toImage());
+                        QPoint offset(0, 0);
+                        if (!widget->internalWinId())
+                            offset = widget->mapTo(widget->nativeParent(), offset);
+                        t->setStartImage(QPixmap::grabWindow(widget->effectiveWinId(), offset.x(), offset.y(),
+                                         option->rect.width(), option->rect.height()).toImage());
                     }
                 } else {
                     startImage.fill(0);

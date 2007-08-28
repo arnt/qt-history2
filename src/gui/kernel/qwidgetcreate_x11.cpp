@@ -21,7 +21,7 @@
   custom versions.
 */
 
-Window qt_XCreateWindow(const QWidget*, Display *display, Window parent,
+Window qt_XCreateWindow(const QWidget *, Display *display, Window parent,
                          int x, int y, uint w, uint h,
                          int borderwidth, int depth,
                          uint windowclass, Visual *visual,
@@ -32,7 +32,7 @@ Window qt_XCreateWindow(const QWidget*, Display *display, Window parent,
 }
 
 
-Window qt_XCreateSimpleWindow(const QWidget*, Display *display, Window parent,
+Window qt_XCreateSimpleWindow(const QWidget *, Display *display, Window parent,
                                int x, int y, uint w, uint h, int borderwidth,
                                ulong border, ulong background)
 {
@@ -41,7 +41,8 @@ Window qt_XCreateSimpleWindow(const QWidget*, Display *display, Window parent,
 }
 
 
-void qt_XDestroyWindow(const QWidget*, Display *display, Window window)
+void qt_XDestroyWindow(const QWidget *, Display *display, Window window)
 {
-    XDestroyWindow(display, window);
+    if (window)
+        XDestroyWindow(display, window);
 }

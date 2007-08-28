@@ -575,7 +575,7 @@ bool QXIMInputContext::x11FilterEvent(QWidget *keywidget, XEvent *event)
     int xkey_keycode = event->xkey.keycode;
     if (!keywidget->testAttribute(Qt::WA_WState_Created))
         return false;
-    if (XFilterEvent(event, keywidget->winId())) {
+    if (XFilterEvent(event, keywidget->effectiveWinId())) {
         qt_ximComposingKeycode = xkey_keycode; // ### not documented in xlib
 
         return true;
@@ -678,14 +678,14 @@ QXIMInputContext::ICData *QXIMInputContext::createICData(QWidget *w)
     if (preedit_attr) {
         data->ic = XCreateIC(xim,
                              XNInputStyle, xim_style,
-                             XNClientWindow, w->winId(),
+                             XNClientWindow, w->effectiveWinId(),
                              XNPreeditAttributes, preedit_attr,
                              (char *) 0);
         XFree(preedit_attr);
     } else {
         data->ic = XCreateIC(xim,
                              XNInputStyle, xim_style,
-                             XNClientWindow, w->winId(),
+                             XNClientWindow, w->effectiveWinId(),
                              (char *) 0);
     }
 

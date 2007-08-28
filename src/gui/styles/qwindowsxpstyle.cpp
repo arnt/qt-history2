@@ -259,9 +259,9 @@ void QWindowsXPStylePrivate::cleanupHandleMap()
 */
 HWND QWindowsXPStylePrivate::winId(const QWidget *widget)
 {
-    if (widget && widget->testAttribute(Qt::WA_WState_Created)) {
-        return widget->winId();
-    }
+    if (widget && widget->internalWinId())
+        return widget->internalWinId();
+
     if (!limboWidget) {
         limboWidget = new QWidget(0);
         limboWidget->setObjectName(QLatin1String("xp_limbo_widget"));

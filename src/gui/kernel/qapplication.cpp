@@ -61,6 +61,8 @@ extern void qt_call_post_routines();
 
 #include "qapplication.h"
 
+//#define ALIEN_DEBUG
+
 int QApplicationPrivate::app_compile_version = 0x040000; //we don't know exactly, but it's at least 4.0.0
 
 QApplication::Type qt_appType=QApplication::Tty;
@@ -348,6 +350,9 @@ QStyle *QApplicationPrivate::app_style = 0;        // default application style
 
 #ifndef QT_NO_STYLE_STYLESHEET
 QString QApplicationPrivate::styleSheet;           // default application stylesheet
+#endif
+#if defined(Q_WS_WIN) || defined(Q_WS_X11)
+QPointer<QWidget> QApplicationPrivate::leaveAfterRelease = 0;
 #endif
 
 int QApplicationPrivate::app_cspec = QApplication::NormalColor;
@@ -787,12 +792,14 @@ void QApplicationPrivate::initialize()
 
     is_app_running = true; // no longer starting up
 
+    Q_Q(QApplication);
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
-    Q_Q(QApplication);
     session_manager = new QSessionManager(q, session_id, session_key);
 #endif
 
+    if (qgetenv("QT_NATIVE").toInt() > 0)
+        q->setAttribute(Qt::AA_NativeWindows);
 }
 
 /*!
@@ -2245,6 +2252,12 @@ QWidget *QApplicationPrivate::focusNextPrevChild_helper(QWidget *toplevel, bool 
   Creates the proper Enter/Leave event when widget \a enter is entered
   and widget \a leave is left.
  */
+#if defined(Q_WS_WIN)
+  extern void qt_win_set_cursor(QWidget *, const QCursor&);
+#elif defined(Q_WS_X11)
+  extern void qt_x11_enforce_cursor(QWidget *);
+#endif
+
 void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
 #if 0
     if (leave) {
@@ -2259,8 +2272,11 @@ void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
 #endif
 
     QWidget* w ;
-    if (!enter && !leave)
+    if (!enter && !leave || (enter == leave))
         return;
+#ifdef ALIEN_DEBUG
+    qDebug() << "QApplicationPrivate::dispatchEnterLeave, ENTER:" << enter << "LEAVE:" << leave;
+#endif
     QWidgetList leaveList;
     QWidgetList enterList;
 
@@ -2338,6 +2354,23 @@ void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
                 qApp->d_func()->notify_helper(w, &he);
             }
         }
+    }
+
+    // Update cursor for alien widgets.
+    QWidget *cursorWidget = 0;
+    if (enter && !enter->internalWinId())
+        cursorWidget = enter;
+    else if (leave && !leave->internalWinId())
+        cursorWidget = enter ? enter : leave->nativeParent();
+
+    if (cursorWidget) {
+        while (!cursorWidget->isWindow() && !cursorWidget->isEnabled())
+            cursorWidget = cursorWidget->parentWidget();
+#if defined(Q_WS_WIN)
+        qt_win_set_cursor(cursorWidget, cursorWidget->cursor());
+#elif defined(Q_WS_X11)
+        qt_x11_enforce_cursor(cursorWidget);
+#endif
     }
 }
 
@@ -2510,6 +2543,109 @@ bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop)
 
     return !isBlockedByModal(widget->window());
 }
+
+#if defined(Q_WS_WIN) || defined(Q_WS_X11)
+/*
+   \internal
+*/
+QWidget *QApplicationPrivate::pickMouseReceiver(QWidget *candidate, const QPoint &globalPos,
+                                                QPoint &pos, QEvent::Type type,
+                                                Qt::MouseButtons buttons, QWidget *buttonDown,
+                                                QWidget *alienWidget)
+{
+    Q_ASSERT(candidate);
+
+    QWidget *mouseGrabber = QWidget::mouseGrabber();
+    if (((type == QEvent::MouseMove && buttons) || (type == QEvent::MouseButtonRelease))
+            && !buttonDown && !mouseGrabber) {
+        return 0;
+    }
+
+    if (alienWidget && alienWidget->internalWinId())
+        alienWidget = 0;
+
+    QWidget *receiver = candidate;
+
+    if (!mouseGrabber)
+        mouseGrabber = buttonDown ? buttonDown : alienWidget;
+
+    if (mouseGrabber && mouseGrabber != candidate) {
+        receiver = mouseGrabber;
+        pos = receiver->mapFromGlobal(globalPos);
+#ifdef ALIEN_DEBUG
+        qDebug() << "  ** receiver adjusted to:" << receiver << "pos:" << pos;
+#endif
+    }
+
+    return receiver;
+
+}
+
+/*
+   \internal
+*/
+bool QApplicationPrivate::sendMouseEvent(QWidget *receiver, QMouseEvent *event,
+                                         QWidget *alienWidget, QWidget *nativeWidget,
+                                         QWidget **buttonDown, QPointer<QWidget> &lastMouseReceiver)
+{
+    Q_ASSERT(receiver);
+    Q_ASSERT(event);
+    Q_ASSERT(nativeWidget);
+    Q_ASSERT(buttonDown);
+
+    if (alienWidget && alienWidget->internalWinId())
+        alienWidget = 0;
+
+    if (*buttonDown) {
+        // Register the widget that shall receive a leave event
+        // after the last button is released.
+        if ((alienWidget || !receiver->internalWinId()) && !leaveAfterRelease)
+            leaveAfterRelease = *buttonDown;
+        if (event->type() == QEvent::MouseButtonRelease && !event->buttons())
+            *buttonDown = 0;
+    } else if (lastMouseReceiver) {
+        // Dispatch enter/leave if we move:
+        // 1) from an alien widget to another alien widget or
+        //    from a native widget to an alien widget (first OR case)
+        // 2) from an alien widget to a native widget (second OR case)
+        if ((alienWidget && alienWidget != lastMouseReceiver)
+                || (!lastMouseReceiver->internalWinId() && !alienWidget)) {
+            dispatchEnterLeave(receiver, lastMouseReceiver);
+        }
+    }
+
+#ifdef ALIEN_DEBUG
+    qDebug() << "QApplicationPrivate::sendMouseEvent: receiver:" << receiver
+             << "pos:" << event->pos() << "alien" << alienWidget << "button down"
+             << *buttonDown << "last" << lastMouseReceiver << "leave after release"
+             << leaveAfterRelease;
+#endif
+
+    QPointer<QWidget> nativeGuard = nativeWidget;
+    QPointer<QWidget> receiverGuard = receiver;
+    bool result = QApplication::sendSpontaneousEvent(receiver, event);
+
+    if (leaveAfterRelease && event->type() == QEvent::MouseButtonRelease && !event->buttons()) {
+        // Dispatch enter/leave if:
+        // 1) the mouse grabber is an alien widget
+        // 2) the button is released on an alien widget
+
+        QWidget *enter = 0;
+        if (nativeGuard)
+            enter = alienWidget ? alienWidget : nativeWidget;
+        else // The receiver is typically deleted on mouse release with drag'n'drop.
+            enter = QApplication::widgetAt(event->globalPos());
+
+        dispatchEnterLeave(enter, leaveAfterRelease);
+        leaveAfterRelease = 0;
+        lastMouseReceiver = enter;
+    } else {
+        lastMouseReceiver = receiverGuard ? receiver : QApplication::widgetAt(event->globalPos());
+    }
+
+    return result;
+}
+#endif // Q_WS_WIN || Q_WS_X11
 
 
 /*!

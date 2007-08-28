@@ -73,7 +73,18 @@
 
 // widget/widget data creation count
 //#define QWIDGET_EXTRA_DEBUG
+//#define ALIEN_DEBUG
 
+#ifndef Q_WS_QWS
+static bool qt_enable_backingstore = true;
+#endif
+#ifdef Q_WS_X11
+// for compatibility with Qt 4.0
+Q_GUI_EXPORT void qt_x11_set_global_double_buffer(bool enable)
+{
+    qt_enable_backingstore = enable;
+}
+#endif
 
 QWidgetPrivate::QWidgetPrivate(int version) :
         QObjectPrivate(version), extra(0), focus_child(0)
@@ -953,6 +964,10 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
     data.in_set_window_state = 0;
     data.in_destructor = false;
 
+    // Widgets with Qt::MSWindowsOwnDC (typically QGLWidget) must have a window handle.
+    if (f & Qt::MSWindowsOwnDC)
+        q->setAttribute(Qt::WA_NativeWindow);
+
     q->setAttribute(Qt::WA_QuitOnClose); // might be cleared in create()
 
     q->setAttribute(Qt::WA_WState_Hidden);
@@ -1028,7 +1043,7 @@ void QWidgetPrivate::createRecursively()
 void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 {
     Q_D(QWidget);
-    if (testAttribute(Qt::WA_WState_Created) && window == 0)
+    if (testAttribute(Qt::WA_WState_Created) && window == 0 && internalWinId())
         return;
 
     if (d->data.in_destructor)
@@ -1062,6 +1077,29 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( type != Qt::Widget && type != Qt::Window && type != Qt::Dialog)
         setAttribute(Qt::WA_QuitOnClose, false);
+
+    static int paintOnScreenEnv = -1;
+    if (paintOnScreenEnv == -1)
+        paintOnScreenEnv = qgetenv("QT_ONSCREEN_PAINT").toInt() > 0 ? 1 : 0;
+    if (paintOnScreenEnv == 1)
+        setAttribute(Qt::WA_PaintOnScreen);
+
+    if (QApplicationPrivate::testAttribute(Qt::AA_NativeWindows))
+        setAttribute(Qt::WA_NativeWindow);
+
+#ifdef ALIEN_DEBUG
+    qDebug() << "QWidget::create:" << this << "parent:" << parentWidget()
+             << "Alien?" << !testAttribute(Qt::WA_NativeWindow);
+#endif
+
+#ifdef Q_WS_WIN
+    // Unregister the dropsite (if already registered) before we
+    // re-create the widget with a native window.
+    if (testAttribute(Qt::WA_WState_Created) && !internalWinId() && testAttribute(Qt::WA_NativeWindow)
+            && d->extra && d->extra->dropTarget) {
+        d->registerDropSite(false);
+    }
+#endif // Q_WS_WIN
 
     setAttribute(Qt::WA_WState_Created);                        // set created flag
     d->create_sys(window, initializeWindow, destroyOldWindow);
@@ -1665,6 +1703,27 @@ bool QWidgetPrivate::hasBackground() const
     return false;
 }
 
+bool QWidgetPrivate::paintOnScreen() const
+{
+#if defined(Q_WS_QWS) || defined(Q_WS_MAC)
+    return false;
+#elif  defined(QT_NO_BACKINGSTORE)
+    return true;
+#else
+    Q_Q(const QWidget);
+    if (q->testAttribute(Qt::WA_PaintOnScreen)
+            || !q->isWindow() && q->window()->testAttribute(Qt::WA_PaintOnScreen)) {
+        return true;
+    }
+
+    // sanity check for overlarge toplevels. Better: store at least screen size and move offset.
+    if (q->isWindow() && (q->width() > 4096  || q->height() > 4096))
+        return true;
+
+    return !qt_enable_backingstore;
+#endif
+}
+
 void QWidgetPrivate::updateIsOpaque()
 {
 #ifdef Q_WS_MAC
@@ -1818,12 +1877,11 @@ QWidget *QWidget::find(WId id)
 
     \sa find()
 */
-
-
 WId QWidget::winId() const
 {
-    if (!testAttribute(Qt::WA_WState_Created)) {
+    if (!testAttribute(Qt::WA_WState_Created) || !internalWinId()) {
         QWidget *that = const_cast<QWidget*>(this);
+        that->setAttribute(Qt::WA_NativeWindow);
         that->d_func()->createWinId();
         return that->data->winid;
     }
@@ -1834,15 +1892,21 @@ WId QWidget::winId() const
 void QWidgetPrivate::createWinId(WId winid)
 {
     Q_Q(QWidget);
-    if (!q->testAttribute(Qt::WA_WState_Created)) {
+    const bool forceNativeWindow = q->testAttribute(Qt::WA_NativeWindow);
+    if (!q->testAttribute(Qt::WA_WState_Created) || (forceNativeWindow && !q->internalWinId())) {
         if (!q->isWindow()) {
-            QWidgetPrivate *pd = q->parentWidget()->d_func();
-            if (!q->parentWidget()->testAttribute(Qt::WA_WState_Created))
+            QWidget *parent = q->parentWidget();
+            QWidgetPrivate *pd = parent->d_func();
+            if (!parent->internalWinId()) {
+                if (forceNativeWindow && !q->testAttribute(Qt::WA_DontCreateNativeAncestors))
+                    parent->setAttribute(Qt::WA_NativeWindow);
                 pd->createWinId();
+            }
 
             for (int i = 0; i < pd->children.size(); ++i) {
                 QWidget *w = qobject_cast<QWidget *>(pd->children.at(i));
-                if (w && !w->isWindow() && !w->testAttribute(Qt::WA_WState_Created))
+                if (w && !w->isWindow() && (!w->testAttribute(Qt::WA_WState_Created)
+                                            || (!w->internalWinId() && w->testAttribute(Qt::WA_NativeWindow)))) {
                     if (w!=q) {
                         w->create();
                     } else {
@@ -1852,6 +1916,7 @@ void QWidgetPrivate::createWinId(WId winid)
                         if (winid)
                             w->raise();
                     }
+                }
             }
         } else {
             q->create();
@@ -1871,6 +1936,22 @@ void QWidget::createWinId()
     Q_D(QWidget);
 //    qWarning("QWidget::createWinId is obsolete, please fix your code.");
     d->createWinId();
+}
+
+/*!
+    Returns the effective window system identifier of the widget, i.e.
+    the native parent's window system identifier.
+
+    \sa nativeParent()
+*/
+WId QWidget::effectiveWinId() const
+{
+    if (WId id = internalWinId())
+        return id;
+    QWidget *realParent = nativeParent();
+    Q_ASSERT(realParent);
+    Q_ASSERT(realParent->internalWinId());
+    return realParent->internalWinId();
 }
 
 #ifndef QT_NO_STYLE_STYLESHEET
@@ -3388,6 +3469,20 @@ QWidget *QWidget::window() const
         p = p->parentWidget();
     }
     return w;
+}
+
+/*!
+    Returns the native parent for this widget, i.e. the next ancestor widget
+    that has a system identifier, or 0 if it does not have any native parent.
+
+    \sa effectiveWinId()
+*/
+QWidget *QWidget::nativeParent() const
+{
+    QWidget *parent = parentWidget();
+    while (parent && !parent->internalWinId())
+        parent = parent->parentWidget();
+    return parent;
 }
 
 /*! \fn QWidget *QWidget::topLevelWidget() const
@@ -8067,7 +8162,18 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         }
         break;
 #endif
+    case Qt::WA_NativeWindow:
+        if (on && !internalWinId() && testAttribute(Qt::WA_WState_Created))
+            d->createWinId();
+        break;
     case Qt::WA_PaintOnScreen:
+#if defined(Q_WS_WIN) || defined(Q_WS_X11)
+        // Recreate the widget if it's already created as an alien widget and
+        // WA_PaintOnScreen is enabled. Paint on screen widgets must have win id.
+        if (on && !testAttribute(Qt::WA_NativeWindow))
+            setAttribute(Qt::WA_NativeWindow);
+#endif
+        // fall through
     case Qt::WA_OpaquePaintEvent:
         d->updateIsOpaque();
         break;

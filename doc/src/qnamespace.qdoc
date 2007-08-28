@@ -117,6 +117,8 @@
            Menus that are currently open or menus already created in the native
            Mac OS X menubar MAY NOT pick up a change in this attribute. Changes
            in the QAction::iconVisibleInMenu property will always be picked up.
+
+    \value AA_NativeWindows Ensures that widgets have native windows.
     
     \omitvalue AA_AttributeCount
 */
@@ -1018,6 +1020,15 @@
 
     \value WA_ShowWithoutActivating Show the widget without making it
     active.
+
+    \value WA_NativeWindow Indicates that a native window is created
+    for the widget. Enabling this will also force a native window
+    for the widget's ancestors unless Qt::WA_DontCreateNativeAncestors
+    is set.
+
+    \value WA_DontCreateNativeAncestors Indicates that the widget's
+    ancestors are kept non-native even though the widget itself is
+    native.
 
     \omitvalue WA_SetLayoutDirection
     \omitvalue WA_InputMethodTransparent

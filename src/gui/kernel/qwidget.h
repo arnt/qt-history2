@@ -197,6 +197,7 @@ public:
     WId winId() const;
     void createWinId(); // internal, going away
     inline WId internalWinId() const { return data->winid; }
+    WId effectiveWinId() const;
 
     // GUI style setting
     QStyle *style() const;
@@ -274,6 +275,7 @@ public:
     QPoint mapFrom(QWidget *, const QPoint &) const;
 
     QWidget *window() const;
+    QWidget *nativeParent() const;
     inline QWidget *topLevelWidget() const { return window(); }
 
     // Widget appearance functions

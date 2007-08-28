@@ -394,6 +394,9 @@ public:
 
         WA_X11BypassTransientForHint = 99,
 
+        WA_NativeWindow = 100,
+        WA_DontCreateNativeAncestors = 101,
+
         // Add new attributes before this line
         WA_AttributeCount
     };
@@ -403,6 +406,7 @@ public:
         AA_ImmediateWidgetCreation = 0,
         AA_MSWindowsUseDirect3DByDefault = 1, // Win only
         AA_DontShowIconsInMenus = 2,
+        AA_NativeWindows = 3,
 
         // Add new attributes before this line
         AA_AttributeCount

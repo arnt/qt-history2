@@ -46,8 +46,9 @@ public:
 #endif
 
     inline QPoint topLevelOffset() const { return tlwOffset; }
-    static bool paintOnScreen(QWidget * = 0);
     static void copyToScreen(QWidget *, const QRegion &);
+    static void qt_unflushPaint(QWidget *widget, const QRegion &rgn);
+    static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec, bool);
 #ifdef Q_WS_WIN
     static void blitToScreen(const QRegion &rgn, QWidget *w);
 #endif

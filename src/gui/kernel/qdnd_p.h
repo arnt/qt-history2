@@ -239,6 +239,36 @@ private:
     bool m_isNull;
 };
 
+class QOleDropTarget : public IDropTarget
+{
+public:
+    QOleDropTarget(QWidget* w);
+
+    void releaseQt();
+
+    // IUnknown methods
+    STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
+    STDMETHOD_(ULONG, AddRef)(void);
+    STDMETHOD_(ULONG, Release)(void);
+
+    // IDropTarget methods
+    STDMETHOD(DragEnter)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
+    STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
+    STDMETHOD(DragLeave)();
+    STDMETHOD(Drop)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
+
+private:
+    ULONG m_refs;
+    QWidget* widget;
+    QPointer<QWidget> currentWidget;
+    QRect answerRect;
+    QPoint lastPoint;
+    DWORD choosenEffect;
+    DWORD lastKeyState;
+
+    void sendDragEnterEvent(QWidget *to, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
+};
+
 #endif
 
 #endif // QT_NO_DRAGANDDROP

@@ -35,6 +35,7 @@
 
 #ifdef Q_WS_WIN
 #include "QtCore/qt_windows.h"
+#include <private/qdnd_p.h>
 #endif // Q_WS_WIN
 
 #ifdef Q_WS_X11
@@ -63,9 +64,6 @@
 //  - top-level widgets have extra extra data to reduce cost further
 #if defined(Q_WS_QWS)
 class QWSManager;
-#endif
-#if defined(Q_WS_WIN)
-class QOleDropTarget;
 #endif
 #if defined(Q_WS_MAC)
 class QCoreGraphicsPaintEnginePrivate;
@@ -138,6 +136,7 @@ struct QWExtra {
     QTLWExtra *topextra; // only useful for TLWs
 #if defined(Q_WS_WIN)
     QOleDropTarget *dropTarget; // drop target
+    QList<QPointer<QWidget> > oleDropWidgets;
 #endif
 #if defined(Q_WS_X11)
     WId xDndProxy; // XDND forwarding to embedded windows
@@ -255,6 +254,7 @@ public:
     void updateIsOpaque();
     bool isOpaque() const;
     bool hasBackground() const;
+    bool paintOnScreen() const;
 
 #ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
     QRegion getOpaqueRegion() const;
@@ -300,7 +300,7 @@ public:
     void scrollRect(const QRect &, int dx, int dy);
     void invalidateBuffer(const QRegion &);
     bool isOverlapped(const QRect&) const;
-# if defined(Q_WS_X11) || (defined(Q_WS_WIN) && defined(Q_WIN_USE_QT_UPDATE_EVENT))
+# if defined(Q_WS_X11) || defined(Q_WS_WIN)
     QRegion dirtyOnScreen;
 # endif
 #endif
@@ -330,6 +330,10 @@ public:
 
     void setEnabled_helper(bool);
     void registerDropSite(bool);
+#ifdef Q_WS_WIN
+    QOleDropTarget *registerOleDnd(QWidget *widget);
+    void unregisterOleDnd(QWidget *widget, QOleDropTarget *target);
+#endif
     static void adjustFlags(Qt::WindowFlags &flags, QWidget *w = 0);
 
     void updateFrameStrut();

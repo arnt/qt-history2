@@ -366,7 +366,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         return;
 #endif
 #ifdef Q_WS_WIN
-    if (tlw->isWindow() && ::GetSystemMenu(tlw->winId(), FALSE) != 0) {
+    if (tlw->isWindow() && ::GetSystemMenu(tlw->winId(), FALSE) != 0 && internalWinId()) {
         MSG msg;
         while(PeekMessage(&msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE));
         return;

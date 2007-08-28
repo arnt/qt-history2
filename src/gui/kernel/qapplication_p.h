@@ -317,6 +317,14 @@ public:
 #ifndef QT_NO_STYLE_STYLESHEET
     static QString styleSheet;
 #endif
+#if defined(Q_WS_WIN) || defined(Q_WS_X11)
+    static QPointer<QWidget> leaveAfterRelease;
+    static QWidget *pickMouseReceiver(QWidget *candidate, const QPoint &globalPos, QPoint &pos,
+                                      QEvent::Type type, Qt::MouseButtons buttons,
+                                      QWidget *buttonDown, QWidget *alienWidget);
+    static bool sendMouseEvent(QWidget *receiver, QMouseEvent *event, QWidget *alienWidget,
+                               QWidget *native, QWidget **buttonDown, QPointer<QWidget> &lastMouseReceiver);
+#endif
 
 private:
 #ifdef Q_WS_QWS
