@@ -123,9 +123,9 @@
     they are not passive, but fill a function in the interaction with
     the user. Controls that consist of several elements often use the
     style to calculate the bounding rectangles of the elements. The
-    available subelements are defined by the \l{QStyle::}{SubElement}
+    available sub elements are defined by the \l{QStyle::}{SubElement}
     enum. This enum is only used for calculating bounding rectangles,
-    and subelements are as such not graphical elements to be drawn
+    and sub elements are as such not graphical elements to be drawn
     like primitive, control, and complex elements.
 
     \section3 Complex Control Elements
@@ -160,7 +160,7 @@
     \section3 Other QStyle Tasks
 
     The style elements and widgets, as mentioned, use the style to
-    calculate bounding rectangles of subelements and sub controls,
+    calculate bounding rectangles of sub elements and sub controls,
     and pixel metrics, which is a style dependent size in screen
     pixels, for measures when drawing. The available rectangles and
     pixel metrics are represented by three enums in QStyle:
@@ -255,10 +255,10 @@
     \list
         \o The \l{QStyle::}{subElementRect()} function takes a
         \l{QStyle::}{SubElement} enum value, and calculates a bounding
-        rectangle for a subelement. The style uses this function to
+        rectangle for a sub element. The style uses this function to
         know where to draw the different parts of an element. This is
         mainly done for reuse. If you create a new style, you can use
-        the same location of subelements as the super class.
+        the same location of sub elements as the super class.
 
         \o The \l{QStyle::}{subControlRect()} function is used to
         calculate bounding rectangles for sub controls in complex
@@ -348,7 +348,7 @@
     implementation in the different styles virtual functions can
     affect the state of the drawing (e.g., by altering the QPainter
     state without restoring it and drawing some elements without using
-    the appropriate pixel metrics and subelements).
+    the appropriate pixel metrics and sub elements).
 
     It is recommended that the styles do not alter the proposed size
     of widgets with the QStyle::sizeFromContents() function but let
@@ -363,10 +363,10 @@
     QImage with \l{QImage::}{setColorTable()}).
 
     It is, naturally, possible to draw elements without using the
-    style to draw the subelements as intended by Qt. This is
-    discouraged as custom widgets may depend on these subelements to
+    style to draw the sub elements as intended by Qt. This is
+    discouraged as custom widgets may depend on these sub elements to
     be implemented correctly. The widget walkthrough shows how Qt
-    uses the subelements.
+    uses the sub elements.
 
     \section1 Java Style
 
@@ -440,7 +440,7 @@
     The style does not handle reverse layouts. We assume that the
     layout direction is left to right. QWindowsStyle handles reverse
     widgets; if we implemented reverse layouts, widgets that we change
-    the position of subelements, or handle text alignment in labels
+    the position of sub elements, or handle text alignment in labels
     our selves would need to be updated.
 
     \section2 Styling Java Check Boxes
@@ -593,9 +593,9 @@
     \endcode
 
     QCommonStyle handles the CE_CheckBox element. The QCheckBox
-    has two subelements: SE_CheckBoxIndicator (the checked indicator)
+    has two sub elements: SE_CheckBoxIndicator (the checked indicator)
     and SE_CheckBoxContents (the contents, which is used for the
-    checkbox label). QCommonStyle also implements these subelement
+    checkbox label). QCommonStyle also implements these sub element
     bounding rectangles. We have a look at the QCommonStyle code:
 
     \code
@@ -614,7 +614,7 @@
     \endcode
 
     As can be seen from the code extract, the common style gets
-    the bounding rectangles of the two subelements of
+    the bounding rectangles of the two sub elements of
     CE_CheckBox, and then draws them. If the checkbox has focus,
     the focus frame is also drawn.
 
@@ -677,7 +677,7 @@
     have when the box is not pressed down and the mouse is over it.
     You may note that java does not handle tristate boxes, so we have
     not implemented it (I should do that actually; I say myself that
-    we style Qt's widgets and  not java's).
+    we style Qt's widgets and  not Java's).
 
     Here we use a png image for our indicator. We could also check
     here if the widget is disabled. We would then have to use
@@ -734,12 +734,12 @@
     The element tree contains the primitive, control, and complex
     style elements. By doing a top-down traversal of the element tree,
     you get the sequence in which the elements should be drawn. In the
-    nodes, we have written the subelement rectangles, sub control
+    nodes, we have written the sub element rectangles, sub control
     elements, and pixel metrics that should be considered when drawing
     the element of the node.
 
     Our approach on styling center on the drawing of the widgets. The
-    calculations of subelements rectangles, sub controls, and pixel
+    calculations of sub elements rectangles, sub controls, and pixel
     metrics used \bold during drawing is only listed as contents in
     the element trees. Note that there are rectangles and pixel
     metrics that are only used by widgets. This leaves these
@@ -864,7 +864,7 @@
     QCommonStyle to draw the elements that contains it:
     PE_FrameDefaultButton, PE_FrameButtonBevel, and
     PE_PanelButtonCommand, all of which have the same bounds in common
-    and windows style.  PE_PushButtonBevel is also responisble for
+    and windows style.  PE_PushButtonBevel is also responsible for
     drawing the menu indicator (QCommonStyle draws
     PE_IndicatorArrowDown).
 
@@ -1024,10 +1024,10 @@
             \o State Set When
         \row
             \o State_Sunken
-            \o The tab is pressed on with the mouse (revise)
+            \o The tab is pressed on with the mouse.
         \row
             \o State_Selected
-            \o If it is the current tab (be more specific)
+            \o If it is the current tab.
         \row
             \o State_HasFocus
             \o The tab bar has focus and the tab is selected
@@ -1200,7 +1200,7 @@
     \image javastyle/slider.png
 
     We also show a picture of a slider in the java style. We show
-    the bounding rectangles of the subelements as all drawing is done
+    the bounding rectangles of the sub elements as all drawing is done
     in CC_Slider.
 
     \image javastyle/sliderimage.png
@@ -1232,7 +1232,7 @@
                for page steps
         \row
             \o singleStep
-            \o the number to increase or descrease the sliders
+            \o the number to increase or decrease the sliders
                value on single (or line) steps.
         \row
             \o sliderValue
@@ -1263,7 +1263,7 @@
     Here follows the style tree for spin boxes. It is not
     required that a style uses the button panel primitive to paint
     the indicator backgrounds. You can see an image below the tree
-    showing the subelements in QSpinBox in the java style.
+    showing the sub elements in QSpinBox in the java style.
 
     \image javastyle/spinbox.png
 
@@ -1310,7 +1310,7 @@
     maximize buttons. Some styles also provide buttons for shading
     the window, and a button for context sensitive help.
 
-    The bar is drawn in CC_TitleBar without using any subelements.
+    The bar is drawn in CC_TitleBar without using any sub elements.
     How the individual styles draw their buttons is individual, but
     there are standard pixmaps for the buttons that the style should
     provide.
@@ -1318,7 +1318,7 @@
     \image javastyle/titlebar.png
 
     In an image over a title bar in the java style, we show the
-    bounding rectangles of the subelements supported by the java style
+    bounding rectangles of the sub elements supported by the java style
     (all of which are drawn with standard pixmaps). It is usual to
     draw the button backgrounds using PE_PanelButtonTool, but it's no
     rule.
@@ -1356,7 +1356,7 @@
     The list that pops up when the user clicks on the combo box is
     drawn by a \l{Delegate Classes}{delegate}, which we do not cover
     in this overview. You can, however, use the style to control the
-    list's size and position with the subelement
+    list's size and position with the sub element
     SC_ComboBoxListBoxPopup. The style also decides where the edit
     field for editable boxes should be with SC_ComboBoxEditField; the
     field itself is a QLineEdit that is a child of the combo box.
@@ -1364,7 +1364,7 @@
     \image javastyle/combobox.png
 
     We show an image over a java style combo box in which we have
-    outlined its subelements and subelement rectangles:
+    outlined its sub elements and sub element rectangles:
 
     \image javastyle/comboboximage.png
 
@@ -1483,7 +1483,7 @@
     \section3 Splitters
 
     As the structure of splitters are simple and do not contain any
-    subelements, we do not include image of splitters. CE_Splitter
+    sub elements, we do not include image of splitters. CE_Splitter
     does not use any other elements or metrics.
 
     For its style option, Splitters uses the base class QStyleOption.
@@ -1574,7 +1574,7 @@
     CE_ToolButton.
 
     We also have an image of a tool button where we have outlined
-    the subelement bounding rectangles and sub controls.
+    the sub element bounding rectangles and sub controls.
 
     \image javastyle/toolbuttonimage.png
 
