@@ -2099,7 +2099,9 @@ QtMsgHandler qInstallMsgHandler(QtMsgHandler h)
     return old;
 }
 
-
+/*!
+    \internal
+*/
 void qt_message_output(QtMsgType msgType, const char *buf)
 {
     if (handler) {
