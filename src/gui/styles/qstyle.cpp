@@ -258,7 +258,7 @@ static int unpackControlTypes(QSizePolicy::ControlTypes controls, QSizePolicy::C
     \o alignedRect() will return a logical rect aligned for the current direction
     \endlist
 
-    \sa QStyleOption, QStylePainter, {Styles Example}
+    \sa QStyleOption, QStylePainter, {Styles Example}, {Implementing Styles and Style Aware Widgets}
 */
 
 /*!
