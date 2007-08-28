@@ -75,19 +75,14 @@ typedef float CGFloat;  // Should only not be defined on 32-bit platforms
         tmpQColor.setCmykF(cyan, magenta, yellow, black, alpha);
     } else {
         NSColor *tmpColor;
-        bool needRelease;
         if (colorSpace == NSCalibratedRGBColorSpace || colorSpace == NSDeviceRGBColorSpace) {
             tmpColor = mColor;
-            needRelease = false;
         } else {
             tmpColor = [mColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
-            needRelease = true;
         }
         CGFloat red, green, blue, alpha;
         [tmpColor getRed:&red green:&green blue:&blue alpha:&alpha];
         tmpQColor.setRgbF(red, green, blue, alpha);
-        if (needRelease)
-            [tmpColor release];
     }
     return tmpQColor.rgba();
 }
