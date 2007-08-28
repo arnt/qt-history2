@@ -283,7 +283,6 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
 */
 QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragment &rhs)
 {
-    QTextDocumentFragmentPrivate *x = rhs.d;
     if (rhs.d)
         rhs.d->ref.ref();
     if (d && !d->ref.deref())
