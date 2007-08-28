@@ -4256,7 +4256,10 @@ if [ "$PLATFORM_X11" = "yes" ]; then
             fi
         fi
     fi
+fi # X11
 
+
+if [ "$PLATFORM_X11" = "yes" -o "$PLATFORM_QWS" = "yes" ]; then
     # auto-detect Glib support
     if [ "$CFG_GLIB" != "no" ]; then
         if [ "$QT_CROSS_COMPILE" = "no" ] && "$WHICH" pkg-config >/dev/null 2>&1; then
@@ -4279,7 +4282,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
             fi
         fi
     fi
-fi # X11
+fi # X11/QWS
 
 # QWS
 if [ "$PLATFORM_QWS" = "yes" ]; then
