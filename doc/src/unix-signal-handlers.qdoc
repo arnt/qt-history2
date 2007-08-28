@@ -18,15 +18,14 @@
     \ingroup platform-notes
     \brief You can't. But don't despair, there is a way...
 
-    When you use Unix signal handlers in a Qt program, you can't call
-    Qt functions from your signal handlers. The standard POSIX rule
-    applies: You can only call async-signal-safe functions from signal
-    handlers. See \l
+    You \e can't call Qt functions from Unix signal handlers. The
+    standard POSIX rule applies: You can only call async-signal-safe
+    functions from signal handlers. See \l
     {http://www.opengroup.org/onlinepubs/000095399/functions/xsh_chap02_04.html#tag_02_04_01}
     {Signal Actions} for the complete list of functions you can call
     from Unix signal handlers.
 
-    But don't despair, there are ways to use Unix signal handlers with
+    But don't despair, there is a way to use Unix signal handlers with
     Qt. The strategy is to have your Unix signal handler do something
     that will cause a Qt signal to be emitted, and then you return
     from your Unix signal handler, back into your Qt program, where
@@ -143,10 +142,10 @@
     }
     \endcode
 
-    In the slot functions connected to the QSocketNotifier::activated()
-    signals, you \e read the byte. Now you are safely back in Qt with 
-    your signal, and you can do all the Qt stuff you wanted to do in the
-    Unix signal handler but couldn't.
+    In the slot functions connected to the
+    QSocketNotifier::activated() signals, you \e read the byte. Now
+    you are safely back in Qt with your signal, and you can do all the
+    Qt stuff you weren'tr allowed to do in the Unix signal handler.
 
     \code
     void MyDaemon::handleSigTerm()
