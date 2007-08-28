@@ -2872,13 +2872,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         IMY="*"
         IMN=" "
     fi
-    if [ "$CFG_GLIB" = "no" ]; then
-        GBY=" "
-        GBN="+"
-    else
-        GBY="+"
-        GBN=" "
-    fi
     cat << EOF
 
 Qt/X11 only:
@@ -2929,9 +2922,6 @@ Qt/X11 only:
 
  $XKN  -no-xkb ............ Do not compile XKB (X KeyBoard extension) support.
  $XKY  -xkb ............... Compile XKB support.
-
- $GBN  -no-glib............ Do not compile Glib support.
- $GBY  -glib............... Compile Glib support.
 
  $SBN  -no-separate-debug-info Do not store debug information in a separate file
  $SBY  -separate-debug-info    Strip debug information into a separate .debug file
@@ -3036,6 +3026,25 @@ Qtopia Core only:
 
     -iwmmxt............. Compile using the iWMMXt instruction set
                          (available on some XScale CPUs).
+
+EOF
+fi
+
+
+if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_X11" = "yes" ]; then
+    if [ "$CFG_GLIB" = "no" ]; then
+        GBY=" "
+        GBN="+"
+    elif [ "$CFG_GLIB" = "yes" -o "$PLATFORM_X11" = "yes" ]; then
+        GBY="+"
+        GBN=" "
+    else # auto and qtopia core
+        GBY=" "
+        GBN="+"
+    fi
+    cat << EOF
+ $GBN  -no-glib............ Do not compile Glib support.
+ $GBY  -glib............... Compile Glib support.
 
 EOF
 fi
