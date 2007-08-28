@@ -30,12 +30,13 @@ inline bool QBasicAtomicInt::isTestAndSetNative()
 inline bool QBasicAtomicInt::isTestAndSetWaitFree()
 { return false; }
 
-#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_NOT_NATIVE
+#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_WAIT_FREE
 
 inline bool QBasicAtomicInt::isFetchAndStoreNative()
-{ return false; }
+{ return true; }
 inline bool QBasicAtomicInt::isFetchAndStoreWaitFree()
-{ return false; }
+{ return true; }
 
 #define Q_ATOMIC_INT_FETCH_AND_ADD_IS_NOT_NATIVE
 
@@ -53,14 +54,15 @@ template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetWaitFree()
 { return false; }
 
-#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_NOT_NATIVE
+#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_ALWAYS_NATIVE
+#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_WAIT_FREE
 
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreNative()
-{ return false; }
+{ return true; }
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreWaitFree()
-{ return false; }
+{ return true; }
 
 #define Q_ATOMIC_POINTER_FETCH_AND_ADD_IS_NOT_NATIVE
 
@@ -75,7 +77,7 @@ extern Q_CORE_EXPORT char q_atomic_lock;
 
 inline char q_atomic_swp(volatile char *ptr, char newval)
 {
-    register int ret;
+    register char ret;
     asm volatile("swpb %0,%2,[%3]"
                  : "=&r"(ret), "=m" (*ptr)
                  : "r"(newval), "r"(ptr)
@@ -137,11 +139,11 @@ inline bool QBasicAtomicInt::testAndSetRelease(int expectedValue, int newValue)
 
 inline int QBasicAtomicInt::fetchAndStoreOrdered(int newValue)
 {
-    while (q_atomic_swp(&q_atomic_lock, ~0) != 0)
-        ;
-    int originalValue = _q_value;
-    _q_value = newValue;
-    q_atomic_swp(&q_atomic_lock, 0);
+    int originalValue;
+    asm volatile("swp %0,%2,[%3]"
+                 : "=&r"(originalValue), "=m" (_q_value)
+                 : "r"(newValue), "r"(&_q_value)
+                 : "cc", "memory");
     return originalValue;
 }
 
@@ -226,11 +228,11 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValu
 template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
-    while (q_atomic_swp(&q_atomic_lock, ~0) != 0)
-        ;
-    T *originalValue = _q_value;
-    _q_value = newValue;
-    q_atomic_swp(&q_atomic_lock, 0);
+    T *originalValue;
+    asm volatile("swp %0,%2,[%3]"
+                 : "=&r"(originalValue), "=m" (_q_value)
+                 : "r"(newValue), "r"(&_q_value)
+                 : "cc", "memory");
     return originalValue;
 }
 
