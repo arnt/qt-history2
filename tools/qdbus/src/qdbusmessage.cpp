@@ -534,7 +534,7 @@ QString QDBusMessage::signature() const
 bool QDBusMessage::isReplyRequired() const
 {
     if (!d_ptr->msg)
-        return false;
+        return d_ptr->localMessage; // if it's a local message, reply is required
     return !dbus_message_get_no_reply(d_ptr->msg);
 }
 
