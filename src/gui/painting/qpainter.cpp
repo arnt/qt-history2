@@ -4529,9 +4529,9 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
     \endcode
     \endtable
 
-    The \a boundingRect (if not null) is set to the actual bounding
-    rectangle of the output.  The \a flags argument is a bitwise OR of
-    the following flags:
+    The \a boundingRect (if not null) is set to the what the bounding rectangle
+    should be in order to enclose the whole text. The \a flags argument is a bitwise
+    OR of the following flags:
 
     \list
     \o Qt::AlignLeft
