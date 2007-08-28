@@ -245,7 +245,7 @@ void SimpleCascader::rearrange(QList<QWidget *> &widgets, const QRect &domain) c
 
     QStyleOptionTitleBar options;
     options.initFrom(widgets.at(0));
-    int titleBarHeight = widgets.at(0)->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
+    int titleBarHeight = widgets.at(0)->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options, widgets.at(0));
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     // ### Remove this after the mac style has been fixed
     if (qobject_cast<QMacStyle *>(widgets.at(0)->style()))
@@ -929,7 +929,7 @@ QRect QMdiAreaPrivate::resizeToMinimumTileSize(const QSize &minSubWindowSize, in
         if (q->verticalScrollBar()->isVisible())
             minAreaWidth += q->verticalScrollBar()->width();
         if (q->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, q)) {
-            const int frame = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+            const int frame = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, q);
             minAreaWidth += 2 * frame;
             minAreaHeight += 2 * frame;
         }
@@ -1176,8 +1176,8 @@ QSize QMdiArea::sizeHint() const
 QSize QMdiArea::minimumSizeHint() const
 {
     Q_D(const QMdiArea);
-    QSize size(style()->pixelMetric(QStyle::PM_MdiSubWindowMinimizedWidth),
-               style()->pixelMetric(QStyle::PM_TitleBarHeight));
+    QSize size(style()->pixelMetric(QStyle::PM_MdiSubWindowMinimizedWidth, 0, this),
+               style()->pixelMetric(QStyle::PM_TitleBarHeight, 0, this));
     size = size.expandedTo(QAbstractScrollArea::minimumSizeHint());
     if (!d->scrollBarsEnabled()) {
         foreach (QMdiSubWindow *child, d->childWindows) {
