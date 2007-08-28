@@ -6,7 +6,11 @@ function QVERIFY(x, socket) {
 }
 
 var socket = new QScriptLocalSocket;
-socket.peerName = "qlocalsocket_autotest";
+var tries = 0;
+do {
+    socket.peerName = "qlocalsocket_autotest";
+    socket.sleep(1);
+} while (socket.errorString() == "QLocalSocket::connectToName: Invalid name" && tries < 1000);
 QVERIFY(socket.waitForConnected(), socket);
 print("client: connected");
 socket.waitForReadyRead();

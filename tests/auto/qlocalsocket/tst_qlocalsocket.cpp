@@ -324,7 +324,11 @@ public:
     {
         QString testLine = "test";
         QLocalSocket socket;
-        socket.connectToName("test");
+        int tries = 0;
+        do {
+            socket.connectToName("qlocalsocket_threadtest");
+            QTest::qWait(1);
+        } while (socket.error() == QLocalSocket::NotFoundError && tries < 1000);
         QVERIFY(socket.waitForConnected(10000));
         QVERIFY(socket.state() == QLocalSocket::ConnectedState);
 	QVERIFY(socket.waitForReadyRead());
@@ -344,7 +348,7 @@ public:
     {
         QString testLine = "test";
         LocalServer server;
-        QVERIFY(server.listen("test"));
+        QVERIFY(server.listen("qlocalsocket_threadtest"));
         int done = clients;
         while (done > 0) {
             QVERIFY(server.waitForNewConnection(30000));

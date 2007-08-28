@@ -496,14 +496,14 @@ void QLocalSocket::setReadBufferSize(qint64 size)
     to be established:
 
     \code
-        socket->connectToHost("market");
+        socket->connectToName("market");
         if (socket->waitForConnected(1000))
             qDebug("Connected!");
     \endcode
 
     If msecs is -1, this function will not time out.
 
-    \sa connectToHost(), connected()
+    \sa connectToName(), connected()
  */
 bool QLocalSocket::waitForConnected(int msecs)
 {

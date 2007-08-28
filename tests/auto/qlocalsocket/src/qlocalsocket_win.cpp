@@ -26,17 +26,17 @@ void QLocalSocketPrivate::setErrorString(const QString &function)
     case ERROR_BROKEN_PIPE:
     case ERROR_NO_DATA:
 	error = QLocalSocket::ConnectionError;
-	errorString = QLocalSocket::tr("%1: connection error").arg(function);
+	errorString = QLocalSocket::tr("%1: Connection error").arg(function);
         state = QLocalSocket::UnconnectedState;
 	break;
     case ERROR_FILE_NOT_FOUND:
 	error = QLocalSocket::NotFoundError;
-	errorString = QLocalSocket::tr("%1: not found").arg(function);
+	errorString = QLocalSocket::tr("%1: Invalid name").arg(function);
         state = QLocalSocket::UnconnectedState;
 	break;
     default:
 	error = QLocalSocket::UnknownSocketError;
-	errorString = QLocalSocket::tr("%1: unknown error %2").arg(function).arg(windowsError);
+	errorString = QLocalSocket::tr("%1: Unknown error %2").arg(function).arg(windowsError);
 #if defined QLOCALSOCKET_DEBUG
 	qWarning() << errorString;
 #endif
