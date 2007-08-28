@@ -3789,7 +3789,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 if (type == QEvent::MouseButtonPress
                     && button == Qt::RightButton
                     && (openPopupCount == oldOpenPopupCount)) {
-                    QContextMenuEvent e(QContextMenuEvent::Mouse, mapFromGlobal(globalPos), globalPos);
+                    QContextMenuEvent e(QContextMenuEvent::Mouse, mapFromGlobal(globalPos),
+                                        globalPos, modifiers);
                     QApplication::sendSpontaneousEvent(this, &e);
                 }
 #endif
@@ -3803,7 +3804,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 popupEvent = qt_button_down;
             else if(popupChild)
                 popupEvent = popupChild;
-            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos);
+            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, modifiers);
             QApplication::sendSpontaneousEvent(popupEvent, &e);
         }
 
@@ -3856,7 +3857,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         if (type == QEvent::MouseButtonPress
             && button == Qt::RightButton
             && (openPopupCount == oldOpenPopupCount)) {
-            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos);
+            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, modifiers);
             QApplication::sendSpontaneousEvent(widget, &e);
         }
     }

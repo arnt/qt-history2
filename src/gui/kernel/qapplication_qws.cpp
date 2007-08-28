@@ -3342,7 +3342,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
                 popupEvent = popupButtonFocus;
             else if(popupChild)
                 popupEvent = popupChild;
-            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos);
+            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, keystate);
             QApplication::sendSpontaneousEvent(popupEvent, &e);
         }
 
@@ -3396,7 +3396,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
             QApplication::sendSpontaneousEvent(widget, &e);
         }
         if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
-            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos);
+            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, keystate);
             QApplication::sendSpontaneousEvent(widget, &e);
         }
     }
