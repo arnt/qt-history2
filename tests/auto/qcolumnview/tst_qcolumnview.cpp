@@ -48,16 +48,21 @@ private slots:
     void grips();
     void isIndexHidden();
     void indexAt();
+    void scrollContentsBy_data();
     void scrollContentsBy();
     void scrollTo();
+    void moveCursor_data();
     void moveCursor();
     void selectAll();
     void clicked();
     void selectedColumns();
     void setSelection();
     void setSelectionModel();
+    void visualRegionForSelection();
 
     // grip
+    void moveGrip_basic();
+    void moveGrip_data();
     void moveGrip();
     void doubleClick();
     void gripMoved();
@@ -100,6 +105,9 @@ public:
         QColumnView::setSelection(rect, command);
     }
 
+    QRegion visualRegionForSelection(QItemSelection selection){
+        return QColumnView::visualRegionForSelection(selection);
+    }
 protected:
     QAbstractItemView *createColumn(const QModelIndex &index) {
         QAbstractItemView *view = QColumnView::createColumn(index);
@@ -120,6 +128,7 @@ tst_QColumnView::~tst_QColumnView()
 
 void tst_QColumnView::init()
 {
+    qApp->setLayoutDirection(Qt::LeftToRight);
 }
 
 void tst_QColumnView::cleanup()
@@ -278,11 +287,23 @@ void tst_QColumnView::indexAt()
     }
 }
 
+void tst_QColumnView::scrollContentsBy_data()
+{
+    QTest::addColumn<bool>("reverse");
+    QTest::newRow("normal") << false;
+    QTest::newRow("reverse") << true;
+}
+
+
 void tst_QColumnView::scrollContentsBy()
 {
+    QFETCH(bool, reverse);
+    if (reverse)
+        qApp->setLayoutDirection(Qt::RightToLeft);
     ColumnView view;
     view.ScrollContentsBy(-1, -1);
     view.ScrollContentsBy(0, 0);
+    // ### view.children?
 }
 
 void tst_QColumnView::scrollTo()
@@ -295,6 +316,7 @@ void tst_QColumnView::scrollTo()
 
     QDirModel model;
     view.setModel(&model);
+    view.scrollTo(QModelIndex(), QAbstractItemView::EnsureVisible);
 
     QModelIndex home = model.index(QDir::currentPath()).parent();
     QModelIndex homeFile = model.index(0, 0, home);
@@ -347,29 +369,65 @@ void tst_QColumnView::scrollTo()
     view.scrollTo(temp);
 }
 
+void tst_QColumnView::moveCursor_data()
+{
+    QTest::addColumn<bool>("reverse");
+    QTest::newRow("normal") << false;
+    QTest::newRow("reverse") << true;
+}
+
 void tst_QColumnView::moveCursor()
 {
+    QFETCH(bool, reverse);
+    if (reverse)
+        qApp->setLayoutDirection(Qt::RightToLeft);
     ColumnView view;
+
+    // don't crash
     view.MoveCursor(ColumnView::MoveUp, Qt::NoModifier);
+
+    // don't do anything
+    QCOMPARE(view.MoveCursor(ColumnView::MoveEnd, Qt::NoModifier), QModelIndex());
 
     QDirModel model;
     view.setModel(&model);
+    QModelIndex home = model.index(QDir::homePath());
     QModelIndex ci = view.currentIndex();
     QCOMPARE(view.MoveCursor(ColumnView::MoveUp, Qt::NoModifier), QModelIndex());
     QCOMPARE(view.MoveCursor(ColumnView::MoveDown, Qt::NoModifier), QModelIndex());
 
+    // left at root
+    view.setCurrentIndex(model.index(0,0));
+    ColumnView::PublicCursorAction action = reverse ? ColumnView::MoveRight : ColumnView::MoveLeft;
+    QCOMPARE(view.MoveCursor(action, Qt::NoModifier), model.index(0,0));
+
+    // left shouldn't move up
     int i = 0;
     ci = model.index(0, 0);
     while (i < model.rowCount() - 1 && !model.hasChildren(ci))
         ci = model.index(++i, 0);
-
     QVERIFY(model.hasChildren(ci));
-
     view.setCurrentIndex(ci);
-    QCOMPARE(view.MoveCursor(ColumnView::MoveLeft, Qt::NoModifier), ci);
+    action = reverse ? ColumnView::MoveRight : ColumnView::MoveLeft;
+    QCOMPARE(view.MoveCursor(action, Qt::NoModifier), ci);
 
+    // now move to the left (i.e. move over one column)
+    view.setCurrentIndex(home);
+    QCOMPARE(view.MoveCursor(action, Qt::NoModifier), home.parent());
+
+    // right
+    action = reverse ? ColumnView::MoveLeft : ColumnView::MoveRight;
     view.setCurrentIndex(ci);
-    QCOMPARE(view.MoveCursor(ColumnView::MoveRight, Qt::NoModifier), model.index(0,0, ci));
+    QModelIndex mc = view.MoveCursor(action, Qt::NoModifier);
+    QCOMPARE(mc, model.index(0,0, ci));
+
+    // next one should move down
+    QModelIndex idx = model.index(0, 0, ci);
+    while (model.hasChildren(idx) && model.rowCount(ci) > idx.row() + 1)
+        idx = idx.sibling(idx.row() + 1, idx.column());
+    view.setCurrentIndex(idx);
+    mc = view.MoveCursor(action, Qt::NoModifier);
+    QCOMPARE(mc, idx.sibling(idx.row() + 1, idx.column()));
 }
 
 void tst_QColumnView::selectAll()
@@ -378,8 +436,6 @@ void tst_QColumnView::selectAll()
     view.selectAll();
 
     QDirModel model;
-    view.selectAll();
-
     view.setModel(&model);
     view.selectAll();
     QVERIFY(view.selectionModel()->selectedIndexes().count() >= 0);
@@ -388,6 +444,9 @@ void tst_QColumnView::selectAll()
     view.setCurrentIndex(home);
     view.selectAll();
     QVERIFY(view.selectionModel()->selectedIndexes().count() > 0);
+
+    view.setCurrentIndex(QModelIndex());
+    QVERIFY(view.selectionModel()->selectedIndexes().count() == 0);
 }
 
 void tst_QColumnView::clicked()
@@ -486,7 +545,23 @@ void tst_QColumnView::setSelectionModel()
     QVERIFY(found);
 }
 
-void tst_QColumnView::moveGrip()
+void tst_QColumnView::visualRegionForSelection()
+{
+    ColumnView view;
+    QItemSelection emptyItemSelection;
+    QCOMPARE(QRegion(), view.visualRegionForSelection(emptyItemSelection));
+
+    // a region that isn't empty
+    QDirModel model;
+    view.setModel(&model);
+
+    QModelIndex home = model.index(QDir::homePath());
+    QVERIFY(model.rowCount(home) > 1);
+    QItemSelection itemSelection(model.index(0, 0, home), model.index(model.rowCount(home) - 1, 0, home));
+    QVERIFY(QRegion() != view.visualRegionForSelection(itemSelection));
+}
+
+void tst_QColumnView::moveGrip_basic()
 {
     QColumnView view;
     QColumnViewGrip *grip = new QColumnViewGrip(&view);
@@ -504,6 +579,45 @@ void tst_QColumnView::moveGrip()
     grip->moveGrip(-800);
     QCOMPARE(view.width(), 200);
     QCOMPARE(spy.count(), 5);
+}
+
+void tst_QColumnView::moveGrip_data()
+{
+    QTest::addColumn<bool>("reverse");
+    QTest::newRow("normal") << false;
+    QTest::newRow("reverse") << true;
+}
+
+void tst_QColumnView::moveGrip()
+{
+    QFETCH(bool, reverse);
+    if (reverse)
+        qApp->setLayoutDirection(Qt::RightToLeft);
+    ColumnView view;
+    QDirModel model;
+    view.setModel(&model);
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+    view.resize(640, 200);
+    view.show();
+    QTest::qWait(ANIMATION_DELAY);
+
+    QObjectList list = view.children();
+    QColumnViewGrip *grip = 0;
+    for (int i = 0; i < list.count(); ++i) {
+        list += (list[i]->children());
+        if ((grip = qobject_cast<QColumnViewGrip *>(list[i]))) {
+            break;
+        }
+    }
+    if (!grip)
+        return;
+
+    QAbstractItemView *column = qobject_cast<QAbstractItemView *>(grip->parent());
+    int oldX = column->width();
+    QCOMPARE(view.columnWidths()[0], oldX);
+    grip->moveGrip(10);
+    QCOMPARE(view.columnWidths()[0], (oldX + (reverse ? -10 : 10)));
 }
 
 void tst_QColumnView::doubleClick()
@@ -557,6 +671,7 @@ void tst_QColumnView::preview()
     view.setPreviewWidget(previewWidget);
     QCOMPARE(view.previewWidget(), previewWidget);
     QVERIFY(previewWidget->parent() != ((QWidget*)&view));
+    view.setCurrentIndex(home);
 
     // previewWidget should be marked for deletion
     QWidget *previewWidget2 = new QWidget(&view);
