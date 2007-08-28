@@ -40,7 +40,6 @@ extern QList<QWSCommand*> *qt_get_server_queue();
 struct GQWSEventSource
 {
     GSource source;
-    GPollFD pollfd;
     QEventLoop::ProcessEventsFlags flags;
     QWSEventDispatcherGlib *q;
     QWSEventDispatcherGlibPrivate *d;
@@ -56,31 +55,24 @@ public:
     QList<QWSEvent*> queuedUserInputEvents;
 };
 
-
 static gboolean qwsEventSourcePrepare(GSource *s, gint *timeout)
 {
     if (timeout)
         *timeout = -1;
     GQWSEventSource *source = reinterpret_cast<GQWSEventSource *>(s);
     return qt_fbdpy->eventPending() || !source->d->queuedUserInputEvents.isEmpty()
-
-        || !qt_get_server_queue()->isEmpty() ; //###
+        || !qt_get_server_queue()->isEmpty() ;
 }
 
 static gboolean qwsEventSourceCheck(GSource *s)
 {
     GQWSEventSource *source = reinterpret_cast<GQWSEventSource *>(s);
     return qt_fbdpy->eventPending() || !source->d->queuedUserInputEvents.isEmpty()
-
-        || !qt_get_server_queue()->isEmpty() ; //###
-
+        || !qt_get_server_queue()->isEmpty() ;
 }
 
 static gboolean qwsEventSourceDispatch(GSource *s, GSourceFunc callback, gpointer user_data)
 {
-
-
-
     GQWSEventSource *source = reinterpret_cast<GQWSEventSource *>(s);
 
     //??? ulong marker = XNextRequest(X11->display);
@@ -140,7 +132,6 @@ QWSEventDispatcherGlibPrivate::QWSEventDispatcherGlibPrivate()
                                                                       sizeof(GQWSEventSource)));
     g_source_set_can_recurse(&qwsEventSource->source, true);
 
-    memset(&qwsEventSource->pollfd, 0, sizeof(GPollFD));
     qwsEventSource->flags = QEventLoop::AllEvents;
     qwsEventSource->q = 0;
     qwsEventSource->d = 0;
@@ -157,7 +148,6 @@ QWSEventDispatcherGlib::~QWSEventDispatcherGlib()
 {
     Q_D(QWSEventDispatcherGlib);
 
-//????    g_source_remove_poll(&d->qwsEventSource->source, &d->qwsEventSource->pollfd);
     g_source_destroy(&d->qwsEventSource->source);
     d->qwsEventSource = 0;
 }
@@ -177,8 +167,4 @@ void QWSEventDispatcherGlib::startingUp()
      Q_D(QWSEventDispatcherGlib);
      d->qwsEventSource->q = this;
      d->qwsEventSource->d = d;
-//???
-//     d->qwsEventSource->pollfd.fd = XConnectionNumber(X11->display);
-//     d->qwsEventSource->pollfd.events = G_IO_IN | G_IO_HUP | G_IO_ERR;
-//     g_source_add_poll(&d->qwsEventSource->source, &d->qwsEventSource->pollfd);
 }
