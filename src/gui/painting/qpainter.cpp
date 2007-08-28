@@ -4571,8 +4571,8 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
     \overload
 
     Draws the given \a text within the provided \a rectangle according
-    to the specified \a flags.  The \a boundingRect (if not null) is
-    set to the actual bounding rectangle of the output.
+    to the specified \a flags. The \a boundingRect (if not null) is set to
+    the what the bounding rectangle should be in order to enclose the whole text. 
 */
 
 /*!
