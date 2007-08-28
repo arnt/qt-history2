@@ -2389,6 +2389,7 @@ void tst_QDateTimeEdit::readOnly()
 
 void tst_QDateTimeEdit::weirdCase()
 {
+    testWidget->lineEdit()->setCursorPosition(0);
     testWidget->setDateRange(QDate(2005, 1, 1), QDate(2010, 12, 31));
     testWidget->setDisplayFormat("dd//MM//yyyy");
     testWidget->setDate(testWidget->minimumDate());
