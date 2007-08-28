@@ -194,6 +194,7 @@ private slots:
 
     void repaintWhenChildDeleted();
     void hideOpaqueChildWhileHidden();
+    void alienWidgets();
 
 private:
     QWidget *testWidget;
@@ -5221,6 +5222,66 @@ void tst_QWidget::hideOpaqueChildWhileHidden()
     VERIFY_COLOR(child.rect().translated(child.mapToGlobal(QPoint())),
                  child.color);
 }
+
+#if defined(Q_WS_WIN) || defined(Q_WS_X11)
+void tst_QWidget::alienWidgets()
+{
+    QWidget parent;
+    QWidget child(&parent);
+    QWidget grandChild(&child);
+    QWidget greatGrandChild(&grandChild);
+    parent.show();
+
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&parent);
+#endif
+
+    // Verify that the WA_WState_Created attribute is set
+    // and the top-level is the only native window.
+    QVERIFY(parent.testAttribute(Qt::WA_WState_Created));
+    QVERIFY(parent.internalWinId());
+
+    QVERIFY(child.testAttribute(Qt::WA_WState_Created));
+    QVERIFY(!child.internalWinId());
+
+    QVERIFY(grandChild.testAttribute(Qt::WA_WState_Created));
+    QVERIFY(!grandChild.internalWinId());
+
+    QVERIFY(greatGrandChild.testAttribute(Qt::WA_WState_Created));
+    QVERIFY(!greatGrandChild.internalWinId());
+
+    // Enforce native windows all the way up in the parent hierarchy
+    // if not WA_DontCreateNativeAncestors is set.
+    grandChild.setAttribute(Qt::WA_DontCreateNativeAncestors);
+    greatGrandChild.setAttribute(Qt::WA_NativeWindow);
+    QVERIFY(greatGrandChild.internalWinId());
+    QVERIFY(grandChild.internalWinId());
+    QVERIFY(!child.internalWinId());
+
+    // Enforce a native window when calling QWidget::winId.
+    QVERIFY(child.winId());
+    QVERIFY(child.internalWinId());
+
+    // Check that paint on screen widgets are native.
+    QWidget paintOnScreen(&parent);
+    paintOnScreen.show();
+    QVERIFY(paintOnScreen.testAttribute(Qt::WA_WState_Created));
+    QVERIFY(!paintOnScreen.testAttribute(Qt::WA_NativeWindow));
+    QVERIFY(!paintOnScreen.internalWinId());
+
+    paintOnScreen.setAttribute(Qt::WA_PaintOnScreen);
+    QVERIFY(paintOnScreen.testAttribute(Qt::WA_NativeWindow));
+    QVERIFY(paintOnScreen.internalWinId());
+
+    // Check that widgets with the Qt::MSWindowsOwnDC attribute set
+    // are native.
+    QWidget msWindowsOwnDC(&parent, Qt::MSWindowsOwnDC);
+    msWindowsOwnDC.show();
+    QVERIFY(msWindowsOwnDC.testAttribute(Qt::WA_WState_Created));
+    QVERIFY(msWindowsOwnDC.testAttribute(Qt::WA_NativeWindow));
+    QVERIFY(msWindowsOwnDC.internalWinId());
+}
+#endif // Q_WS_WIN / Q_WS_X11
 
 QTEST_MAIN(tst_QWidget)
 #include "tst_qwidget.moc"
