@@ -578,8 +578,8 @@ bool QTransportAuth::authorizeRequest( QTransportAuth::Data &d, const QString &r
             close( cmdlineFd );
         }
         
-        syslog( LOG_ERR | LOG_LOCAL6, "%s PID:%u ProgId:%u Request:%s Exe:%s Cmdline:%s",
-                "<SXE Breach>", d.processId, d.progId, qPrintable(request), linkTarget, cmdline);
+        syslog( LOG_ERR | LOG_LOCAL6, "%s // PID:%u // ProgId:%u // Exe:%s // Request:%s // Cmdline:%s",
+                "<SXE Breach>", d.processId, d.progId, linkTarget, qPrintable(request), cmdline);
     }
 
     return isAuthorized;
@@ -1450,7 +1450,7 @@ static int hmac_md5(
 }
 
 
-const int GAREnforcer::minutelyRate = 30; //allowed number of authentication attempts per minute
+const int GAREnforcer::minutelyRate = 40; //allowed number of authentication attempts per minute
 const QString GAREnforcer::GARMessage = "GAR_Exceeded";
 const QString GAREnforcer::SxeTag = "<SXE Breach>";
 const int GAREnforcer::minute = 60;
