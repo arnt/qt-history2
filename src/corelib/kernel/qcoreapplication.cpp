@@ -669,7 +669,7 @@ bool QCoreApplication::closingDown()
     events to function properly. An alternative would be to call
     \l{QCoreApplication::sendPostedEvents()}{sendPostedEvents()} from
     within that local loop.
-    
+
     Calling this function processes events only for the calling thread.
 
     \threadsafe
@@ -1057,10 +1057,10 @@ void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type
             // (s.a. QEvent::DeferredDelete), and then only if the event loop that
             // posted the event has returned.
             const bool allowDeferredDelete =
-                (quintptr(pe.event->d) > data->loopLevel
+                (quintptr(pe.event->d) > unsigned(data->loopLevel)
                  || (!quintptr(pe.event->d) && data->loopLevel > 0)
                  || (event_type == QEvent::DeferredDelete
-                     && quintptr(pe.event->d) == data->loopLevel));
+                     && quintptr(pe.event->d) == unsigned(data->loopLevel)));
             if (!allowDeferredDelete) {
                 // cannot send deferred delete
                 if (!event_type && !receiver) {
