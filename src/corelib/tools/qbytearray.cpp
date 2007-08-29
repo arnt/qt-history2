@@ -265,6 +265,47 @@ int qstrnicmp(const char *str1, const char *str2, uint len)
     return 0;
 }
 
+/*!
+    \internal
+ */
+int qstrcmp(const QByteArray &str1, const char *str2)
+{
+    if (!str2)
+        return str1.isEmpty() ? 0 : +1;
+
+    int i;
+    for (i = 0; i < str1.length() && *str2; ++i, ++str2) {
+        if (str1.at(i) != *str2)
+            // found a difference
+            return uchar(str1.at(i)) - uchar(*str2);
+    }
+
+    // Why did we stop?
+    if (*str2 != '\0')
+        // not the null, so we stopped because str1 is shorter
+        return -1;
+    if (i < str1.length())
+        // we haven't reached the end, so str1 must be longer
+        return +1;
+    return 0;
+}
+
+/*!
+    \internal
+ */
+int qstrcmp(const QByteArray &str1, const QByteArray &str2)
+{
+    int l1 = str1.length();
+    int l2 = str2.length();
+    int ret = memcmp(str1, str2, qMin(l1, l2));
+    if (ret != 0)
+        return ret;
+
+    // they matched qMin(l1, l2) bytes
+    // so the longer one is lexically after the shorter one
+    return l1 - l2;
+}
+
 // the CRC table below is created by the following piece of code
 #if 0
 static void createCRC16Table()                        // build CRC16 lookup table

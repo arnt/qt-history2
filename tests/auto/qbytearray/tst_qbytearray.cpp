@@ -82,6 +82,11 @@ private slots:
 
     void resizeAfterFromRawData();
     void toFromHex();
+
+    void compare_data();
+    void compare();
+    void compareCharStar_data();
+    void compareCharStar();
 };
 
 tst_QByteArray::tst_QByteArray()
@@ -932,6 +937,145 @@ void tst_QByteArray::toFromHex()
     QByteArray arr("Qt is great!");
     QCOMPARE(arr.toHex(), QByteArray("517420697320677265617421"));
     QCOMPARE(QByteArray::fromHex("517420697320677265617421"), QByteArray("Qt is great!"));
+}
+
+void tst_QByteArray::compare_data()
+{
+    QTest::addColumn<QByteArray>("str1");
+    QTest::addColumn<QByteArray>("str2");
+    QTest::addColumn<int>("result");
+
+    QTest::newRow("null")      << QByteArray() << QByteArray() << 0;
+    QTest::newRow("null-empty")<< QByteArray() << QByteArray("") << 0;
+    QTest::newRow("empty-null")<< QByteArray("") << QByteArray() << 0;
+    QTest::newRow("null-full") << QByteArray() << QByteArray("abc") << -1;
+    QTest::newRow("full-null") << QByteArray("abc") << QByteArray() << +1;
+    QTest::newRow("empty-full")<< QByteArray("") << QByteArray("abc") << -1;
+    QTest::newRow("full-empty")<< QByteArray("abc") << QByteArray("") << +1;
+    QTest::newRow("rawempty-full") << QByteArray::fromRawData("abc", 0) << QByteArray("abc") << -1;
+    QTest::newRow("full-rawempty") << QByteArray("abc") << QByteArray::fromRawData("abc", 0) << +1;
+
+    QTest::newRow("equal   1") << QByteArray("abc") << QByteArray("abc") << 0;
+    QTest::newRow("equal   2") << QByteArray::fromRawData("abc", 3) << QByteArray("abc") << 0;
+    QTest::newRow("equal   3") << QByteArray::fromRawData("abcdef", 3) << QByteArray("abc") << 0;
+    QTest::newRow("equal   4") << QByteArray("abc") << QByteArray::fromRawData("abc", 3) << 0;
+    QTest::newRow("equal   5") << QByteArray("abc") << QByteArray::fromRawData("abcdef", 3) << 0;
+    QTest::newRow("equal   6") << QByteArray("a\0bc", 4) << QByteArray("a\0bc", 4) << 0;
+    QTest::newRow("equal   7") << QByteArray::fromRawData("a\0bcdef", 4) << QByteArray("a\0bc", 4) << 0;
+    QTest::newRow("equal   8") << QByteArray("a\0bc", 4) << QByteArray::fromRawData("a\0bcdef", 4) << 0;
+
+    QTest::newRow("less    1") << QByteArray("000") << QByteArray("abc") << -1;
+    QTest::newRow("less    2") << QByteArray::fromRawData("00", 3) << QByteArray("abc") << -1;
+    QTest::newRow("less    3") << QByteArray("000") << QByteArray::fromRawData("abc", 3) << -1;
+    QTest::newRow("less    4") << QByteArray("abc", 3) << QByteArray("abc", 4) << -1;
+    QTest::newRow("less    5") << QByteArray::fromRawData("abc\0", 3) << QByteArray("abc\0", 4) << -1;
+    QTest::newRow("less    6") << QByteArray("a\0bc", 4) << QByteArray("a\0bd", 4) << -1;
+
+    QTest::newRow("greater 1") << QByteArray("abc") << QByteArray("000") << +1;
+    QTest::newRow("greater 2") << QByteArray("abc") << QByteArray::fromRawData("00", 3) << +1;
+    QTest::newRow("greater 3") << QByteArray("abcd") << QByteArray::fromRawData("abcd", 3) << +1;
+    QTest::newRow("greater 4") << QByteArray("a\0bc", 4) << QByteArray("a\0bb", 4) << +1;
+}
+
+void tst_QByteArray::compare()
+{
+    QFETCH(QByteArray, str1);
+    QFETCH(QByteArray, str2);
+    QFETCH(int, result);
+
+    const bool isEqual   = result == 0;
+    const bool isLess    = result < 0;
+    const bool isGreater = result > 0;
+
+    // basic tests:
+    QCOMPARE(str1 == str2, isEqual);
+    QCOMPARE(str1 < str2, isLess);
+    QCOMPARE(str1 > str2, isGreater);
+
+    // composed tests:
+    QCOMPARE(str1 <= str2, isLess || isEqual);
+    QCOMPARE(str1 >= str2, isGreater || isEqual);
+    QCOMPARE(str1 != str2, !isEqual);
+
+    // inverted tests:
+    QCOMPARE(str2 == str1, isEqual);
+    QCOMPARE(str2 < str1, isGreater);
+    QCOMPARE(str2 > str1, isLess);
+
+    // composed, inverted tests:
+    QCOMPARE(str2 <= str1, isGreater || isEqual);
+    QCOMPARE(str2 >= str1, isLess || isEqual);
+    QCOMPARE(str2 != str1, !isEqual);
+}
+
+void tst_QByteArray::compareCharStar_data()
+{
+    QTest::addColumn<QByteArray>("str1");
+    QTest::addColumn<QString>("string2");
+    QTest::addColumn<int>("result");
+
+    QTest::newRow("null-null") << QByteArray() << QString() << 0;
+    QTest::newRow("null-empty") << QByteArray() << "" << 0;
+    QTest::newRow("null-full") << QByteArray() << "abc" << -1;
+    QTest::newRow("empty-null") << QByteArray("") << QString() << 0;
+    QTest::newRow("empty-empty") << QByteArray("") << "" << 0;
+    QTest::newRow("empty-full") << QByteArray("") << "abc" << -1;
+    QTest::newRow("raw-null") << QByteArray::fromRawData("abc", 0) << QString() << 0;
+    QTest::newRow("raw-empty") << QByteArray::fromRawData("abc", 0) << QString("") << 0;
+    QTest::newRow("raw-full") << QByteArray::fromRawData("abc", 0) << "abc" << -1;
+
+    QTest::newRow("full-null") << QByteArray("abc") << QString() << +1;
+    QTest::newRow("full-empty") << QByteArray("abc") << "" << +1;
+
+    QTest::newRow("equal1") << QByteArray("abc") << "abc" << 0;
+    QTest::newRow("equal2") << QByteArray("abcd", 3) << "abc" << 0;
+    QTest::newRow("equal3") << QByteArray::fromRawData("abcd", 3) << "abc" << 0;
+
+    QTest::newRow("less1") << QByteArray("ab") << "abc" << -1;
+    QTest::newRow("less2") << QByteArray("abb") << "abc" << -1;
+    QTest::newRow("less3") << QByteArray::fromRawData("abc", 2) << "abc" << -1;
+    QTest::newRow("less4") << QByteArray("", 1) << "abc" << -1;
+    QTest::newRow("less5") << QByteArray::fromRawData("", 1) << "abc" << -1;
+    QTest::newRow("less6") << QByteArray("a\0bc", 4) << "a.bc" << -1;
+
+    QTest::newRow("greater1") << QByteArray("ac") << "abc" << +1;
+    QTest::newRow("greater2") << QByteArray("abd") << "abc" << +1;
+    QTest::newRow("greater3") << QByteArray("abcd") << "abc" << +1;
+    QTest::newRow("greater4") << QByteArray::fromRawData("abcd", 4) << "abc" << +1;
+}
+
+void tst_QByteArray::compareCharStar()
+{
+    QFETCH(QByteArray, str1);
+    QFETCH(QString, string2);
+    QFETCH(int, result);
+
+    const bool isEqual   = result == 0;
+    const bool isLess    = result < 0;
+    const bool isGreater = result > 0;
+    const char *str2 = string2.toLatin1();
+    if (string2.isNull())
+        str2 = 0;
+
+    // basic tests:
+    QCOMPARE(str1 == str2, isEqual);
+    QCOMPARE(str1 < str2, isLess);
+    QCOMPARE(str1 > str2, isGreater);
+
+    // composed tests:
+    QCOMPARE(str1 <= str2, isLess || isEqual);
+    QCOMPARE(str1 >= str2, isGreater || isEqual);
+    QCOMPARE(str1 != str2, !isEqual);
+
+    // inverted tests:
+    QCOMPARE(str2 == str1, isEqual);
+    QCOMPARE(str2 < str1, isGreater);
+    QCOMPARE(str2 > str1, isLess);
+
+    // composed, inverted tests:
+    QCOMPARE(str2 <= str1, isGreater || isEqual);
+    QCOMPARE(str2 >= str1, isLess || isEqual);
+    QCOMPARE(str2 != str1, !isEqual);
 }
 
 QTEST_APPLESS_MAIN(tst_QByteArray)

@@ -51,6 +51,10 @@ Q_CORE_EXPORT char *qstrcpy(char *dst, const char *src);
 Q_CORE_EXPORT char *qstrncpy(char *dst, const char *src, uint len);
 
 Q_CORE_EXPORT int qstrcmp(const char *str1, const char *str2);
+Q_CORE_EXPORT int qstrcmp(const QByteArray &str1, const QByteArray &str2);
+Q_CORE_EXPORT int qstrcmp(const QByteArray &str1, const char *str2);
+static inline int qstrcmp(const char *str1, const QByteArray &str2)
+{ return -qstrcmp(str2, str1); }
 
 inline int qstrncmp(const char *str1, const char *str2, uint len)
 {
@@ -428,35 +432,35 @@ inline QBool QByteArray::contains(char c) const
 inline bool operator==(const QByteArray &a1, const QByteArray &a2)
 { return (a1.size() == a2.size()) && (memcmp(a1, a2, a1.size())==0); }
 inline bool operator==(const QByteArray &a1, const char *a2)
-{ return a2 ? strcmp(a1,a2) == 0 : a1.isEmpty(); }
+{ return a2 ? qstrcmp(a1,a2) == 0 : a1.isEmpty(); }
 inline bool operator==(const char *a1, const QByteArray &a2)
-{ return a1 ? strcmp(a1,a2) == 0 : a2.isEmpty(); }
+{ return a1 ? qstrcmp(a1,a2) == 0 : a2.isEmpty(); }
 inline bool operator!=(const QByteArray &a1, const QByteArray &a2)
 { return !(a1==a2); }
 inline bool operator!=(const QByteArray &a1, const char *a2)
-{ return a2 ? strcmp(a1,a2) != 0 : !a1.isEmpty(); }
+{ return a2 ? qstrcmp(a1,a2) != 0 : !a1.isEmpty(); }
 inline bool operator!=(const char *a1, const QByteArray &a2)
-{ return a1 ? strcmp(a1,a2) != 0 : !a2.isEmpty(); }
+{ return a1 ? qstrcmp(a1,a2) != 0 : !a2.isEmpty(); }
 inline bool operator<(const QByteArray &a1, const QByteArray &a2)
-{ return strcmp(a1, a2) < 0; }
+{ return qstrcmp(a1, a2) < 0; }
  inline bool operator<(const QByteArray &a1, const char *a2)
 { return qstrcmp(a1, a2) < 0; }
 inline bool operator<(const char *a1, const QByteArray &a2)
 { return qstrcmp(a1, a2) < 0; }
 inline bool operator<=(const QByteArray &a1, const QByteArray &a2)
-{ return strcmp(a1, a2) <= 0; }
+{ return qstrcmp(a1, a2) <= 0; }
 inline bool operator<=(const QByteArray &a1, const char *a2)
 { return qstrcmp(a1, a2) <= 0; }
 inline bool operator<=(const char *a1, const QByteArray &a2)
 { return qstrcmp(a1, a2) <= 0; }
 inline bool operator>(const QByteArray &a1, const QByteArray &a2)
-{ return strcmp(a1, a2) > 0; }
+{ return qstrcmp(a1, a2) > 0; }
 inline bool operator>(const QByteArray &a1, const char *a2)
 { return qstrcmp(a1, a2) > 0; }
 inline bool operator>(const char *a1, const QByteArray &a2)
 { return qstrcmp(a1, a2) > 0; }
 inline bool operator>=(const QByteArray &a1, const QByteArray &a2)
-{ return strcmp(a1, a2) >= 0; }
+{ return qstrcmp(a1, a2) >= 0; }
 inline bool operator>=(const QByteArray &a1, const char *a2)
 { return qstrcmp(a1, a2) >= 0; }
 inline bool operator>=(const char *a1, const QByteArray &a2)
