@@ -94,6 +94,8 @@ public:
 
     void unplug(const QRect &rect);
     void plug(const QRect &rect);
+
+    bool isAnimating() const;
 };
 
 class Q_GUI_EXPORT QDockWidgetLayout : public QLayout

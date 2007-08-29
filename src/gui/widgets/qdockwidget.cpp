@@ -708,6 +708,22 @@ void QDockWidgetPrivate::endDrag(bool abort)
     state = 0;
 }
 
+bool QDockWidgetPrivate::isAnimating() const
+{
+    Q_Q(const QDockWidget);
+
+    QMainWindow *mainWin = qobject_cast<QMainWindow*>(q->parentWidget());
+    if (mainWin == 0)
+        return false;
+
+    QMainWindowLayout *mainWinLayout
+        = qobject_cast<QMainWindowLayout*>(mainWin->layout());
+    if (mainWinLayout == 0)
+        return false;
+
+    return mainWinLayout->pluggingWidget == q;
+}
+
 void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
 {
 #if !defined(QT_NO_MAINWINDOW)
@@ -728,6 +744,9 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
             return;
 
         if (qobject_cast<QMainWindow*>(q->parentWidget()) == 0)
+            return;
+
+        if (isAnimating())
             return;
 
         if (state != 0)
@@ -832,6 +851,8 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
             if (state != 0)
                 break;
             if (qobject_cast<QMainWindow*>(q->parentWidget()) == 0)
+                break;
+            if (isAnimating())
                 break;
             initDrag(event->pos(), true);
 #ifdef Q_OS_WIN
