@@ -75,9 +75,9 @@ Q_CORE_EXPORT bool QBasicAtomicInt_testAndSetOrdered(volatile int *, int, int);
 Q_CORE_EXPORT int QBasicAtomicInt_fetchAndStoreOrdered(volatile int *, int);
 Q_CORE_EXPORT int QBasicAtomicInt_fetchAndAddOrdered(volatile int *, int);
 
-Q_CORE_EXPORT bool QBasicAtomicPointer_testAndSetOrdered(volatile void **, void *, void *);
-Q_CORE_EXPORT void *QBasicAtomicPointer_fetchAndStoreOrdered(volatile void **, void *);
-Q_CORE_EXPORT void *QBasicAtomicPointer_fetchAndAddOrdered(volatile void **, qptrdiff);
+Q_CORE_EXPORT bool QBasicAtomicPointer_testAndSetOrdered(void * volatile *, void *, void *);
+Q_CORE_EXPORT void *QBasicAtomicPointer_fetchAndStoreOrdered(void * volatile *, void *);
+Q_CORE_EXPORT void *QBasicAtomicPointer_fetchAndAddOrdered(void * volatile *, qptrdiff);
 
 // Reference counting
 
@@ -162,7 +162,7 @@ inline int QBasicAtomicInt::fetchAndAddRelease(int valueToAdd)
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
 {
-    return QBasicAtomicPointer_testAndSetOrdered(reinterpret_cast<volatile void **>(&_q_value),
+    return QBasicAtomicPointer_testAndSetOrdered(reinterpret_cast<void * volatile *>(&_q_value),
                                                  expectedValue,
                                                  newValue);
 }
@@ -191,7 +191,7 @@ template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
     return reinterpret_cast<T *>
-        (QBasicAtomicPointer_fetchAndStoreOrdered(reinterpret_cast<volatile void **>(&_q_value),
+        (QBasicAtomicPointer_fetchAndStoreOrdered(&reinterpret_cast<void * volatile *>(&_q_value),
                                                   newValue));
 }
 
@@ -219,7 +219,7 @@ template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
 {
     return reinterpret_cast<T *>
-        (QBasicAtomicPointer_fetchAndAddOrdered(reinterpret_cast<volatile void **>(&_q_value),
+        (QBasicAtomicPointer_fetchAndAddOrdered(reinterpret_cast<void * volatile *>(&_q_value),
                                                 valueToAdd));
 }
 

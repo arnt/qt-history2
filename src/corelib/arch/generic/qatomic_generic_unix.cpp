@@ -55,7 +55,7 @@ int QBasicAtomicInt_fetchAndAddOrdered(volatile int *_q_value, int valueToAdd)
 }
 
 Q_CORE_EXPORT
-bool QBasicAtomicPointer_testAndSetOrdered(volatile void **_q_value,
+bool QBasicAtomicPointer_testAndSetOrdered(void * volatile *_q_value,
                                            void *expectedValue,
                                            void *newValue)
 {
@@ -72,26 +72,26 @@ bool QBasicAtomicPointer_testAndSetOrdered(volatile void **_q_value,
 }
 
 Q_CORE_EXPORT
-void *QBasicAtomicPointer_fetchAndStoreOrdered(volatile void **_q_value, void *newValue)
+void *QBasicAtomicPointer_fetchAndStoreOrdered(void * volatile *_q_value, void *newValue)
 {
     pthread_once(&genericWarning, printGenericWarning);
 
     void *returnValue;
     pthread_mutex_lock(&qAtomicMutex);
-    returnValue = const_cast<void *>(*_q_value);
+    returnValue = *_q_value;
     *_q_value = newValue;
     pthread_mutex_unlock(&qAtomicMutex);
     return returnValue;
 }
 
 Q_CORE_EXPORT
-void *QBasicAtomicPointer_fetchAndAddOrdered(volatile void **_q_value, qptrdiff valueToAdd)
+void *QBasicAtomicPointer_fetchAndAddOrdered(void * volatile *_q_value, qptrdiff valueToAdd)
 {
     pthread_once(&genericWarning, printGenericWarning);
 
     void *returnValue;
     pthread_mutex_lock(&qAtomicMutex);
-    returnValue = const_cast<void *>(*_q_value);
+    returnValue = *_q_value;
     *_q_value = reinterpret_cast<char *>(returnValue) + valueToAdd;
     pthread_mutex_unlock(&qAtomicMutex);
     return returnValue;
