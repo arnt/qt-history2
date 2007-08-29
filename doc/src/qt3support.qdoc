@@ -24,6 +24,10 @@
         QT += qt3support
     \endcode
 
+    \note Since this module provides compatibility classes for
+    diverse parts of the Qt 3 API, it has dependencies on the QtCore,
+    QtGui, QtNetwork, QtSql, and QtXml modules.
+
     This module is part of the \l{Qt Desktop Edition} and the \l{Qt
     Open Source Edition}. Most classes offered by this module are
     also part of the \l{Qt Desktop Light Edition}.
