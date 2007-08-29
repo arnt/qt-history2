@@ -1218,7 +1218,6 @@ QImage::~QImage()
 
 QImage &QImage::operator=(const QImage &image)
 {
-    QImageData *x = image.d;
     if (image.d)
         image.d->ref.ref();
     if (d && !d->ref.deref())
