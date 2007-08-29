@@ -46,3 +46,65 @@ translate 250 -100
 path_moveTo maxSize 0 500
 path_cubicTo maxSize 1000 0 -500 0 500 500
 drawPath maxSize
+
+setRenderHint Antialiasing off
+resetMatrix
+
+path_moveTo path1 0 0
+path_cubicTo path1 10 10 0 10 10 0
+
+path_moveTo path2 0 0
+path_cubicTo path2 15 15 -5 15 10 0
+
+path_moveTo path3 0 0
+path_cubicTo path3 20 20 -10 20 10 0
+
+path_moveTo path4 0 0
+path_cubicTo path4 0 5 10 10 0 15
+
+path_moveTo path5 0 10
+path_cubicTo path5 10 10 -10 20 0 0
+
+path_moveTo path6 0 0
+path_cubicTo path6 10 5 -10 10 0 15
+
+setPen black 2
+setBrush nobrush
+
+translate 10 500
+scale 3 3
+begin_block paths
+save
+drawPath path1
+translate 20 0
+drawPath path2
+translate 20 0
+drawPath path3
+translate 20 0
+drawPath path4
+translate 20 0
+drawPath path5
+translate 20 0
+drawPath path6
+restore
+end_block
+
+setPen nopen
+setBrush black
+
+translate 0 20
+repeat_block paths
+
+setRenderHint Antialiasing
+
+setPen black 2
+setBrush nobrush
+
+translate  120 -20
+repeat_block paths
+
+setPen nopen
+setBrush black
+
+translate 0 20
+repeat_block paths
