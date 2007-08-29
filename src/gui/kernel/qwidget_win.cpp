@@ -1855,33 +1855,16 @@ public:
 Q_GLOBAL_STATIC(QGlobalRasterPaintEngine, globalRasterPaintEngine)
 
 #ifndef QT_NO_DIRECT3D
-class QGlobal3DEngine
-{
-public:
-    QDirect3DPaintEngine *pointer;
-    bool destroyed;
-
-    inline QGlobal3DEngine()
-        : pointer(0), destroyed(false)
-    { }
-
-    inline ~QGlobal3DEngine()
-    {
-        delete pointer;
-        pointer = 0;
-        destroyed = true;
-    }
-};
-
 static void cleanup_d3d_engine();
-
+static QGlobalStatic<QDirect3DPaintEngine> this_d3dEngine;
 QDirect3DPaintEngine *qt_d3dEngine()
 {
-    static QGlobal3DEngine this_d3dEngine;
     if (!this_d3dEngine.pointer && !this_d3dEngine.destroyed) {
         QDirect3DPaintEngine *x = new QDirect3DPaintEngine;
-        if (!q_atomic_test_and_set_ptr(&this_d3dEngine.pointer, 0, x))
+        if (!this_d3dEngine.pointer.testAndSetOrdered(0, x))
             delete x;
+        else
+            static QGlobalStaticDeleter<QDirect3DPaintEngine > cleanup(this_d3dEngine);
         qAddPostRoutine(cleanup_d3d_engine);
     }
     return this_d3dEngine.pointer;
