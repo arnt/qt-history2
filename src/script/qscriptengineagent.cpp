@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_SCRIPT
 
+#include "qscriptvalue.h"
 #include "qscriptengineagent_p.h"
 
 /*!
