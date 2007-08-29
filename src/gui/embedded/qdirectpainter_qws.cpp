@@ -166,7 +166,7 @@ class QDirectPainterPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QDirectPainter);
 public:
 
-    QDirectPainterPrivate() : surface(0), synchronous(false), seenRegion(false) {}
+    QDirectPainterPrivate() : surface(0), seenRegion(false) {}
 
     ~QDirectPainterPrivate() {
         if (QPaintDevice::qwsDisplay()) { // make sure not in QApplication destructor
@@ -176,25 +176,14 @@ public:
         delete surface;
     }
 
-    void waitForRegion();
-
     QWSDirectPainterSurface *surface;
     QRegion requested_region;
-    bool synchronous;
 
     static QDirectPainter *staticPainter;
     bool seenRegion;
 };
 
 QDirectPainter *QDirectPainterPrivate::staticPainter = 0;
-
-void QDirectPainterPrivate::waitForRegion()
-{
-    //### slightly dirty way to do a blocking wait for the region event
-    seenRegion = false;
-    while (!seenRegion)
-        QApplication::processEvents();
-}
 
 void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc, int type)
 {
@@ -236,8 +225,6 @@ QDirectPainter::QDirectPainter(QObject *parent, SurfaceFlag flag)
 
     if (flag != NonReserved)
         d->surface->setReserved();
-    if (flag == ReservedSynchronous)
-        d->synchronous = true;
 
     QApplicationPrivate *ad = qApp->d_func();
     if (!ad->directPainters)
