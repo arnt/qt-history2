@@ -1007,19 +1007,19 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
     if (vi < 0)
         return QRect();
 
-    bool spanning = (d->header && d->viewItems.at(vi).spanning);
-    if (spanning && index.column() > 0)
-        return QRect();
+    bool spanning = d->viewItems.at(vi).spanning;
+    bool firstColumnMoved = (d->header && d->header->logicalIndex(0) != 0);
 
-    bool firstColumnMoved = (spanning && (d->header->logicalIndex(0) != 0));
-    int x = (firstColumnMoved? 0 : columnViewportPosition(index.column()));
+    // if we have a spanning item, make the selection stretch from left to right
+    int x = (spanning || firstColumnMoved ? 0 : columnViewportPosition(index.column()));
     int w = (spanning ? d->header->length() : columnWidth(index.column()));
-
-    if (index.column() == 0 && !firstColumnMoved) {
+    // handle indentation
+    if (index.column() == 0 && !firstColumnMoved && !spanning) {
         int i = d->indentationForItem(vi);
         x += i;
         w -= i;
     }
+
     int y = d->coordinateForItem(vi);
     int h = d->itemHeight(vi);
 
