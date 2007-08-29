@@ -14,8 +14,8 @@
 #include <qdrag.h>
 
 
-//TESTED_CLASS=
-//TESTED_FILES=qdrag.h
+//TESTED_CLASS=QDrag
+//TESTED_FILES=gui/kernel/qdrag.cpp
 
 class tst_QDrag : public QObject
 {
