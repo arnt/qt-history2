@@ -148,6 +148,9 @@ private:
     QSpanBuffer *m_spanBuffer;
 
     QVector<Line *> m_active;
+
+    template <typename T>
+    friend void scanConvert(QScanConverter &d, T allVertical);
 };
 
 class QRasterizerPrivate
@@ -261,50 +264,88 @@ static inline bool xOrder(const QScanConverter::Line *a, const QScanConverter::L
     return a->x < b->x;
 }
 
+struct True
+{
+    inline bool operator()() const { return true; }
+};
+
+struct False
+{
+    inline bool operator()() const { return false; }
+};
+
+// should be a member function but VC6 doesn't support member template functions
+template <typename T>
+static void scanConvert(QScanConverter &d, T allVertical)
+{
+    qSort(d.m_lines.data(), d.m_lines.data() + d.m_lines.size(), topOrder);
+    int line = 0;
+    for (int y = d.m_lines.first().top; y <= d.m_bottom; ++y) {
+        for (; line < d.m_lines.size() && d.m_lines.at(line).top == y; ++line) {
+            if (allVertical()) {
+                QScanConverter::Line *l = &d.m_lines.at(line);
+                d.m_active.resize(d.m_active.size() + 1);
+                int j;
+                for (j = d.m_active.size() - 2; j >= 0 && xOrder(l, d.m_active[j]); --j)
+                    d.m_active[j+1] = d.m_active[j];
+                d.m_active[j+1] = l;
+            } else {
+                d.m_active << &d.m_lines.at(line);
+            }
+        }
+
+        int numActive = d.m_active.size();
+        if (!allVertical()) {
+        // use insertion sort instead of qSort, as the active edge list is quite small
+        // and in the average case already sorted
+            for (int i = 1; i < numActive; ++i) {
+                QScanConverter::Line *l = d.m_active[i];
+                int j;
+                for (j = i-1; j >= 0 && xOrder(l, d.m_active[j]); --j)
+                    d.m_active[j+1] = d.m_active[j];
+                d.m_active[j+1] = l;
+            }
+        }
+
+        int x = 0;
+        int winding = 0;
+        for (int i = 0; i < numActive; ++i) {
+            QScanConverter::Line *node = d.m_active[i];
+
+            const int current = Q16Dot16ToInt(node->x);
+            if (winding & d.m_fillRuleMask)
+                d.m_spanBuffer->addSpan(x, current - x, y, 0xff);
+
+            x = current;
+            winding += node->winding;
+
+            if (node->bottom == y) {
+                d.m_active.remove(i--);
+                --numActive;
+            } else if (!allVertical())
+                node->x += node->delta;
+        }
+    }
+    d.m_active.clear();
+}
+
 void QScanConverter::end()
 {
     if (m_lines.isEmpty())
         return;
 
-    const int numLines = m_lines.size();
-    if (numLines <= 32) {
-        qSort(m_lines.data(), m_lines.data() + numLines, topOrder);
-        int line = 0;
-        for (int y = m_lines.first().top; y <= m_bottom; ++y) {
-            for (; line < numLines && m_lines.at(line).top == y; ++line)
-                m_active << &m_lines.at(line);
-
-            int numActive = m_active.size();
-            // use insertion sort instead of qSort, as the active edge list is quite small
-            // and in the average case already sorted
-            for (int i = 1; i < numActive; ++i) {
-                Line *l = m_active[i];
-                int j;
-                for (j = i-1; j >= 0 && xOrder(l, m_active[j]); --j)
-                    m_active[j+1] = m_active[j];
-                m_active[j+1] = l;
-            }
-
-            int x = 0;
-            int winding = 0;
-            for (int i = 0; i < numActive; ++i) {
-                Line *node = m_active[i];
-
-                const int current = Q16Dot16ToInt(node->x);
-                if (winding & m_fillRuleMask)
-                    m_spanBuffer->addSpan(x, current - x, y, 0xff);
-
-                x = current;
-                winding += node->winding;
-
-                if (node->bottom == y) {
-                    m_active.remove(i--);
-                    --numActive;
-                } else
-                    node->x += node->delta;
+    if (m_lines.size() <= 32) {
+        bool allVertical = true;
+        for (int i = 0; i < m_lines.size(); ++i) {
+            if (m_lines.at(i).delta) {
+                allVertical = false;
+                break;
             }
         }
-        m_active.clear();
+        if (allVertical)
+            scanConvert(*this, True());
+        else
+            scanConvert(*this, False());
     } else {
         for (int chunkTop = m_top; chunkTop <= m_bottom; chunkTop += CHUNK_SIZE) {
             prepareChunk();
@@ -327,10 +368,16 @@ void QScanConverter::end()
                 Intersection *it = m_intersections + top;
                 Intersection *end = m_intersections + bottom;
 
-                for (; it != end; ++it) {
+                if (line.delta) {
+                    for (; it != end; ++it) {
+                        isect.x = Q16Dot16ToInt(line.x);
+                        line.x += line.delta;
+                        mergeIntersection(it, isect);
+                    }
+                } else {
                     isect.x = Q16Dot16ToInt(line.x);
-                    line.x += line.delta;
-                    mergeIntersection(it, isect);
+                    for (; it != end; ++it)
+                        mergeIntersection(it, isect);
                 }
             }
 
