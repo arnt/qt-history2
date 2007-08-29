@@ -432,6 +432,12 @@ inline void QScanConverter::mergeIntersection(Intersection *it, const Intersecti
     current->winding += isect.winding;
 }
 
+template <typename T>
+inline T multiply(T a, T b)
+{
+    return a * b;
+}
+
 void QScanConverter::mergeCurve(const QT_FT_Vector &pa, const QT_FT_Vector &pb,
                                 const QT_FT_Vector &pc, const QT_FT_Vector &pd)
 {
@@ -445,21 +451,30 @@ void QScanConverter::mergeCurve(const QT_FT_Vector &pa, const QT_FT_Vector &pb,
     b[2] = pc;
     b[3] = pd;
 
+    const QT_FT_Pos flatness = 32;
+
     while (b >= beziers) {
         QT_FT_Vector delta = { b[3].x - b[0].x, b[3].y - b[0].y };
         QT_FT_Pos l = qAbs(delta.x) + qAbs(delta.y);
-        QT_FT_Pos d;
+
+        bool belowThreshold;
         if (l > 64) {
-            QT_FT_Pos d2 = qAbs((b[1].x-b[0].x)*delta.y - (b[1].y-b[0].y)*delta.x);
-            QT_FT_Pos d3 = qAbs((b[2].x-b[0].x)*delta.y - (b[2].y-b[0].y)*delta.x);
-            d = (d2 + d3) >> 6;
+            qlonglong d2 = qAbs((multiply<qlonglong>(b[1].x-b[0].x, delta.y) -
+                                 multiply<qlonglong>(b[1].y-b[0].y, delta.x)));
+            qlonglong d3 = qAbs((multiply<qlonglong>(b[2].x-b[0].x, delta.y) -
+                                 multiply<qlonglong>(b[2].y-b[0].y, delta.x)));
+
+            qlonglong d = d2 + d3;
+
+            belowThreshold = (d <= multiply<qlonglong>(flatness, l));
         } else {
-            l = 64;
-            d = qAbs(b[0].x-b[1].x) + qAbs(b[0].y-b[1].y) +
-                qAbs(b[0].x-b[2].x) + qAbs(b[0].y-b[2].y);
+            QT_FT_Pos d = qAbs(b[0].x-b[1].x) + qAbs(b[0].y-b[1].y) +
+                          qAbs(b[0].x-b[2].x) + qAbs(b[0].y-b[2].y);
+
+            belowThreshold = (d <= flatness);
         }
 
-        if (2 * d <= l || b == beziers + 3 * 32) {
+        if (belowThreshold || b == beziers + 3 * 32) {
             mergeLine(b[0], b[3]);
             b -= 3;
             continue;
