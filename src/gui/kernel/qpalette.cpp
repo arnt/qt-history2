@@ -422,8 +422,10 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
     \value Foreground  This value is obsolete. Use WindowText instead.
 
-    \value Base  Used as the background color for text entry widgets;
-                 usually white or another light color.
+    \value Base  Used mostly as the background color for text entry widgets,
+                 but can also be used for other painting - such as the
+                 background of combobox drop down lists and toolbar handles.
+                 It is usually white or another light color.
 
     \value AlternateBase  Used as the alternate background color in views with
                           alternating row colors (see
