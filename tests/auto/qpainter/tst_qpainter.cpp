@@ -75,6 +75,7 @@ private slots:
     void drawPath_data();
     void drawPath();
     void drawPath2();
+    void drawPath3();
 
     void drawRoundRect_data() { fillData(); }
     void drawRoundRect();
@@ -1127,6 +1128,59 @@ void tst_QPainter::drawPath2()
 
         QCOMPARE(p1Pixels + p2Pixels, w * h);
     }
+}
+
+void tst_QPainter::drawPath3()
+{
+    QImage imgA(400, 400, QImage::Format_RGB32);
+    imgA.fill(0xffffff);
+    QImage imgB = imgA;
+
+    QPainterPath path;
+    for (int y = 0; y < imgA.height(); ++y) {
+        for (int x = 0; x < imgA.width(); ++x) {
+            if ((x + y) & 1) {
+                imgA.setPixel(x, y, 0);
+                path.addRect(x, y, 1, 1);
+            }
+        }
+    }
+
+    QPainter p(&imgB);
+    p.setPen(Qt::NoPen);
+    p.setBrush(Qt::black);
+
+    p.drawPath(path);
+    p.end();
+
+    QVERIFY(imgA == imgB);
+
+    imgA.invertPixels();
+    imgB.fill(0xffffff);
+
+    p.begin(&imgB);
+    p.setPen(Qt::NoPen);
+    p.setBrush(Qt::black);
+
+    QRectF rect(0, 0, imgA.width(), imgA.height());
+    path.addRect(rect.adjusted(-10, -10, 10, 10));
+    p.drawPath(path);
+    p.end();
+
+    QVERIFY(imgA == imgB);
+
+    path.setFillRule(Qt::WindingFill);
+    imgB.fill(0xffffff);
+
+    p.begin(&imgB);
+    p.setPen(Qt::NoPen);
+    p.setBrush(Qt::black);
+    QRect clip = rect.adjusted(10, 10, -10, -10).toRect();
+    p.setClipRect(clip);
+    p.drawPath(path);
+    p.end();
+
+    QCOMPARE(getPaintedPixels(imgB, Qt::white), clip.width() * clip.height());
 }
 
 void tst_QPainter::drawEllipse_data()
