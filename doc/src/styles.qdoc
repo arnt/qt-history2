@@ -1241,7 +1241,7 @@
             \o sliderPosition
             \o the position of the slider given as a slider value.
                This  will be equal to the \c sliderValue if the
-               slider is \l{QStyleOptionSlider::}{tracking}; if
+               slider is \l{QAbstractSlider::}{tracking}; if
                not, the sliders value will not change until the handle is
                released with the mouse.
         \row
