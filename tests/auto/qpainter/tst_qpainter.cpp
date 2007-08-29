@@ -74,6 +74,7 @@ private slots:
 
     void drawPath_data();
     void drawPath();
+    void drawPath2();
 
     void drawRoundRect_data() { fillData(); }
     void drawRoundRect();
@@ -1084,6 +1085,47 @@ void tst_QPainter::drawPath()
     if (expectedPixels != -1) {
         int paintedPixels = getPaintedPixels(image, Qt::white);
         QCOMPARE(paintedPixels, expectedPixels);
+    }
+}
+
+void tst_QPainter::drawPath2()
+{
+    const int w = 50;
+
+    for (int h = 5; h < 200; ++h) {
+        QPainterPath p1, p2;
+        p1.lineTo(w, 0);
+        p1.lineTo(w, h);
+
+        p2.lineTo(w, h);
+        p2.lineTo(0, h);
+
+        const int offset = 2;
+
+        QImage image(w + 2 * offset, h + 2 * offset,
+                     QImage::Format_ARGB32_Premultiplied);
+        image.fill(QColor(Qt::white).rgb());
+
+        QPainter p(&image);
+        p.setPen(Qt::NoPen);
+        p.setBrush(Qt::black);
+        p.translate(offset, offset);
+        p.drawPath(p1);
+        p.end();
+
+        const int p1Pixels = getPaintedPixels(image, Qt::white);
+
+        image.fill(QColor(Qt::white).rgb());
+        p.begin(&image);
+        p.setPen(Qt::NoPen);
+        p.setBrush(Qt::black);
+        p.translate(offset, offset);
+        p.drawPath(p2);
+        p.end();
+
+        const int p2Pixels = getPaintedPixels(image, Qt::white);
+
+        QCOMPARE(p1Pixels + p2Pixels, w * h);
     }
 }
 
