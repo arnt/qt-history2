@@ -328,10 +328,8 @@ bool QSslSocketBackendPrivate::initSslContext()
 */
 bool QSslSocketPrivate::ensureInitialized()
 {
-    if (!q_resolveOpenSslSymbols()) {
-        qWarning("QSslSocketBackendPrivate::ensureInitialized: unable to resolve all symbols");
+    if (!q_resolveOpenSslSymbols())
         return false;
-    }
 
     // Check if the library itself needs to be initialized.
     QMutexLocker locker(openssl_locks()->initLock());

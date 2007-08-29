@@ -29,6 +29,8 @@
 #include "qsslsocket_openssl_symbols_p.h"
 
 #include <QtCore/qlibrary.h>
+#include <QtCore/qmutex.h>
+#include <private/qmutexpool_p.h>
 
 #ifdef SSLEAY_MACROS
 DEFINEFUNC3(void *, ASN1_dup, i2d_of_void *a, a, d2i_of_void *b, b, char *c, c, return 0, return)
@@ -194,10 +196,15 @@ bool q_resolveOpenSslSymbols()
 
 bool q_resolveOpenSslSymbols()
 {
-    // ### This is non-reentrant
-    static bool symbolsResolved = false;
+    static volatile bool symbolsResolved = false;
+    static volatile bool triedToResolveSymbols = false;
+    QMutexLocker locker(QMutexPool::globalInstanceGet((void *)&q_SSL_library_init));
     if (symbolsResolved)
         return true;
+    if (triedToResolveSymbols)
+        return false;
+    triedToResolveSymbols = true;
+
 #ifdef Q_OS_WIN
     QLibrary ssleay32(QLatin1String("ssleay32"));
     if (!ssleay32.load()) {
