@@ -365,7 +365,7 @@ WId QDirectPainter::winId() const
     This function is not called for region changes that happen while the
     startPainting() function is executing.
 
-    Note that the given region is not guaranteed to be correct at the
+    Note that the given region, \a newRegion, is not guaranteed to be correct at the
     time you access the display. To prevent reentrancy problems you should
     always call startPainting() before updating the display and then use
     allocatedRegion() to retrieve the correct region.
