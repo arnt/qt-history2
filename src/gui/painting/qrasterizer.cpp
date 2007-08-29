@@ -1082,6 +1082,9 @@ static inline QT_FT_Vector PointToVector(const QPointF &p)
 
 void QRasterizer::rasterize(const QPainterPath &path, Qt::FillRule fillRule)
 {
+    if (path.isEmpty())
+        return;
+
     QSpanBuffer buffer(d->blend, d->data, d->clipRect);
 
     QRectF bounds = path.controlPointRect();
@@ -1094,6 +1097,7 @@ void QRasterizer::rasterize(const QPainterPath &path, Qt::FillRule fillRule)
 
     d->scanConverter.begin(iTopBound, iBottomBound, d->clipRect.left(), d->clipRect.right(), fillRule, &buffer);
 
+    int subpathStart = 0;
     QT_FT_Vector last = { 0, 0 };
     for (int i = 0; i < path.elementCount(); ++i) {
         switch (path.elementAt(i).type) {
@@ -1106,6 +1110,7 @@ void QRasterizer::rasterize(const QPainterPath &path, Qt::FillRule fillRule)
                 break;
             }
         case QPainterPath::MoveToElement:
+            subpathStart = i;
             last = PointToVector(path.elementAt(i));
             break;
         case QPainterPath::CurveToElement:
@@ -1123,6 +1128,12 @@ void QRasterizer::rasterize(const QPainterPath &path, Qt::FillRule fillRule)
             break;
         }
     }
+
+    QT_FT_Vector first = PointToVector(path.elementAt(subpathStart));
+
+    // close path
+    if (first.x != last.x || first.y != last.y)
+        d->scanConverter.mergeLine(last, first);
 
     d->scanConverter.end();
 }
