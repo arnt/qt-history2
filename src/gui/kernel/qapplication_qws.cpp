@@ -985,26 +985,48 @@ void QWSDisplay::Data::waitForConnection()
         qFatal("Did not receive a connection event from the qws server");
 }
 
-#if 0
-void QWSDisplay::Data::waitForRegionAck()
+void QWSDisplay::Data::waitForRegionAck(int winId)
 {
-    for (;;) {
-        fillQueue();
-        if (region_ack)
-            break;
-#ifndef QT_NO_QWS_MULTIPROCESS
-        if (csocket) {
-            csocket->flush();
-            csocket->waitForReadyRead(1000);
-            if (csocket->state() != QAbstractSocket::ConnectedState)
-                return;
+    QWSEvent *ack = 0;
+
+    if (csocket) { // GuiClient
+        int i = 0;
+        while (!ack) {
+            fillQueue();
+
+            while (i < queue.size()) {
+                QWSEvent *e = queue.at(i);
+                if (e->type == QWSEvent::Region && e->window() == winId) {
+                    ack = e;
+                    queue.removeAt(i);
+                    break;
+                }
+                ++i;
+            }
+
+            if (!ack) {
+                csocket->flush();
+                csocket->waitForReadyRead(1000);
+            }
         }
-#endif
+    } else { // GuiServer
+        fillQueue();
+        for (int i = 0; i < queue.size(); /* nothing */) {
+            QWSEvent *e = queue.at(i);
+            if (e->type == QWSEvent::Region && e->window() == winId) {
+                ack = e;
+                queue.removeAt(i);
+                break;
+            }
+            ++i;
+        }
     }
-    queue.prepend(region_ack);
-    region_ack = 0;
+
+    Q_ASSERT(ack);
+
+    qApp->qwsProcessEvent(ack);
+    delete ack;
 }
-#endif
 
 void QWSDisplay::Data::waitForRegionEvents(int winId)
 {

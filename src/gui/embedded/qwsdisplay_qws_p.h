@@ -50,7 +50,7 @@ public:
     void connectToPipe();
     void waitForConnection();
     void waitForPropertyReply();
-//    void waitForRegionAck();
+    void waitForRegionAck(int winId);
     void waitForRegionEvents(int winId);
 #endif
     void waitForCreation();
