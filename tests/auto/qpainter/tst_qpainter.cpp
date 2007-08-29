@@ -1023,24 +1023,6 @@ void tst_QPainter::drawPath_data()
         QTest::newRow("non-aligned rect 3") << p << QRect(3, 3, 10, 10) << 10 * 10;
     }
 
-    for (int radius = 1; radius < 10; ++radius) {
-        QPainterPath p;
-        p.addEllipse(1.5, 1.5, 2 * radius, 2 * radius);
-
-        int expected = 0;
-        for (int y = -radius; y < radius; ++y) {
-            for (int x = -radius; x < radius; ++x) {
-                qreal px = x + .5;
-                qreal py = y + .5;
-
-                if (sqrt(px * px + py * py) < radius)
-                    ++expected;
-            }
-        }
-
-        QTest::newRow(QString("int-aligned ellipse (r=%1)").arg(radius)) << p << QRect(2, 2, 2 * radius, 2 * radius) << expected;
-    }
-
     {
         QPainterPath p;
         p.addRect(2, 2, 10, 10);

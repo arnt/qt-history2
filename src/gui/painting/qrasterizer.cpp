@@ -460,14 +460,7 @@ void QScanConverter::mergeCurve(const QT_FT_Vector &pa, const QT_FT_Vector &pb,
         }
 
         if (2 * d <= l || b == beziers + 3 * 32) {
-            QT_FT_Vector b23 = {
-                (b[1].x + b[2].x)/2,
-                (b[1].y + b[2].y)/2
-            };
-
-            mergeLine(b[0], b23);
-            mergeLine(b23, b[3]);
-
+            mergeLine(b[0], b[3]);
             b -= 3;
             continue;
         }
