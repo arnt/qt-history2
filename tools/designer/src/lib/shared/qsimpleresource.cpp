@@ -302,10 +302,4 @@ bool FormBuilderClipboard::empty() const
 {
     return m_widgets.empty() && m_actions.empty();
 }
-
-void FormBuilderClipboard::deleteAll()
-{
-    qDeleteAll(m_widgets);
-    qDeleteAll(m_actions);
-}
 }

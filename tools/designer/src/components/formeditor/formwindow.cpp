@@ -40,6 +40,7 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <layoutinfo_p.h>
 #include <connectionedit_p.h>
 #include <actionprovider_p.h>
+#include <ui4_p.h>
 
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerWidgetDataBaseInterface>
@@ -66,6 +67,7 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <QtGui/QToolBox>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTabWidget>
+#include <QtXml/QDomDocument>
 
 namespace {
 class BlockSelection
@@ -1372,20 +1374,36 @@ void FormWindow::cut()
 QWidget *FormWindow::containerForPaste() const
 {
     QWidget *w = mainContainer();
-    const QWidgetList l = selectedWidgets();
-    if (l.count() == 1) {
-        w = l.first();
-        w = m_core->widgetFactory()->containerOfWidget(w);
-        if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
-             (!m_core->widgetDataBase()->isContainer(w) &&
-               w != mainContainer()))
-            w = mainContainer();
-    }
+    if (!w)
+        return 0;
+    do {
+        // Try to find a close parent, for example a non-laid-out
+        // QFrame/QGroupBox when a widget within it is selected.
+        QWidgetList selection = selectedWidgets();
+        if (selection.empty())
+            break;
+        simplifySelection(&selection);
 
-    if (w && LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout)
-        return m_core->widgetFactory()->containerOfWidget(w);
+        QWidget *containerOfW = findContainer(selection.first(), /* exclude layouts */ true);
+        if (!containerOfW || containerOfW == mainContainer())
+            break;
+        // No layouts, must be container
+        if (LayoutInfo::layoutType(m_core, containerOfW) != LayoutInfo::NoLayout || !m_core->widgetDataBase()->isContainer(containerOfW))
+            break;
+        w = containerOfW;
+    } while (false);
+    // First check for layout (note that it does not cover QMainWindow
+    // and the like as the central widget has the layout).
+    if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout)
+        return 0;
+    // Go up via container extension (also includes step from QMainWindow to its central widget)
+    w = m_core->widgetFactory()->containerOfWidget(w);
+    if (w == 0 || LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout)
+        return 0;
 
-    return 0;
+    if (debugFormWindow)
+        qDebug() <<"containerForPaste() " <<  w;
+    return w;
 }
 
 void FormWindow::paste()
@@ -1393,71 +1411,105 @@ void FormWindow::paste()
     paste(PasteAll);
 }
 
+// Construct DomUI from clipboard (paste) and determine number of widgets/actions.
+static inline DomUI *domUIFromClipboard(int *widgetCount, int *actionCount)
+{
+    const QString clipboardText = qApp->clipboard()->text();
+    if (clipboardText.isEmpty() || clipboardText.indexOf(QLatin1Char('<')) == -1)
+        return 0;
+
+    QDomDocument doc;
+    if (!doc.setContent(clipboardText))
+        return 0;
+
+    QDomElement root = doc.firstChildElement();
+    DomUI *rc = new DomUI;
+    rc->read(root);
+    if (const DomWidget *topLevel = rc->elementWidget()) {
+        *widgetCount = topLevel->elementWidget().size();
+        *actionCount = topLevel->elementAction().size();
+    }
+    if (*widgetCount == 0 && *actionCount == 0) {
+        delete rc;
+        return 0;
+    }
+    return rc;
+}
+
+static inline QString pasteCommandDescription(int widgetCount, int actionCount)
+{
+    if (widgetCount == 0)
+        return FormWindow::tr("Paste %n action(s)", 0, actionCount);
+    if (actionCount == 0)
+        return FormWindow::tr("Paste %n widget(s)", 0, widgetCount);
+    return FormWindow::tr("Paste (%1 widgets, %2 actions)").arg(widgetCount).arg(actionCount);
+}
+
 void FormWindow::paste(PasteMode pasteMode)
 {
-    const QString clipboardText =  qApp->clipboard()->text();
-    if (clipboardText.isEmpty() || clipboardText.indexOf(QLatin1Char('<')) == -1)
-        return;
+    // Avoid QDesignerResource constructing widgets that are not used as
+    // QDesignerResource manages the widgets it creates (creating havoc if one remains unused)
+    DomUI *ui = 0;
+    do {
+        int widgetCount;
+        int actionCount;
+        ui = domUIFromClipboard(&widgetCount, &actionCount);
+        if (!ui)
+            break;
 
-    QByteArray code = clipboardText.toUtf8();
-    QBuffer b(&code);
-    b.open(QIODevice::ReadOnly);
+        // Check for actions
+        if (pasteMode == PasteActionsOnly)
+            if (widgetCount != 0 || actionCount == 0)
+                break;
 
-    QDesignerResource resource(this);
-    // We don't know a container to paste yet, so we pass "this". The widgets need a parent,
-    // otherwise, the widget factory cannot locate the form window via parent
-    // and thus is not able to construct QLayoutWidgets (It will then default to widgets).
-    FormBuilderClipboard clipboard = resource.paste(&b, this);
-    if ((pasteMode == PasteActionsOnly && clipboard.m_actions.empty()) || clipboard.empty()) {
-        clipboard.deleteAll();
-        return;
-    }
+        // Check for widgets: need a container
+        QWidget *pasteContainer = widgetCount ? containerForPaste() : 0;
+        if (widgetCount && pasteContainer == 0) {
 
-    // Widget selection: need a container
-    QWidget *pasteContainer = 0;
-    const bool hasWidgets = pasteMode == PasteAll && !clipboard.m_widgets.empty();
-    if (hasWidgets) {
-        pasteContainer = containerForPaste();
-        if (!pasteContainer) {
-            const QString message =  tr("Can't paste widgets. Designer couldn't find a container\n"
-                                        "to paste into which does not contain a layout. Break the layout\n"
-                                        "of the container you want to paste into and select this container\n"
-                                        "and then paste again.");
+            const QString message = tr("Can't paste widgets. Designer couldn't find a container\n"
+                                       "to paste into which does not contain a layout. Break the layout\n"
+                                       "of the container you want to paste into and select this container\n"
+                                       "and then paste again.");
             core()->dialogGui()->message(this, QDesignerDialogGuiInterface::FormEditorMessage, QMessageBox::Information,
                                          tr("Paste error"), message, QMessageBox::Ok);
-            clipboard.deleteAll();
-            return;
-        }
-    }
-
-    clearSelection(false);
-    // Create command sequence
-    beginCommand(tr("Paste"));
-
-    if (hasWidgets)
-        foreach (QWidget *w, clipboard.m_widgets) {
-            w->setParent(pasteContainer);
-            InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
-            cmd->init(w);
-            m_commandHistory->push(cmd);
-            selectWidget(w);
+            break;
         }
 
-    foreach (QAction *a, clipboard.m_actions) {
-        a->setParent(this);
-        ensureUniqueObjectName(a);
-        AddActionCommand *cmd = new AddActionCommand(this);
-        cmd->init(a);
-        m_commandHistory->push(cmd);
-    }
-    endCommand();
+        QDesignerResource resource(this);
+        // Note that the widget factory must be able to locate the
+        // form window (us) via parent, otherwise, it will not able to construct QLayoutWidgets
+        // (It will then default to widgets) among other issues.
+        const FormBuilderClipboard clipboard = resource.paste(ui, pasteContainer, this);
 
-    /* This will put the freshly pasted widgets into the clipboard, replacing the original.
-     *  The point here is that the copied widgets are shifted a little with respect to the original.
-     *  If the user presses paste again, the pasted widgets will be shifted again, rather than
-     *  appearing on top of the previously pasted widgets. */
-    if (hasWidgets)
-        copy();
+        clearSelection(false);
+        // Create command sequence
+        beginCommand(pasteCommandDescription(widgetCount, actionCount));
+
+        if (widgetCount)
+            foreach (QWidget *w, clipboard.m_widgets) {
+                InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
+                cmd->init(w);
+                m_commandHistory->push(cmd);
+                selectWidget(w);
+        }
+
+        if (actionCount)
+            foreach (QAction *a, clipboard.m_actions) {
+                ensureUniqueObjectName(a);
+                AddActionCommand *cmd = new AddActionCommand(this);
+                cmd->init(a);
+                m_commandHistory->push(cmd);
+            }
+        endCommand();
+
+        /* This will put the freshly pasted widgets into the clipboard, replacing the original.
+         *  The point here is that the copied widgets are shifted a little with respect to the original.
+         *  If the user presses paste again, the pasted widgets will be shifted again, rather than
+         *  appearing on top of the previously pasted widgets. */
+        if (widgetCount)
+            copy();
+    } while (false);
+    delete ui;
 }
 
 bool FormWindow::frameNeeded(QWidget *w) const

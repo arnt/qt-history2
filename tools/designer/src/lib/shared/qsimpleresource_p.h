@@ -89,8 +89,6 @@ struct QDESIGNER_SHARED_EXPORT FormBuilderClipboard {
     FormBuilderClipboard(QWidget *w);
 
     bool empty() const;
-    // Delete objects in case of a failed paste
-    void deleteAll();
 
     QWidgetList m_widgets;
     ActionList m_actions;
