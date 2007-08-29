@@ -28,6 +28,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QList>
+#include <QtCore/QPointer>
 #include <QtCore/QAbstractItemModel>
 
 #include <connectionedit_p.h>
@@ -71,7 +72,8 @@ class ConnectionModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit ConnectionModel(SignalSlotEditor *editor, QObject *parent = 0);
+    explicit ConnectionModel(QObject *parent = 0);
+    void setEditor(SignalSlotEditor *editor = 0);
 
     virtual QModelIndex index(int row, int column,
                               const QModelIndex &parent = QModelIndex()) const;
@@ -96,7 +98,7 @@ private slots:
     void connectionChanged(Connection *con);
 
 private:
-    SignalSlotEditor *m_editor;
+    QPointer<SignalSlotEditor> m_editor;
 };
 
 } // namespace qdesigner_internal

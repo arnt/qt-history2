@@ -22,7 +22,6 @@
 #include <QtXml/QDomElement>
 
 class DomConnections;
-class QAbstractItemModel;
 
 namespace qdesigner_internal {
 
@@ -47,8 +46,6 @@ public:
 
     QObject *objectByName(QWidget *topLevel, const QString &name) const;
 
-    QAbstractItemModel *model() const;
-
     void addEmptyConnection();
 
 protected:
@@ -59,7 +56,6 @@ private:
     virtual void modifyConnection(Connection *con);
 
     QDesignerFormWindowInterface *m_form_window;
-    QAbstractItemModel *m_model;
     bool m_showAllSignalsSlots;
 
     friend class SetMemberCommand;

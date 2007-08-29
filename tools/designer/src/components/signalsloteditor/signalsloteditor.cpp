@@ -207,15 +207,9 @@ void SetMemberCommand::undo()
 SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QWidget *parent) :
      ConnectionEdit(parent, form_window),
      m_form_window(form_window),
-     m_model(new ConnectionModel(this, this)),
      m_showAllSignalsSlots(false)
 {
     connect(this, SIGNAL(widgetActivated(QWidget*)), form_window, SIGNAL(activated(QWidget*)));
-}
-
-QAbstractItemModel *SignalSlotEditor::model() const
-{
-    return m_model;
 }
 
 void SignalSlotEditor::modifyConnection(Connection *con)

@@ -53,7 +53,7 @@ private:
     QPointer<SignalSlotEditor> m_editor;
     QToolButton *m_add_button, *m_remove_button;
     QDesignerFormEditorInterface *m_core;
-
+    ConnectionModel *m_model;
     bool m_handling_selection_change;
 };
 

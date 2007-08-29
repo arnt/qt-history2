@@ -106,20 +106,42 @@ namespace qdesigner_internal {
 
 // ------------  ConnectionModel
 
-ConnectionModel::ConnectionModel(SignalSlotEditor *editor, QObject *parent)  :
-    QAbstractItemModel(parent),
-    m_editor(editor)
+ConnectionModel::ConnectionModel(QObject *parent)  :
+    QAbstractItemModel(parent)
 {
-    connect(m_editor, SIGNAL(connectionAdded(Connection*)),
-            this, SLOT(connectionAdded(Connection*)));
-    connect(m_editor, SIGNAL(connectionRemoved(int)),
-            this, SLOT(connectionRemoved(int)));
-    connect(m_editor, SIGNAL(aboutToRemoveConnection(Connection*)),
-            this, SLOT(aboutToRemoveConnection(Connection*)));
-    connect(m_editor, SIGNAL(aboutToAddConnection(int)),
-            this, SLOT(aboutToAddConnection(int)));
-    connect(m_editor, SIGNAL(connectionChanged(Connection*)),
-            this, SLOT(connectionChanged(Connection*)));
+}
+
+void ConnectionModel::setEditor(SignalSlotEditor *editor)
+{
+    if (m_editor == editor)
+        return;
+
+    if (m_editor) {
+        disconnect(m_editor, SIGNAL(connectionAdded(Connection*)),
+                   this, SLOT(connectionAdded(Connection*)));
+        disconnect(m_editor, SIGNAL(connectionRemoved(int)),
+                   this, SLOT(connectionRemoved(int)));
+        disconnect(m_editor, SIGNAL(aboutToRemoveConnection(Connection*)),
+                   this, SLOT(aboutToRemoveConnection(Connection*)));
+        disconnect(m_editor, SIGNAL(aboutToAddConnection(int)),
+                this, SLOT(aboutToAddConnection(int)));
+        disconnect(m_editor, SIGNAL(connectionChanged(Connection*)),
+                   this, SLOT(connectionChanged(Connection*)));
+    }
+    m_editor = editor;
+    if (m_editor) {
+        connect(m_editor, SIGNAL(connectionAdded(Connection*)),
+                this, SLOT(connectionAdded(Connection*)));
+        connect(m_editor, SIGNAL(connectionRemoved(int)),
+                this, SLOT(connectionRemoved(int)));
+        connect(m_editor, SIGNAL(aboutToRemoveConnection(Connection*)),
+                this, SLOT(aboutToRemoveConnection(Connection*)));
+        connect(m_editor, SIGNAL(aboutToAddConnection(int)),
+                this, SLOT(aboutToAddConnection(int)));
+        connect(m_editor, SIGNAL(connectionChanged(Connection*)),
+                this, SLOT(connectionChanged(Connection*)));
+    }
+    reset();
 }
 
 QVariant ConnectionModel::headerData(int section, Qt::Orientation orientation,
@@ -149,7 +171,7 @@ QVariant ConnectionModel::headerData(int section, Qt::Orientation orientation,
 QModelIndex ConnectionModel::index(int row, int column,
                                     const QModelIndex &parent) const
 {
-    if (parent.isValid())
+    if (parent.isValid() || !m_editor)
         return QModelIndex();
     if (row < 0 || row >= m_editor->connectionCount())
         return QModelIndex();
@@ -158,7 +180,7 @@ QModelIndex ConnectionModel::index(int row, int column,
 
 Connection *ConnectionModel::indexToConnection(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    if (!index.isValid() || !m_editor)
         return 0;
     if (index.row() < 0 || index.row() >= m_editor->connectionCount())
         return 0;
@@ -167,6 +189,7 @@ Connection *ConnectionModel::indexToConnection(const QModelIndex &index) const
 
 QModelIndex ConnectionModel::connectionToIndex(Connection *con) const
 {
+    Q_ASSERT(m_editor);
     return createIndex(m_editor->indexOfConnection(con), 0);
 }
 
@@ -177,7 +200,7 @@ QModelIndex ConnectionModel::parent(const QModelIndex&) const
 
 int ConnectionModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.isValid())
+    if (parent.isValid() || !m_editor)
         return 0;
     return m_editor->connectionCount();
 }
@@ -191,7 +214,7 @@ int ConnectionModel::columnCount(const QModelIndex &parent) const
 
 QVariant ConnectionModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole && role != Qt::EditRole)
+    if (role != Qt::DisplayRole && role != Qt::EditRole || !m_editor)
         return QVariant();
 
     if (index.row() < 0 || index.row() >= m_editor->connectionCount()) {
@@ -237,7 +260,7 @@ QVariant ConnectionModel::data(const QModelIndex &index, int role) const
 
 bool ConnectionModel::setData(const QModelIndex &index, const QVariant &data, int)
 {
-    if (!index.isValid())
+    if (!index.isValid() || !m_editor)
         return false;
     if (data.type() != QVariant::String)
         return false;
@@ -284,12 +307,14 @@ void ConnectionModel::connectionRemoved(int)
 
 void ConnectionModel::aboutToRemoveConnection(Connection *con)
 {
+    Q_ASSERT(m_editor);
     int idx = m_editor->indexOfConnection(con);
     beginRemoveRows(QModelIndex(), idx, idx);
 }
 
 void ConnectionModel::aboutToAddConnection(int idx)
 {
+    Q_ASSERT(m_editor);
     beginInsertRows(QModelIndex(), idx, idx);
 }
 
@@ -300,6 +325,7 @@ Qt::ItemFlags ConnectionModel::flags(const QModelIndex&) const
 
 void ConnectionModel::connectionChanged(Connection *con)
 {
+    Q_ASSERT(m_editor);
     const int idx = m_editor->indexOfConnection(con);
     SignalSlotConnection *changedCon = static_cast<SignalSlotConnection*>(m_editor->connection(idx));
     SignalSlotConnection *c = 0;
@@ -586,13 +612,17 @@ namespace qdesigner_internal {
 */
 
 SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *core,
-                                                QWidget *parent)
-    : QWidget(parent)
+                                                QWidget *parent)  :
+    QWidget(parent),
+    m_view(new QTreeView),
+    m_editor(0),
+    m_add_button(new QToolButton),
+    m_remove_button(new QToolButton),
+    m_core(core),
+    m_model(new ConnectionModel(this)),
+    m_handling_selection_change(false)
 {
-    m_handling_selection_change = false;
-
-    m_editor = 0;
-    m_view = new QTreeView(this);
+    m_view->setModel(m_model);
     m_view->setItemDelegate(new ConnectionDelegate(this));
     m_view->setEditTriggers(QAbstractItemView::DoubleClicked
                                 | QAbstractItemView::EditKeyPressed);
@@ -610,12 +640,10 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *cor
     layout->addLayout(layout2);
     layout2->addStretch();
 
-    m_remove_button = new QToolButton(this);
     m_remove_button->setIcon(createIconSet(QLatin1String("minus.png")));
     connect(m_remove_button, SIGNAL(clicked()), this, SLOT(removeConnection()));
     layout2->addWidget(m_remove_button);
 
-    m_add_button = new QToolButton(this);
     m_add_button->setIcon(createIconSet(QLatin1String("plus.png")));
     connect(m_add_button, SIGNAL(clicked()), this, SLOT(addConnection()));
     layout2->addWidget(m_add_button);
@@ -625,13 +653,10 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *cor
                 this, SLOT(setActiveFormWindow(QDesignerFormWindowInterface*)));
 
     updateUi();
-
-    m_core = core;
 }
 
 void SignalSlotEditorWindow::setActiveFormWindow(QDesignerFormWindowInterface *form)
 {
-    m_view->setModel(0);
     QDesignerIntegration *integration = qobject_cast<QDesignerIntegration *>(m_core->integration());
 
     if (!m_editor.isNull()) {
@@ -647,9 +672,8 @@ void SignalSlotEditorWindow::setActiveFormWindow(QDesignerFormWindowInterface *f
     }
 
     m_editor = qFindChild<SignalSlotEditor*>(form);
-
+    m_model->setEditor(m_editor);
     if (!m_editor.isNull()) {
-        m_view->setModel(m_editor->model());
         ConnectionDelegate *delegate
             = qobject_cast<ConnectionDelegate*>(m_view->itemDelegate());
         if (delegate != 0)
@@ -674,9 +698,7 @@ void SignalSlotEditorWindow::updateDialogSelection(Connection *con)
     if (m_handling_selection_change || m_editor == 0)
         return;
 
-    ConnectionModel *model = qobject_cast<ConnectionModel*>(m_editor->model());
-    Q_ASSERT(model != 0);
-    QModelIndex index = model->connectionToIndex(con);
+    QModelIndex index = m_model->connectionToIndex(con);
     if (index == m_view->currentIndex())
         return;
     m_handling_selection_change = true;
@@ -694,9 +716,7 @@ void SignalSlotEditorWindow::updateEditorSelection(const QModelIndex &index)
     if (m_editor == 0)
         return;
 
-    ConnectionModel *model = qobject_cast<ConnectionModel*>(m_editor->model());
-    Q_ASSERT(model != 0);
-    Connection *con = model->indexToConnection(index);
+    Connection *con = m_model->indexToConnection(index);
     if (m_editor->selected(con))
         return;
     m_handling_selection_change = true;
@@ -709,10 +729,8 @@ void SignalSlotEditorWindow::updateEditorSelection(const QModelIndex &index)
 
 void SignalSlotEditorWindow::objectNameChanged(QDesignerFormWindowInterface *, QObject *, const QString &)
 {
-    if (m_editor && m_editor->model()) {
-        ConnectionModel *model = qobject_cast<ConnectionModel*>(m_editor->model());
-        model->updateAll();
-    }
+    if (m_editor)
+        m_model->updateAll();
 }
 
 void SignalSlotEditorWindow::addConnection()
