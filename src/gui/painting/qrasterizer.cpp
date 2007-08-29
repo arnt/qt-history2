@@ -451,7 +451,7 @@ void QScanConverter::mergeCurve(const QT_FT_Vector &pa, const QT_FT_Vector &pb,
     b[2] = pc;
     b[3] = pd;
 
-    const QT_FT_Pos flatness = 32;
+    const QT_FT_Pos flatness = 16;
 
     while (b >= beziers) {
         QT_FT_Vector delta = { b[3].x - b[0].x, b[3].y - b[0].y };
