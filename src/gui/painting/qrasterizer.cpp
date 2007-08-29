@@ -351,13 +351,27 @@ void QScanConverter::mergeCurve(const QT_FT_Vector &pa, const QT_FT_Vector &pb,
 
         if (convex) {
             // compute the area of the convex hull
-            const Q16Dot16 area = ((b[0].x * b[1].y - b[1].x * b[0].y +
-                                    b[1].x * b[2].y - b[2].x * b[1].y +
-                                    b[2].x * b[3].y - b[3].x * b[2].y +
-                                    b[3].x * b[0].y - b[0].x * b[3].y) << 3);
+            const QT_FT_Pos area = ((b[0].x * b[1].y - b[1].x * b[0].y +
+                                     b[1].x * b[2].y - b[2].x * b[1].y +
+                                     b[2].x * b[3].y - b[3].x * b[2].y +
+                                     b[3].x * b[0].y - b[0].x * b[3].y) >> 7);
 
-            // is the maximum error less than half a pixel?
-            if (qAbs(area) < Q16Dot16Factor / 2) {
+            // is the maximum error less than a pixel?
+            if (qAbs(area) < 32) {
+                mergeLine(b[0], b[1]);
+                mergeLine(b[1], b[2]);
+                mergeLine(b[2], b[3]);
+                b -= 3;
+                continue;
+            }
+        } else {
+            const QT_FT_Pos sumOfSquareLengths = (delta[0].x * delta[0].x + delta[0].y * delta[0].y
+                                                + delta[1].x * delta[1].x + delta[1].y * delta[1].y
+                                                + delta[2].x * delta[2].x + delta[2].y * delta[2].y
+                                                + delta[3].x * delta[3].x + delta[3].y * delta[3].y) >> 6;
+
+            // max segment length less than 0.5?
+            if (sumOfSquareLengths < 8) {
                 mergeLine(b[0], b[1]);
                 mergeLine(b[1], b[2]);
                 mergeLine(b[2], b[3]);
