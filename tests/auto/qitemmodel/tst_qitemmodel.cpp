@@ -186,7 +186,7 @@ void tst_QItemModel::nonDestructiveBasicTest()
     currentModel->setData(QModelIndex(), variant, -1);
     currentModel->setHeaderData(-1, Qt::Horizontal, QVariant());
     currentModel->setHeaderData(0, Qt::Horizontal, QVariant());
-    currentModel->setHeaderData(999999, Qt::Horizontal, QVariant());
+    currentModel->setHeaderData(currentModel->columnCount() + 100, Qt::Horizontal, QVariant());
     QMap<int, QVariant> roles;
     currentModel->setItemData(QModelIndex(), roles);
     currentModel->sibling(0,0,QModelIndex());
@@ -637,7 +637,7 @@ void tst_QItemModel::setHeaderData()
     if (readOnly)
         return;
 
-    // Populate the test area so we can chage stuff.  See: cleanup()
+    // Populate the test area so we can change stuff.  See: cleanup()
     QModelIndex topIndex = testModels->populateTestArea(currentModel);
     QVERIFY(currentModel->hasChildren(topIndex));
     QModelIndex index = currentModel->index(0, 0, topIndex);
