@@ -1607,8 +1607,9 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
 
     \code
         socket->disconnectFromHost();
-        if (socket->waitForDisconnected(1000))
-            qDebug("Disconnected!");
+            if (socket->state() == QAbstractSocket::UnconnectedState || 
+                socket->waitForDisconnected(1000))
+                qDebug("Disconnected!");
     \endcode
 
     If msecs is -1, this function will not time out.
