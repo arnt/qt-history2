@@ -1520,8 +1520,15 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
     resolveGradientBoundsConditional(controlPointRect, fillData);
 
     ProcessSpans blend = d->getBrushFunc(d->matrix.mapRect(controlPointRect), fillData);
+
+    const QRectF deviceRect = d->matrix.mapRect(controlPointRect);
+    const bool do_clip = (deviceRect.left() < -QT_RASTER_COORD_LIMIT
+                          || deviceRect.right() > QT_RASTER_COORD_LIMIT
+                          || deviceRect.top() < -QT_RASTER_COORD_LIMIT
+                          || deviceRect.bottom() > QT_RASTER_COORD_LIMIT);
+
 #ifdef QT_FAST_SPANS
-    if (!d->antialiased) {
+    if (!d->antialiased && !do_clip) {
         d->initializeRasterizer(fillData);
         d->rasterizer.rasterize(path * d->matrix, path.fillRule());
         return;
