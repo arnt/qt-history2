@@ -4139,7 +4139,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             connect(widget, SIGNAL(destroyed(QObject*)), SLOT(widgetDestroyed(QObject*)));
             connect(QGLSignalProxy::instance(),
                     SIGNAL(aboutToDestroyContext(const QGLContext *)),
-                    SLOT(cleanupGLContextRefs(const QGLContext *)));
+                    SLOT(cleanupContext(const QGLContext *)));
         }
     } else {
         font_cache = dev_it.value();
