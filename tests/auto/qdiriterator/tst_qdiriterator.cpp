@@ -325,6 +325,13 @@ void tst_QDirIterator::longPath()
     }
 
     QCOMPARE(n, m);
+
+    dirName.chop(1);
+    while (dirName.length() > 0 && dir.exists(dirName) && dir.rmdir(dirName)) {
+        dirName.chop(1);
+    }
+    dir.cdUp();
+    dir.rmdir("longpaths");
 }
 
 QTEST_MAIN(tst_QDirIterator)
