@@ -257,6 +257,9 @@ void QScanConverter::end()
         for (int i = 0; i < m_lines.size(); ++i) {
             Line &line = m_lines.at(i);
 
+            if ((line.bottom < chunkTop) || (line.top > chunkTop + CHUNK_SIZE))
+                continue;
+
             const int top = qMax(0, line.top - chunkTop);
             const int bottom = qMin(CHUNK_SIZE, line.bottom + 1 - chunkTop);
             allocate(m_size + bottom - top);
