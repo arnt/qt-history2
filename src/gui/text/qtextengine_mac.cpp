@@ -543,12 +543,21 @@ void QTextEngine::shapeTextWithAtsui(int item) const
 
     const int len = length(item);
     int num_glyphs = length(item);
+    const QChar *str = layoutData->string.unicode() + si.position;
+    ushort upperCased[256];
+    if (si.analysis.flags == QScriptAnalysis::Lowercase) {
+        ushort *uc = upperCased;
+        if (len > 256)
+            uc = new ushort[len];
+        for (int i = 0; i < len; ++i)
+            uc[i] = str[i].toUpper().unicode();
+        str = reinterpret_cast<const QChar *>(uc);
+    }
 
     while (true) {
 	ensureSpace(num_glyphs);
         num_glyphs = layoutData->num_glyphs - layoutData->used;
 
-        const QChar *str = layoutData->string.unicode() + si.position;
         QGlyphLayout *g = glyphs(&si);
         unsigned short *log_clusters = logClusters(&si);
 
@@ -593,5 +602,10 @@ void QTextEngine::shapeTextWithAtsui(int item) const
             g[gpos].attributes.justification = properties[i].justification;
         }
     }
+
+    const ushort *uc = reinterpret_cast<const ushort *>(str);
+    if (si.analysis.flags == QScriptAnalysis::Lowercase
+        && uc != upperCased)
+        delete [] uc;
 }
 
