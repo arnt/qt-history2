@@ -117,7 +117,7 @@ private:
     };
 
     inline bool clip(Q16Dot16 &xFP, int &iTop, int &iBottom, Q16Dot16 slopeFP, Q16Dot16 invSlopeFP, Q16Dot16 edgeFP, int winding);
-    inline void mergeIntersection(int y, const Intersection &isect);
+    inline void mergeIntersection(Intersection *head, const Intersection &isect);
 
     void prepareChunk();
 
@@ -268,10 +268,12 @@ void QScanConverter::end()
 
             isect.winding = line.winding;
 
-            for (int y = top; y < bottom; ++y) {
+            Intersection *it = m_intersections + top;
+            Intersection *end = m_intersections + bottom;
+            for (; it != end; ++it) {
                 isect.x = Q16Dot16ToInt(line.x);
-                mergeIntersection(y, isect);
                 line.x += line.delta;
+                mergeIntersection(it, isect);
             }
         }
 
@@ -297,23 +299,19 @@ inline void QScanConverter::allocate(int size)
     }
 }
 
-inline void QScanConverter::mergeIntersection(int y, const Intersection &isect)
+inline void QScanConverter::mergeIntersection(Intersection *it, const Intersection &isect)
 {
-    Intersection *current = &m_intersections[y];
-
-    if (!current->winding && !current->left && !current->right) {
-        current->x = isect.x;
-        current->winding = isect.winding;
-        return;
-    }
+    Intersection *current = it;
 
     while (isect.x != current->x) {
         int &next = isect.x < current->x ? current->left : current->right;
         if (next)
             current += next;
         else {
-            next = m_intersections + m_size - current;
-            m_intersections[m_size++] = isect;
+            Intersection *last = m_intersections + m_size;
+            next = last - current;
+            *last = isect;
+            ++m_size;
             return;
         }
     }
