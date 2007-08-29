@@ -3636,7 +3636,7 @@ void Q3FileDialog::okClicked()
         Q3FileDialogPrivate::MCItem * m
             = (Q3FileDialogPrivate::MCItem *)d->moreFiles->item(d->moreFiles->currentItem());
         if (c && files->isVisible() && files->hasFocus() ||
-             m && d->moreFiles->isVisible() && d->moreFiles->hasFocus()) {
+             m && d->moreFiles->isVisible()) {
             if (c && files->isVisible())
                 f = c->info;
             else
