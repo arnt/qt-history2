@@ -155,8 +155,12 @@ QAbstractFileEngineHandler::~QAbstractFileEngineHandler()
     Creates and returns a QAbstractFileEngine suitable for processing \a
     fileName.
 
-    You should not need to call this function; use QFile, QFileInfo or QDir
-    directly instead.
+    You should not need to call this function; use QFile, QFileInfo or
+    QDir directly instead.
+
+    If you reimplemnt this function, it should only return file
+    engines that knows how to handle \a filename; otherwise, it should
+    return 0.
 
     \sa QAbstractFileEngineHandler
 */
