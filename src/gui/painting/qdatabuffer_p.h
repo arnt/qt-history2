@@ -60,6 +60,11 @@ public:
         ++siz;
     }
 
+    inline void resize(int size) {
+        reserve(size);
+        siz = size;
+    }
+
     inline void reserve(int size) {
         if (size > capacity) {
             capacity *= 2;
