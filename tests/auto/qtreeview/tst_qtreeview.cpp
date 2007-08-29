@@ -2027,7 +2027,7 @@ void tst_QTreeView::spanningItems()
     QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, p);
     QApplication::processEvents();
     QCOMPARE(view.currentIndex(), model.index(1, 0, QModelIndex()));
-    QCOMPARE(view.header()->length() - view.indentation(),
+    QCOMPARE(view.header()->length(),// - view.indentation(), // ### special case for spanning items
              view.visualRect(model.index(1, 0, QModelIndex())).width());
 }
 
