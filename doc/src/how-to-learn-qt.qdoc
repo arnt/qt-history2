@@ -77,9 +77,9 @@
     \l{Books about Qt Programming} for a complete list of Qt books,
     including translations to various languages.
 
-    One more valuable source for finding examples and explanations of
-    how to use Qt is the archive of the \l
-    {http://doc.trolltech.com/qq} {Qt Quarterly}.
+    One more valuable source for examples and explanations of Qt
+    features is the archive of the \l {http://doc.trolltech.com/qq}
+    {Qt Quarterly}.
 
     Good luck, and have fun!
 */

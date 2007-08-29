@@ -19,9 +19,14 @@
     \l{Qt Demonstrations}{selection of demos} that deliberately show off
     Qt's features. You might want to look at these as well.
 
-    Examples marked with an asterisk (*) are fully
-    documented. It is our goal to fully document all examples in a
-    future release.
+    One more valuable source for examples and explanations of Qt
+    features is the archive of the \l {http://doc.trolltech.com/qq}
+    {Qt Quarterly}.
+    
+    In the list below, examples marked with an asterisk (*) are fully
+    documented. Eventually, all the examples will be fully documented,
+    but sometimes we include an example before we have time to write
+    about it, because someone might need it right now.
 
     Categories:
 
