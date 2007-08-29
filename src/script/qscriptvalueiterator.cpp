@@ -254,13 +254,10 @@ QString QScriptValueIterator::name() const
     QScript::Member member;
     QScriptValuePrivate::valueOf(d->object).member(d->index, &member);
 
-    if (member.isObjectProperty() || member.nameId())
+    if (member.nameId())
         return member.nameId()->s;
-
-    else if (member.isNativeProperty())
+    else
         return QScriptEnginePrivate::toString(member.id());
-
-    return QString();
 }
 
 /*!

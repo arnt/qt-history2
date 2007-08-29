@@ -28,6 +28,7 @@
 #include <QtCore/QSet>
 #include <QtCore/QStringList>
 #include <QtCore/QTime>
+#include <QtCore/QVector>
 
 #include "qscriptengine.h"
 #include "qscriptrepository_p.h"
@@ -141,11 +142,12 @@ public:
 
     static inline QScriptEnginePrivate *get(QScriptEngine *q);
 
-    QScript::AST::Node *createAbstractSyntaxTree(const QString &source, int &lineNumber);
+    QScript::AST::Node *createAbstractSyntaxTree(
+        const QString &source, int lineNumber,
+        QString *errorMessage, int *errorLineNumber);
     QScript::AST::Node *changeAbstractSyntaxTree(QScript::AST::Node *program);
 
     inline QScript::AST::Node *abstractSyntaxTree() const;
-    inline QString errorMessage() const;
     inline bool hasUncaughtException() const;
     inline QScriptValueImpl uncaughtException() const;
     QStringList uncaughtExceptionBacktrace() const;
@@ -353,6 +355,30 @@ public:
     void _q_objectDestroyed(QObject *object);
 #endif
 
+    void setAgent(QScriptEngineAgent *agent);
+    QScriptEngineAgent *agent() const;
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    qint64 nextScriptId();
+    inline bool shouldNotify() const;
+    inline void notifyScriptLoad(qint64 id, const QString &program,
+                                 const QString &fileName, int lineNumber);
+    void notifyScriptLoad_helper(qint64 id, const QString &program,
+                                 const QString &fileName, int lineNumber);
+    inline void notifyScriptUnload(qint64 id);
+    void notifyScriptUnload_helper(qint64 id);
+    inline void notifyPositionChange(QScriptContextPrivate *ctx);
+    void notifyPositionChange_helper(QScriptContextPrivate *ctx);
+    inline void notifyFunctionEntry(QScriptContextPrivate *ctx);
+    void notifyFunctionEntry_helper(QScriptContextPrivate *ctx);
+    inline void notifyFunctionExit(QScriptContextPrivate *ctx);
+    void notifyFunctionExit_helper(QScriptContextPrivate *ctx);
+    inline void notifyException(QScriptContextPrivate *ctx);
+    void notifyException_helper(QScriptContextPrivate *ctx);
+    inline void notifyExceptionCatch(QScriptContextPrivate *ctx);
+    void notifyExceptionCatch_helper(QScriptContextPrivate *ctx);
+#endif // Q_SCRIPT_NO_EVENT_NOTIFY
+
 public: // attributes
     int m_callDepth;
     int m_maxCallDepth;
@@ -370,10 +396,10 @@ public: // attributes
     QScriptContext *m_context;
     QScriptValueImpl *tempStackBegin;
     QScriptValueImpl *tempStackEnd;
-    QString m_errorMessage;
     QScript::AST::Node *m_abstractSyntaxTree;
     QScript::Lexer *m_lexer;
     QScript::MemoryPool *m_pool;
+    qint64 m_scriptCounter;
 
     QScript::Ecma::Object *objectConstructor;
     QScript::Ecma::Number *numberConstructor;
@@ -431,6 +457,9 @@ public: // attributes
     int m_nextProcessEvents;
     int m_processEventIncr;
     QTime m_processEventTracker;
+
+    QVector<QScriptEngineAgent*> m_agents;
+    QScriptEngineAgent *m_agent;
 
 #ifndef QT_NO_QOBJECT
     QHash<QObject*, QScriptQObjectData*> m_qobjectData;

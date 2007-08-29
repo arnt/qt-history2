@@ -377,10 +377,10 @@ void tst_QScriptContext::lineNumber()
 {
     QScriptEngine eng;
 
-    QScriptValue result = eng.evaluate("try { eval(\"foo = 123;\\n this[is{a{syntax|error@#$%@#% \"); } catch (e) { return e.lineNumber; } return \"not reached!\";");
+    QScriptValue result = eng.evaluate("try { eval(\"foo = 123;\\n this[is{a{syntax|error@#$%@#% \"); } catch (e) { return e.lineNumber; } return \"not reached!\";", "foo.qs", 123);
     QVERIFY(!eng.hasUncaughtException());
     QVERIFY(result.isNumber());
-    QCOMPARE(result.toInt32(), 1);
+    QCOMPARE(result.toInt32(), 124);
 
     result = eng.evaluate("foo = 123;\n bar = 42\n0 = 0");
     QVERIFY(eng.hasUncaughtException());
@@ -400,7 +400,7 @@ void tst_QScriptContext::backtrace()
 
     QString fileName = "testfile";
     QStringList expected;
-    expected << "<native>(123)@:0"
+    expected << "<native>(123)@:-1"
              << "foo(hello,[object Object])@testfile:2"
              << "<global>()@testfile:4";
 

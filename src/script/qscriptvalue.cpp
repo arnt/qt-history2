@@ -1100,4 +1100,36 @@ bool QScriptValue::isValid() const
     return QScriptValuePrivate::valueOf(*this).isValid();
 }
 
+/*!
+  \since 4.4
+
+  Returns the internal data of this QScriptValue object. QtScript uses
+  this property to store the primitive value of Date, String, Number
+  and Boolean objects. For other types of object, custom data may be
+  stored using setData().
+*/
+QScriptValue QScriptValue::data() const
+{
+    if (!isObject())
+        return QScriptValue();
+    return QScriptValuePrivate::valueOf(*this).internalValue();
+}
+
+/*!
+  \since 4.4
+
+  Sets the internal \a data of this QScriptValue object. You can use
+  this function to set object-specific data that won't be directly
+  accessible to scripts, but may be retrieved in C++ using the data()
+  function.
+*/
+void QScriptValue::setData(const QScriptValue &data)
+{
+    if (!isObject())
+        return;
+    QScriptValueImpl self = QScriptValuePrivate::valueOf(*this);
+    QScriptValueImpl data_p = QScriptValuePrivate::valueOf(data);
+    self.setInternalValue(data_p);
+}
+
 #endif // QT_NO_SCRIPT

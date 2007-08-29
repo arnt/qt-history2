@@ -34,6 +34,7 @@ QT_BEGIN_HEADER
 QT_MODULE(Script)
 
 class QDateTime;
+class QScriptEngineAgent;
 class QScriptEnginePrivate;
 
 #ifndef QT_NO_QOBJECT
@@ -94,6 +95,7 @@ public:
     virtual ~QScriptEngine();
 
     QScriptValue globalObject() const;
+
     QScriptContext *currentContext() const;
     QScriptContext *pushContext();
     void popContext();
@@ -172,6 +174,9 @@ public:
 
     void setProcessEventsInterval(int interval);
     int processEventsInterval() const;
+
+    void setAgent(QScriptEngineAgent *agent);
+    QScriptEngineAgent *agent() const;
 
 #ifndef QT_NO_QOBJECT
 Q_SIGNALS:

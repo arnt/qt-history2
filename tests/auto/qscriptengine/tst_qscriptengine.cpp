@@ -426,9 +426,9 @@ void tst_QScriptEngine::evaluate_data()
     QTest::addColumn<bool>("expectHadError");
     QTest::addColumn<int>("expectErrorLineNumber");
 
-    QTest::newRow("0")     << QString("0")       << -1 << false << 0;
+    QTest::newRow("0")     << QString("0")       << -1 << false << -1;
     QTest::newRow("0=1")   << QString("\n0=1\n") << -1 << true  << 2;
-    QTest::newRow("a=1")   << QString("a=1\n")   << -1 << false << 0;
+    QTest::newRow("a=1")   << QString("a=1\n")   << -1 << false << -1;
     QTest::newRow("a=1;K") << QString("a=1;\nK") << -1 << true  << 2;
 
     QTest::newRow("f()") << QString("function f()\n"
@@ -439,9 +439,9 @@ void tst_QScriptEngine::evaluate_data()
                                     "f();\n")
                          << -1 << true << 4;
 
-    QTest::newRow("0")     << QString("0")       << 10 << false << 0;
+    QTest::newRow("0")     << QString("0")       << 10 << false << -1;
     QTest::newRow("0=1")   << QString("\n\n0=1\n") << 10 << true  << 12;
-    QTest::newRow("a=1")   << QString("a=1\n")   << 10 << false << 0;
+    QTest::newRow("a=1")   << QString("a=1\n")   << 10 << false << -1;
     QTest::newRow("a=1;K") << QString("a=1;\n\nK") << 10 << true  << 12;
 
     QTest::newRow("f()") << QString("function f()\n"
@@ -527,7 +527,7 @@ void tst_QScriptEngine::uncaughtException()
             QVERIFY(ret2.isError());
             QVERIFY(eng.hasUncaughtException());
             QVERIFY(eng.uncaughtException().strictlyEquals(ret2));
-            QCOMPARE(eng.uncaughtExceptionLineNumber(), 0);
+            QCOMPARE(eng.uncaughtExceptionLineNumber(), -1);
             eng.clearExceptions();
             QVERIFY(!eng.hasUncaughtException());
             eng.evaluate("1 + 2");

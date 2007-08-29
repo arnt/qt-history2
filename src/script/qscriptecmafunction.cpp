@@ -137,9 +137,15 @@ void Function::initialize()
 
 void Function::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionEntry(context);
+#endif
     int lineNumber = context->currentLine;
     QString contents = buildFunction(context);
     engine()->evaluate(context, contents, lineNumber);
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionExit(context);
+#endif
 }
 
 QString Function::buildFunction(QScriptContextPrivate *context)

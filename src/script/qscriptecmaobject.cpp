@@ -53,6 +53,9 @@ void Object::initialize()
 
 void Object::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionEntry(context);
+#endif
     QScriptValueImpl value;
 
     if (context->argumentCount() > 0)
@@ -64,6 +67,9 @@ void Object::execute(QScriptContextPrivate *context)
         newObject(&value);
 
     context->setReturnValue(value);
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionExit(context);
+#endif
 }
 
 void Object::newObject(QScriptValueImpl *result, const QScriptValueImpl &proto)

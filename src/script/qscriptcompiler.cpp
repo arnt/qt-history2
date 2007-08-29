@@ -762,8 +762,8 @@ bool Compiler::visit(AST::WhileStatement *node)
     Loop *previousLoop = changeActiveLoop(&m_loops[node]);
     m_activeLoop->continueLabel.offset = nextInstructionOffset();
 
-    int again = nextInstructionOffset();
     iLine(node);
+    int again = nextInstructionOffset();
     node->expression->accept(this);
 
     int cond = nextInstructionOffset();
@@ -798,13 +798,13 @@ bool Compiler::visit(AST::DoWhileStatement *node)
 {
     Loop *previousLoop = changeActiveLoop(&m_loops[node]);
     int again = nextInstructionOffset();
+    iLine(node);
     bool was = iterationStatement(true);
     node->statement->accept(this);
     iterationStatement(was);
 
     m_activeLoop->continueLabel.offset = nextInstructionOffset();
 
-    iLine(node->expression);
     node->expression->accept(this);
 
     iBranchTrue(again - nextInstructionOffset());
@@ -828,6 +828,7 @@ bool Compiler::visit(AST::ForEachStatement *node)
 {
     Loop *previousLoop = changeActiveLoop(&m_loops[node]);
 
+    iLine(node);
     node->expression->accept(this);
     iNewEnumeration();
     iDuplicate();
@@ -835,7 +836,6 @@ bool Compiler::visit(AST::ForEachStatement *node)
 
     int again = nextInstructionOffset();
     m_activeLoop->continueLabel.offset = again;
-    iLine(node);
     iDuplicate();
     iHasNextElement();
     int cond = nextInstructionOffset();
@@ -873,6 +873,7 @@ bool Compiler::visit(AST::LocalForEachStatement *node)
 {
     Loop *previousLoop = changeActiveLoop(&m_loops[node]);
 
+    iLine(node);
     node->declaration->accept(this);
     node->expression->accept(this);
     iNewEnumeration();
@@ -881,7 +882,6 @@ bool Compiler::visit(AST::LocalForEachStatement *node)
 
     int again = nextInstructionOffset();
     m_activeLoop->continueLabel.offset = again;
-    iLine(node);
     iDuplicate();
     iHasNextElement();
     int cond = nextInstructionOffset();
@@ -919,10 +919,10 @@ void Compiler::visitForInternal(AST::Statement *node, AST::ExpressionNode *condi
 
     int again = nextInstructionOffset();
     if (condition != 0) {
-        iLine(condition);
+//        iLine(condition);
         condition->accept(this);
     } else {
-        iLine(node);
+//        iLine(node);
         iLoadNumber(1);
     }
 

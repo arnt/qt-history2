@@ -101,9 +101,11 @@ QTOBJS= \
 	qscriptcontext_p.o \
 	qscriptengine.o \
 	qscriptengine_p.o \
+	qscriptengineagent.o \
 	qscriptextenumeration.o \
 	qscriptextvariant.o \
 	qscriptcontext.o \
+	qscriptcontextinfo.o \
 	qscriptfunction.o \
 	qscriptgrammar.o \
 	qscriptlexer.o \
@@ -372,6 +374,9 @@ qscriptengine.o: $(SOURCE_PATH)/src/script/qscriptengine.cpp
 qscriptengine_p.o: $(SOURCE_PATH)/src/script/qscriptengine_p.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptengine_p.cpp
 
+qscriptengineagent.o: $(SOURCE_PATH)/src/script/qscriptengineagent.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptengineagent.cpp
+
 qscriptextenumeration.o: $(SOURCE_PATH)/src/script/qscriptextenumeration.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptextenumeration.cpp
 
@@ -380,6 +385,9 @@ qscriptextvariant.o: $(SOURCE_PATH)/src/script/qscriptextvariant.cpp
 
 qscriptcontext.o: $(SOURCE_PATH)/src/script/qscriptcontext.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptcontext.cpp
+
+qscriptcontextinfo.o: $(SOURCE_PATH)/src/script/qscriptcontextinfo.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptcontextinfo.cpp
 
 qscriptfunction.o: $(SOURCE_PATH)/src/script/qscriptfunction.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptfunction.cpp

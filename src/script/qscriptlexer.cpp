@@ -64,7 +64,7 @@ void QScript::Lexer::setCode(const QString &c, int lineno)
 {
     errmsg = QString();
     yylineno = lineno;
-    yycolumn = 0;
+    yycolumn = 1;
     restrKeyword = false;
     delimited = false;
     stackToken = -1;
@@ -428,7 +428,7 @@ int QScript::Lexer::lex()
             } else if (isLineTerminator()) {
                 shiftWindowsLineBreak();
                 yylineno++;
-                yycolumn = -1;
+                yycolumn = 0;
                 bol = true;
                 terminator = true;
                 if (restrKeyword) {
@@ -542,7 +542,7 @@ int QScript::Lexer::lex()
             if (isLineTerminator()) {
                 shiftWindowsLineBreak();
                 yylineno++;
-                yycolumn = -1;
+                yycolumn = 0;
                 terminator = true;
                 bol = true;
                 if (restrKeyword) {

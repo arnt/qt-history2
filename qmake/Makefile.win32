@@ -140,9 +140,11 @@ QTOBJS= \
 	qscriptcontext_p.obj \
 	qscriptengine.obj \
 	qscriptengine_p.obj \
+	qscriptengineagent.obj \
 	qscriptextenumeration.obj \
 	qscriptextvariant.obj \
 	qscriptcontext.obj \
+	qscriptcontextinfo.obj \
 	qscriptfunction.obj \
 	qscriptgrammar.obj \
 	qscriptlexer.obj \
@@ -238,9 +240,11 @@ clean::
 	-del qscriptcontext_p.obj \
 	-del qscriptengine.obj \
 	-del qscriptengine_p.obj \
+	-del qscriptengineagent.obj \
 	-del qscriptextenumeration.obj \
 	-del qscriptextvariant.obj \
 	-del qscriptcontext.obj \
+	-del qscriptcontextinfo.obj \
 	-del qscriptfunction.obj \
 	-del qscriptgrammar.obj \
 	-del qscriptlexer.obj \
@@ -506,6 +510,9 @@ qscriptengine.obj: $(SOURCE_PATH)\src\script\qscriptengine.cpp
 qscriptengine_p.obj: $(SOURCE_PATH)\src\script\qscriptengine_p.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptengine_p.cpp
 
+qscriptengineagent.obj: $(SOURCE_PATH)\src\script\qscriptengineagent.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptengineagent.cpp
+
 qscriptextenumeration.obj: $(SOURCE_PATH)\src\script\qscriptextenumeration.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptextenumeration.cpp
 
@@ -514,6 +521,9 @@ qscriptextvariant.obj: $(SOURCE_PATH)\src\script\qscriptextvariant.cpp
 
 qscriptcontext.obj: $(SOURCE_PATH)\src\script\qscriptcontext.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptcontext.cpp
+
+qscriptcontextinfo.obj: $(SOURCE_PATH)\src\script\qscriptcontextinfo.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptcontextinfo.cpp
 
 qscriptfunction.obj: $(SOURCE_PATH)\src\script\qscriptfunction.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptfunction.cpp

@@ -261,6 +261,9 @@ public:
     virtual void execute(QScriptContextPrivate *context)
     {
         QScriptEnginePrivate *eng = context->enginePrivate();
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng->notifyFunctionEntry(context);
+#endif
         for (int i = 0; i < context->argumentCount(); ++i) {
             if (i != 0)
                 qout << QLatin1String(" ");
@@ -271,6 +274,9 @@ public:
         qout << endl;
 
         context->setReturnValue(eng->undefinedValue());
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng->notifyFunctionExit(context);
+#endif
     }
 
     QTextStream qout;

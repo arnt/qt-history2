@@ -305,8 +305,18 @@ QString ScriptFunction::fileName() const
 QString ScriptFunction::functionName() const
 {
     if (!m_definition->name)
-        return QLatin1String("<anonymous>");
+        return QString();
     return m_definition->name->s;
+}
+
+int ScriptFunction::startLineNumber() const
+{
+    return m_definition->startLine;
+}
+
+int ScriptFunction::endLineNumber() const
+{
+    return m_definition->endLine;
 }
 
 } // namespace QScript
@@ -367,6 +377,8 @@ bool QScriptContextPrivate::resolveField(QScriptEnginePrivate *eng,
 
 void QScriptContextPrivate::execute(QScript::Code *code)
 {
+    int oldCurrentLine = currentLine;
+    int oldCurrentColumn = currentColumn;
     QScript::Code *oldCode = m_code;
     m_code = code;
 
@@ -397,10 +409,13 @@ void QScriptContextPrivate::execute(QScript::Code *code)
     m_result = undefined;
     firstInstruction = code->firstInstruction;
     lastInstruction = code->lastInstruction;
-    iPtr = code->firstInstruction; // ### kill iPtr
+    iPtr = code->firstInstruction;
 
     m_scopeChain = m_activation;
 
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng->notifyFunctionEntry(this);
+#endif
 
 #ifndef Q_SCRIPT_DIRECT_CODE
 
@@ -1894,6 +1909,11 @@ Ltop:
         currentLine = iPtr->operand[0].m_int_value;
         currentColumn = iPtr->operand[1].m_int_value;
         ++iPtr;
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng->notifyPositionChange(this);
+#endif
+
     }   Next();
 
     I(Delete):
@@ -1989,6 +2009,9 @@ Ltop:
         Q_ASSERT(stackPtr->isValid());
         m_result = *stackPtr--;
         m_state = QScriptContext::ExceptionState;
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng->notifyException(this);
+#endif
     }   HandleException();
 
     I(Ret):
@@ -2074,21 +2097,28 @@ Ldone:
             m_scopeChain = object.m_object_value->m_scope;
             catching = false;
         }
+
         // see if we have an exception handler in this context
-        int offset = iPtr - code->firstInstruction;
-        for (int i = 0; i < code->exceptionHandlers.count(); ++i) {
-            QScript::ExceptionHandlerDescriptor e = code->exceptionHandlers.at(i);
-            if (offset >= e.startInstruction() && offset <= e.endInstruction()) {
-                // go to the handler
-                iPtr = code->firstInstruction + e.handlerInstruction();
-                recover();
-                goto Ltop;
-            }
+        const QScriptInstruction *exPtr = findExceptionHandler(iPtr);
+        if (exPtr) {
+            // go to the handler
+            iPtr = exPtr;
+            recover();
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+            eng->notifyExceptionCatch(this);
+#endif
+            goto Ltop;
         }
     }
 
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng->notifyFunctionExit(this);
+#endif
+
     eng->maybeGC();
 
+    currentLine = oldCurrentLine;
+    currentColumn = oldCurrentColumn;
     m_code = oldCode;
 }
 
@@ -2118,8 +2148,20 @@ QScriptValueImpl QScriptContextPrivate::throwError(QScriptContext::Error error, 
     }
     setDebugInformation(&m_result);
     m_state = QScriptContext::ExceptionState;
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng_p->notifyException(this);
+#endif
     return m_result;
 }
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+qint64 QScriptContextPrivate::scriptId() const
+{
+    if (!m_code)
+        return -1;
+    return m_code->astPool->id();
+}
+#endif
 
 QString QScriptContextPrivate::fileName() const
 {
@@ -2174,8 +2216,18 @@ QStringList QScriptContextPrivate::backtrace() const
         QString functionName = ctx_p->functionName();
         if (!functionName.isEmpty())
             s += functionName;
-        else
-            s += QLatin1String("<global>");
+        else {
+            if (ctx->parentContext()) {
+                if (ctx_p->callee().isFunction()
+                    && ctx_p->callee().toFunction()->type() != QScriptFunction::Script) {
+                    s += QLatin1String("<native>");
+                } else {
+                    s += QLatin1String("<anonymous>");
+                }
+            } else {
+                s += QLatin1String("<global>");
+            }
+        }
         s += QLatin1String("(");
         for (int i = 0; i < ctx_p->argc; ++i) {
             if (i > 0)
@@ -2319,6 +2371,52 @@ bool QScriptContextPrivate::le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl
     qsreal n1 = eng->convertToNativeDouble(lhs);
     qsreal n2 = eng->convertToNativeDouble(rhs);
     return n1 <= n2;
+}
+
+const QScriptInstruction *QScriptContextPrivate::findExceptionHandler(
+    const QScriptInstruction *ip) const
+{
+    Q_ASSERT(m_code);
+    int offset = ip - m_code->firstInstruction;
+    for (int i = 0; i < m_code->exceptionHandlers.count(); ++i) {
+        QScript::ExceptionHandlerDescriptor e = m_code->exceptionHandlers.at(i);
+        if (offset >= e.startInstruction() && offset <= e.endInstruction()) {
+            return m_code->firstInstruction + e.handlerInstruction();
+        }
+    }
+    return 0;
+}
+
+const QScriptInstruction *QScriptContextPrivate::findExceptionHandlerRecursive(
+    const QScriptInstruction *ip, QScriptContextPrivate **handlerContext) const
+{
+    const QScriptContextPrivate *ctx = this;
+    const QScriptInstruction *iip = ip;
+    while (ctx) {
+        if (ctx->m_code) {
+            const QScriptInstruction *ep = ctx->findExceptionHandler(iip);
+            if (ep) {
+                Q_ASSERT(handlerContext);
+                *handlerContext = const_cast<QScriptContextPrivate*>(ctx);
+                return ep;
+            }
+        }
+        ctx = QScriptContextPrivate::get(ctx->parentContext());
+        if (ctx)
+            iip = ctx->iPtr;
+    }
+    return 0;
+}
+
+/*!
+  Requires that iPtr in current context is in sync
+*/
+QScriptContextPrivate *QScriptContextPrivate::exceptionHandlerContext() const
+{
+    QScriptContextPrivate *handlerContext;
+    if (findExceptionHandlerRecursive(iPtr, &handlerContext))
+        return handlerContext;
+    return 0;
 }
 
 #endif // QT_NO_SCRIPT

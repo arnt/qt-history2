@@ -42,6 +42,16 @@ QString QScriptFunction::functionName() const
     return QString();
 }
 
+int QScriptFunction::startLineNumber() const
+{
+    return -1;
+}
+
+int QScriptFunction::endLineNumber() const
+{
+    return -1;
+}
+
 void QScriptFunction::mark(QScriptEnginePrivate *engine, int generation)
 {
     for (int i = 0; i < formals.count(); ++i)
@@ -56,14 +66,22 @@ void QScript::CFunction::execute(QScriptContextPrivate *context)
 
     eng_p->newUndefined(&context->m_result);
 
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng_p->notifyFunctionEntry(context);
+#endif
+
     QScriptValueImpl result = QScriptValuePrivate::valueOf((*m_funPtr)(eng->currentContext(), eng));
     if (result.isValid())
         context->m_result = result;
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng_p->notifyFunctionExit(context);
+#endif
 }
 
 QString QScript::CFunction::functionName() const
 {
-    return QLatin1String("<native>");
+    return QString();
 }
 
 // internal API function
@@ -73,8 +91,18 @@ void QScript::C2Function::execute(QScriptContextPrivate *context)
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
     bool blocked = eng_p->blockGC(true);
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng_p->notifyFunctionEntry(context);
+#endif
+
     context->m_result = (*m_funPtr)(context, eng_p, m_classInfo);
     Q_ASSERT(context->m_result.isValid());
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng_p->notifyFunctionExit(context);
+#endif
+
     eng_p->blockGC(blocked);
 }
 
@@ -82,7 +110,7 @@ QString QScript::C2Function::functionName() const
 {
     if (!m_name.isEmpty())
         return m_name;
-    return QLatin1String("<native>");
+    return QString();
 }
 
 #endif // QT_NO_SCRIPT

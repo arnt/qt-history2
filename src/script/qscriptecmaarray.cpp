@@ -228,6 +228,9 @@ Array::~Array()
 
 void Array::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionEntry(context);
+#endif
     QScript::Array value;
 
     if (context->argumentCount() == 1 && context->argument(0).isNumber()) {
@@ -247,6 +250,10 @@ void Array::execute(QScriptContextPrivate *context)
     }
 
     newArray(&context->m_result, value);
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionExit(context);
+#endif
 }
 
 void Array::newArray(QScriptValueImpl *result, const QScript::Array &value)

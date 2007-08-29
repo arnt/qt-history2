@@ -136,7 +136,12 @@
   You can specify how the conversion of C++ types is to be performed
   with qScriptRegisterMetaType() and qScriptRegisterSequenceMetaType().
 
-  \sa QScriptValue, QScriptContext
+  You can be notified of events pertaining to script execution
+  (e.g. script function calls and statement execution) through the
+  QScriptEngineAgent interface. This can be used to implement
+  debugging and profiling of a QScriptEngine.
+
+  \sa QScriptValue, QScriptContext, QScriptEngineAgent
 
 */
 
@@ -233,12 +238,12 @@ QScriptEngine::~QScriptEngine()
 /*!
   Returns this engine's Global Object.
 
-  The Global Object contains the built-in objects that are part of
-  \l{ECMA-262}, such as Math, Date and String. Additionally, you can
-  set properties of the Global Object to make your own extensions
-  available to all script code. Non-local variables in script code
-  will be created as properties of the Global Object, as well as local
-  variables in global code.
+  By default, the Global Object contains the built-in objects that are
+  part of \l{ECMA-262}, such as Math, Date and String. Additionally,
+  you can set properties of the Global Object to make your own
+  extensions available to all script code. Non-local variables in
+  script code will be created as properties of the Global Object, as
+  well as local variables in global code.
 */
 QScriptValue QScriptEngine::globalObject() const
 {
@@ -1374,5 +1379,40 @@ bool qScriptDisconnect(QObject *sender, const char *signal,
 #include "moc_qscriptengine.cpp"
 
 #endif // QT_NO_QOBJECT
+
+/*!
+  \since 4.4
+
+  Installs the given \a agent on this engine. The agent will be
+  notified of various events pertaining to script execution. This is
+  useful when you want to find out exactly what the engine is doing,
+  e.g. when evaluate() is called. The agent interface is the basis of
+  tools like debuggers and profilers.
+
+  The engine maintains ownership of the \a agent.
+
+  Calling this function will replace the existing agent, if any.
+
+  \sa agent()
+*/
+void QScriptEngine::setAgent(QScriptEngineAgent *agent)
+{
+    Q_D(QScriptEngine);
+    d->setAgent(agent);
+}
+
+/*!
+  \since 4.4
+
+  Returns the agent currently installed on this engine, or 0 if no
+  agent is installed.
+
+  \sa setAgent()
+*/
+QScriptEngineAgent *QScriptEngine::agent() const
+{
+    Q_D(const QScriptEngine);
+    return d->agent();
+}
 
 #endif // QT_NO_SCRIPT

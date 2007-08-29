@@ -471,45 +471,50 @@ Date::~Date()
 
 void Date::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionEntry(context);
+#endif
     if (!context->isCalledAsConstructor()) {
         double t = currentTime();
         context->setReturnValue(QScriptValueImpl(engine(), ToString(t)));
-        return;
+    } else {
+        // called as constructor
+        qsreal t;
+
+        if (context->argumentCount() == 0)
+            t = currentTime();
+
+        else if (context->argumentCount() == 1) {
+            QScriptValue arg = context->argument(0).toPrimitive();
+            if (arg.isString())
+                t = ParseString(arg.toString());
+            else
+                t = TimeClip(arg.toNumber());
+        }
+
+        else { // context->argumentCount() > 1
+            qsreal year  = context->argument(0).toNumber();
+            qsreal month = context->argument(1).toNumber();
+            qsreal day  = context->argumentCount() >= 3 ? context->argument(2).toNumber() : 1;
+            qsreal hours = context->argumentCount() >= 4 ? context->argument(3).toNumber() : 0;
+            qsreal mins = context->argumentCount() >= 5 ? context->argument(4).toNumber() : 0;
+            qsreal secs = context->argumentCount() >= 6 ? context->argument(5).toNumber() : 0;
+            qsreal ms    = context->argumentCount() >= 7 ? context->argument(6).toNumber() : 0;
+            if (year >= 0 && year <= 99)
+                year += 1900;
+            t = MakeDate(MakeDay(year, month, day), MakeTime(hours, mins, secs, ms));
+            t = TimeClip(UTC(t));
+        }
+
+        QScriptValueImpl &obj = context->m_thisObject;
+        obj.setClassInfo(classInfo());
+        obj.setInternalValue(QScriptValueImpl(engine(), t));
+        obj.setPrototype(publicPrototype);
+        context->setReturnValue(obj);
     }
-
-    // called as constructor
-    qsreal t;
-
-    if (context->argumentCount() == 0)
-        t = currentTime();
-
-    else if (context->argumentCount() == 1) {
-        QScriptValue arg = context->argument(0).toPrimitive();
-        if (arg.isString())
-            t = ParseString(arg.toString());
-        else
-            t = TimeClip(arg.toNumber());
-    }
-
-    else { // context->argumentCount() > 1
-        qsreal year  = context->argument(0).toNumber();
-        qsreal month = context->argument(1).toNumber();
-        qsreal day  = context->argumentCount() >= 3 ? context->argument(2).toNumber() : 1;
-        qsreal hours = context->argumentCount() >= 4 ? context->argument(3).toNumber() : 0;
-        qsreal mins = context->argumentCount() >= 5 ? context->argument(4).toNumber() : 0;
-        qsreal secs = context->argumentCount() >= 6 ? context->argument(5).toNumber() : 0;
-        qsreal ms    = context->argumentCount() >= 7 ? context->argument(6).toNumber() : 0;
-        if (year >= 0 && year <= 99)
-            year += 1900;
-        t = MakeDate(MakeDay(year, month, day), MakeTime(hours, mins, secs, ms));
-        t = TimeClip(UTC(t));
-    }
-
-    QScriptValueImpl &obj = context->m_thisObject;
-    obj.setClassInfo(classInfo());
-    obj.setInternalValue(QScriptValueImpl(engine(), t));
-    obj.setPrototype(publicPrototype);
-    context->setReturnValue(obj);
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionExit(context);
+#endif
 }
 
 void Date::newDate(QScriptValueImpl *result, qsreal t)

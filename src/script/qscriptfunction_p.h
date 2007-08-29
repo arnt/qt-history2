@@ -69,6 +69,10 @@ public:
 
     virtual QString functionName() const;
 
+    virtual int startLineNumber() const;
+
+    virtual int endLineNumber() const;
+
     virtual void mark(QScriptEnginePrivate *engine, int generation);
 
 public: // ### private
@@ -145,6 +149,10 @@ public:
     virtual QString fileName() const;
 
     virtual QString functionName() const;
+
+    virtual int startLineNumber() const;
+
+    virtual int endLineNumber() const;
 
 private:
     AST::FunctionExpression *m_definition;

@@ -28,6 +28,7 @@
 #include "qscriptecmamath_p.h"
 #include "qscriptecmaarray_p.h"
 #include "qscriptextenumeration_p.h"
+#include "qscriptengineagent.h"
 
 #include <QtCore/QDate>
 #include <QtCore/QDateTime>
@@ -58,6 +59,10 @@ NodePool::~NodePool()
 {
     qDeleteAll(m_codeCache);
     m_codeCache.clear();
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    m_engine->notifyScriptUnload(id());
+#endif
 }
 
 Code *NodePool::createCompiledCode(AST::Node *node, CompilationUnit &compilation)
@@ -88,17 +93,24 @@ public:
         QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine);
 
         QExplicitlySharedDataPointer<NodePool> pool;
-        pool = new NodePool(fileName);
+        pool = new NodePool(fileName, eng_p);
         eng_p->setNodePool(pool);
 
-        AST::Node *program = eng_p->createAbstractSyntaxTree(contents, lineNo);
+        QString errorMessage;
+        int errorLineNumber;
+        AST::Node *program = eng_p->createAbstractSyntaxTree(
+            contents, lineNo, &errorMessage, &errorLineNumber);
 
         eng_p->setNodePool(0);
 
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng_p->notifyScriptLoad(pool->id(), contents, fileName, lineNo);
+#endif
+
         if (! program) {
-            context->errorLineNumber = lineNo;
-            context->currentLine = lineNo;
-            context->throwError(QScriptContext::SyntaxError, eng_p->errorMessage());
+            context->errorLineNumber = errorLineNumber;
+            context->currentLine = errorLineNumber;
+            context->throwError(QScriptContext::SyntaxError, errorMessage);
             return;
         }
 
@@ -129,6 +141,13 @@ public:
     {
         QScriptEnginePrivate *eng = QScriptEnginePrivate::get(context->engine());
         int lineNo = context->currentLine;
+        if (lineNo == -1) {
+            QScriptContextPrivate *pc_p = QScriptContextPrivate::get(context->parentContext());
+            if (pc_p)
+                lineNo = pc_p->currentLine;
+            else
+                lineNo = 1;
+        }
         QString fileName; // don't set this for now, we don't want to change the official eval() for now.
 
         if (context->argumentCount() == 0) {
@@ -260,6 +279,8 @@ const qsreal QScriptEnginePrivate::D32 = 4294967296.0;
 
 QScriptEnginePrivate::~QScriptEnginePrivate()
 {
+    qDeleteAll(m_agents);
+
     // invalidate values that we have references to
     {
         QHash<QScriptObject*, QScriptValuePrivate*>::const_iterator it;
@@ -300,10 +321,9 @@ QScript::AST::Node *QScriptEnginePrivate::changeAbstractSyntaxTree(QScript::AST:
     return was;
 }
 
-QScript::AST::Node *QScriptEnginePrivate::createAbstractSyntaxTree(const QString &source, int &lineNumber)
+QScript::AST::Node *QScriptEnginePrivate::createAbstractSyntaxTree(
+    const QString &source, int lineNumber, QString *errorMessage, int *errorLineNumber)
 {
-    m_errorMessage.clear();
-
     QScript::Lexer lex(q_func());
     setLexer(&lex);
     lex.setCode(source, lineNumber);
@@ -311,8 +331,10 @@ QScript::AST::Node *QScriptEnginePrivate::createAbstractSyntaxTree(const QString
     QScriptParser parser;
 
     if (! parser.parse(this)) {
-        m_errorMessage = parser.errorMessage();
-        lineNumber = parser.errorLineNumber();
+        if (errorMessage)
+            *errorMessage = parser.errorMessage();
+        if (errorLineNumber)
+            *errorLineNumber = parser.errorLineNumber();
         return 0;
     }
 
@@ -1426,6 +1448,8 @@ void QScriptEnginePrivate::init()
     m_context = 0;
     m_abstractSyntaxTree = 0;
     m_lexer = 0;
+    m_scriptCounter = 0;
+    m_agent = 0;
 
     objectConstructor = 0;
     numberConstructor = 0;
@@ -1934,5 +1958,72 @@ bool QScriptEnginePrivate::scriptDisconnect(const QScriptValueImpl &signal,
 }
 
 #endif // QT_NO_QOBJECT
+
+void QScriptEnginePrivate::setAgent(QScriptEngineAgent *agent)
+{
+    Q_Q(QScriptEngine);
+    if (agent && (agent->engine() != q)) {
+        qWarning("QScriptEngine::setAgent(): "
+                 "cannot set agent belonging to different engine");
+        return;
+    }
+    if (agent) {
+        int index = m_agents.indexOf(agent);
+        if (index == -1)
+            m_agents.append(agent);
+    }
+    m_agent = agent;
+}
+
+QScriptEngineAgent *QScriptEnginePrivate::agent() const
+{
+    return m_agent;
+}
+
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+qint64 QScriptEnginePrivate::nextScriptId()
+{
+    // ### reuse IDs by using a pool
+    return m_scriptCounter++;
+}
+
+void QScriptEnginePrivate::notifyScriptLoad_helper(qint64 id, const QString &program,
+                                                   const QString &fileName, int lineNumber)
+{
+    m_agent->scriptLoad(id, program, fileName, lineNumber);
+}
+
+void QScriptEnginePrivate::notifyScriptUnload_helper(qint64 id)
+{
+    m_agent->scriptUnload(id);
+}
+
+void QScriptEnginePrivate::notifyPositionChange_helper(QScriptContextPrivate *ctx)
+{
+    m_agent->positionChange(ctx->scriptId(), ctx->currentLine, ctx->currentColumn);
+}
+
+void QScriptEnginePrivate::notifyFunctionEntry_helper(QScriptContextPrivate *ctx)
+{
+    m_agent->functionEntry(ctx->scriptId());
+}
+
+void QScriptEnginePrivate::notifyFunctionExit_helper(QScriptContextPrivate *ctx)
+{
+    m_agent->functionExit(ctx->scriptId(), ctx->returnValue());
+}
+
+void QScriptEnginePrivate::notifyException_helper(QScriptContextPrivate *ctx)
+{
+    bool hasHandler = (ctx->exceptionHandlerContext() != 0);
+    m_agent->exceptionThrow(ctx->scriptId(), ctx->returnValue(), hasHandler);
+}
+
+void QScriptEnginePrivate::notifyExceptionCatch_helper(QScriptContextPrivate *ctx)
+{
+    m_agent->exceptionCatch(ctx->scriptId(), ctx->returnValue());
+}
+
+#endif // Q_SCRIPT_NO_EVENT_NOTIFY
 
 #endif // QT_NO_SCRIPT

@@ -87,9 +87,9 @@ inline void QScriptContextPrivate::init(QScriptContext *parent)
     m_scopeChain.invalidate();
     m_callee.invalidate();
     m_arguments.invalidate();
-    currentLine = 0;
-    currentColumn = 0;
-    errorLineNumber = 0;
+    currentLine = -1;
+    currentColumn = -1;
+    errorLineNumber = -1;
     m_calledAsConstructor = false;
 }
 

@@ -77,16 +77,30 @@ inline NodeType *makeAstNode(MemoryPool *storage, Arg1 arg1, Arg2 arg2, Arg3 arg
 class NodePool : public MemoryPool
 {
 public:
-    NodePool(const QString &fileName) : m_fileName(fileName) { }
+    NodePool(const QString &fileName, QScriptEnginePrivate *engine)
+        : m_fileName(fileName), m_engine(engine)
+       {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+           m_id = engine->nextScriptId();
+#endif
+       }
     virtual ~NodePool();
 
     Code *createCompiledCode(AST::Node *node, CompilationUnit &compilation);
 
     inline QString fileName() const { return m_fileName; }
+    inline QScriptEnginePrivate *engine() const { return m_engine; }
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    inline qint64 id() const { return m_id; }
+#endif
 
 private:
     QHash<AST::Node*, Code*> m_codeCache;
     QString m_fileName;
+    QScriptEnginePrivate *m_engine;
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    qint64 m_id;
+#endif
 
 private:
     Q_DISABLE_COPY(NodePool)

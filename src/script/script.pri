@@ -21,9 +21,11 @@ SOURCES += \
     $$PWD/qscriptcontext_p.cpp \
     $$PWD/qscriptengine.cpp \
     $$PWD/qscriptengine_p.cpp \
+    $$PWD/qscriptengineagent.cpp \
     $$PWD/qscriptextenumeration.cpp \
     $$PWD/qscriptextvariant.cpp \
     $$PWD/qscriptcontext.cpp \
+    $$PWD/qscriptcontextinfo.cpp \
     $$PWD/qscriptfunction.cpp \
     $$PWD/qscriptgrammar.cpp \
     $$PWD/qscriptlexer.cpp \
@@ -46,6 +48,8 @@ HEADERS += \
     $$PWD/qscriptcontext.h \
     $$PWD/qscriptcontextfwd_p.h \
     $$PWD/qscriptcontext_p.h \
+    $$PWD/qscriptcontextinfo.h \
+    $$PWD/qscriptcontextinfo_p.h \
     $$PWD/qscriptecmaarray_p.h \
     $$PWD/qscriptecmaboolean_p.h \
     $$PWD/qscriptecmacore_p.h \
@@ -61,6 +65,8 @@ HEADERS += \
     $$PWD/qscriptengine.h \
     $$PWD/qscriptenginefwd_p.h \
     $$PWD/qscriptengine_p.h \
+    $$PWD/qscriptengineagent.h \
+    $$PWD/qscriptengineagent_p.h \
     $$PWD/qscriptable.h \
     $$PWD/qscriptable_p.h \
     $$PWD/qscriptextenumeration_p.h \

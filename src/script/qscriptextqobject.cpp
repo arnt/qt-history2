@@ -131,27 +131,32 @@ ExtQObject::Instance *ExtQObject::Instance::get(const QScriptValueImpl &object, 
 
 void ExtQObject::Instance::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    QScriptEnginePrivate *eng = context->enginePrivate();
+    eng->notifyFunctionEntry(context);
+#endif
     if (!value) {
         context->throwError(QLatin1String("cannot call function of deleted QObject"));
-        return;
+    } else {
+        const QMetaObject *meta = value->metaObject();
+        // look for qscript_call()
+        QByteArray qscript_call = QByteArray("qscript_call");
+        int index;
+        for (index = meta->methodCount() - 1; index >= 0; --index) {
+            if (methodName(meta->method(index)) == qscript_call)
+                break;
+        }
+        if (index < 0) {
+            context->throwError(QScriptContext::TypeError,
+                                QLatin1String("not a function"));
+        } else {
+            QtFunction fun(context->callee(), index, /*maybeOverloaded=*/true);
+            fun.execute(context);
+        }
     }
-
-    const QMetaObject *meta = value->metaObject();
-    // look for qscript_call()
-    QByteArray qscript_call = QByteArray("qscript_call");
-    int index;
-    for (index = meta->methodCount() - 1; index >= 0; --index) {
-        if (methodName(meta->method(index)) == qscript_call)
-            break;
-    }
-    if (index < 0) {
-        context->throwError(QScriptContext::TypeError,
-                            QLatin1String("not a function"));
-        return;
-    }
-
-    QtFunction fun(context->callee(), index, /*maybeOverloaded=*/true);
-    fun.execute(context);
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng->notifyFunctionExit(context);
+#endif
 }
 
 static inline QScriptable *scriptableFromQObject(QObject *qobj)
@@ -866,8 +871,13 @@ QString QScript::QtPropertyFunction::functionName() const
 
 void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
 {
+    context->calleeMetaIndex = m_index;
+
     QScriptEngine *eng = context->engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng_p->notifyFunctionEntry(context);
+#endif
     QScriptValueImpl result = eng_p->undefinedValue();
 
     QScriptValueImpl object = context->thisObject();
@@ -922,6 +932,9 @@ void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
     }
     if (!eng->hasUncaughtException())
         context->m_result = result;
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng_p->notifyFunctionExit(context);
+#endif
 }
 
 static int indexOfMetaEnum(const QMetaObject *meta, const QByteArray &str)
@@ -961,14 +974,20 @@ void QScript::QtFunction::mark(QScriptEnginePrivate *engine, int generation)
 
 void QScript::QtFunction::execute(QScriptContextPrivate *context)
 {
-    QObject *qobj = qobject();
-    if (!qobj) {
-        context->throwError(QLatin1String("cannot call function of deleted QObject"));
-        return;
-    }
-
     QScriptEngine *eng = context->engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+    QObject *qobj = qobject();
+    if (!qobj) {
+        context->calleeMetaIndex = m_initialIndex;
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng_p->notifyFunctionEntry(context);
+#endif
+        context->throwError(QLatin1String("cannot call function of deleted QObject"));
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng_p->notifyFunctionExit(context);
+#endif
+        return;
+    }
 
     QScriptValueImpl result = eng_p->undefinedValue();
 
@@ -1313,6 +1332,10 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 #endif
 
     if ((chosenIndex == -1) && candidates.isEmpty()) {
+        context->calleeMetaIndex = m_initialIndex;
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        eng_p->notifyFunctionEntry(context);
+#endif
         if (!conversionFailed.isEmpty()) {
             QString message = QString::fromLatin1("incompatible type of argument(s) in call to %0(); candidates were\n")
                               .arg(QLatin1String(funName));
@@ -1369,6 +1392,8 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
         if (chosenIndex != -1) {
             // call it
+            context->calleeMetaIndex = chosenIndex;
+
             QVarLengthArray<void*, 9> array(args.count());
             void **params = array.data();
             for (int i = 0; i < args.count(); ++i) {
@@ -1393,6 +1418,10 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                 QScriptablePrivate::get(scriptable)->engine = eng;
             }
 
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+            eng_p->notifyFunctionEntry(context);
+#endif
+
             thisQObject->qt_metacall(QMetaObject::InvokeMetaMethod, chosenIndex, params);
 
             if (scriptable)
@@ -1416,6 +1445,9 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
     }
 
     context->m_result = result;
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    eng_p->notifyFunctionExit(context);
+#endif
 }
 
 int QScript::QtFunction::mostGeneralMethod(QMetaMethod *out) const

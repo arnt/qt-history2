@@ -463,8 +463,6 @@ inline void QScriptValueImpl::get(const QScript::Member &member, QScriptValueImp
 
     Q_ASSERT(member.id() >= 0);
     Q_ASSERT(member.id() < m_object_value->memberCount());
-    Q_ASSERT(member.nameId());
-    Q_ASSERT(member.nameId()->unique);
 
     m_object_value->get(member, out);
 }

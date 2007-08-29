@@ -63,6 +63,10 @@ public:
 
     inline void throwException();
     inline bool hasUncaughtException() const;
+    const QScriptInstruction *findExceptionHandler(const QScriptInstruction *ip) const;
+    const QScriptInstruction *findExceptionHandlerRecursive(
+        const QScriptInstruction *ip, QScriptContextPrivate **handlerContext) const;
+    QScriptContextPrivate *exceptionHandlerContext() const;
     inline void recover();
     QStringList backtrace() const;
 
@@ -140,6 +144,9 @@ public:
     QScriptValueImpl throwError(QScriptContext::Error error, const QString &text);
     QScriptValueImpl throwError(const QString &text);
 
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    qint64 scriptId() const;
+#endif
     QString fileName() const;
     QString functionName() const;
     void setDebugInformation(QScriptValueImpl *error) const;
@@ -199,6 +206,8 @@ public:
 
     bool catching;
     bool m_calledAsConstructor;
+
+    int calleeMetaIndex;
 
     QScriptContext *q_ptr;
 };

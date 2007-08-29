@@ -384,11 +384,6 @@ inline void QScriptEnginePrivate::setLexer(QScript::Lexer *lexer)
     m_lexer = lexer;
 }
 
-inline QString QScriptEnginePrivate::errorMessage() const
-{
-    return m_errorMessage;
-}
-
 inline QScriptObject *QScriptEnginePrivate::allocObject()
 {
     return objectAllocator();
@@ -805,5 +800,59 @@ inline void QScriptEnginePrivate::maybeProcessEvents()
     }
 }
 
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+
+inline bool QScriptEnginePrivate::shouldNotify() const
+{
+    return m_agent != 0;
+}
+
+inline void QScriptEnginePrivate::notifyScriptLoad(
+    qint64 id, const QString &program,
+    const QString &fileName, int lineNumber)
+{
+    if (shouldNotify())
+        notifyScriptLoad_helper(id, program, fileName, lineNumber);
+}
+
+inline void QScriptEnginePrivate::notifyScriptUnload(qint64 id)
+{
+    if (shouldNotify())
+        notifyScriptUnload_helper(id);
+}
+
+inline void QScriptEnginePrivate::notifyPositionChange(QScriptContextPrivate *ctx)
+{
+    if (shouldNotify())
+        notifyPositionChange_helper(ctx);
+}
+
+inline void QScriptEnginePrivate::notifyFunctionEntry(QScriptContextPrivate *ctx)
+{
+    if (shouldNotify())
+        notifyFunctionEntry_helper(ctx);
+}
+
+inline void QScriptEnginePrivate::notifyFunctionExit(QScriptContextPrivate *ctx)
+{
+    if (shouldNotify())
+        notifyFunctionExit_helper(ctx);
+}
+
+inline void QScriptEnginePrivate::notifyException(QScriptContextPrivate *ctx)
+{
+    if (shouldNotify())
+        notifyException_helper(ctx);
+}
+
+inline void QScriptEnginePrivate::notifyExceptionCatch(QScriptContextPrivate *ctx)
+{
+    if (shouldNotify())
+        notifyExceptionCatch_helper(ctx);
+}
+
+#endif // Q_SCRIPT_NO_EVENT_NOTIFY
+
 #endif // QT_NO_SCRIPT
+
 #endif

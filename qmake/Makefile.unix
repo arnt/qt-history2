@@ -30,6 +30,7 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o \
       qscriptgrammar.o qscriptlexer.o qscriptclassdata.o \
       qscriptparser.o qscriptprettypretty.o \
       qscriptsyntaxchecker.o qscriptvalue.o qscriptvalueimpl.o qscriptvalueiterator.o \
+      qscriptengineagent.o qscriptcontextinfo.o \
       $(QTOBJS)
 
 
@@ -77,6 +78,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   $(SOURCE_PATH)/src/script/qscriptparser.cpp $(SOURCE_PATH)/src/script/qscriptprettypretty.cpp \
 	   $(SOURCE_PATH)/src/script/qscriptsyntaxchecker.cpp $(SOURCE_PATH)/src/script/qscriptvalueimpl.cpp \
 	   $(SOURCE_PATH)/src/script/qscriptvalue.cpp $(SOURCE_PATH)/src/script/qscriptvalueiterator.cpp \
+	   $(SOURCE_PATH)/src/script/qscriptengineagent.cpp $(SOURCE_PATH)/src/script/qscriptcontextinfo.cpp \
 	   $(QTSRCS) $(COMMERCIAL_DEPEND_SRC)
 
 CPPFLAGS = -I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -377,6 +379,12 @@ qscriptvalueimpl.o: $(SOURCE_PATH)/src/script/qscriptvalueimpl.cpp
 
 qscriptvalueiterator.o: $(SOURCE_PATH)/src/script/qscriptvalueiterator.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptvalueiterator.cpp
+
+qscriptengineagent.o: $(SOURCE_PATH)/src/script/qscriptengineagent.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptengineagent.cpp
+
+qscriptcontextinfo.o: $(SOURCE_PATH)/src/script/qscriptcontextinfo.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptcontextinfo.cpp
 
 
 #default rules

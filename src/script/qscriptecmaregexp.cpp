@@ -53,8 +53,12 @@ RegExp::Instance *RegExp::Instance::get(const QScriptValueImpl &object, QScriptC
 
 void RegExp::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionEntry(context);
+#endif
     QString source;
     QString flags;
+    QScriptValueImpl error;
 
     if (context->argumentCount() > 0)
         source = context->argument(0).toString();
@@ -66,17 +70,20 @@ void RegExp::execute(QScriptContextPrivate *context)
             const QString legalFlags = QLatin1String("gim");
             for (int i = 0; i < flags.length(); ++i) {
                 if (legalFlags.indexOf(flags.at(i)) == -1) {
-                    context->throwError(
+                    error = context->throwError(
                         QScriptContext::SyntaxError,
                         QString::fromUtf8("invalid regular expression flag '%0'")
                         .arg(flags.at(i)));
-                    return;
+                    break;
                 }
             }
         }
     }
-
-    newRegExp(&context->m_result, source, flags);
+    if (!error.isValid())
+        newRegExp(&context->m_result, source, flags);
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionExit(context);
+#endif
 }
 
 void RegExp::newRegExp(QScriptValueImpl *result, const QString &pattern, const QString &flags)

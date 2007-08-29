@@ -111,6 +111,9 @@ Error::~Error()
 
 void Error::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionEntry(context);
+#endif
     QString message = QString();
 
     if (context->argumentCount() > 0)
@@ -123,6 +126,9 @@ void Error::execute(QScriptContextPrivate *context)
         QScriptContextPrivate::get(context->previous)->setDebugInformation(&result);
 
     context->setReturnValue(result);
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionExit(context);
+#endif
 }
 
 void Error::newError(QScriptValueImpl *result, const QString &message)

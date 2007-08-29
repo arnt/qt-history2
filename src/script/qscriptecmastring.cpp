@@ -173,6 +173,9 @@ String::~String()
 
 void String::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionEntry(context);
+#endif
     QString value;
 
     if (context->argumentCount() > 0)
@@ -188,6 +191,9 @@ void String::execute(QScriptContextPrivate *context)
         obj.setPrototype(publicPrototype);
         context->setReturnValue(obj);
     }
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionExit(context);
+#endif
 }
 
 void String::newString(QScriptValueImpl *result, const QString &value)

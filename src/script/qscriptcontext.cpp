@@ -68,9 +68,10 @@
 
   Use backtrace() to get a human-readable backtrace associated with this
   context. This can be useful for debugging purposes when implementing
-  native functions.
+  native functions. (QScriptContextInfo provides more detailed
+  debugging-related information about the QScriptContext.)
 
-  \sa QScriptEngine::newFunction(), QScriptable
+  \sa QScriptContextInfo, QScriptEngine::newFunction(), QScriptable
 */
 
 /*!
@@ -112,6 +113,9 @@ QScriptValue QScriptContext::throwValue(const QScriptValue &value)
     Q_D(QScriptContext);
     d->m_result = QScriptValuePrivate::valueOf(value);
     d->m_state = QScriptContext::ExceptionState;
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+        d->enginePrivate()->notifyException(d);
+#endif
     return value;
 }
 
@@ -343,7 +347,11 @@ QScriptContext::ExecutionState QScriptContext::state() const
 
   Each line is of the form \c{<function-name>(<arguments>)@<file-name>:<line-number>}.
 
-  \sa QScriptEngine::uncaughtExceptionBacktrace()
+  To access individual pieces of debugging-related information (for
+  example, to construct your own backtrace representation), use
+  QScriptContextInfo.
+
+  \sa QScriptEngine::uncaughtExceptionBacktrace(), QScriptContextInfo
 */
 QStringList QScriptContext::backtrace() const
 {

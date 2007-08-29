@@ -42,6 +42,9 @@ Boolean::~Boolean()
 
 void Boolean::execute(QScriptContextPrivate *context)
 {
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionEntry(context);
+#endif
     bool value;
     if (context->argumentCount() > 0)
         value = context->argument(0).toBoolean();
@@ -58,6 +61,9 @@ void Boolean::execute(QScriptContextPrivate *context)
         obj.setPrototype(publicPrototype);
         context->setReturnValue(obj);
     }
+#ifndef Q_SCRIPT_NO_EVENT_NOTIFY
+    engine()->notifyFunctionExit(context);
+#endif
 }
 
 void Boolean::newBoolean(QScriptValueImpl *result, bool value)
