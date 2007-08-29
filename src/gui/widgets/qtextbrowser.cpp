@@ -779,10 +779,11 @@ void QTextBrowser::backward()
     Q_D(QTextBrowser);
     if (d->stack.count() <= 1)
         return;
-    d->forwardStack.push(d->stack.pop());
-    d->forwardStack.top().hpos = d->hbar->value();
-    d->forwardStack.top().vpos = d->vbar->value();
-    d->restoreHistoryEntry(d->stack.top());
+
+    // Update the history entry
+    d->forwardStack.push(d->createHistoryEntry());
+    d->stack.pop(); // throw away the old version of the current entry
+    d->restoreHistoryEntry(d->stack.top()); // previous entry
     emit backwardAvailable(d->stack.count() > 1);
     emit forwardAvailable(true);
 }
@@ -800,8 +801,8 @@ void QTextBrowser::forward()
     if (d->forwardStack.isEmpty())
         return;
     if (!d->stack.isEmpty()) {
-        d->stack.top().hpos = d->hbar->value();
-        d->stack.top().vpos = d->vbar->value();
+        // Update the history entry
+        d->stack.top() = d->createHistoryEntry();
     }
     d->stack.push(d->forwardStack.pop());
     d->restoreHistoryEntry(d->stack.top());

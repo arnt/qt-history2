@@ -67,6 +67,7 @@ private slots:
     void adjacentAnchors();
     void loadResourceOnRelativeLocalFiles();
     void focusIndicator();
+    void focusHistory();
 
 private:
     TestBrowser *browser;
@@ -510,6 +511,64 @@ void tst_QTextBrowser::focusIndicator()
 
     QTest::keyClick(browser, Qt::Key_Enter);
     QVERIFY(!browser->textCursor().hasSelection());
+
+    delete browser;
+}
+
+void tst_QTextBrowser::focusHistory()
+{
+    HackBrowser *browser = new HackBrowser;
+    browser->setSource(QUrl("firstpage.html"));
+    QVERIFY(!browser->textCursor().hasSelection());
+
+    browser->focusTheNextChild();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to second page"));
+
+    QTest::keyClick(browser, Qt::Key_Enter);
+    QVERIFY(!browser->textCursor().hasSelection());
+
+    browser->focusTheNextChild();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page from second page"));
+
+    browser->backward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to second page"));
+
+    browser->focusTheNextChild();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page"));
+
+    // Despite the third page link being highlighted, going forward should go to second,
+    // and going back after that should still highlight the third link
+    browser->forward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page from second page"));
+
+    browser->backward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page"));
+
+    browser->forward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page from second page"));
+
+    QTest::keyClick(browser, Qt::Key_Enter);
+    QVERIFY(!browser->textCursor().hasSelection());
+
+    browser->backward();
+    browser->backward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page"));
 
     delete browser;
 }
