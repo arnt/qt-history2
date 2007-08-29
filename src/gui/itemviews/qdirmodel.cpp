@@ -259,7 +259,7 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent) con
 {
     Q_D(const QDirModel);
     // note that rowCount does lazy population
-    if (column < 0 || column >= 4 || row < 0 || parent.column() > 0)
+    if (column < 0 || column >= columnCount(parent) || row < 0 || parent.column() > 0)
         return QModelIndex();
     // make sure the list of children is up to date
     QDirModelPrivate::QDirNode *p = (d->indexValid(parent) ? d->node(parent) : &d->root);
