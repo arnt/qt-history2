@@ -18,6 +18,7 @@
 #include <qimage.h>
 #include <qprinter.h>
 #include <limits.h>
+#include <math.h>
 #include <q3painter.h>
 #include <qpaintengine.h>
 #include <qdesktopwidget.h>
@@ -70,6 +71,9 @@ private slots:
     void drawEllipse();
     void drawClippedEllipse_data();
     void drawClippedEllipse();
+
+    void drawPath_data();
+    void drawPath();
 
     void drawRoundRect_data() { fillData(); }
     void drawRoundRect();
@@ -769,6 +773,20 @@ QBitmap tst_QPainter::getBitmap( const QString &dir, const QString &filename, bo
     return bm;
 }
 
+static int getPaintedPixels(const QImage &image, const QColor &background)
+{
+    uint color = background.rgba();
+
+    int pixels = 0;
+
+    for (int y = 0; y < image.height(); ++y)
+        for (int x = 0; x < image.width(); ++x)
+            if (image.pixel(x, y) != color)
+                ++pixels;
+
+    return pixels;
+}
+
 static QRect getPaintedSize(const QImage &image, const QColor &background)
 {
     // not the fastest but at least it works..
@@ -971,6 +989,102 @@ void tst_QPainter::fillRect()
              QRect(50, 0, 50, 100));
     QCOMPARE(getPaintedSize(image, QColor(0, 0, 127, 127)),
              QRect(0, 0, 50, 100));
+}
+
+void tst_QPainter::drawPath_data()
+{
+    QTest::addColumn<QPainterPath>("path");
+    QTest::addColumn<QRect>("expectedBounds");
+    QTest::addColumn<int>("expectedPixels");
+
+    {
+        QPainterPath p;
+        p.addRect(2, 2, 10, 10);
+        QTest::newRow("int-aligned rect") << p << QRect(2, 2, 10, 10) << 10 * 10;
+    }
+
+    {
+        QPainterPath p;
+        p.addRect(2.25, 2.25, 10, 10);
+        QTest::newRow("non-aligned rect") << p << QRect(2, 2, 10, 10) << 10 * 10;
+    }
+
+    {
+        QPainterPath p;
+        p.addRect(2.25, 2.25, 10.5, 10.5);
+        QTest::newRow("non-aligned rect 2") << p << QRect(2, 2, 11, 11) << 11 * 11;
+    }
+
+    {
+        QPainterPath p;
+        p.addRect(2.5, 2.5, 10, 10);
+        QTest::newRow("non-aligned rect 3") << p << QRect(3, 3, 10, 10) << 10 * 10;
+    }
+
+    for (int radius = 1; radius < 10; ++radius) {
+        QPainterPath p;
+        p.addEllipse(2, 2, 2 * radius, 2 * radius);
+
+        int expected = 0;
+        for (int y = -radius; y < radius; ++y) {
+            for (int x = -radius; x < radius; ++x) {
+                const qreal px = x + 0.5;
+                const qreal py = y + 0.5;
+
+                if (sqrt(px * px + py * py) < radius)
+                    ++expected;
+            }
+        }
+
+        QTest::newRow(QString("int-aligned ellipse (r=%1)").arg(radius)) << p << QRect(2, 2, 2 * radius, 2 * radius) << expected;
+    }
+
+    {
+        QPainterPath p;
+        p.addRect(2, 2, 10, 10);
+        p.addRect(4, 4, 6, 6);
+        QTest::newRow("rect-in-rect") << p << QRect(2, 2, 10, 10) << 10 * 10 - 6 * 6;
+    }
+
+    {
+        QPainterPath p;
+        p.addRect(2, 2, 10, 10);
+        p.addRect(4, 4, 6, 6);
+        p.addRect(6, 6, 2, 2);
+        QTest::newRow("rect-in-rect-in-rect") << p << QRect(2, 2, 10, 10) << 10 * 10 - 6 * 6 + 2 * 2;
+    }
+}
+
+void tst_QPainter::drawPath()
+{
+    QFETCH(QPainterPath, path);
+    QFETCH(QRect, expectedBounds);
+    QFETCH(int, expectedPixels);
+
+    const int offset = 2;
+
+    QImage image(expectedBounds.width() + 2 * offset, expectedBounds.height() + 2 * offset,
+                 QImage::Format_ARGB32_Premultiplied);
+    image.fill(QColor(Qt::white).rgb());
+
+    QPainter p(&image);
+    p.setPen(Qt::NoPen);
+    p.setBrush(Qt::black);
+    p.translate(offset - expectedBounds.left(), offset - expectedBounds.top());
+    p.drawPath(path);
+    p.end();
+
+    const QRect paintedBounds = getPaintedSize(image, Qt::white);
+
+    QCOMPARE(paintedBounds.x(), offset);
+    QCOMPARE(paintedBounds.y(), offset);
+    QCOMPARE(paintedBounds.width(), expectedBounds.width());
+    QCOMPARE(paintedBounds.height(), expectedBounds.height());
+
+    if (expectedPixels != -1) {
+        int paintedPixels = getPaintedPixels(image, Qt::white);
+        QCOMPARE(paintedPixels, expectedPixels);
+    }
 }
 
 void tst_QPainter::drawEllipse_data()
