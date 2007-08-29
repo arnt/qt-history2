@@ -49,17 +49,27 @@ public:
     inline int size() const { return siz; }
     inline Type *data() const { return buffer; }
 
+    inline Type &at(int i) { Q_ASSERT(i >= 0 && i < siz); return buffer[i]; }
     inline const Type &at(int i) const { Q_ASSERT(i >= 0 && i < siz); return buffer[i]; }
     inline const Type &last() const { Q_ASSERT(!isEmpty()); return buffer[siz-1]; }
     inline const Type &first() const { Q_ASSERT(!isEmpty()); return buffer[0]; }
 
     inline void add(const Type &t) {
-        if (siz >= capacity) {
+        reserve(siz + 1);
+        buffer[siz] = t;
+        ++siz;
+    }
+
+    inline void reserve(int size) {
+        if (size > capacity) {
             capacity *= 2;
             buffer = (Type*) qRealloc(buffer, capacity * sizeof(Type));
         }
-        buffer[siz] = t;
-        ++siz;
+    }
+
+    inline void shrink(int size) {
+        capacity = size;
+        buffer = (Type*) qRealloc(buffer, capacity * sizeof(Type));
     }
 
     inline QDataBuffer &operator<<(const Type &t) { add(t); return *this; }

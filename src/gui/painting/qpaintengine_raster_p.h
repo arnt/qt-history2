@@ -156,6 +156,7 @@ public:
 
     void drawBitmap(const QPointF &pos, const QPixmap &image, QSpanData *fill);
 
+    void rasterize(QT_FT_Outline *outline, ProcessSpans callback, QSpanData *spanData, QRasterBuffer *rasterBuffer);
     void rasterize(QT_FT_Outline *outline, ProcessSpans callback, void *userData, QRasterBuffer *rasterBuffer);
     void setClipRect(const QRect &rect);
     void setClipRegion(const QRegion &region);
@@ -174,6 +175,8 @@ public:
     ProcessSpans getPenFunc(const QRectF &rect, const QSpanData *data) const;
     ProcessSpans getBrushFunc(const QRect &rect, const QSpanData *data) const;
     ProcessSpans getBrushFunc(const QRectF &rect, const QSpanData *data) const;
+
+    void initializeRasterizer(QSpanData *data);
 
     QPointF brushOffset;
     QBrush brush;
