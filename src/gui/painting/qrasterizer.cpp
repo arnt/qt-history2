@@ -662,16 +662,25 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
     QPointF pa = a;
     QPointF pb = b;
 
+    if (!d->antialiased) {
+        pa.rx() += (COORD_OFFSET - COORD_ROUNDING)/64.;
+        pa.ry() += (COORD_OFFSET - COORD_ROUNDING)/64.;
+
+        pb.rx() += (COORD_OFFSET - COORD_ROUNDING)/64.;
+        pb.ry() += (COORD_OFFSET - COORD_ROUNDING)/64.;
+    }
+
     QSpanBuffer buffer(d->blend, d->data, d->clipRect);
 
     if (q16Dot16Compare(pa.y(), pb.y())) {
-        const qreal x = (a.x() + b.x()) * 0.5f;
-        const qreal dx = qAbs(b.x() - a.x()) * 0.5f;
+        const qreal x = (pa.x() + pb.x()) * 0.5f;
+        const qreal dx = qAbs(pb.x() - pa.x()) * 0.5f;
 
+        const qreal y = pa.y();
         const qreal dy = width * dx;
 
-        pa = QPointF(x, a.y() - dy);
-        pb = QPointF(x, a.y() + dy);
+        pa = QPointF(x, y - dy);
+        pb = QPointF(x, y + dy);
 
         if (squareCap)
             width = 1 / width + 1.0f;
