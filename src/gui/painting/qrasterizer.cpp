@@ -97,7 +97,6 @@ public:
                     const QT_FT_Vector &c, const QT_FT_Vector &d);
     void mergeLine(QT_FT_Vector a, QT_FT_Vector b);
 
-private:
     struct Line
     {
         Q16Dot16 x;
@@ -108,6 +107,7 @@ private:
         int winding;
     };
 
+private:
     struct Intersection
     {
         int x;
@@ -146,6 +146,8 @@ private:
     Intersection *m_intersections;
 
     QSpanBuffer *m_spanBuffer;
+
+    QVector<Line *> m_active;
 };
 
 class QRasterizerPrivate
@@ -249,35 +251,91 @@ static void split(QT_FT_Vector *b)
     }
 }
 
+static inline bool topOrder(const QScanConverter::Line &a, const QScanConverter::Line &b)
+{
+    return a.top < b.top;
+}
+
+static inline bool xOrder(const QScanConverter::Line *a, const QScanConverter::Line *b)
+{
+    return a->x < b->x;
+}
+
 void QScanConverter::end()
 {
-    for (int chunkTop = m_top; chunkTop <= m_bottom; chunkTop += CHUNK_SIZE) {
-        prepareChunk();
+    if (m_lines.isEmpty())
+        return;
 
-        Intersection isect = { 0, 0, 0, 0 };
+    const int numLines = m_lines.size();
+    if (numLines <= 32) {
+        qSort(m_lines.data(), m_lines.data() + numLines, topOrder);
+        int line = 0;
+        for (int y = m_lines.first().top; y <= m_bottom; ++y) {
+            for (; line < numLines && m_lines.at(line).top == y; ++line)
+                m_active << &m_lines.at(line);
 
-        for (int i = 0; i < m_lines.size(); ++i) {
-            Line &line = m_lines.at(i);
+            int numActive = m_active.size();
+            // use insertion sort instead of qSort, as the active edge list is quite small
+            // and in the average case already sorted
+            for (int i = 1; i < numActive; ++i) {
+                Line *l = m_active[i];
+                int j;
+                for (j = i-1; j >= 0 && xOrder(l, m_active[j]); --j)
+                    m_active[j+1] = m_active[j];
+                m_active[j+1] = l;
+            }
 
-            if ((line.bottom < chunkTop) || (line.top > chunkTop + CHUNK_SIZE))
-                continue;
+            int x = 0;
+            int winding = 0;
+            for (int i = 0; i < numActive; ++i) {
+                Line *node = m_active[i];
 
-            const int top = qMax(0, line.top - chunkTop);
-            const int bottom = qMin(CHUNK_SIZE, line.bottom + 1 - chunkTop);
-            allocate(m_size + bottom - top);
+                const int current = Q16Dot16ToInt(node->x);
+                if (winding & m_fillRuleMask)
+                    m_spanBuffer->addSpan(x, current - x, y, 0xff);
 
-            isect.winding = line.winding;
+                x = current;
+                winding += node->winding;
 
-            Intersection *it = m_intersections + top;
-            Intersection *end = m_intersections + bottom;
-            for (; it != end; ++it) {
-                isect.x = Q16Dot16ToInt(line.x);
-                line.x += line.delta;
-                mergeIntersection(it, isect);
+                if (node->bottom == y) {
+                    m_active.remove(i--);
+                    --numActive;
+                } else
+                    node->x += node->delta;
             }
         }
+        m_active.clear();
+    } else {
+        for (int chunkTop = m_top; chunkTop <= m_bottom; chunkTop += CHUNK_SIZE) {
+            prepareChunk();
 
-        emitSpans(chunkTop);
+            Intersection isect = { 0, 0, 0, 0 };
+
+            const int chunkBottom = chunkTop + CHUNK_SIZE;
+            for (int i = 0; i < m_lines.size(); ++i) {
+                Line &line = m_lines.at(i);
+
+                if ((line.bottom < chunkTop) || (line.top > chunkTop + CHUNK_SIZE))
+                    continue;
+
+                const int top = qMax(0, line.top - chunkTop);
+                const int bottom = qMin(CHUNK_SIZE, line.bottom + 1 - chunkTop);
+                allocate(m_size + bottom - top);
+
+                isect.winding = line.winding;
+
+                Intersection *it = m_intersections + top;
+                Intersection *end = m_intersections + bottom;
+
+                for (; it != end; ++it) {
+                    isect.x = Q16Dot16ToInt(line.x);
+                    line.x += line.delta;
+                    mergeIntersection(it, isect);
+                }
+            }
+
+            emitSpans(chunkTop);
+        }
     }
 
     if (m_alloc > 1024) {
