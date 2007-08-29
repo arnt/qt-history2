@@ -174,6 +174,104 @@ drawText -5 -10 "1.0"
 setPen nopen
 
 resetMatrix
+
+translate 0 480
+
+setPen red
+drawText 0 10 "path"
+setPen nopen
+
+path_addRect rect2 -5 -5 10 10
+
+translate 55 5
+drawPath rect2
+
+translate 20 0
+rotate 10
+drawPath rect2
+rotate -10
+translate 20 0
+rotate 20
+drawPath rect2
+rotate -20
+translate 20 0
+rotate 30
+drawPath rect2
+rotate -30
+translate 20 0
+rotate 40
+drawPath rect2
+rotate -40
+translate 20 0
+rotate 50
+drawPath rect2
+rotate -50
+translate 20 0
+rotate 60
+drawPath rect2
+rotate -60
+translate 20 0
+rotate 70
+drawPath rect2
+rotate -70
+translate 20 0
+rotate 80
+drawPath rect2
+rotate -80
+translate 20 0
+rotate 90
+drawPath rect2
+rotate -90
+
+resetMatrix
+
+translate 0 500
+
+setPen red
+drawText 0 10 "rect"
+setPen nopen
+
+translate 55 5
+drawRect -5 -5 10 10
+
+translate 20 0
+rotate 10
+drawRect -5 -5 10 10
+rotate -10
+translate 20 0
+rotate 20
+drawRect -5 -5 10 10
+rotate -20
+translate 20 0
+rotate 30
+drawRect -5 -5 10 10
+rotate -30
+translate 20 0
+rotate 40
+drawRect -5 -5 10 10
+rotate -40
+translate 20 0
+rotate 50
+drawRect -5 -5 10 10
+rotate -50
+translate 20 0
+rotate 60
+drawRect -5 -5 10 10
+rotate -60
+translate 20 0
+rotate 70
+drawRect -5 -5 10 10
+rotate -70
+translate 20 0
+rotate 80
+drawRect -5 -5 10 10
+rotate -80
+translate 20 0
+rotate 90
+drawRect -5 -5 10 10
+rotate -90
+
+resetMatrix
 path_addRect vertical 0.1 0.1 0.2 10
 
 translate 0 320
