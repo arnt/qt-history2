@@ -940,7 +940,8 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
     bool wasFloating = q->isFloating();
     bool hidden = q->isHidden();
 
-    q->hide();
+    if (q->isVisible())
+        q->hide();
 
     Qt::WindowFlags flags = floating ? Qt::Tool : Qt::Widget;
 
