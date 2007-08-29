@@ -1457,16 +1457,22 @@ FormBuilderClipboard QDesignerResource::paste(DomUI *ui, QWidget *widgetParent, 
 
     // Widgets
     const DomWidget *topLevel = ui->elementWidget();
-    foreach (DomWidget* domWidget, topLevel->elementWidget()) {
-        if (QWidget *w = create(domWidget, widgetParent)) {
-            w->move(w->pos() + m_formWindow->grid());
-            // ### change the init properties of w
-            rc.m_widgets.append(w);
+    const QList<DomWidget*> domWidgets = topLevel->elementWidget();
+    if (!domWidgets.empty()) {
+        const QPoint offset = m_formWindow->grid();
+        foreach (DomWidget* domWidget, domWidgets) {
+            if (QWidget *w = create(domWidget, widgetParent)) {
+                w->move(w->pos() + offset);
+                // ### change the init properties of w
+                rc.m_widgets.append(w);
+            }
         }
     }
-    foreach (DomAction *domAction, topLevel->elementAction())
-        if (QAction *a = create(domAction, actionParent))
-            rc.m_actions .append(a);
+    const QList<DomAction*> domActions = topLevel->elementAction();
+    if (!domActions.empty())
+        foreach (DomAction *domAction, domActions)
+            if (QAction *a = create(domAction, actionParent))
+                rc.m_actions .append(a);
 
     m_isMainWidget = saved;
 

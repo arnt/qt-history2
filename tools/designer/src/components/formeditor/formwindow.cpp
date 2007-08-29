@@ -1445,6 +1445,31 @@ static inline QString pasteCommandDescription(int widgetCount, int actionCount)
     return FormWindow::tr("Paste (%1 widgets, %2 actions)").arg(widgetCount).arg(actionCount);
 }
 
+static void positionPastedWidgetsAtMousePosition(const FormWindow *fw, const QWidget *parent, const QWidgetList &l)
+{
+    // Try to position pasted widgets at mouse if it fits.
+    // Is mouse within parent and not on some child?
+    const QPoint cursorPos = fw->designerGrid().snapPoint(parent->mapFromGlobal(QCursor::pos()));
+    const QRect parentGeometry = QRect(QPoint(0, 0), parent->size());
+    if (!parentGeometry.contains(cursorPos) || parent->childAt(cursorPos))
+        return;
+    
+    // Determine area of pasted widgets
+    QRect pasteArea;
+    const QWidgetList::const_iterator lcend = l.constEnd();
+    for (QWidgetList::const_iterator it = l.constBegin(); it != lcend; ++it)
+        pasteArea =pasteArea.isNull() ? (*it)->geometry() : pasteArea.united((*it)->geometry());
+
+    // Does it fit in the are within cursor and right/bottom of parent?
+    const QPoint areaSize = parentGeometry.bottomRight() - cursorPos;
+    if (pasteArea.width() > areaSize.x() || pasteArea.height() > areaSize.y())
+        return;
+
+    const QPoint offset = cursorPos - pasteArea.topLeft();
+    for (QWidgetList::const_iterator it = l.constBegin(); it != lcend; ++it)
+        (*it)->move((*it)->pos() + offset);
+}
+
 void FormWindow::paste(PasteMode pasteMode)
 {
     // Avoid QDesignerResource constructing widgets that are not used as
@@ -1485,12 +1510,14 @@ void FormWindow::paste(PasteMode pasteMode)
         // Create command sequence
         beginCommand(pasteCommandDescription(widgetCount, actionCount));
 
-        if (widgetCount)
+        if (widgetCount) {
+            positionPastedWidgetsAtMousePosition(this, pasteContainer, clipboard.m_widgets);
             foreach (QWidget *w, clipboard.m_widgets) {
                 InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
                 cmd->init(w);
                 m_commandHistory->push(cmd);
                 selectWidget(w);
+            }
         }
 
         if (actionCount)
