@@ -163,7 +163,7 @@ tst_QDBusThreading::tst_QDBusThreading()
 void tst_QDBusThreading::joinThreads()
 {
     threadJoin.acquire(threadJoinCount);
-    threadJoinCount.init(0);
+    threadJoinCount = 0;
 }
 
 bool tst_QDBusThreading::waitForSignal(QObject *obj, const char *signal, int delay)
