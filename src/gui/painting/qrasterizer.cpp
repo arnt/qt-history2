@@ -443,54 +443,30 @@ void QScanConverter::mergeCurve(const QT_FT_Vector &pa, const QT_FT_Vector &pb,
     b[3] = pd;
 
     while (b >= beziers) {
-        if (b == beziers + 3 * 32) {
-            mergeLine(b[0], b[1]);
-            mergeLine(b[1], b[2]);
-            mergeLine(b[2], b[3]);
-            b -= 3;
-            continue;
+        QT_FT_Vector delta = { b[3].x - b[0].x, b[3].y - b[0].y };
+        QT_FT_Pos l = qAbs(delta.x) + qAbs(delta.y);
+        QT_FT_Pos d;
+        if (l > 64) {
+            QT_FT_Pos d2 = qAbs((b[1].x-b[0].x)*delta.y - (b[1].y-b[0].y)*delta.x);
+            QT_FT_Pos d3 = qAbs((b[2].x-b[0].x)*delta.y - (b[2].y-b[0].y)*delta.x);
+            d = (d2 + d3) >> 6;
+        } else {
+            l = 64;
+            d = qAbs(b[0].x-b[1].x) + qAbs(b[0].y-b[1].y) +
+                qAbs(b[0].x-b[2].x) + qAbs(b[0].y-b[2].y);
         }
 
-        const QT_FT_Vector delta[4] = { { b[1].x - b[0].x, b[1].y - b[0].y },
-                                        { b[2].x - b[1].x, b[2].y - b[1].y },
-                                        { b[3].x - b[2].x, b[3].y - b[2].y },
-                                        { b[0].x - b[3].x, b[0].y - b[3].y } };
+        if (2 * d <= l || b == beziers + 3 * 32) {
+            QT_FT_Vector b23 = {
+                (b[1].x + b[2].x)/2,
+                (b[1].y + b[2].y)/2
+            };
 
-        // check if the signs between cross products of successive control lines are equal
-        const bool convex = !(((delta[0].x * delta[1].y - delta[0].y * delta[1].x > 0)
-                             + (delta[1].x * delta[2].y - delta[1].y * delta[2].x > 0)
-                             + (delta[2].x * delta[3].y - delta[2].y * delta[3].x > 0)
-                             + (delta[3].x * delta[0].y - delta[3].y * delta[0].x > 0)) & 0x3);
+            mergeLine(b[0], b23);
+            mergeLine(b23, b[3]);
 
-        if (convex) {
-            // compute the area of the convex hull
-            const QT_FT_Pos area = ((b[0].x * b[1].y - b[1].x * b[0].y +
-                                     b[1].x * b[2].y - b[2].x * b[1].y +
-                                     b[2].x * b[3].y - b[3].x * b[2].y +
-                                     b[3].x * b[0].y - b[0].x * b[3].y) >> 7);
-
-            // is the maximum error less than a pixel?
-            if (qAbs(area) < 32) {
-                mergeLine(b[0], b[1]);
-                mergeLine(b[1], b[2]);
-                mergeLine(b[2], b[3]);
-                b -= 3;
-                continue;
-            }
-        } else {
-            const QT_FT_Pos sumOfSquareLengths = (delta[0].x * delta[0].x + delta[0].y * delta[0].y
-                                                + delta[1].x * delta[1].x + delta[1].y * delta[1].y
-                                                + delta[2].x * delta[2].x + delta[2].y * delta[2].y
-                                                + delta[3].x * delta[3].x + delta[3].y * delta[3].y) >> 6;
-
-            // max segment length less than 0.5?
-            if (sumOfSquareLengths < 8) {
-                mergeLine(b[0], b[1]);
-                mergeLine(b[1], b[2]);
-                mergeLine(b[2], b[3]);
-                b -= 3;
-                continue;
-            }
+            b -= 3;
+            continue;
         }
 
         split(b);
