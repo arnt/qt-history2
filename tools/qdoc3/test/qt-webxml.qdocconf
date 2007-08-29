@@ -1,5 +1,6 @@
 include(qt.qdocconf)
 
+quotinginformation      = true
 imagedirs               = $QTDIR/doc/src/images \
                           $QTDIR/examples
 

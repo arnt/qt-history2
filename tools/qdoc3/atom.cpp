@@ -53,6 +53,8 @@
   \value CodeBad
   \value CodeNew
   \value CodeOld
+  \value CodeQuoteArgument
+  \value CodeQuoteCommand
   \value FormatElse
   \value FormatEndif
   \value FormatIf
@@ -118,6 +120,8 @@ static const struct {
     { "CodeBad", Atom::CodeBad },
     { "CodeNew", Atom::CodeNew },
     { "CodeOld", Atom::CodeOld },
+    { "CodeQuoteArgument", Atom::CodeQuoteArgument },
+    { "CodeQuoteCommand", Atom::CodeQuoteCommand },
     { "FootnoteLeft", Atom::FootnoteLeft },
     { "FootnoteRight", Atom::FootnoteRight },
     { "FormatElse", Atom::FormatElse },

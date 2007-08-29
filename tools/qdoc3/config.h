@@ -106,6 +106,7 @@ private:
 #define CONFIG_OUTPUTFORMATS            "outputformats"
 #define CONFIG_PROJECT                  "project"
 #define CONFIG_QHP                      "qhp"
+#define CONFIG_QUOTINGINFORMATION       "quotinginformation"
 #define CONFIG_SLOW                     "slow"
 #define CONFIG_SOURCEDIRS               "sourcedirs"
 #define CONFIG_SOURCES                  "sources"

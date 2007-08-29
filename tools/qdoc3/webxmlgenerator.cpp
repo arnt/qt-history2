@@ -220,6 +220,15 @@ const Atom *WebXMLGenerator::addAtomElements(QXmlStreamWriter &writer,
         writer.writeTextElement("oldcode", trimmedTrailing(plainCode(atom->string())));
         break;
 
+    case Atom::CodeQuoteArgument:
+        writer.writeCharacters(atom->string());
+        writer.writeEndElement(); // code
+        break;
+
+    case Atom::CodeQuoteCommand:
+        writer.writeStartElement(atom->string());
+        break;
+
     case Atom::FootnoteLeft:
 
         writer.writeStartElement("footnote");

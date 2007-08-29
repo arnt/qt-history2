@@ -273,6 +273,7 @@ public:
     static QStringList exampleDirs;
     static QStringList sourceFiles;
     static QStringList sourceDirs;
+    static bool quoting;
 
 private:
     Location& location();
@@ -351,6 +352,7 @@ QStringList DocParser::exampleFiles;
 QStringList DocParser::exampleDirs;
 QStringList DocParser::sourceFiles;
 QStringList DocParser::sourceDirs;
+bool DocParser::quoting;
 
 void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		       const QSet<QString>& metaCommandSet )
@@ -462,17 +464,22 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        break;
                     case CMD_DOTS:
                         {
-                            if (priv->text.lastAtom()->type() == Atom::Code
-                                    && priv->text.lastAtom()->string().endsWith("\n\n"))
-                                priv->text.lastAtom()->chopString();
+                            if (!quoting) {
+                                if (priv->text.lastAtom()->type() == Atom::Code
+                                        && priv->text.lastAtom()->string().endsWith("\n\n"))
+                                    priv->text.lastAtom()->chopString();
 
-                            QString arg = getOptionalArgument();
-                            int indent = 4;
-                            if (!arg.isEmpty())
-                                indent = arg.toInt();
-                            for (int i = 0; i < indent; ++i)
-                                appendToCode(" ");
-                            appendToCode("...\n");
+                                QString arg = getOptionalArgument();
+                                int indent = 4;
+                                if (!arg.isEmpty())
+                                    indent = arg.toInt();
+                                for (int i = 0; i < indent; ++i)
+                                    appendToCode(" ");
+                                appendToCode("...\n");
+                            } else {
+                                append(Atom::CodeQuoteCommand, commandStr);
+                                append(Atom::CodeQuoteArgument, "...\n");
+                            }
                         }
                         break;
 		    case CMD_ELSE:
@@ -772,18 +779,33 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        break;
 		    case CMD_PRINTLINE:
 		        leavePara();
-		        appendToCode( quoter.quoteLine(location(), commandStr,
-						       getRestOfLine()) );
+                        if (!quoting)
+		            appendToCode( quoter.quoteLine(location(), commandStr,
+						           getRestOfLine()) );
+                        else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, getRestOfLine());
+                        }
 		        break;
 		    case CMD_PRINTTO:
 		        leavePara();
-		        appendToCode( quoter.quoteTo(location(), commandStr,
-				      getRestOfLine()) );
+                        if (!quoting)
+		            appendToCode( quoter.quoteTo(location(), commandStr,
+				          getRestOfLine()) );
+                        else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, getRestOfLine());
+                        }
 		        break;
 		    case CMD_PRINTUNTIL:
 		        leavePara();
-		        appendToCode( quoter.quoteUntil(location(), commandStr,
-						        getRestOfLine()) );
+                        if (!quoting)
+		            appendToCode( quoter.quoteUntil(location(), commandStr,
+						            getRestOfLine()) );
+                        else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, getRestOfLine());
+                        }
 		        break;
 		    case CMD_QUOTATION:
 		        if ( openCommand(command) ) {
@@ -794,24 +816,39 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    case CMD_QUOTEFILE:
 		        leavePara();
 		        quoteFromFile();
-		        append( Atom::Code,
-			        quoter.quoteTo(location(), commandStr, "") );
-		        quoter.reset();
+                        if (!quoting) {
+		            append( Atom::Code,
+			            quoter.quoteTo(location(), commandStr, "") );
+		            quoter.reset();
+                        } else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, getArgument());
+                        }
 		        break;
 		    case CMD_QUOTEFROMFILE:
 		        leavePara();
-		        quoteFromFile();
+                        if (!quoting)
+		            quoteFromFile();
+                        else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, getArgument());
+                        }
 		        break;
 		    case CMD_QUOTEFUNCTION:
 		        leavePara();
 		        marker = quoteFromFile();
 		        x = getRestOfLine();
-		        quoter.quoteTo( location(), commandStr,
-				        slashed(marker->functionBeginRegExp(x)) );
-		        append( Atom::Code,
-			        quoter.quoteUntil(location(), commandStr,
-				        slashed(marker->functionEndRegExp(x))) );
-		        quoter.reset();
+                        if (!quoting) {
+		            quoter.quoteTo( location(), commandStr,
+				            slashed(marker->functionBeginRegExp(x)) );
+		            append( Atom::Code,
+			            quoter.quoteUntil(location(), commandStr,
+				            slashed(marker->functionEndRegExp(x))) );
+		            quoter.reset();
+                        } else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, slashed(marker->functionEndRegExp(x)));
+                        }
 		        break;
 		    case CMD_RAW:
 		        leavePara();
@@ -864,15 +901,30 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        break;
 		    case CMD_SKIPLINE:
 		        leavePara();
-		        quoter.quoteLine( location(), commandStr, getRestOfLine() );
+                        if (!quoting)
+		            quoter.quoteLine( location(), commandStr, getRestOfLine() );
+                        else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, getRestOfLine());
+                        }
 		        break;
 		    case CMD_SKIPTO:
 		        leavePara();
-		        quoter.quoteTo( location(), commandStr, getRestOfLine() );
+                        if (!quoting)
+		            quoter.quoteTo( location(), commandStr, getRestOfLine() );
+                        else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, getRestOfLine());
+                        }
 		        break;
 		    case CMD_SKIPUNTIL:
 		        leavePara();
-		        quoter.quoteUntil( location(), commandStr, getRestOfLine() );
+                        if (!quoting)
+		            quoter.quoteUntil( location(), commandStr, getRestOfLine() );
+                        else {
+                            append(Atom::CodeQuoteCommand, commandStr);
+                            append(Atom::CodeQuoteArgument, getRestOfLine());
+                        }
 		        break;
 		    case CMD_SUB:
 		        startFormat( ATOM_FORMATTING_SUBSCRIPT, command );
@@ -2394,6 +2446,7 @@ void Doc::initialize( const Config& config )
     DocParser::exampleDirs = config.getStringList( CONFIG_EXAMPLEDIRS );
     DocParser::sourceFiles = config.getStringList( CONFIG_SOURCES );
     DocParser::sourceDirs = config.getStringList( CONFIG_SOURCEDIRS );
+    DocParser::quoting = config.getBool(CONFIG_QUOTINGINFORMATION);
 
     QMap<QString, QString> reverseAliasMap;
 

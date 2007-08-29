@@ -24,15 +24,16 @@ class Atom
 {
 public:
     enum Type { AbstractLeft, AbstractRight, AutoLink, BaseName, BriefLeft, BriefRight, C,
-                CaptionLeft, CaptionRight, Code, CodeBad, CodeNew, CodeOld, FootnoteLeft,
-                FootnoteRight, FormatElse, FormatEndif, FormatIf, FormattingLeft, FormattingRight,
-                GeneratedList, Image, ImageText, InlineImage, LegaleseLeft, LegaleseRight,
-                LineBreak, Link, LinkNode, ListLeft, ListItemNumber, ListTagLeft, ListTagRight,
-                ListItemLeft, ListItemRight, ListRight, Nop, ParaLeft, ParaRight, QuotationLeft,
-                QuotationRight, RawString, SectionLeft, SectionRight, SectionHeadingLeft,
-                SectionHeadingRight, SidebarLeft, SidebarRight, String, TableLeft, TableRight,
-                TableHeaderLeft, TableHeaderRight, TableRowLeft, TableRowRight, TableItemLeft,
-                TableItemRight, TableOfContents, Target, UnhandledFormat, UnknownCommand,
+                CaptionLeft, CaptionRight, Code, CodeBad, CodeNew, CodeOld, CodeQuoteArgument,
+                CodeQuoteCommand, FootnoteLeft, FootnoteRight, FormatElse, FormatEndif, FormatIf,
+                FormattingLeft, FormattingRight, GeneratedList, Image, ImageText, InlineImage,
+                LegaleseLeft, LegaleseRight, LineBreak, Link, LinkNode, ListLeft, ListItemNumber,
+                ListTagLeft, ListTagRight, ListItemLeft, ListItemRight, ListRight, Nop, ParaLeft,
+                ParaRight, QuotationLeft, QuotationRight, RawString, SectionLeft, SectionRight,
+                SectionHeadingLeft, SectionHeadingRight, SidebarLeft, SidebarRight, String,
+                TableLeft, TableRight, TableHeaderLeft, TableHeaderRight, TableRowLeft,
+                TableRowRight, TableItemLeft, TableItemRight, TableOfContents, Target,
+                UnhandledFormat, UnknownCommand,
                 Last = UnknownCommand };
 
     Atom(Type type, const QString &string = "")
