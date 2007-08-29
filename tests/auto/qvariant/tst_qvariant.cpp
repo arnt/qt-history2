@@ -54,8 +54,8 @@ Q_DECLARE_METATYPE(QBrush)
 
 
 
-//TESTED_CLASS=
-//TESTED_FILES=gui/kernel/qvariant.h gui/kernel/qvariant.cpp
+//TESTED_CLASS=QVariant
+//TESTED_FILES=corelib/kernel/qvariant.h corelib/kernel/kernel/qvariant.cpp
 
 class tst_QVariant : public QObject
 {
