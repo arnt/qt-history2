@@ -611,9 +611,7 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     Q_UNUSED(offset);
 
     const bool opaque = isWidgetOpaque(win);
-    // hw: should not add dirtyRegion(), but just the dirtyRegion that
-    // intersects with the manager.
-    QRegion toFlush = (region + dirtyRegion()) & d_ptr->clip;
+    QRegion toFlush = region & d_ptr->clip;
     const QRegion stillDirty = (d_ptr->dirty - toFlush);
 
     if (!toFlush.isEmpty()) {
@@ -633,6 +631,8 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
         win->qwsDisplay()->repaintRegion(winId(), win->windowFlags(), opaque, toFlush);
     }
 
+    // XXX: hw: this is not correct when painting outside a paint event.
+    // The dirty region should be moved into QWidgetBackingstore.
     d_ptr->dirty = QRegion();
     setDirty(stillDirty);
 }
