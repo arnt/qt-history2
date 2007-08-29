@@ -32,6 +32,8 @@ typedef int Q16Dot16;
 
 #define SPAN_BUFFER_SIZE 256
 
+#define ROUND_DOWN 1
+
 class QSpanBuffer {
 public:
     QSpanBuffer(ProcessSpans blend, void *data, const QRect &clipRect)
@@ -538,11 +540,11 @@ void QScanConverter::mergeLine(QT_FT_Vector a, QT_FT_Vector b)
         winding = -1;
     }
 
-    int iTop = qMax(m_top, int((a.y + 32) >> 6));
-    int iBottom = qMin(m_bottom, int((b.y - 32) >> 6));
+    int iTop = qMax(m_top, int((a.y + 32 - ROUND_DOWN) >> 6));
+    int iBottom = qMin(m_bottom, int((b.y - 32 - ROUND_DOWN) >> 6));
 
     if (iTop <= iBottom) {
-        Q16Dot16 aFP = Q16Dot16Factor/2 + (a.x << 10);
+        Q16Dot16 aFP = Q16Dot16Factor/2 + (a.x << 10) - ROUND_DOWN;
 
         if (b.x == a.x) {
             Line line = { qBound(m_leftFP, aFP, m_rightFP), 0, iTop, iBottom, winding };
@@ -1023,8 +1025,8 @@ void QRasterizer::rasterize(const QT_FT_Outline *outline, Qt::FillRule fillRule)
         max_y = qMax(p.y, max_y);
     }
 
-    int iTopBound = qMax(d->clipRect.top(), int((min_y + 32) >> 6));
-    int iBottomBound = qMin(d->clipRect.bottom(), int((max_y - 32) >> 6));
+    int iTopBound = qMax(d->clipRect.top(), int((min_y + 32 - ROUND_DOWN) >> 6));
+    int iBottomBound = qMin(d->clipRect.bottom(), int((max_y - 32 - ROUND_DOWN) >> 6));
 
     if (iTopBound > iBottomBound)
         return;
@@ -1065,8 +1067,8 @@ void QRasterizer::rasterize(const QPainterPath &path, Qt::FillRule fillRule)
 
     QRectF bounds = path.controlPointRect();
 
-    int iTopBound = qMax(d->clipRect.top(), int(bounds.top() + 0.5));
-    int iBottomBound = qMin(d->clipRect.bottom(), int(bounds.bottom() - 0.5));
+    int iTopBound = qMax(d->clipRect.top(), int(bounds.top() + 0.5 - ROUND_DOWN/64.));
+    int iBottomBound = qMin(d->clipRect.bottom(), int(bounds.bottom() - 0.5 - ROUND_DOWN/64.));
 
     if (iTopBound > iBottomBound)
         return;
