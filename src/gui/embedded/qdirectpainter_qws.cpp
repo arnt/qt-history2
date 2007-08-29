@@ -232,7 +232,7 @@ QDirectPainter::QDirectPainter(QObject *parent, SurfaceFlag flag)
     :QObject(*new QDirectPainterPrivate, parent)
 {
     Q_D(QDirectPainter);
-    d->surface = new QWSDirectPainterSurface(true);
+    d->surface = new QWSDirectPainterSurface(true, flag);
 
     if (flag != NonReserved)
         d->surface->setReserved();
@@ -303,10 +303,7 @@ void QDirectPainter::setRegion(const QRegion &region)
 {
     Q_D(QDirectPainter);
     d->requested_region = region;
-
     d->surface->setRegion(region);
-    if (d->synchronous)
-        d->waitForRegion();
 }
 
 /*!

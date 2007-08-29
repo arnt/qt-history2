@@ -1205,10 +1205,12 @@ static inline QScreen *getPrimaryScreen()
     return screen;
 }
 
-QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
+QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient,
+                                                 QDirectPainter::SurfaceFlag flags)
     : QWSWindowSurface(), flushingRegionEvents(false)
 {
     setSurfaceFlags(Opaque);
+    synchronous = (flags == QDirectPainter::ReservedSynchronous);
 
     if (isClient) {
         setWinId(QWidget::qwsDisplay()->takeId());
@@ -1244,7 +1246,10 @@ void QWSDirectPainterSurface::setRegion(const QRegion &region)
         reg = _screen->mapFromDevice(region, devSize);
     }
 
-    QWidget::qwsDisplay()->requestRegion(winId(), key(), permanentState(), reg);
+    const int id = winId();
+    QWidget::qwsDisplay()->requestRegion(id, key(), permanentState(), reg);
+    if (synchronous)
+        QWSDisplay::instance()->d->waitForRegionAck(id);
 }
 
 void QWSDirectPainterSurface::flush(QWidget *, const QRegion &r, const QPoint &)
@@ -1270,9 +1275,11 @@ void QWSDirectPainterSurface::setPermanentState(const QByteArray &ba)
 void QWSDirectPainterSurface::beginPaint(const QRegion &region)
 {
     QWSWindowSurface::beginPaint(region);
-    flushingRegionEvents = true;
-    QWSDisplay::instance()->d->waitForRegionEvents(winId());
-    flushingRegionEvents = false;
+    if (!synchronous) {
+        flushingRegionEvents = true;
+        QWSDisplay::instance()->d->waitForRegionEvents(winId());
+        flushingRegionEvents = false;
+    }
 }
 
 bool QWSDirectPainterSurface::lock(int timeout)

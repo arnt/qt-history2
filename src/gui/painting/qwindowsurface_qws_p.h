@@ -28,6 +28,7 @@
 #include "qwindowsurface_p.h"
 #include <qregion.h>
 #include <qimage.h>
+#include <qdirectpainter_qws.h>
 #include <private/qwssharedmemory_p.h>
 
 class QScreen;
@@ -234,12 +235,12 @@ private:
 #ifndef QT_NO_DIRECTPAINTER
 
 class QScreen;
-class QDirectPainter;
 
 class Q_GUI_EXPORT QWSDirectPainterSurface : public QWSWindowSurface
 {
 public:
-    QWSDirectPainterSurface(bool isClient = false);
+    QWSDirectPainterSurface(bool isClient = false,
+                            QDirectPainter::SurfaceFlag flags = QDirectPainter::NonReserved);
     ~QWSDirectPainterSurface();
 
     void setReserved() { setSurfaceFlags(RegionReserved); }
@@ -275,6 +276,7 @@ private:
 
     friend void qt_directpainter_region(QDirectPainter*, const QRegion&, int);
     bool flushingRegionEvents;
+    bool synchronous;
 };
 
 #endif // QT_NO_DIRECTPAINTER
