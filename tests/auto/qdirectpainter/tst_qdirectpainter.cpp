@@ -34,6 +34,7 @@ private slots:
     void setGeometry_data();
     void setGeometry();
     void regionSynchronization();
+    void reservedSynchronous();
 
 private:
     QWSWindow* getWindow(int windId);
@@ -176,6 +177,31 @@ void tst_QDirectPainter::regionSynchronization()
     QVERIFY(i > 100); // sanity check
 
     proc.kill();
+}
+
+class MyObject : public QObject
+{
+public:
+    MyObject(QObject *p = 0) : QObject(p), lastEvent(0) {}
+
+    bool event(QEvent *e) {
+        lastEvent = e;
+        return true;
+    }
+
+    QEvent *lastEvent;
+};
+
+void tst_QDirectPainter::reservedSynchronous()
+{
+    MyObject o;
+    QCoreApplication::postEvent(&o, new QEvent(QEvent::None));
+    QDirectPainter p(0, QDirectPainter::ReservedSynchronous);
+    p.setRegion(QRect(5, 5, 50, 50));
+
+    // The event loop should not have been executed
+    QVERIFY(o.lastEvent == 0);
+    QCOMPARE(p.allocatedRegion(), QRegion(QRect(5, 5, 50, 50)));
 }
 
 QTEST_MAIN(tst_QDirectPainter)
