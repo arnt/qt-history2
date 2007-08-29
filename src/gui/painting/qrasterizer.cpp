@@ -116,6 +116,7 @@ private:
         int left, right;
     };
 
+    inline bool clip(Q16Dot16 &xFP, int &iTop, int &iBottom, Q16Dot16 slopeFP, Q16Dot16 invSlopeFP, Q16Dot16 edgeFP, int winding);
     inline void mergeIntersection(int y, const Intersection &isect);
 
     void prepareChunk();
@@ -132,8 +133,9 @@ private:
 
     int m_top;
     int m_bottom;
-    int m_left;
-    int m_right;
+
+    Q16Dot16 m_leftFP;
+    Q16Dot16 m_rightFP;
 
     int m_fillRuleMask;
 
@@ -175,8 +177,8 @@ void QScanConverter::begin(int top, int bottom, int left, int right,
 {
     m_top = top;
     m_bottom = bottom;
-    m_left = left;
-    m_right = right;
+    m_leftFP = IntToQ16Dot16(left);
+    m_rightFP = IntToQ16Dot16(right + 1);
 
     m_lines.reset();
 
@@ -267,7 +269,7 @@ void QScanConverter::end()
             isect.winding = line.winding;
 
             for (int y = top; y < bottom; ++y) {
-                isect.x = qBound(m_left, Q16Dot16ToInt(line.x), m_right + 1);
+                isect.x = Q16Dot16ToInt(line.x);
                 mergeIntersection(y, isect);
                 line.x += line.delta;
             }
@@ -388,6 +390,61 @@ void QScanConverter::mergeCurve(const QT_FT_Vector &pa, const QT_FT_Vector &pb,
     }
 }
 
+inline bool QScanConverter::clip(Q16Dot16 &xFP, int &iTop, int &iBottom, Q16Dot16 slopeFP, Q16Dot16 invSlopeFP, Q16Dot16 edgeFP, int winding)
+{
+    bool right = edgeFP == m_rightFP;
+
+    if (xFP == edgeFP) {
+        if ((slopeFP > 0) ^ right)
+            return false;
+        else {
+            Line line = { edgeFP, 0, iTop, iBottom, winding };
+            m_lines.add(line);
+            return true;
+        }
+    }
+
+    Q16Dot16 lastFP = xFP + slopeFP * (iBottom - iTop);
+
+    if (lastFP == edgeFP) {
+        if ((slopeFP < 0) ^ right)
+            return false;
+        else {
+            Line line = { edgeFP, 0, iTop, iBottom, winding };
+            m_lines.add(line);
+            return true;
+        }
+    }
+
+    // does line cross edge?
+    if ((lastFP < edgeFP) ^ (xFP < edgeFP)) {
+        int iMiddle = Q16Dot16ToInt(IntToQ16Dot16(iTop) + Q16Dot16Multiply(invSlopeFP, edgeFP - xFP));
+
+        if ((xFP < edgeFP) ^ right) {
+            Line line = { edgeFP, 0, iTop, iMiddle, winding };
+            m_lines.add(line);
+
+            if (iMiddle != iBottom) {
+                xFP += slopeFP * (iMiddle + 1 - iTop);
+                iTop = iMiddle + 1;
+            } else
+                return true;
+        } else if (iMiddle != iBottom) {
+            Line line = { edgeFP, 0, iMiddle + 1, iBottom, winding };
+            m_lines.add(line);
+
+            iBottom = iMiddle;
+        }
+        return false;
+    } else if ((xFP < edgeFP) ^ right) {
+        Line line = { edgeFP, 0, iTop, iBottom, winding };
+        m_lines.add(line);
+        return true;
+    }
+
+    return false;
+}
+
 void QScanConverter::mergeLine(QT_FT_Vector a, QT_FT_Vector b)
 {
     int winding = 1;
@@ -401,16 +458,30 @@ void QScanConverter::mergeLine(QT_FT_Vector a, QT_FT_Vector b)
     int iBottom = qMin(m_bottom, int((b.y - 32) >> 6));
 
     if (iTop <= iBottom) {
-        const qreal slope = (b.x - a.x) / float(b.y - a.y);
+        Q16Dot16 aFP = Q16Dot16Factor/2 + (a.x << 10);
 
-        const Q16Dot16 slopeFP = FloatToQ16Dot16(slope);
-        const Q16Dot16 xFP = Q16Dot16Factor/2 + (a.x << 10)
-                             + Q16Dot16Multiply(slopeFP,
-                                                IntToQ16Dot16(iTop)
-                                                + Q16Dot16Factor/2 - (a.y << 10));
+        if (b.x == a.x) {
+            Line line = { qBound(m_leftFP, aFP, m_rightFP), 0, iTop, iBottom, winding };
+            m_lines.add(line);
+        } else {
+            const qreal slope = (b.x - a.x) / qreal(b.y - a.y);
 
-        Line line = { xFP, slopeFP, iTop, iBottom, winding };
-        m_lines.add(line);
+            const Q16Dot16 slopeFP = FloatToQ16Dot16(slope);
+            const Q16Dot16 invSlopeFP = FloatToQ16Dot16(1 / slope);
+
+            Q16Dot16 xFP = aFP + Q16Dot16Multiply(slopeFP,
+                                                  IntToQ16Dot16(iTop)
+                                                  + Q16Dot16Factor/2 - (a.y << 10));
+
+            if (clip(xFP, iTop, iBottom, slopeFP, invSlopeFP, m_leftFP, winding))
+                return;
+
+            if (clip(xFP, iTop, iBottom, slopeFP, invSlopeFP, m_rightFP, winding))
+                return;
+
+            Line line = { xFP, slopeFP, iTop, iBottom, winding };
+            m_lines.add(line);
+        }
     }
 }
 
