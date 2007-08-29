@@ -1520,6 +1520,13 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
     resolveGradientBoundsConditional(controlPointRect, fillData);
 
     ProcessSpans blend = d->getBrushFunc(d->matrix.mapRect(controlPointRect), fillData);
+#ifdef QT_FAST_SPANS
+    if (!d->antialiased) {
+        d->initializeRasterizer(fillData);
+        d->rasterizer.rasterize(path * d->matrix, path.fillRule());
+        return;
+    }
+#endif
     d->rasterize(d->outlineMapper->convertPath(path), blend, fillData, d->rasterBuffer);
 }
 

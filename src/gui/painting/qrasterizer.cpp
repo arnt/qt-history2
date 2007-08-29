@@ -963,3 +963,56 @@ void QRasterizer::rasterize(const QT_FT_Outline *outline, Qt::FillRule fillRule)
 
     d->scanConverter.end();
 }
+
+static inline QT_FT_Vector PointToVector(const QPointF &p)
+{
+    QT_FT_Vector result = { QT_FT_Pos(p.x() * 64), QT_FT_Pos(p.y() * 64) };
+    return result;
+}
+
+void QRasterizer::rasterize(const QPainterPath &path, Qt::FillRule fillRule)
+{
+    QSpanBuffer buffer(d->blend, d->data, d->clipRect);
+
+    QRectF bounds = path.controlPointRect();
+
+    int iTopBound = qMax(d->clipRect.top(), int(bounds.top() + 0.5));
+    int iBottomBound = qMin(d->clipRect.bottom(), int(bounds.bottom() - 0.5));
+
+    if (iTopBound > iBottomBound)
+        return;
+
+    d->scanConverter.begin(iTopBound, iBottomBound, d->clipRect.left(), d->clipRect.right(), fillRule, &buffer);
+
+    QT_FT_Vector last = { 0, 0 };
+    for (int i = 0; i < path.elementCount(); ++i) {
+        switch (path.elementAt(i).type) {
+        case QPainterPath::LineToElement:
+            {
+                QT_FT_Vector p1 = last;
+                QT_FT_Vector p2 = PointToVector(path.elementAt(i));
+                d->scanConverter.mergeLine(p1, p2);
+                last = p2;
+                break;
+            }
+        case QPainterPath::MoveToElement:
+            last = PointToVector(path.elementAt(i));
+            break;
+        case QPainterPath::CurveToElement:
+            {
+            QT_FT_Vector p1 = last;
+            QT_FT_Vector p2 = PointToVector(path.elementAt(i));
+            QT_FT_Vector p3 = PointToVector(path.elementAt(i+1));
+            QT_FT_Vector p4 = PointToVector(path.elementAt(i+2));
+            d->scanConverter.mergeCurve(p1, p2, p3, p4);
+            last = p4;
+            break;
+            }
+        default:
+            Q_ASSERT(false);
+            break;
+        }
+    }
+
+    d->scanConverter.end();
+}
