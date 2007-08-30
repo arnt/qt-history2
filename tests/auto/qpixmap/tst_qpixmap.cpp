@@ -187,7 +187,6 @@ void tst_QPixmap::fill()
     pm.fill(color);
     if (syscolor && !bitmap && pm.depth() < 24) {
         QSKIP("Test does not work on displays without true color", SkipSingle);
-        return;
     }
 
     QImage image = pm.toImage();
