@@ -798,7 +798,7 @@ void QApplicationPrivate::initialize()
     session_manager = new QSessionManager(q, session_id, session_key);
 #endif
 
-    if (qgetenv("QT_NATIVE").toInt() > 0)
+    if (qgetenv("QT_USE_NATIVE_WINDOWS").toInt() > 0)
         q->setAttribute(Qt::AA_NativeWindows);
 }
 
