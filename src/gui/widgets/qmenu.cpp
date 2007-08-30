@@ -939,6 +939,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 #endif
     }
 
+    const int actionId = q->findIdForAction(action);
     if(self)
     action->activate(action_e);
 
@@ -952,12 +953,12 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
             if (action_e == QAction::Trigger) {
                 emit qmenu->triggered(action);
 #ifdef QT3_SUPPORT
-                emit qmenu->activated(qmenu->findIdForAction(action));
+                emit qmenu->activated(actionId);
 #endif
             } else if (action_e == QAction::Hover) {
                 emit qmenu->hovered(action);
 #ifdef QT3_SUPPORT
-                emit qmenu->highlighted(qmenu->findIdForAction(action));
+                emit qmenu->highlighted(actionId);
 #endif
             }
 #ifndef QT_NO_MENUBAR
@@ -965,12 +966,12 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
             if (action_e == QAction::Trigger) {
                 emit qmenubar->triggered(action);
 #ifdef QT3_SUPPORT
-                emit qmenubar->activated(qmenubar->findIdForAction(action));
+                emit qmenubar->activated(actionId);
 #endif
             } else if (action_e == QAction::Hover) {
                 emit qmenubar->hovered(action);
 #ifdef QT3_SUPPORT
-                emit qmenubar->highlighted(qmenubar->findIdForAction(action));
+                emit qmenubar->highlighted(actionId);
 #endif
             }
             break; //nothing more..
@@ -999,9 +1000,13 @@ void QMenuPrivate::_q_actionTriggered()
 {
     Q_Q(QMenu);
     if (QAction *action = qobject_cast<QAction *>(q->sender())) {
+#ifdef QT3_SUPPORT
+        //we store it here because the action might be deleted/changed by connected slots 
+        const int id = q->findIdForAction(action);
+#endif
         emit q->triggered(action);
 #ifdef QT3_SUPPORT
-        emit q->activated(q->findIdForAction(action));
+        emit q->activated(id);
 #endif
     }
 }
@@ -1010,9 +1015,13 @@ void QMenuPrivate::_q_actionHovered()
 {
     Q_Q(QMenu);
     if (QAction *action = qobject_cast<QAction *>(q->sender())) {
+#ifdef QT3_SUPPORT
+        //we store it here because the action might be deleted/changed by connected slots 
+        const int id = q->findIdForAction(action);
+#endif
         emit q->hovered(action);
 #ifdef QT3_SUPPORT
-        emit q->highlighted(q->findIdForAction(action));
+        emit q->highlighted(id);
 #endif
     }
 }
