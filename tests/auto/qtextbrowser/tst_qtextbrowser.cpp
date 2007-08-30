@@ -68,6 +68,7 @@ private slots:
     void loadResourceOnRelativeLocalFiles();
     void focusIndicator();
     void focusHistory();
+    void urlEncoding();
 
 private:
     TestBrowser *browser;
@@ -569,6 +570,24 @@ void tst_QTextBrowser::focusHistory()
 
     QVERIFY(browser->textCursor().hasSelection());
     QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page"));
+
+    delete browser;
+}
+
+void tst_QTextBrowser::urlEncoding()
+{
+    HackBrowser *browser = new HackBrowser;
+    browser->setOpenLinks(false);
+    browser->setHtml("<a href=\"http://www.google.com/q=%22\">link</a>");
+    browser->focusTheNextChild();
+
+    QSignalSpy spy(browser, SIGNAL(anchorClicked(const QUrl &)));
+
+    QTest::keyClick(browser, Qt::Key_Enter);
+    QCOMPARE(spy.count(), 1);
+
+    QUrl url = spy.at(0).at(0).toUrl();
+    QVERIFY(url.toEncoded() == QByteArray("http://www.google.com/q=%22"));
 
     delete browser;
 }

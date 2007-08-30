@@ -91,6 +91,8 @@ public:
     void setSource(const QUrl &url);
 
     QUrl resolveUrl(const QUrl &url) const;
+    inline QUrl resolveUrl(const QString &url) const
+    { return resolveUrl(QUrl::fromEncoded(url.toUtf8())); }
 
 #ifdef QT_KEYPAD_NAVIGATION
     void keypadMove(bool next);
