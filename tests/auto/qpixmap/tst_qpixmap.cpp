@@ -301,7 +301,6 @@ void tst_QPixmap::createMaskFromColor()
 
     QImage im_mask = image.createMaskFromColor(0xffff0000);
     QCOMPARE((uint) im_mask.pixel(0, 1), QColor(Qt::color0).rgba());
-    QImage im_inv_mask = image.createMaskFromColor(0xffff0000, Qt::MaskOutColor);
     QCOMPARE((uint) im_mask.pixel(0, 1), QColor(Qt::color0).rgba());
 
     QPixmap pixmap = QPixmap::fromImage(image);
@@ -333,7 +332,7 @@ void tst_QPixmap::drawBitmap()
 {
     QBitmap bitmap(10,10);
     bitmap.fill(Qt::color1);
-    
+
     QPixmap pixmap(10,10);
     QPainter painter2(&pixmap);
     painter2.fillRect(0,0,10,10, QBrush(Qt::green));
