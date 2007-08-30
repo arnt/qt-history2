@@ -1746,7 +1746,7 @@ void tst_QMdiSubWindow::closeOnDoubleClick()
 #endif
 
     subWindow->showSystemMenu();
-    qApp->processEvents();
+    QTest::qWait(200);
 
     QPointer<QMenu> systemMenu = subWindow->systemMenu();
     QVERIFY(systemMenu);
