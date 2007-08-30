@@ -666,7 +666,6 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
 
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
 {
-    Q_Q(QGLWidget);
     initContext(context, shareWidget);
     olcx = 0;
 
