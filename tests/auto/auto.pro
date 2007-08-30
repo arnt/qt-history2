@@ -62,7 +62,7 @@ SUBDIRS += bic \
            qactiongroup \
            qalgorithms \
            qapplication \
-           qatomic \
+           qatomicint \
            qatomicpointer \
            qbitarray \
            qboxlayout \
