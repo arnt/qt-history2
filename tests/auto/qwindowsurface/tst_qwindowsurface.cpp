@@ -137,7 +137,7 @@ void tst_QWindowSurface::flushOutsidePaintEvent()
     qt_x11_wait_for_window_manager(&w);
 #endif
 
-#if (QT_VERSION < 0x040400)
+#if defined(Q_WS_QWS) && (QT_VERSION < 0x040400)
     QEXPECT_FAIL("", "task 176755", Abort);
 #endif
     VERIFY_COLOR(w.geometry(), w.color);
