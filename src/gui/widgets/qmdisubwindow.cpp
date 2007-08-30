@@ -3104,8 +3104,12 @@ void QMdiSubWindow::mouseDoubleClickEvent(QMouseEvent *mouseEvent)
         return;
     }
 
-    if (!d_func()->isMoveOperation()) {
-        mouseEvent->ignore();
+    Q_D(QMdiSubWindow);
+    if (!d->isMoveOperation()) {
+#ifndef QT_NO_MENU
+        if (d->hoveredSubControl == QStyle::SC_TitleBarSysMenu)
+            close();
+#endif
         return;
     }
 
