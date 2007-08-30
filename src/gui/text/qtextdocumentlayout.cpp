@@ -2618,8 +2618,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 {
     Q_D(QTextDocumentLayout);
 
-    const QSizeF pageSize = d->document->pageSize();
-    if (pageSize.isNull())
+    if (d->docPrivate->pageSize.isNull())
         return;
 
     QRectF updateRect;
@@ -2879,6 +2878,8 @@ void QTextDocumentLayout::setFixedColumnWidth(int width)
 QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
     Q_D(const QTextDocumentLayout);
+    if (d->docPrivate->pageSize.isNull())
+        return QRectF();
     d->ensureLayoutFinished();
     return d->frameBoundingRectInternal(frame);
 }
@@ -2906,6 +2907,8 @@ QRectF QTextDocumentLayoutPrivate::frameBoundingRectInternal(QTextFrame *frame) 
 QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
     Q_D(const QTextDocumentLayout);
+    if (d->docPrivate->pageSize.isNull())
+        return QRectF();
     d->ensureLayoutedByPosition(block.position() + block.length());
     QTextFrame *frame = d->document->frameAt(block.position());
     QPointF offset;
