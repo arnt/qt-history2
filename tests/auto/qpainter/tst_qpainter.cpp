@@ -801,13 +801,14 @@ static QRect getPaintedSize(const QImage &image, const QColor &background)
 
     for ( int y = 0; y < image.height(); ++y ) {
 	for ( int x = 0; x < image.width(); ++x ) {
-	    if ( image.pixel( x, y ) != color && x < xmin )
+            QRgb pixel = image.pixel( x, y );
+	    if ( pixel != color && x < xmin )
 		xmin = x;
-	    if ( image.pixel( x, y ) != color && x > xmax )
+	    if ( pixel != color && x > xmax )
 		xmax = x;
-	    if ( image.pixel( x, y ) != color && y < ymin )
+	    if ( pixel != color && y < ymin )
 		ymin = y;
-	    if ( image.pixel( x, y ) != color && y > ymax )
+	    if ( pixel != color && y > ymax )
 		ymax = y;
 	}
     }
@@ -1338,8 +1339,8 @@ void tst_QPainter::fillData()
     QTest::addColumn<QRect>("rect");
     QTest::addColumn<bool>("usePen");
 
-    for (int w = 3; w < 100; w += 7) {
-        for (int h = 3; h < 100; h += 11) {
+    for (int w = 3; w < 50; w += 7) {
+        for (int h = 3; h < 50; h += 11) {
             int x = w/2 + 5;
             int y = h/2 + 5;
             QTest::newRow(QString("rect(%1, %2, %3, %4) with pen").arg(x).arg(y).arg(w).arg(h))
