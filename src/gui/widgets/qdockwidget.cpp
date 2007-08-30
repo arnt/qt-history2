@@ -721,7 +721,7 @@ bool QDockWidgetPrivate::isAnimating() const
     if (mainWinLayout == 0)
         return false;
 
-    return mainWinLayout->pluggingWidget == q;
+    return (void*)mainWinLayout->pluggingWidget == (void*)q;
 }
 
 void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
