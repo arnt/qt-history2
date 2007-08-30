@@ -595,7 +595,9 @@ bool QSslSocketBackendPrivate::testConnection()
     // peer certificate and the chain may be empty if the peer didn't present
     // any certificate.
     peerCertificateChain = STACKOFX509_to_QSslCertificates(q_SSL_get_peer_cert_chain(ssl));
-    peerCertificate = QSslCertificatePrivate::QSslCertificate_from_X509(q_SSL_get_peer_certificate(ssl));
+    X509 *x509 = q_SSL_get_peer_certificate(ssl);
+    peerCertificate = QSslCertificatePrivate::QSslCertificate_from_X509(x509);
+    q_X509_free(x509);
 
     // This is now.
     QDateTime now = QDateTime::currentDateTime();

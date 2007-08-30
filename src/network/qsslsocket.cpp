@@ -258,9 +258,12 @@ QSslSocket::QSslSocket(QObject *parent)
 */
 QSslSocket::~QSslSocket()
 {
+    Q_D(QSslSocket);
 #ifdef QSSLSOCKET_DEBUG
     qDebug() << "QSslSocket::~QSslSocket(), this =" << (void *)this;
 #endif
+    delete d->plainSocket;
+    d->plainSocket = 0;
 }
 
 /*!
