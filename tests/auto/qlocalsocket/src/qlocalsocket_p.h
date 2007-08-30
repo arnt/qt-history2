@@ -57,7 +57,7 @@ static inline int qListen(int fd, int backlog)
     return ret;
 }
 
-static inline int qAccept(int fd, struct sockaddr *addr, socklen_t *addrlen)
+static inline int qAccept(int fd, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 {
     int ret;
     while((ret = qt_socket_accept(fd, addr, addrlen)) == -1 && errno == EINTR){}
