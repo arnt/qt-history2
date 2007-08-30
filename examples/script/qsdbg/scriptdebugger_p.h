@@ -84,6 +84,7 @@ public:
     QMap<QScriptContext*, QStack<qint64> > m_contextProgramIds;
 
     QString m_lastInteractiveCommand;
+    QString m_commandPrefix;
     int m_stepDepth;
     int m_currentFrameIndex;
     int m_listLineNumber;

@@ -20,9 +20,9 @@ int main(int argc, char **argv)
     QString code = QTextStream(&file).readAll();
     file.close();
 
-    fprintf(stdout, "\n*** Welcome to qsdbg. Debugger commands start with a /\n");
+    fprintf(stdout, "\n*** Welcome to qsdbg. Debugger commands start with a . (period)\n");
     fprintf(stdout, "*** Any other input will be evaluated by the script interpreter.\n");
-    fprintf(stdout, "*** Type /help for help.\n\n");
+    fprintf(stdout, "*** Type .help for help.\n\n");
 
     ScriptDebugger *dbg = new ScriptDebugger(&engine);
     dbg->breakAtNextStatement();

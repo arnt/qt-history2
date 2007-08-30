@@ -95,6 +95,7 @@ QString ScriptInfo::lineText(int lineNumber)
 ScriptDebuggerPrivate::ScriptDebuggerPrivate(QScriptEngine *engine)
     : QScriptEngineAgent(engine), m_mode(Run)
 {
+    m_commandPrefix = QLatin1String(".");
     m_bpManager = new ScriptBreakpointManager;
     m_defaultInputStream = new QTextStream(stdin);
     m_defaultOutputStream = new QTextStream(stdout);
@@ -262,7 +263,7 @@ void ScriptDebuggerPrivate::interactive()
 
         QString line = readLine();
 
-        if (code.isEmpty() && (line.isEmpty() || line.startsWith(QLatin1Char('/')))) {
+        if (code.isEmpty() && (line.isEmpty() || line.startsWith(m_commandPrefix))) {
             if (line.isEmpty())
                 line = m_lastInteractiveCommand;
             else
@@ -426,24 +427,24 @@ bool ScriptDebuggerPrivate::executeCommand(const QString &command, const QString
             }
         }
     } else if (command == QLatin1String("help")) {
-        message("/continue - continue execution\n"
-                "/step     - step into statement\n"
-                "/next     - step over statement\n"
-                "/list     - show where you are\n"
+        message("continue - continue execution\n"
+                "step     - step into statement\n"
+                "next     - step over statement\n"
+                "list     - show where you are\n"
                 "\n"
-                "/break    - set breakpoint\n"
-                "/delete   - remove breakpoint\n"
-                "/disable  - disable breakpoint\n"
-                "/enable   - enable breakpoint\n"
+                "break    - set breakpoint\n"
+                "delete   - remove breakpoint\n"
+                "disable  - disable breakpoint\n"
+                "enable   - enable breakpoint\n"
                 "\n"
-                "/backtrace - show backtrace\n"
-                "/up       - one frame up\n"
-                "/down     - one frame down\n"
-                "/frame    - set frame\n"
+                "backtrace - show backtrace\n"
+                "up       - one frame up\n"
+                "down     - one frame down\n"
+                "frame    - set frame\n"
                 "\n"
-                "/info locals - show local variables");
+                "info locals - show local variables");
     } else {
-        errorMessage(QString::fromLatin1("Undefined command \"%0\". Try \"/help\".")
+        errorMessage(QString::fromLatin1("Undefined command \"%0\". Try \"help\".")
                      .arg(command));
     }
 
