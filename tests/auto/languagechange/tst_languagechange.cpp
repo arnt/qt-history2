@@ -139,7 +139,6 @@ void tst_languageChange::retranslatability_data()
                     << "QFileDialog::Back"
                     << "QFileDialog::Create New Folder"
                     << "QFileDialog::Detail View"
-                    << "QFileDialog::Drive"
                     << "QFileDialog::File"
                     << "QFileDialog::Files of type:"
                     << "QFileDialog::Forward"
@@ -163,7 +162,7 @@ void tst_languageChange::retranslatability_data()
                     << "QFileSystemModel::%1 KB"
                     << "QDialogButtonBox::Cancel"
                     << "QDialogButtonBox::Open"
-                    << "QFileDialog::File &name");
+                    << "QFileDialog::File &name:");
 }
 
 void tst_languageChange::retranslatability()
@@ -198,9 +197,13 @@ void tst_languageChange::retranslatability()
 #endif
     // see if all of our *expected* translations was translated. 
     // (There might be more, but thats not that bad)
-    expected.subtract(translator.m_translations);
-    if (!expected.isEmpty())
-        qDebug() << expected;
+    QSet<QByteArray> commonTranslations = expected;
+    commonTranslations.intersect(translator.m_translations);
+    if (!expected.subtract(commonTranslations).isEmpty()) {
+        qDebug() << "Missing:" << expected;
+        if (!translator.m_translations.subtract(commonTranslations).isEmpty())
+            qDebug() << "Unexpected:" << translator.m_translations;
+    }
 
     QCOMPARE(expected.isEmpty(),true);
 }
