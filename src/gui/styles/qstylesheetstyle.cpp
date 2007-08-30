@@ -3591,6 +3591,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         rule.drawBorder(p, opt->rect);
         return;
 
+#ifndef QT_NO_TABWIDGET
     case PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *frm = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             QRenderRule subRule = renderRule(w, opt, PseudoElement_TabWidgetPane);
@@ -3605,6 +3606,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
             return;
         }
         break;
+#endif // QT_NO_TABWIDGET
 
     case PE_IndicatorProgressChunk:
         pseudoElement = PseudoElement_ProgressBarChunk;
