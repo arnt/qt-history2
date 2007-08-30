@@ -1763,12 +1763,11 @@ void QWSServerPrivate::_q_doClient()
 #endif
         client = (QWSClient*)q->sender();
 
-    static bool active = false;
-    if (active) {
+    if (doClientIsActive) {
         pendingDoClients.append(client);
         return;
     }
-    active = true;
+    doClientIsActive = true;
 
     doClient(client);
 
@@ -1776,7 +1775,7 @@ void QWSServerPrivate::_q_doClient()
         doClient(pendingDoClients.takeFirst());
     }
 
-    active = false;
+    doClientIsActive = false;
 }
 #endif // QT_NO_QWS_MULTIPROCESS
 

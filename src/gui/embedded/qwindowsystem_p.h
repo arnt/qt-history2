@@ -46,6 +46,7 @@ public:
         : screensaverintervals(0)
         , screensavereventblocklevel(-1), screensaverblockevents(false)
         , saver(0), cursorClient(0), mouseState(0), nReserved(0)
+        , doClientIsActive(false)
     {
     }
     ~QWSServerPrivate()
@@ -273,6 +274,7 @@ private:
     void cleanupFonts(bool force = false);
     void sendFontRemovedEvent(const QByteArray &font);
 
+    bool doClientIsActive;
     QList<QWSClient*> pendingDoClients;
 };
 #endif
