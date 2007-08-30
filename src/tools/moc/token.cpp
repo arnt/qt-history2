@@ -177,6 +177,11 @@ const char *tokenTypeName(Token t)
         case PP_INCOMPLETE: return "PP_INCOMPLETE";
         case PP_MOC_TRUE: return "PP_MOC_TRUE";
         case PP_MOC_FALSE: return "PP_MOC_FALSE";
+        case Q_DECLARE_METATYPE_TOKEN: return "Q_DECLARE_METATYPE_TOKEN";
+        case Q_MOC_COMPAT_TOKEN: return "Q_MOC_COMPAT_TOKEN";
+        case Q_QT3_SUPPORT_TOKEN: return "Q_QT3_SUPPORT_TOKEN";
+        case Q_INVOKABLE_TOKEN: return "Q_INVOKABLE_TOKEN";
+        case Q_SCRIPTABLE_TOKEN: return "Q_SCRIPTABLE_TOKEN";
     }
     return "";
 }
