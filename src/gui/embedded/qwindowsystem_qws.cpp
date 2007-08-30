@@ -1753,12 +1753,6 @@ void QWSServer::processEventQueue()
 void QWSServerPrivate::_q_doClient()
 {
     Q_Q(QWSServer);
-    static bool active = false;
-    if (active) {
-        qDebug("QWSServer::_q_doClient() reentrant call, ignoring");
-        return;
-    }
-    active = true;
 
     QWSClient* client;
 #ifndef QT_NO_SXE
@@ -1768,7 +1762,20 @@ void QWSServerPrivate::_q_doClient()
     else
 #endif
         client = (QWSClient*)q->sender();
+
+    static bool active = false;
+    if (active) {
+        pendingDoClients.append(client);
+        return;
+    }
+    active = true;
+
     doClient(client);
+
+    while (!pendingDoClients.isEmpty()) {
+        doClient(pendingDoClients.takeFirst());
+    }
+
     active = false;
 }
 #endif // QT_NO_QWS_MULTIPROCESS

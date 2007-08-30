@@ -272,5 +272,7 @@ private:
     void dereferenceFont(QWSClientPrivate *client, const QByteArray &font);
     void cleanupFonts(bool force = false);
     void sendFontRemovedEvent(const QByteArray &font);
+
+    QList<QWSClient*> pendingDoClients;
 };
 #endif
