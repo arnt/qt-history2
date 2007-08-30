@@ -64,6 +64,7 @@ private slots:
     void sortItems();
     void deleteItems_data();
     void deleteItems();
+    void itemAboveOrBelow();
     void itemStreaming_data();
     void itemStreaming();
     void insertTopLevelItems_data();
@@ -1214,6 +1215,19 @@ void tst_QTreeWidget::deleteItems()
     QCOMPARE(testWidget->topLevelItemCount(), expectedTopLevelCount);
 
     QCOMPARE(persistent.isValid(), persistentIsValid);
+}
+
+
+void tst_QTreeWidget::itemAboveOrBelow()
+{
+    QTreeWidget tw;
+    tw.setColumnCount(1);
+    QTreeWidgetItem *twi = new QTreeWidgetItem(&tw, QStringList() << "Test");
+    QTreeWidgetItem *twi2 = new QTreeWidgetItem(&tw, QStringList() << "Test 2");
+    QTreeWidgetItem *twi3 = new QTreeWidgetItem(&tw, QStringList() << "Test 3");
+    tw.show();
+    QCOMPARE(tw.itemAbove(twi2), twi);
+    QCOMPARE(tw.itemBelow(twi2), twi3);
 }
 
 void tst_QTreeWidget::itemStreaming_data()

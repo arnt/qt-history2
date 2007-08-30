@@ -3084,7 +3084,7 @@ QTreeWidgetItem *QTreeWidget::itemAbove(const QTreeWidgetItem *item) const
         return 0;
     const QModelIndex index = d->index(item);
     const QModelIndex above = indexAbove(index);
-    return d->item(index);
+    return d->item(above);
 }
 
 /*!
@@ -3099,7 +3099,7 @@ QTreeWidgetItem *QTreeWidget::itemBelow(const QTreeWidgetItem *item) const
         return 0;
     const QModelIndex index = d->index(item);
     const QModelIndex below = indexBelow(index);
-    return d->item(index);
+    return d->item(below);
 }
 
 /*!
