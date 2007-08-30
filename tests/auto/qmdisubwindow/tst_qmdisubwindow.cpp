@@ -167,6 +167,7 @@ private slots:
     void fixedMinMaxSize();
 #ifndef Q_WS_MAC
     void replaceMenuBarWhileMaximized();
+    void closeOnDoubleClick();
 #endif
 };
 
@@ -1733,6 +1734,30 @@ void tst_QMdiSubWindow::replaceMenuBarWhileMaximized()
     subWindow->showNormal();
     QVERIFY(!subWindow->maximizedButtonsWidget());
     QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+}
+
+void tst_QMdiSubWindow::closeOnDoubleClick()
+{
+    QMdiArea mdiArea;
+    QPointer<QMdiSubWindow> subWindow = mdiArea.addSubWindow(new QWidget);
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    subWindow->showSystemMenu();
+    qApp->processEvents();
+
+    QPointer<QMenu> systemMenu = subWindow->systemMenu();
+    QVERIFY(systemMenu);
+    QVERIFY(systemMenu->isVisible());
+
+    sendMouseDoubleClick(systemMenu, QPoint(10, 10));
+    if (qApp->activePopupWidget() == static_cast<QWidget *>(systemMenu))
+        systemMenu->hide();
+    qApp->processEvents();
+    QVERIFY(!subWindow || !subWindow->isVisible());
+    QVERIFY(!systemMenu || !systemMenu->isVisible());
 }
 #endif
 
