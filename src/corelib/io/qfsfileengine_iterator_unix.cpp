@@ -88,7 +88,7 @@ bool QFSFileEngineIterator::hasNext() const
         } else {
             // ### Race condition; we should use fpathconf and dirfd().
             long maxPathName = ::pathconf(QFile::encodeName(path()).data(), _PC_NAME_MAX);
-            if (maxPathName == -1)
+            if ((int) maxPathName == -1)
                 maxPathName = FILENAME_MAX;
             maxPathName += sizeof(dirent) + 1;
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
