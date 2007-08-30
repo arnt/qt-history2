@@ -43,36 +43,47 @@
 #include <private/qcore_mac_p.h>
 #endif
 
-#if 0
 
 /******************************************************************************
 ** debug
 */
 
-#include <stdio.h>
+#ifdef Q_DEBUG_MAINWINDOW_LAYOUT
+
 #include <QTextStream>
-static QTextStream qout(stderr, QIODevice::WriteOnly);
 
-#ifndef QT_NO_DOCKWIDGET
-void dumpLayout(const QDockAreaLayoutInfo &layout, QString indent);
+static void dumpLayout(QTextStream &qout, const QDockAreaLayoutInfo &layout, QString indent);
 
-void dumpLayout(const QDockAreaLayoutItem &item, QString indent)
+static void dumpLayout(QTextStream &qout, const QDockAreaLayoutItem &item, QString indent)
 {
     qout << indent << "QDockAreaLayoutItem: "
             << "pos: " << item.pos << " size:" << item.size
-            << " gap:" << item.gap << '\n';
+            << " gap:" << (item.flags & QDockAreaLayoutItem::GapItem)
+            << " keepSize:" << (item.flags & QDockAreaLayoutItem::KeepSize) << '\n';
+    indent += QLatin1String("  ");
     if (item.widgetItem != 0) {
         qout << indent << "widget: "
             << item.widgetItem->widget()->metaObject()->className()
             << ' ' << item.widgetItem->widget()->windowTitle() << '\n';
     } else if (item.subinfo != 0) {
         qout << indent << "subinfo:\n";
-        dumpLayout(*item.subinfo, indent + QLatin1String("  "));
+        dumpLayout(qout, *item.subinfo, indent + QLatin1String("  "));
+    } else if (item.placeHolderItem != 0) {
+        QRect r = item.placeHolderItem->topLevelRect;
+        qout << indent << "placeHolder: "
+            << "pos: " << item.pos << " size:" << item.size
+            << " gap:" << (item.flags & QDockAreaLayoutItem::GapItem)
+            << " keepSize:" << (item.flags & QDockAreaLayoutItem::KeepSize)
+            << " objectName:" << item.placeHolderItem->objectName
+            << " hidden:" << item.placeHolderItem->hidden
+            << " window:" << item.placeHolderItem->window
+            << " rect:" << r.x() << ',' << r.y() << ' '
+            << r.width() << 'x' << r.height() << '\n';
     }
     qout.flush();
 }
 
-void dumpLayout(const QDockAreaLayoutInfo &layout, QString indent)
+static void dumpLayout(QTextStream &qout, const QDockAreaLayoutInfo &layout, QString indent)
 {
     qout << indent << "QDockAreaLayoutInfo: "
             << layout.rect.left() << ','
@@ -83,14 +94,16 @@ void dumpLayout(const QDockAreaLayoutInfo &layout, QString indent)
             << " tabbed:" << layout.tabbed
             << " tbshape:" << layout.tabBarShape << '\n';
 
+    indent += QLatin1String("  ");
+
     for (int i = 0; i < layout.item_list.count(); ++i) {
         qout << indent << "Item: " << i << '\n';
-        dumpLayout(layout.item_list.at(i), indent + QLatin1String("  "));
+        dumpLayout(qout, layout.item_list.at(i), indent + QLatin1String("  "));
     }
     qout.flush();
 };
 
-void dumpLayout(const QDockAreaLayout &layout, QString indent)
+static void dumpLayout(QTextStream &qout, const QDockAreaLayout &layout, QString indent)
 {
     qout << indent << "QDockAreaLayout: "
             << layout.rect.left() << ','
@@ -98,15 +111,25 @@ void dumpLayout(const QDockAreaLayout &layout, QString indent)
             << layout.rect.width() << 'x'
             << layout.rect.height() << '\n';
 
-    for (int i = 0; i < QInternal::DockCount; ++i) {
-        qout << indent << "Dock area: " << i << '\n';
-        dumpLayout(layout.docks[i], indent + QLatin1String("  "));
-    }
+    qout << indent << "TopDockArea:\n";
+    dumpLayout(qout, layout.docks[QInternal::TopDock], indent + QLatin1String("  "));
+    qout << indent << "LeftDockArea:\n";
+    dumpLayout(qout, layout.docks[QInternal::LeftDock], indent + QLatin1String("  "));
+    qout << indent << "RightDockArea:\n";
+    dumpLayout(qout, layout.docks[QInternal::RightDock], indent + QLatin1String("  "));
+    qout << indent << "BottomDockArea:\n";
+    dumpLayout(qout, layout.docks[QInternal::BottomDock], indent + QLatin1String("  "));
+
     qout.flush();
 };
-#endif // QT_NO_DOCKWIDGET
 
-#endif // 0
+void qt_dumpLayout(QTextStream &qout, QMainWindow *window)
+{
+    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(window->layout());
+    dumpLayout(qout, layout->layoutState.dockAreaLayout, QString());
+}
+
+#endif // Q_DEBUG_MAINWINDOW_LAYOUT
 
 
 /******************************************************************************
@@ -1191,6 +1214,16 @@ void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second
     layoutState.dockAreaLayout.tabifyDockWidget(first, second);
     emit second->dockLocationChanged(dockWidgetArea(first));
     invalidate();
+}
+
+bool QMainWindowLayout::restoreDockWidget(QDockWidget *dockwidget)
+{
+    addChildWidget(dockwidget);
+    if (!layoutState.dockAreaLayout.restoreDockWidget(dockwidget))
+        return false;
+    emit dockwidget->dockLocationChanged(dockWidgetArea(dockwidget));
+    invalidate();
+    return true;
 }
 
 void QMainWindowLayout::setVerticalTabsEnabled(bool enabled)

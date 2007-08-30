@@ -37,6 +37,7 @@ class QLayoutItem;
 class QWidget;
 class QLayoutItem;
 class QDockAreaLayoutInfo;
+class QPlaceHolderItem;
 class QDockWidget;
 class QMainWindow;
 class QWidgetAnimator;
@@ -46,8 +47,11 @@ class QTabBar;
 
 struct QDockAreaLayoutItem
 {
+    enum ItemFlags { NoFlags = 0, GapItem = 1, KeepSize = 2 };
+
     QDockAreaLayoutItem(QLayoutItem *_widgetItem = 0);
     QDockAreaLayoutItem(QDockAreaLayoutInfo *_subinfo);
+    QDockAreaLayoutItem(QPlaceHolderItem *_placeHolderItem);
     QDockAreaLayoutItem(const QDockAreaLayoutItem &other);
     ~QDockAreaLayoutItem();
 
@@ -61,10 +65,21 @@ struct QDockAreaLayoutItem
 
     QLayoutItem *widgetItem;
     QDockAreaLayoutInfo *subinfo;
+    QPlaceHolderItem *placeHolderItem;
     int pos;
     int size;
-    bool gap;
-    bool keep_size;
+    uint flags;
+};
+
+class Q_AUTOTEST_EXPORT QPlaceHolderItem
+{
+public:
+    QPlaceHolderItem() : hidden(false), window(false) {}
+    QPlaceHolderItem(QWidget *w);
+
+    QString objectName;
+    bool hidden, window;
+    QRect topLevelRect;
 };
 
 class Q_AUTOTEST_EXPORT QDockAreaLayoutInfo
@@ -116,6 +131,7 @@ public:
     int prev(int idx) const;
 
     QList<int> indexOf(QWidget *widget) const;
+    QList<int> indexOfPlaceHolder(const QString &objectName) const;
 
     void apply(bool animate);
 
@@ -177,6 +193,7 @@ public:
     void saveState(QDataStream &stream) const;
     bool restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets);
 
+    QList<int> indexOfPlaceHolder(const QString &objectName) const;
     QList<int> indexOf(QWidget *dockWidget) const;
     QList<int> gapIndex(const QPoint &pos) const;
     QList<int> findSeparator(const QPoint &pos) const;
@@ -202,6 +219,7 @@ public:
     QSize minimumSize() const;
 
     void addDockWidget(QInternal::DockPosition pos, QDockWidget *dockWidget, Qt::Orientation orientation);
+    bool restoreDockWidget(QDockWidget *dockWidget);
     void splitDockWidget(QDockWidget *after, QDockWidget *dockWidget,
                          Qt::Orientation orientation);
     void tabifyDockWidget(QDockWidget *first, QDockWidget *second);

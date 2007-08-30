@@ -37,6 +37,13 @@
 #include "qdockarealayout_p.h"
 #include "qtoolbararealayout_p.h"
 
+#define Q_DEBUG_MAINWINDOW_LAYOUT
+
+#ifdef Q_DEBUG_MAINWINDOW_LAYOUT
+class QTextStream;
+Q_GUI_EXPORT void qt_dumpLayout(QTextStream &qout, QMainWindow *window);
+#endif // Q_DEBUG_MAINWINDOW_LAYOUT
+
 #ifdef Q_WS_MAC
 // Forward defs to make avoid including Carbon.h (faster compile you know ;).
 struct OpaqueHIObjectRef;
@@ -169,6 +176,7 @@ public:
     Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
     void raise(QDockWidget *widget);
     void setVerticalTabsEnabled(bool enabled);
+    bool restoreDockWidget(QDockWidget *dockwidget);
 
 #ifndef QT_NO_TABBAR
     QTabBar *getTabBar();

@@ -881,6 +881,11 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
 #endif
 }
 
+bool QMainWindow::restoreDockWidget(QDockWidget *dockwidget)
+{
+    return d_func()->layout->restoreDockWidget(dockwidget);
+}
+
 /*!
     Adds \a dockwidget into the given \a area in the direction
     specified by the \a orientation.

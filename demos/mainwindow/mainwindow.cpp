@@ -29,6 +29,10 @@
 #include <QApplication>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QLabel>
+#include <QPushButton>
 #include <qdebug.h>
 
 static const char * const message =
@@ -56,15 +60,14 @@ MainWindow::MainWindow(const QMap<QString, QSize> &customSizeHints,
     setObjectName("MainWindow");
     setWindowTitle("Qt Main Window Demo");
 
+    center = new QTextEdit(this);
+    center->setReadOnly(true);
+    center->setMinimumSize(400, 205);
+    setCentralWidget(center);
+
     setupToolBar();
     setupMenuBar();
     setupDockWidgets(customSizeHints);
-
-    QTextEdit *center = new QTextEdit(this);
-    center->setReadOnly(true);
-    center->setHtml(tr(message));
-    center->setMinimumSize(400, 205);
-    setCentralWidget(center);
 
     statusBar()->showMessage(tr("Status Bar"));
 }
@@ -416,7 +419,21 @@ void MainWindow::setupDockWidgets(const QMap<QString, QSize> &customSizeHints)
 
         addDockWidget(sets[i].area, swatch);
         dockWidgetMenu->addMenu(swatch->menu);
+
+        connect(swatch, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(dumpLayout()));
+        connect(swatch, SIGNAL(topLevelChanged(bool)), this, SLOT(dumpLayout()));
+        connect(swatch, SIGNAL(visibilityChanged(bool)), this, SLOT(dumpLayout()));
     }
+
+    createDockWidgetAction = new QAction(tr("Add dock widget..."), this);
+    connect(createDockWidgetAction, SIGNAL(triggered()), this, SLOT(createDockWidget()));
+    destroyDockWidgetMenu = new QMenu(tr("Destroy dock widget"), this);
+    destroyDockWidgetMenu->setEnabled(false);
+    connect(destroyDockWidgetMenu, SIGNAL(triggered(QAction*)), this, SLOT(destroyDockWidget(QAction*)));
+
+    dockWidgetMenu->addSeparator();
+    dockWidgetMenu->addAction(createDockWidgetAction);
+    dockWidgetMenu->addMenu(destroyDockWidgetMenu);
 }
 
 void MainWindow::setCorner(int id)
@@ -449,12 +466,144 @@ void MainWindow::setCorner(int id)
     }
 }
 
+void MainWindow::showEvent(QShowEvent *event)
+{
+    QMainWindow::showEvent(event);
+    dumpLayout();
+}
+
 void MainWindow::switchLayoutDirection()
 {
     if (layoutDirection() == Qt::LeftToRight)
         qApp->setLayoutDirection(Qt::RightToLeft);
     else
         qApp->setLayoutDirection(Qt::LeftToRight);
+}
+
+class CreateDockWidgetDialog : public QDialog
+{
+public:
+    CreateDockWidgetDialog(QWidget *parent = 0);
+
+    QString objectName() const;
+    Qt::DockWidgetArea location() const;
+
+private:
+    QLineEdit *m_objectName;
+    QComboBox *m_location;
+};
+
+CreateDockWidgetDialog::CreateDockWidgetDialog(QWidget *parent)
+    : QDialog(parent)
+{
+    QGridLayout *layout = new QGridLayout(this);
+
+    layout->addWidget(new QLabel(tr("Object name:")), 0, 0);
+    m_objectName = new QLineEdit;
+    layout->addWidget(m_objectName, 0, 1);
+
+    layout->addWidget(new QLabel(tr("Location:")), 1, 0);
+    m_location = new QComboBox;
+    m_location->setEditable(false);
+    m_location->addItem(tr("Top"));
+    m_location->addItem(tr("Left"));
+    m_location->addItem(tr("Right"));
+    m_location->addItem(tr("Bottom"));
+    m_location->addItem(tr("Restore"));
+    layout->addWidget(m_location, 1, 1);
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    layout->addLayout(buttonLayout, 2, 0, 1, 2);
+    buttonLayout->addStretch();
+
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"));
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    buttonLayout->addWidget(cancelButton);
+    QPushButton *okButton = new QPushButton(tr("Ok"));
+    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
+    buttonLayout->addWidget(okButton);
+
+    okButton->setDefault(true);
+}
+
+QString CreateDockWidgetDialog::objectName() const
+{
+    return m_objectName->text();
+}
+
+Qt::DockWidgetArea CreateDockWidgetDialog::location() const
+{
+    switch (m_location->currentIndex()) {
+        case 0: return Qt::TopDockWidgetArea;
+        case 1: return Qt::LeftDockWidgetArea;
+        case 2: return Qt::RightDockWidgetArea;
+        case 3: return Qt::BottomDockWidgetArea;
+        default:
+            break;
+    }
+    return Qt::NoDockWidgetArea;
+}
+
+void MainWindow::createDockWidget()
+{
+    CreateDockWidgetDialog dialog(this);
+    int ret = dialog.exec();
+    if (ret == QDialog::Rejected)
+        return;
+
+    QDockWidget *dw = new QDockWidget;
+    dw->setObjectName(dialog.objectName());
+    dw->setWindowTitle(dialog.objectName());
+    dw->setWidget(new QTextEdit);
+
+    connect(dw, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(dumpLayout()));
+    connect(dw, SIGNAL(topLevelChanged(bool)), this, SLOT(dumpLayout()));
+    connect(dw, SIGNAL(visibilityChanged(bool)), this, SLOT(dumpLayout()));
+
+    Qt::DockWidgetArea area = dialog.location();
+    switch (area) {
+        case Qt::LeftDockWidgetArea:
+        case Qt::RightDockWidgetArea:
+        case Qt::TopDockWidgetArea:
+        case Qt::BottomDockWidgetArea:
+            addDockWidget(area, dw);
+            break;
+        default:
+            if (!restoreDockWidget(dw)) {
+                QMessageBox::warning(this, QString(), tr("Failed to restore dock widget"));
+                delete dw;
+                return;
+            }
+            break;
+    }
+
+    extraDockWidgets.append(dw);
+    destroyDockWidgetMenu->setEnabled(true);
+    destroyDockWidgetMenu->addAction(new QAction(dialog.objectName(), this));
+    dumpLayout();
+}
+
+void MainWindow::destroyDockWidget(QAction *action)
+{
+    int index = destroyDockWidgetMenu->actions().indexOf(action);
+    delete extraDockWidgets.takeAt(index);
+    destroyDockWidgetMenu->removeAction(action);
+    action->deleteLater();
+
+    if (destroyDockWidgetMenu->isEmpty())
+        destroyDockWidgetMenu->setEnabled(false);
+
+    dumpLayout();
+}
+
+extern void qt_dumpLayout(QTextStream &qout, QMainWindow *window); // qmainwindow.cpp
+void MainWindow::dumpLayout()
+{
+    QString text;
+    QTextStream stream(&text);
+    qt_dumpLayout(stream, this);
+    stream.flush();
+    center->setText(text);
 }
 
 #include "mainwindow.moc"

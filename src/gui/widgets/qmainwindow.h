@@ -119,6 +119,7 @@ public:
                          Qt::Orientation orientation);
     void tabifyDockWidget(QDockWidget *first, QDockWidget *second);
     void removeDockWidget(QDockWidget *dockwidget);
+    bool restoreDockWidget(QDockWidget *dockwidget);
 
     Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
 #endif // QT_NO_DOCKWIDGET
