@@ -1711,6 +1711,10 @@ Q_CORE_EXPORT void *qMemSet(void *dest, int c, size_t n);
 #    pragma warning(disable: 4710) /* function not inlined */
 #    pragma warning(disable: 4530) /* C++ exception handler used, but unwind semantics are not enabled. Specify -GX */
 #    pragma warning(disable: 4127) /* conditional expression is constant */
+#    if _MSC_VER < 1300
+#      pragma warning(disable: 4284) /* return type for 'type1::operator ->' is 'type2 *' */
+                                     /* (ie; not a UDT or reference to a UDT.  Will produce errors if applied using infix notation) */
+#    endif
 #  elif defined(Q_CC_BOR)
 #    pragma option -w-inl
 #    pragma option -w-aus
