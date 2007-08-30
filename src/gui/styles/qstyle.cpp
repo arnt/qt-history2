@@ -1066,10 +1066,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SC_MdiNormalButton The normal button for a MDI
                               subwindow in the menu bar.
-    \value SC_MdiMinButton The minimize button for a MDI 
+    \value SC_MdiMinButton The minimize button for a MDI
                            subwindow in the menu bar.
     \value SC_MdiCloseButton The close button for a MDI subwindow
-                             in the menu bar.    
+                             in the menu bar.
 
     \value SC_All  Special value that matches all sub-controls.
     \omitvalue SC_Q3ListViewBranch
@@ -2167,15 +2167,20 @@ int QStyle::layoutSpacing(QSizePolicy::ControlType control1, QSizePolicy::Contro
                           Qt::Orientation orientation, const QStyleOption *option,
                           const QWidget *widget) const
 {
+    Q_D(const QStyle);
+    if (d->layoutSpacingIndex == -1) {
+        d->layoutSpacingIndex = metaObject()->indexOfMethod(
+            "layoutSpacingImplementation(QSizePolicy::ControlType,QSizePolicy::ControlType,"
+            "Qt::Orientation,const QStyleOption*,const QWidget*)"
+            );
+    }
+    if (d->layoutSpacingIndex < 0)
+        return -1;
     int result;
-    QMetaObject::invokeMethod(const_cast<QStyle *>(this),
-                              "layoutSpacingImplementation", Qt::DirectConnection,
-                              Q_RETURN_ARG(int, result),
-                              Q_ARG(QSizePolicy::ControlType, control1),
-                              Q_ARG(QSizePolicy::ControlType, control2),
-                              Q_ARG(Qt::Orientation, orientation),
-                              Q_ARG(const QStyleOption *, option),
-                              Q_ARG(const QWidget *, widget));
+    void *param[] = {&result, &control1, &control2, &orientation, &option, &widget};
+
+    const_cast<QStyle *>(this)->qt_metacall(QMetaObject::InvokeMetaMethod,
+                                            d->layoutSpacingIndex, param);
     return result;
 }
 
@@ -2240,7 +2245,7 @@ int QStyle::combinedLayoutSpacing(QSizePolicy::ControlTypes controls1,
 */
 int QStyle::layoutSpacingImplementation(QSizePolicy::ControlType /* control1 */,
                                         QSizePolicy::ControlType /* control2 */,
-                                        Qt::Orientation /*orientation*/, 
+                                        Qt::Orientation /*orientation*/,
                                         const QStyleOption * /* option */,
                                         const QWidget * /* widget */) const
 {

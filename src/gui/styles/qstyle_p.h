@@ -29,12 +29,14 @@
 
 // Private class
 
-class QStylePrivate: public QObjectPrivate 
+class QStylePrivate: public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QStyle)
 public:
     inline QStylePrivate()
+        : layoutSpacingIndex(-1)
     { }
+    mutable int layoutSpacingIndex;
 };
 
 #endif //QSTYLE_P_H
