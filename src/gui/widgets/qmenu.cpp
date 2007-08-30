@@ -939,9 +939,11 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 #endif
     }
 
+#ifdef QT3_SUPPORT
     const int actionId = q->findIdForAction(action);
+#endif
     if(self)
-    action->activate(action_e);
+        action->activate(action_e);
 
     for(int i = 0; i < causedStack.size(); ++i) {
         QPointer<QWidget> widget = causedStack.at(i);
