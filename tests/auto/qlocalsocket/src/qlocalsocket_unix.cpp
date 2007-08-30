@@ -115,7 +115,7 @@ void QLocalSocketPrivate::errorOccured(QLocalSocket::LocalSocketError error,
 
     // A big error, disconnect
     unixSocket.setSocketState(QAbstractSocket::UnconnectedState);
-    bool stateChanged = (state == QLocalSocket::UnconnectedState);
+    bool stateChanged = (state != QLocalSocket::UnconnectedState);
     state = QLocalSocket::UnconnectedState;
     if (stateChanged)
         q->emit stateChanged(state);
@@ -155,6 +155,7 @@ void QLocalSocket::connectToName(const QString &name, OpenMode newOpenMode)
         return;
 
     d->unixSocket.setSocketState(QAbstractSocket::ConnectingState);
+    d->state = ConnectingState;
     emit stateChanged(ConnectingState);
 
     if (name.isEmpty()) {
