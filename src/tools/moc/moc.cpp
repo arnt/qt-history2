@@ -381,6 +381,12 @@ bool Moc::parseFunction(FunctionDef *def, bool inMacro)
 // like parseFunction, but never aborts with an error
 bool Moc::parseMaybeFunction(FunctionDef *def)
 {
+    def->isVirtual = false;
+    while (test(INLINE) || test(STATIC) || test(VIRTUAL)
+           || testFunctionAttribute(def)) {
+        if (lookup() == VIRTUAL)
+            def->isVirtual = true;
+    }
     def->type = parseType();
     if (def->type.name.isEmpty())
         return false;
@@ -392,12 +398,8 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
     } else {
         Type tempType = parseType();;
         while (!tempType.name.isEmpty() && lookup() != LPAREN) {
-            if (def->type.name == "QT_MOC_COMPAT" || def->type.name == "QT3_SUPPORT")
-                def->isCompat = true;
-            else if (def->type.name == "Q_INVOKABLE")
-                def->isInvokable = true;
-            else if (def->type.name == "Q_SCRIPTABLE")
-                def->isInvokable = def->isScriptable = true;
+            if (testFunctionAttribute(def->type.firstToken, def))
+                ; // fine
             else if (def->type.name == "Q_SIGNAL")
                 def->isSignal = true;
             else if (def->type.name == "Q_SLOT")

@@ -434,6 +434,7 @@ private slots:
     void frameworkSearchPath();
     void cstyleEnums();
     void defineMacroViaCmdline();
+    void invokable();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -914,6 +915,22 @@ void tst_Moc::defineMacroViaCmdline()
 #else
     QSKIP("Only tested on linux/gcc", SkipAll);
 #endif
+}
+
+void tst_Moc::invokable()
+{
+    {
+        const QMetaObject &mobj = InvokableBeforeReturnType::staticMetaObject;
+        QCOMPARE(mobj.methodCount(), 5);
+        QVERIFY(mobj.method(4).signature() == QByteArray("foo()"));
+    }
+
+    {
+        const QMetaObject &mobj = InvokableBeforeInline::staticMetaObject;
+        QCOMPARE(mobj.methodCount(), 6);
+        QVERIFY(mobj.method(4).signature() == QByteArray("foo()"));
+        QVERIFY(mobj.method(5).signature() == QByteArray("bar()"));
+    }
 }
 
 QTEST_MAIN(tst_Moc)
