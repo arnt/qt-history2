@@ -53,27 +53,35 @@ static int getFontWeight(const QString &weightString)
 
     // Test in decreasing order of commonness
     if (s == QLatin1String("medium") ||
-        s == QLatin1String("normal"))
+        s == QLatin1String("normal")
+        || s.compare(qApp->translate("QFontDatabase", "Normal"), Qt::CaseInsensitive))
         return QFont::Normal;
-    if (s == QLatin1String("bold"))
+    if (s == QLatin1String("bold")
+        || s.compare(qApp->translate("QFontDatabase", "Bold"), Qt::CaseInsensitive))
         return QFont::Bold;
-    if (s == QLatin1String("demibold") || s == QLatin1String("demi bold"))
+    if (s == QLatin1String("demibold") || s == QLatin1String("demi bold")
+        || s.compare(qApp->translate("QFontDatabase", "Demi Bold"), Qt::CaseInsensitive))
         return QFont::DemiBold;
-    if (s == QLatin1String("black"))
+    if (s == QLatin1String("black")
+        || s.compare(qApp->translate("QFontDatabase", "Black"), Qt::CaseInsensitive))
         return QFont::Black;
     if (s == QLatin1String("light"))
         return QFont::Light;
 
-    if (s.contains(QLatin1String("bold"))) {
-        if (s.contains(QLatin1String("demi")))
+    if (s.contains(QLatin1String("bold"))
+        || s.contains(qApp->translate("QFontDatabase", "Bold"), Qt::CaseInsensitive)) {
+        if (s.contains(QLatin1String("demi"))
+            || s.compare(qApp->translate("QFontDatabase", "Demi"), Qt::CaseInsensitive))
             return (int) QFont::DemiBold;
         return (int) QFont::Bold;
     }
 
-    if (s.contains(QLatin1String("light")))
+    if (s.contains(QLatin1String("light"))
+        || s.compare(qApp->translate("QFontDatabase", "Light"), Qt::CaseInsensitive))
         return (int) QFont::Light;
 
-    if (s.contains(QLatin1String("black")))
+    if (s.contains(QLatin1String("black"))
+        || s.compare(qApp->translate("QFontDatabase", "Black"), Qt::CaseInsensitive))
         return (int) QFont::Black;
 
     return (int) QFont::Normal;
@@ -209,9 +217,11 @@ QtFontStyle::Key::Key(const QString &styleString)
 {
     weight = getFontWeight(styleString);
 
-    if (styleString.contains(QLatin1String("Italic")))
+    if (styleString.contains(QLatin1String("Italic"))
+        || styleString.contains(qApp->translate("QFontDatabase", "Italic")))
         style = QFont::StyleItalic;
-    else if (styleString.contains(QLatin1String("Oblique")))
+    else if (styleString.contains(QLatin1String("Oblique"))
+             || styleString.contains(qApp->translate("QFontDatabase", "Oblique")))
         style = QFont::StyleOblique;
 }
 
@@ -1202,21 +1212,21 @@ static QString styleString(int weight, QFont::Style style)
 {
     QString result;
     if (weight >= QFont::Black)
-        result = QLatin1String("Black");
+        result = qApp->translate("QFontDatabase", "Black");
     else if (weight >= QFont::Bold)
-        result = QLatin1String("Bold");
+        result = qApp->translate("QFontDatabase", "Bold");
     else if (weight >= QFont::DemiBold)
-        result = QLatin1String("Demi Bold");
+        result = qApp->translate("QFontDatabase", "Demi Bold");
     else if (weight < QFont::Normal)
-        result = QLatin1String("Light");
+        result = qApp->translate("QFontDatabase", "Light");
 
     if (style == QFont::StyleItalic)
-        result += QLatin1String(" Italic");
+        result += QLatin1Char(' ') + qApp->translate("QFontDatabase", "Italic");
     else if (style == QFont::StyleOblique)
-        result += QLatin1String(" Oblique");
+        result += QLatin1Char(' ') + qApp->translate("QFontDatabase", "Oblique");
 
     if (result.isEmpty())
-        result = QLatin1String("Normal");
+        result = qApp->translate("QFontDatabase", "Normal");
 
     return result.simplified();
 }
@@ -1891,103 +1901,103 @@ QString QFontDatabase::writingSystemName(WritingSystem writingSystem)
     const char *name = 0;
     switch (writingSystem) {
     case Any:
-        name = "Any";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Any");
         break;
     case Latin:
-        name = "Latin";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Latin");
         break;
     case Greek:
-        name = "Greek";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Greek");
         break;
     case Cyrillic:
-        name = "Cyrillic";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Cyrillic");
         break;
     case Armenian:
-        name = "Armenian";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Armenian");
         break;
     case Hebrew:
-        name = "Hebrew";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Hebrew");
         break;
     case Arabic:
-        name = "Arabic";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Arabic");
         break;
     case Syriac:
-        name = "Syriac";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Syriac");
         break;
     case Thaana:
-        name = "Thaana";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Thaana");
         break;
     case Devanagari:
-        name = "Devanagari";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Devanagari");
         break;
     case Bengali:
-        name = "Bengali";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Bengali");
         break;
     case Gurmukhi:
-        name = "Gurmukhi";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Gurmukhi");
         break;
     case Gujarati:
-        name = "Gujarati";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Gujarati");
         break;
     case Oriya:
-        name = "Oriya";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Oriya");
         break;
     case Tamil:
-        name = "Tamil";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Tamil");
         break;
     case Telugu:
-        name = "Telugu";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Telugu");
         break;
     case Kannada:
-        name = "Kannada";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Kannada");
         break;
     case Malayalam:
-        name = "Malayalam";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Malayalam");
         break;
     case Sinhala:
-        name = "Sinhala";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Sinhala");
         break;
     case Thai:
-        name = "Thai";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Thai");
         break;
     case Lao:
-        name = "Lao";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Lao");
         break;
     case Tibetan:
-        name = "Tibetan";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Tibetan");
         break;
     case Myanmar:
-        name = "Myanmar";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Myanmar");
         break;
     case Georgian:
-        name = "Georgian";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Georgian");
         break;
     case Khmer:
-        name = "Khmer";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Khmer");
         break;
     case SimplifiedChinese:
-        name = "Simplified Chinese";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Simplified Chinese");
         break;
     case TraditionalChinese:
-        name = "Traditional Chinese";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Traditional Chinese");
         break;
     case Japanese:
-        name = "Japanese";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Japanese");
         break;
     case Korean:
-        name = "Korean";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Korean");
         break;
     case Vietnamese:
-        name = "Vietnamese";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Vietnamese");
         break;
     case Symbol:
-        name = "Symbol";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Symbol");
         break;
     case Ogham:
-        name = "Ogham";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Ogham");
         break;
     case Runic:
-        name = "Runic";
+        name = QT_TRANSLATE_NOOP("QFontDatabase", "Runic");
         break;
     default:
         Q_ASSERT_X(false, "QFontDatabase::writingSystemName", "invalid 'writingSystem' parameter");
