@@ -1166,15 +1166,17 @@ void QDockWidget::setFloating(bool floating)
     if (d->state != 0)
         d->endDrag(true);
 
-    if (floating && d->undockedGeometry.isNull()) {
+    QRect r = d->undockedGeometry;
+
+    if (floating && r.isNull()) {
         QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());
         QRect titleArea = layout->titleArea();
         int h = layout->verticalTitleBar ? titleArea.width() : titleArea.height();
         QPoint p = mapToGlobal(QPoint(h, h));
-        d->undockedGeometry = QRect(p, size());
+        r = QRect(p, size());
     }
 
-    d->setWindowState(floating, false, floating ? d->undockedGeometry : QRect());
+    d->setWindowState(floating, false, floating ? r : QRect());
 }
 
 /*!
