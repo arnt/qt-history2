@@ -91,6 +91,14 @@ int QTextCopyHelper::appendFragment(int pos, int endPos, int objectIndex)
         dst->insertBlock(txtToInsert.at(0), insertPos, blockIdx, charFormatIndex);
         ++insertPos;
     } else {
+        if (nextBlock.textList()) {
+            QTextBlock dstBlock = dst->blocksFind(insertPos);
+            if (!dstBlock.textList()) {
+                blockIdx = convertFormatIndex(nextBlock.blockFormat());
+                dst->insertBlock(insertPos, blockIdx, charFormatIndex);
+                ++insertPos;
+            }
+        }
         dst->insert(insertPos, txtToInsert, charFormatIndex);
         const int userState = nextBlock.userState();
         if (userState != -1)

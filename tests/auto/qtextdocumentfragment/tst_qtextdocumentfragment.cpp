@@ -214,12 +214,20 @@ private slots:
     void html_userState();
     void html_rootFrameProperties();
     void html_alignmentPropertySet();
+    void html_appendList();
     void html_brAfterHr();
 
 private:
     inline void setHtml(const QString &html)
     // don't take the shortcut in QTextDocument::setHtml
     { doc->clear(); QTextCursor(doc).insertFragment(QTextDocumentFragment::fromHtml(html)); }
+
+    inline void appendHtml(const QString &html)
+    {
+        QTextCursor cursor(doc);
+        cursor.movePosition(QTextCursor::End);
+        cursor.insertHtml(html);
+    }
 
     QTextDocument *doc;
     QTextCursor cursor;
@@ -3358,6 +3366,15 @@ void tst_QTextDocumentFragment::html_rootFrameProperties()
 
     doc->setHtml(normalFrameHtml);
     QCOMPARE(doc->rootFrame()->childFrames().size(), 1);
+}
+
+void tst_QTextDocumentFragment::html_appendList()
+{
+    appendHtml("<p>foo</p>");
+    appendHtml("<ul><li>Line 1</li><li>Line 2</li></ul>");
+
+    QCOMPARE(doc->blockCount(), 3);
+    QVERIFY(doc->begin().next().textList() != 0);
 }
 
 void tst_QTextDocumentFragment::html_alignmentPropertySet()
