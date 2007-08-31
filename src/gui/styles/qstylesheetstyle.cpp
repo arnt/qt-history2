@@ -409,6 +409,7 @@ static const char *knownStyleHints[] = {
     "spincontrol-disable-on-bounds",
     "tabbar-elide-mode",
     "tabbar-prefer-no-arrows",
+    "titlebar-close-icon",
     "titlebar-contexthelp-icon",
     "titlebar-maximize-icon",
     "titlebar-menu-icon",
@@ -1344,6 +1345,10 @@ enum PseudoElement {
     PseudoElement_TabWidgetTabBar,
     PseudoElement_TabWidgetLeftCorner,
     PseudoElement_TabWidgetRightCorner,
+    PseudoElement_DockWidgetTitle,
+    PseudoElement_DockWidgetCloseButton,
+    PseudoElement_DockWidgetFloatButton,
+    PseudoElement_DockWidgetSeparator,
     NumPseudoElements
 };
 
@@ -1410,7 +1415,11 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "pane" },
     { QStyle::SC_None, "tab-bar" },
     { QStyle::SC_None, "left-corner" },
-    { QStyle::SC_None, "right-corner" }
+    { QStyle::SC_None, "right-corner" },
+    { QStyle::SC_None, "title" },
+    { QStyle::SC_None, "close-button" },
+    { QStyle::SC_None, "float-button" },
+    { QStyle::SC_None, "separator" }
 };
 
 QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoClass = PseudoClass_Unspecified)
@@ -1501,8 +1510,23 @@ static int pseudoClass(QStyle::State state)
     return pc;
 }
 
+static void qt_check_if_internal_widget(const QWidget **w, int *element)
+{
+#ifndef QT_NO_DOCKWIDGET
+    if (*w && QString::fromLatin1((*w)->metaObject()->className()) == QLatin1String("QDockWidgetTitleButton")) {
+        if ((*w)->objectName() == QLatin1String("qt_dockwidget_closebutton")) {
+            *element = PseudoElement_DockWidgetCloseButton;
+        } else if ((*w)->objectName() == QLatin1String("qt_dockwidget_floatbutton")) {
+            *element = PseudoElement_DockWidgetFloatButton;
+        }
+        *w = (*w)->parentWidget();
+    }
+#endif
+}
+
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int element, int state) const
 {
+    qt_check_if_internal_widget(&w, &element);
     const QString part = QLatin1String(knownPseudoElements[element].name);
     if (renderRulesCache->contains(w)) {
         QHash<int, QRenderRule> &renderRules = (*renderRulesCache)[w][part];
@@ -1736,6 +1760,20 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 extraClass |= PseudoClass_PreviousSelected;
         }
 #endif // QT_NO_TOOLBOX
+#ifndef QT_NO_DOCKWIDGET
+        else if (const QStyleOptionDockWidgetV2 *dw = qstyleoption_cast<const QStyleOptionDockWidgetV2 *>(opt)) {
+            if (dw->verticalTitleBar)
+                extraClass |= PseudoClass_Vertical;
+            else
+                extraClass |= PseudoClass_Horizontal;
+            if (dw->closable)
+                extraClass |= PseudoClass_Closable;
+            if (dw->floatable)
+                extraClass |= PseudoClass_Floatable;
+            if (dw->movable)
+                extraClass |= PseudoClass_Movable;
+        }
+#endif // QT_NO_DOCKWIDGET
 #ifndef QT_NO_LINEEDIT
         // LineEdit sets Sunken flag to indicate Sunken frame (argh)
         if (qobject_cast<const QLineEdit *>(w)) {
@@ -1835,6 +1873,8 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_SpinBoxUpButton:
     case PseudoElement_ComboBoxDropDown:
     case PseudoElement_ToolButtonMenu:
+    case PseudoElement_DockWidgetCloseButton:
+    case PseudoElement_DockWidgetFloatButton:
         return Qt::AlignRight | Qt::AlignTop;
 
     case PseudoElement_ScrollBarUpArrow:
@@ -1943,6 +1983,12 @@ QSize QStyleSheetStyle::defaultSize(const QWidget *w, QSize sz, const QRect& rec
         if (sz.height() == -1)
             sz.setHeight(pm);
                                         }
+
+    case PseudoElement_DockWidgetCloseButton:
+    case PseudoElement_DockWidgetFloatButton: {
+        int iconSize = pixelMetric(PM_SmallIconSize, 0, w);
+        return QSize(iconSize, iconSize);
+                                              }
 
     default:
         break;
@@ -3379,6 +3425,50 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
        }
        break;
 
+    case CE_DockWidgetTitle:
+       if (const QStyleOptionDockWidgetV2 *dwOpt = qstyleoption_cast<const QStyleOptionDockWidgetV2 *>(opt)) {
+           QRenderRule subRule = renderRule(w, opt, PseudoElement_DockWidgetTitle);
+           if (!subRule.hasDrawable() && !subRule.hasPosition())
+               break;
+           if (subRule.hasDrawable()) {
+               subRule.drawRule(p, opt->rect);
+           } else {
+               QStyleOptionDockWidgetV2 dwCopy(*dwOpt);
+               dwCopy.title = QString();
+               baseStyle()->drawControl(ce, &dwCopy, p, w);
+           }
+
+           if (!dwOpt->title.isEmpty()) {
+               QRect r = opt->rect;
+               if (dwOpt->verticalTitleBar) {
+                   QSize s = r.size();
+                   s.transpose();
+                   r.setSize(s);
+
+                   p->save();
+                   p->translate(r.left(), r.top() + r.width());
+                   p->rotate(-90);
+                   p->translate(-r.left(), -r.top());
+                }
+
+                Qt::Alignment alignment = 0;
+                if (subRule.hasPosition())
+                    alignment = subRule.position()->textAlignment;
+                if (alignment == 0)
+                    alignment = Qt::AlignLeft;
+                drawItemText(p, subRule.contentsRect(opt->rect),
+                             alignment | Qt::TextShowMnemonic, dwOpt->palette,
+                             dwOpt->state & State_Enabled, dwOpt->title,
+                             QPalette::WindowText);
+
+                if (dwOpt->verticalTitleBar)
+                    p->restore();
+            }
+
+           return;
+        }
+        break;
+
     default:
         break;
     }
@@ -3457,7 +3547,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
     case PE_PanelButtonCommand:
         if (!rule.hasNativeBorder()) {
             rule.drawRule(p, rule.boxRect(opt->rect, QRenderRule::Margin));
-                        return;
+            return;
         }
         break;
 
@@ -3478,6 +3568,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         }
         return;
 
+    case PE_FrameDockWidget:
     case PE_Frame:
         if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             if (rule.hasNativeBorder()) {
@@ -3623,6 +3714,10 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         }
         break;
 
+    case PE_IndicatorDockWidgetResizeHandle:
+        pseudoElement = PseudoElement_DockWidgetSeparator;
+        break;
+
     default:
         break;
     }
@@ -3729,6 +3824,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         }
         break;
 
+    case PM_DockWidgetFrameWidth:
     case PM_ToolTipLabelFrameWidth: // border + margin + padding (support only one width)
         if (!rule.hasDrawable())
             break;
@@ -3762,6 +3858,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return rule.box()->paddings[TopEdge];
         break;
 
+    case PM_DockWidgetTitleBarButtonMargin:
     case PM_ToolBarItemMargin:
         if (rule.hasBox())
             return rule.box()->margins[TopEdge];
@@ -3907,6 +4004,22 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return rule.styleHint(QLatin1String("icon-size")).toSize().width();
         }
         break;
+
+    case PM_DockWidgetTitleMargin: {
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_DockWidgetTitle);
+        if (!subRule.hasBox())
+            break;
+        return (subRule.border() ? subRule.border()->borders[LeftEdge] : 0)
+                + (subRule.hasBox() ? subRule.box()->margins[LeftEdge] + subRule.box()->paddings[LeftEdge]: 0);
+                                   }
+
+    case PM_DockWidgetSeparatorExtent: {
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_DockWidgetSeparator);
+        if (!subRule.hasContentsSize())
+            break;
+        QSize sz = subRule.size();
+        return qMax(sz.width(), sz.height());
+                                        }
 
     default:
         break;
@@ -4643,6 +4756,16 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
         break;
     }
 #endif // QT_NO_TABBAR
+
+    case SE_DockWidgetCloseButton:
+    case SE_DockWidgetFloatButton: {
+        PseudoElement pe = (se == SE_DockWidgetCloseButton) ? PseudoElement_DockWidgetCloseButton : PseudoElement_DockWidgetFloatButton;
+        QRenderRule subRule2 = renderRule(w, opt, pe);
+        if (!subRule2.hasPosition())
+            break;
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_DockWidgetTitle);
+        return positionRect(w, subRule, subRule2, pe, opt->rect, opt->direction);
+                                   }
 
     default:
         break;
