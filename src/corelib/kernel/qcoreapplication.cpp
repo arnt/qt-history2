@@ -896,7 +896,6 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event, int priority)
 
         event->posted = true;
         ++receiver->d_func()->postedEvents;
-        ++data->postEventList.numPostedEvents;
         if (event->type() == QEvent::DeferredDelete) {
             // remember the current running eventloop
             event->d = reinterpret_cast<QEventPrivate *>(quintptr(data->loopLevel));
@@ -1079,7 +1078,6 @@ void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type
         QObject * r = pe.receiver;
 
         --r->d_func()->postedEvents;
-        --data->postEventList.numPostedEvents;
         Q_ASSERT(r->d_func()->postedEvents >= 0);
 
         // next, update the data structure so that we're ready

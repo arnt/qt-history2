@@ -70,11 +70,10 @@ public:
     // insertionOffset == set by sendPostedEvents to tell postEvent() where to start insertions
     int insertionOffset;
 
-    int numPostedEvents;
     QMutex mutex;
 
     inline QPostEventList()
-        : QList<QPostEvent>(), recursion(0), startOffset(0), insertionOffset(0), numPostedEvents(0)
+        : QList<QPostEvent>(), recursion(0), startOffset(0), insertionOffset(0)
     { }
 };
 
