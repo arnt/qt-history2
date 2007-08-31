@@ -4009,8 +4009,8 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         QRenderRule subRule = renderRule(w, opt, PseudoElement_DockWidgetTitle);
         if (!subRule.hasBox())
             break;
-        return (subRule.border() ? subRule.border()->borders[LeftEdge] : 0)
-                + (subRule.hasBox() ? subRule.box()->margins[LeftEdge] + subRule.box()->paddings[LeftEdge]: 0);
+        return (subRule.border() ? subRule.border()->borders[TopEdge] : 0)
+                + (subRule.hasBox() ? subRule.box()->margins[TopEdge] + subRule.box()->paddings[TopEdge]: 0);
                                    }
 
     case PM_DockWidgetSeparatorExtent: {
