@@ -464,8 +464,9 @@ bool Q3ToolBar::event(QEvent * e)
         if (child && child->isWidgetType() && !((QWidget*)child)->isWindow()
              && child->parent() == this
             && QLatin1String("qt_dockwidget_internal") != child->objectName()) {
-            boxLayout()->addWidget((QWidget*)child);
+            QWidgetItem *item = new QWidgetItem((QWidget*)child);
             if (QToolButton *button = qobject_cast<QToolButton*>(child)) {
+                item->setAlignment(Qt::AlignHCenter);
                 button->setFocusPolicy(Qt::NoFocus);
                 if (mw) {
                     QObject::connect(mw, SIGNAL(pixmapSizeChanged(bool)),
@@ -477,6 +478,7 @@ bool Q3ToolBar::event(QEvent * e)
                 }
                 button->setAutoRaise(true);
             }
+            boxLayout()->addItem(item);
             if (isVisible()) {
                 // toolbar compatibility: we auto show widgets that
                 // are not explicitly hidden
