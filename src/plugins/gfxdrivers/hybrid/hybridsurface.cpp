@@ -256,3 +256,17 @@ void HybridSurface::unlock()
         memlock->unlock(QWSLock::BackingStore);
 }
 
+QPoint HybridSurface::painterOffset() const
+{
+    const QWidget *w = window();
+    if (!w)
+        return QPoint();
+
+    if (w->mask().isEmpty())
+        return QWSWindowSurface::painterOffset();
+
+    const QRegion region = w->mask()
+                           & w->frameGeometry().translated(-w->geometry().topLeft());
+    return -region.boundingRect().topLeft();
+}
+

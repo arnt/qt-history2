@@ -43,6 +43,7 @@ public:
 
     QImage image() const;
     QPaintDevice *paintDevice();
+    QPoint painterOffset() const;
 
 private:
     QSharedMemory mem;
