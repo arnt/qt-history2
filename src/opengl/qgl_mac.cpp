@@ -578,7 +578,7 @@ bool QGLWidget::event(QEvent *e)
 {
     if (e->type() == QEvent::MacGLWindowChange
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-           && QSysInfo::MacintoshVersion >= QSysInfo::MV_10_5
+           && QSysInfo::MacintoshVersion < QSysInfo::MV_10_5
 #endif
         ) {
         d_func()->glcx->updatePaintDevice();

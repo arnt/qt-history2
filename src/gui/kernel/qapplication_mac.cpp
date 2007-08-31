@@ -673,6 +673,7 @@ Q_GUI_EXPORT void qt_event_request_window_change(QWidget *widget)
 {
     if (!widget)
         return;
+    widget->d_func()->needWindowChange = true;
     EventRef windowChangeEvent;
     CreateEvent(0, kEventClassQt, kEventQtRequestWindowChange, GetCurrentEventTime(),
                 kEventAttributeUserEvent, &windowChangeEvent);
@@ -680,31 +681,12 @@ Q_GUI_EXPORT void qt_event_request_window_change(QWidget *widget)
     PostEventToQueue(GetMainEventQueue(), windowChangeEvent, kEventPriorityHigh);
 }
 
-static Boolean qt_windowChangeComparatorProc(EventRef inEvent, void *data)
-{
-    UInt32 ekind = GetEventKind(inEvent),
-           eclass = GetEventClass(inEvent);
-    if (eclass == kEventClassQt && ekind == kEventQtRequestWindowChange) {
-        QWidget *widget;
-        GetEventParameter(inEvent, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
-        return widget == static_cast<QWidget *>(data);
-    }
-    return false;
-}
-
 bool qt_event_remove_window_change(QWidget *widget)
 {
-    EventRef releaseEvent = FindSpecificEventInQueue(GetMainEventQueue(),
-                                                     qt_windowChangeComparatorProc,
-                                                     widget);
-    if (releaseEvent) {
-        RemoveEventFromQueue(GetMainEventQueue(), releaseEvent);
-        ReleaseEvent(releaseEvent);
-        // Remove ALL of them.
-        while (qt_event_remove_window_change(widget));
-        return true;
-    }
-    return false;
+    if (!widget)
+        return false;
+    widget->d_func()->needWindowChange = false;
+    return true;
 }
 
 
@@ -1319,8 +1301,11 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventQtRequestWindowChange) {
             QWidget *widget;
             GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
-            QEvent glWindowChangeEvent(QEvent::MacGLWindowChange);
-            QApplication::sendEvent(widget, &glWindowChangeEvent);
+            if (widget->d_func()->needWindowChange) {
+                QEvent glWindowChangeEvent(QEvent::MacGLWindowChange);
+                QApplication::sendEvent(widget, &glWindowChangeEvent);
+                // We *could* reset the need window change here, but we don't need to ATM.
+            }
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             qt_mac_event_release(request_menubarupdate_pending);
             QMenuBar::macUpdateMenuBar();

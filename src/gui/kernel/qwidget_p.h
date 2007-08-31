@@ -471,6 +471,7 @@ public:
     uint clp_serial : 8;
     inline QRegion clippedRegion(bool = true) { return clp; }
     inline uint clippedSerial(bool =true) { return clp_serial; }
+    uint needWindowChange : 1;
 #endif
 
 #if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined(Q_WS_MAC)

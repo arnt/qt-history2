@@ -78,7 +78,6 @@ extern bool qt_event_remove_activate(); //qapplication_mac.cpp
 extern void qt_mac_event_release(QWidget *w); //qapplication_mac.cpp
 extern void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern void qt_event_request_window_change(QWidget *); //qapplication_mac.cpp
-extern bool qt_event_remove_window_change(QWidget *); //qapplication_mac.cpp
 extern IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const QPoint &); //qcursor_mac.cpp
 extern void qt_mac_update_cursor(); //qcursor_mac.cpp
