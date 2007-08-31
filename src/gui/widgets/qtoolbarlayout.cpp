@@ -632,6 +632,7 @@ QToolBarItem *QToolBarLayout::createItem(QAction *action)
     QToolBarItem *result = new QToolBarItem(widget);
     result->customWidget = customWidget;
     result->action = action;
+    result->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     return result;
 }
 
