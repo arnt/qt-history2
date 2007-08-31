@@ -1348,7 +1348,7 @@ void Declaration::borderImageValue(QString *image, int *cuts,
 QIcon Declaration::iconValue() const
 {
     QIcon icon;
-    for (int i = 0; i < values.count(); i++) {
+    for (int i = 0; i < values.count();) {
         Value value = values.at(i++);
         if (value.type != Value::Uri)
             break;
@@ -1378,8 +1378,11 @@ QIcon Declaration::iconValue() const
         else
             icon.addPixmap(uri, mode, state);
 
-        if (i == values.count() || values.at(i).type != Value::TermOperatorComma)
+        if (i == values.count())
             break;
+
+        if (values.at(i).type == Value::TermOperatorComma)
+            i++;
     }
     return icon;
 }
