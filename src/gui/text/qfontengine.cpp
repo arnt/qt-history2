@@ -55,7 +55,7 @@ static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, hb_uint32 numGl
     for (hb_uint32 i = 0; i < numGlyphs; ++i)
         qglyphs[i].glyph = glyphs[i];
 
-    fe->recalcAdvances(numGlyphs, qglyphs.data(), flags & HB_ShaperFlag_UseDesignMetrics ? QTextEngine::DesignMetrics : QFlags<QTextEngine::ShaperFlag>(0));
+    fe->recalcAdvances(numGlyphs, qglyphs.data(), flags & HB_ShaperFlag_UseDesignMetrics ? QFlags<QTextEngine::ShaperFlag>(QTextEngine::DesignMetrics) : QFlags<QTextEngine::ShaperFlag>(0));
 
     for (hb_uint32 i = 0; i < numGlyphs; ++i)
         advances[i] = qglyphs[i].advance.x.value();
