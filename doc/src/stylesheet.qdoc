@@ -815,6 +815,28 @@
            \l{#button-layout-prop}{button-layout} property.
 
     \row
+        \o QDockWidget \target qdockwidget-widget
+        \o Supports styling of the title bar and the title bar buttons when docked.
+
+        The dock widget border can be styled using the \l{#border-prop}{border}
+        property. The \l{#title-sub}{::title} subcontrol can be used to customize
+        the title bar. The close and float buttons are positioned with respect
+        to the \l{title-sub}{::title} subcontrol using the 
+        \l{#close-button-sub}{::close-button} and
+        \l{#float-button-sub}{::float-button} respectively.
+
+        When the title bar is vertical, the {#vertical-ps}{:vertical} pseudo 
+        class is set. In addition, depending on QDockWidget::DockWidgetFeature,
+        the \l{#closable-ps}{:closable}, \l{#floatable-ps}{:floatable} and
+        \l{#movable-ps}{:movable} pseudo states are set.
+
+        \warning The style sheet has no effect when the QDockWidget is undocked
+        as Qt uses native top level windows when undocked.
+
+        See \l{Qt Style Sheets Examples#Customizing QDockWidget}
+        {Customizing QDockWidget} for an example.
+
+    \row
         \o QDoubleSpinBox \target qdoublespinbox-widget
         \o See \l{#qspinbox-widget}{QSpinBox}.
 
@@ -909,6 +931,16 @@
     \row
         \o QListWidget \target qlistwidget-widget
         \o See \l{#qlistview-widget}{QListWidget}.
+
+    \row
+        \o QMainWindow \target qmainwindow-widget
+        \o Supports styling of the separator
+
+           The separator in a QMainWindow when using QDockWidget is styled
+           using the \l{#separator-sub}{::separator} subcontrol.
+
+           See \l{Qt Style Sheets Examples#Customizing QMainWindow}{Customizing QMainWindow}
+           for an example.
 
     \row
         \o QMenu \target qmenu-widget
@@ -3149,6 +3181,11 @@ blue green yellow * /
             \l{QAbstractButton::checked}{checked} state of QAbstractButton.
 
     \row
+        \o \c :closable \target closable-ps
+        \o The items can be closed. For example, the QDockWidget has the
+           QDockWidget::DockWidgetClosable feature turned on.
+
+    \row
         \o \c :closed \target closed-ps
         \o The item is in the closed state. For example, an non-expanded 
            item in a QTreeView
@@ -3185,6 +3222,11 @@ blue green yellow * /
         \o \c :flat \target flat-ps
         \o The item is flat. For example, a
            \l{QPushButton::flat}{flat} QPushButton.
+
+    \row
+        \o \c :floatable \target floatable-ps
+        \o The items can be floated. For example, the QDockWidget has the
+           QDockWidget::DockWidgetFloatable feature turned on.
 
     \row
         \o \c :focus \target focus-ps
@@ -3227,6 +3269,11 @@ blue green yellow * /
         \o \c :middle \target middle-ps
         \o The item is in the middle (in a list). For example, a tab
            that is not in the beginning or the end in a QTabBar.
+
+    \row
+        \o \c :movable \target movable-ps
+        \o The item can be moved around. For example, the QDockWidget has the
+           QDockWidget::DockWidgetMovable feature turned on.
 
     \row
         \o \c :no-frame \target no-frame-ps
@@ -3332,6 +3379,10 @@ blue green yellow * /
         \o The progress chunk of a QProgressBar.
 
     \row
+        \o \c ::close-button \target close-button-sub
+        \o The close button of a QDockWidget.
+
+    \row
         \o \c ::down-arrow \target down-arrow-sub
         \o The down arrow of a QComboBox, QHeaderView (sort indicator),
            QScrollBar or QSpinBox.
@@ -3343,6 +3394,10 @@ blue green yellow * /
     \row
         \o \c ::drop-down \target drop-down-sub
         \o The drop-down button of a QComboBox.
+
+    \row
+        \o \c ::float-button \target float-button-sub
+        \o The float button of a QDockWidget
 
     \row
         \o \c ::groove \target groove-sub
@@ -3405,7 +3460,7 @@ blue green yellow * /
 
     \row
         \o \c ::separator \target separator-sub
-        \o The separator of a QMenu.
+        \o The separator of a QMenu or in a QMainWindow.
 
     \row
         \o \c ::sub-line \target sub-line-sub
@@ -3436,7 +3491,7 @@ blue green yellow * /
 
     \row
         \o \c ::title \target title-sub
-        \o The title of a QGroupBox.
+        \o The title of a QGroupBox or a QDockWidget.
 
     \row
         \o \c ::up-arrow \target up-arrow-sub
@@ -3845,74 +3900,85 @@ blue green yellow * /
         }
     \endcode
 
-    \section2 Customizing QSpinBox
+    \section2 Customizing QDockWidget
 
-    QSpinBox can be completely customized as below (the style sheet has commentary inline):
+    The title bar and the buttons of a QDockWidget can be customized as 
+    follows:
 
     \code
-        QSpinBox {
-            padding-right: 15px; / * make room for the arrows * /
-            border-image: url(:/images/frame.png) 4;
-            border-width: 3;
+        QDockWidget {
+            border: 1px solid lightgray;
+            titlebar-close-icon: url(close.png);
+            titlebar-normal-icon: url(undock.png);
         }
 
-        QSpinBox::up-button {
-            subcontrol-origin: border;
-            subcontrol-position: top right; / * position at the top right corner * /
-
-            width: 16px; / * 16 + 2*1px border-width = 15px padding + 3px parent border * /
-            border-image: url(:/images/spinup.png) 1;
-            border-width: 1px;
+        QDockWidget::title {
+            text-align: left; / * align the text to the left * /
+            background: lightgray;
+            padding-left: 5px;
         }
 
-        QSpinBox::up-button:hover {
-            border-image: url(:/images/spinup_hover.png) 1;
+        QDockWidget::close-button, QDockWidget::float-button {
+            border: 1px solid transparent;
+            background: darkgray;
+            padding: 0px;
         }
 
-        QSpinBox::up-button:pressed {
-            border-image: url(:/images/spinup_pressed.png) 1;
+        QDockWidget::close-button:hover, QDockWidget::float-button:hover {
+            background: gray;
         }
 
-        QSpinBox::up-arrow {
-            image: url(:/images/up_arrow.png);
-            width: 7px;
-            height: 7px;
+        QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
+            padding: 1px -1px -1px 1px;
         }
-
-        QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off { / * off state when value is max * /
-           image: url(:/images/up_arrow_disabled.png);
-        }
-
-        QSpinBox::down-button {
-            subcontrol-origin: border;
-            subcontrol-position: bottom right; / * position at bottom right corner * /
-
-            width: 16px;
-            border-image: url(:/images/spindown.png) 1;
-            border-width: 1px;
-            border-top-width: 0;
-        }
-
-        QSpinBox::down-button:hover {
-            border-image: url(:/images/spindown_hover.png) 1;
-        }
-
-        QSpinBox::down-button:pressed {
-            border-image: url(:/images/spindown_pressed.png) 1;
-        }
-
-        QSpinBox::down-arrow {
-            image: url(:/images/down_arrow.png);
-            width: 7px;
-            height: 7px;
-        }
-
-        QSpinBox::down-arrow:disabled,
-        QSpinBox::down-arrow:off { / * off state when value in min * /
-           image: url(:/images/down_arrow_disabled.png);
-        }
-
     \endcode
+
+    If one desires to move the dock widget buttons to the left, the following
+    style sheet can be used:
+
+    \code
+        QDockWidget {
+            border: 1px solid lightgray;
+            titlebar-close-icon: url(close.png);
+            titlebar-normal-icon: url(float.png);
+        }
+
+        QDockWidget::title {
+            text-align: left;
+            background: lightgray;
+            padding-left: 35px;
+        }
+
+        QDockWidget::close-button, QDockWidget::float-button {
+            background: darkgray;
+            padding: 0px;
+            icon-size: 14px; / * maximum icon size * /
+        }
+
+        QDockWidget::close-button:hover, QDockWidget::float-button:hover {
+            background: gray;
+        }
+
+        QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
+            padding: 1px -1px -1px 1px;
+        }
+
+        QDockWidget::close-button {
+            subcontrol-position: top left;
+            subcontrol-origin: margin;
+            position: absolute;
+            top: 0px; left: 0px; bottom: 0px;
+            width: 14px;
+        }
+
+        QDockWidget::float-button {
+            subcontrol-position: top left;
+            subcontrol-origin: margin;
+            position: absolute;
+            top: 0px; left: 16px; bottom: 0px;
+            width: 14px;
+        }
+    \code
 
     \section2 Customizing QFrame
 
@@ -4016,6 +4082,22 @@ blue green yellow * /
     \code
         QLineEdit:read-only {
             background: lightblue;
+    \endcode
+
+    \section2 Customizing QMainWindow
+
+    The separator of a QMainWindow can be styled as follows:
+
+    \code
+        QMainWindow::separator {
+            background: yellow;
+            width: 10px; / * when vertical * /
+            height: 10px; / * when horizontal * /
+        }
+
+        QMainWindow::separator:hover {
+            background: red;
+        }
     \endcode
 
     \section2 Customizing QMenu
@@ -4451,6 +4533,76 @@ blue green yellow * /
             background: pink;
         }
     \endcode
+
+    \section2 Customizing QSpinBox
+
+    QSpinBox can be completely customized as below (the style sheet has commentary inline):
+
+    \code
+        QSpinBox {
+            padding-right: 15px; / * make room for the arrows * /
+            border-image: url(:/images/frame.png) 4;
+            border-width: 3;
+        }
+
+        QSpinBox::up-button {
+            subcontrol-origin: border;
+            subcontrol-position: top right; / * position at the top right corner * /
+
+            width: 16px; / * 16 + 2*1px border-width = 15px padding + 3px parent border * /
+            border-image: url(:/images/spinup.png) 1;
+            border-width: 1px;
+        }
+
+        QSpinBox::up-button:hover {
+            border-image: url(:/images/spinup_hover.png) 1;
+        }
+
+        QSpinBox::up-button:pressed {
+            border-image: url(:/images/spinup_pressed.png) 1;
+        }
+
+        QSpinBox::up-arrow {
+            image: url(:/images/up_arrow.png);
+            width: 7px;
+            height: 7px;
+        }
+
+        QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off { / * off state when value is max * /
+           image: url(:/images/up_arrow_disabled.png);
+        }
+
+        QSpinBox::down-button {
+            subcontrol-origin: border;
+            subcontrol-position: bottom right; / * position at bottom right corner * /
+
+            width: 16px;
+            border-image: url(:/images/spindown.png) 1;
+            border-width: 1px;
+            border-top-width: 0;
+        }
+
+        QSpinBox::down-button:hover {
+            border-image: url(:/images/spindown_hover.png) 1;
+        }
+
+        QSpinBox::down-button:pressed {
+            border-image: url(:/images/spindown_pressed.png) 1;
+        }
+
+        QSpinBox::down-arrow {
+            image: url(:/images/down_arrow.png);
+            width: 7px;
+            height: 7px;
+        }
+
+        QSpinBox::down-arrow:disabled,
+        QSpinBox::down-arrow:off { / * off state when value in min * /
+           image: url(:/images/down_arrow_disabled.png);
+        }
+
+    \endcode
+
 
     \section2 Customizing QSplitter
 
