@@ -1994,7 +1994,10 @@ void QScreen::blit(QWSWindow *win, const QRegion &clip)
     if (img == QImage())
         return;
 
-    QRegion rgn = clip & win->allocatedRegion();
+    const QRegion rgn = clip & win->paintedRegion();
+    if (rgn.isEmpty())
+        return;
+
     surface->lock();
     blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
     surface->unlock();
