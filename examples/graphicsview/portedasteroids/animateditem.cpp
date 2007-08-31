@@ -13,36 +13,54 @@
 
 #include "animateditem.h"
 
+#include <QtGui/qbitmap.h>
+#include <QtGui/qpainter.h>
+
 AnimatedPixmapItem::AnimatedPixmapItem(const QList<QPixmap> &animation,
                                        QGraphicsScene *scene)
-    : QGraphicsPixmapItem(0, scene), currentFrame(0), frames(animation), vx(0), vy(0)
+    : QGraphicsItem(0, scene), currentFrame(0), vx(0), vy(0)
 {
-    setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
+    for (int i = 0; i < animation.size(); ++i) {
+        QPixmap pixmap = animation.at(i);
+        Frame frame;
+        frame.pixmap = pixmap;
+        QPainterPath path;
+        path.addRegion(pixmap.createHeuristicMask());
+        frame.shape = path;
+        frame.boundingRect = path.controlPointRect();
+        frames << frame;
+    }
 }
 
 void AnimatedPixmapItem::setFrame(int frame)
 {
     if (!frames.isEmpty()) {
+        prepareGeometryChange();
         currentFrame = frame % frames.size();
-        setPixmap(frames.at(currentFrame));
     }
 }
 
 void AnimatedPixmapItem::advance(int phase)
 {
     if (phase == 1 && !frames.isEmpty()) {
-        currentFrame = (currentFrame + 1) % frames.size();
-        setPixmap(frames.at(currentFrame));
+        setFrame(currentFrame + 1);
         if (vx || vy)
             moveBy(vx, vy);
     }
 }
 
+QRectF AnimatedPixmapItem::boundingRect() const
+{
+    return frames.at(currentFrame).boundingRect;
+}
+
 QPainterPath AnimatedPixmapItem::shape() const
 {
-    QPainterPath path;
-    path.addRect(0, 0,
-                 frames.at(currentFrame).width(),
-                 frames.at(currentFrame).height());
-    return path;
+    return frames.at(currentFrame).shape;
+}
+
+void AnimatedPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                               QWidget *widget)
+{
+    painter->drawPixmap(0, 0, frames.at(currentFrame).pixmap);
 }
