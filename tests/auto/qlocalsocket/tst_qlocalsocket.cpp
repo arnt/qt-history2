@@ -330,18 +330,21 @@ public:
         int tries = 0;
         do {
             socket.connectToName("qlocalsocket_threadtest");
-            if (socket.error() != QLocalSocket::NotFoundError)
+            if (socket.error() != QLocalSocket::NotFoundError
+                || socket.error() != QLocalSocket::ConnectionRefusedError)
                 break;
             QTest::qWait(10);
             ++tries;
-        } while (socket.error() == QLocalSocket::NotFoundError && tries < 1000);
+        } while ((socket.error() == QLocalSocket::NotFoundError
+                  || socket.error() == QLocalSocket::ConnectionRefusedError) && tries < 1000);
         if (socket.state() != QLocalSocket::ConnectedState) {
             QVERIFY(socket.waitForConnected(10000));
             QVERIFY(socket.state() == QLocalSocket::ConnectedState);
         }
 
         // We should *not* have this signal yet!
-        QCOMPARE(spyReadyRead.count(), 0);
+        if (tries == 0)
+            QCOMPARE(spyReadyRead.count(), 0);
         socket.waitForReadyRead();
         QCOMPARE(spyReadyRead.count(), 1);
         QTextStream in(&socket);

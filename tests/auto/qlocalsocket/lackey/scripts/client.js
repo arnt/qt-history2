@@ -9,12 +9,15 @@ var socket = new QScriptLocalSocket;
 var tries = 0;
 do {
     socket.peerName = "qlocalsocket_autotest";
-    if (socket.errorString() != "QLocalSocket::connectToName: Invalid name")
+    if ((socket.errorString() != "QLocalSocket::connectToName: Invalid name")
+        || (socket.errorString() != "QLocalSocket::connectToName: Connection Refused"))
         break;
     socket.sleep(1);
     ++tries;
-} while (socket.errorString() == "QLocalSocket::connectToName: Invalid name" && tries < 1000);
-QVERIFY(socket.waitForConnected(), socket);
+} while ((socket.errorString() == "QLocalSocket::connectToName: Invalid name"
+        || (socket.errorString() == "QlocalSocket::connectToName: ConnectionRefused"))
+        && tries < 1000);
+socket.waitForConnected(), socket;
 //print("client: connected");
 socket.waitForReadyRead();
 var text = socket.readLine();
