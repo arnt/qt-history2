@@ -159,7 +159,7 @@ QAbstractFileEngineHandler::~QAbstractFileEngineHandler()
     QDir directly instead.
 
     If you reimplemnt this function, it should only return file
-    engines that knows how to handle \a filename; otherwise, it should
+    engines that knows how to handle \a fileName; otherwise, it should
     return 0.
 
     \sa QAbstractFileEngineHandler
