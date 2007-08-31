@@ -15,6 +15,7 @@
 
     \title Thanks!
     \ingroup licensing
+    \brief A list of contributors to Qt.
 
     The following (and probably many others) have provided bug reports,
     suggestions, patches, beta testing, or done us other favors.  We thank
@@ -30,6 +31,7 @@
     Alexander Sanda <alex at darkstar.ping.at>\br
     Amos Leffler <leffler at netaxs.com>\br
     Anders Hanson <andhan at lls.se>\br
+    Andi Peredri <andi at ukr.net>\br
     Andreas Schlempp <schlempp at egd.igd.fhg.de>\br
     Andrew Bell <abell at vsys.com>\br
     Andrew Gillham <gillhaa at ghost.whirlpool.com>\br
@@ -303,7 +305,7 @@
     vinckeg at sebb.bel.alcatel.be\br
     yleffler at ucis.vill.edu\br
     Houssem BDIOUI <houssem.bdioui at gmail.com>\br
-    
+
     We hope there are not too many omissions from the list.
     Please submit any corrections to the \l{Task Tracker}
     on the Trolltech website.

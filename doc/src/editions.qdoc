@@ -16,6 +16,7 @@
     \page editions.html
     \title Qt Editions
     \ingroup licensing
+    \brief Information about the different editions of Qt.
 
     Qt can be used to create both commercial and non-commercial
     software for a wide range of different deployment environments,

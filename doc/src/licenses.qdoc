@@ -2,6 +2,7 @@
     \page licenses.html
     \title Licenses for Code Used in Qt
     \ingroup licensing
+    \brief Information about licenses of third-party code used in Qt.
 
     Qt contains some code that is not provided under the the \l{GNU
     General Public License (GPL)} or the
@@ -106,6 +107,8 @@
     \page licenses-fonts.html
     \title Licenses for Fonts Used in Qtopia Core
     \ingroup qtopiacore
+    \ingroup licensing
+    \brief Information about the licenses of fonts supplied with Qtopia Core.
 
     The fonts supplied with Qtopia Core have been obtained under a
     variety of different licenses listed below.

@@ -1,6 +1,7 @@
 /*! \page gpl.html
 \title GNU General Public License (GPL)
 \ingroup licensing
+\brief About the GPL license used for the Qt Open Source Edition.
 
  The Qt GUI Toolkit is Copyright (C) 1994-$THISYEAR$ $TROLLTECH$.
 

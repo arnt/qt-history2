@@ -3,6 +3,7 @@
 
     \title Q Public License (QPL)
     \ingroup licensing
+    \brief About the QPL license used for early versions of Qt.
 
     The X11 version of the Qt Open Source Edition is available under
     both the Q Public License (QPL) and the \l{gpl.html}{GNU General

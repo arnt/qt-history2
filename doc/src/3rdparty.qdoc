@@ -17,6 +17,12 @@
 
     \title Third-Party Licenses Used in Qt
     \ingroup licensing
+    \brief License information for third-party libraries supplied with Qt.
+
+    Qt includes a number of third-party libraries that are used to provide
+    certain features. Unlike other
+    \l{Licenses for Code Used in Qt}{third-party code used in Qt}, these
+    libraries are supplied alongside the Qt modules.
 
     Run \c{configure -help} to see any options that may be available for
     controlling the use of these libraries.
