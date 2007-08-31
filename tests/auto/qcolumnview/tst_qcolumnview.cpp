@@ -15,6 +15,8 @@
 #include <qdirmodel.h>
 #include <qstringlistmodel.h>
 #include <qdebug.h>
+#include <qitemdelegate.h>
+#include <qscrollbar.h>
 
 //TESTED_CLASS=QColumnView
 //TESTED_FILES=gui/itemviews/qcolumnview.h gui/itemviews/qcolumnview.cpp
@@ -70,6 +72,9 @@ private slots:
     void preview();
     void swapPreview();
     void sizes();
+    void rowDelegate();
+    void resize();
+    void changeSameColumn();
 
 protected slots:
     void setPreviewWidget();
@@ -445,6 +450,16 @@ void tst_QColumnView::selectAll()
     view.selectAll();
     QVERIFY(view.selectionModel()->selectedIndexes().count() > 0);
 
+    QModelIndex file;
+    for (int i = 0; i < model.rowCount(home); ++i)
+        if (!model.hasChildren(model.index(i, 0, home))) {
+            file = model.index(i, 0, home);
+            break;
+        }
+    view.setCurrentIndex(file);
+    view.selectAll();
+    QVERIFY(view.selectionModel()->selectedIndexes().count() > 0);
+
     view.setCurrentIndex(QModelIndex());
     QVERIFY(view.selectionModel()->selectedIndexes().count() == 0);
 }
@@ -477,6 +492,7 @@ void tst_QColumnView::clicked()
     QPoint globalPoint = view.mapToGlobal(rect.center());
     QVERIFY(!globalPoint.isNull());
     QWidget *w = QApplication::widgetAt(globalPoint);
+    QVERIFY(QApplication::topLevelAt(globalPoint));
     QVERIFY(w);
     QPoint localPoint = w->mapFromGlobal(globalPoint);
 
@@ -661,13 +677,24 @@ void tst_QColumnView::gripMoved()
 void tst_QColumnView::preview()
 {
     QColumnView view;
+    QCOMPARE(view.previewWidget(), (QWidget*)0);
     QDirModel model;
     view.setModel(&model);
+    QCOMPARE(view.previewWidget(), (QWidget*)0);
     QModelIndex home = model.index(QDir::homePath());
     view.setCurrentIndex(home);
+    QCOMPARE(view.previewWidget(), (QWidget*)0);
+
+    QModelIndex file;
+    for (int i = 0; i < model.rowCount(home); ++i)
+        if (!model.hasChildren(model.index(i, 0, home))) {
+            file = model.index(i, 0, home);
+            break;
+        }
+    view.setCurrentIndex(file);
+    QVERIFY(view.previewWidget() != (QWidget*)0);
 
     QWidget *previewWidget = new QWidget(&view);
-    QCOMPARE(view.previewWidget(), (QWidget*)0);
     view.setPreviewWidget(previewWidget);
     QCOMPARE(view.previewWidget(), previewWidget);
     QVERIFY(previewWidget->parent() != ((QWidget*)&view));
@@ -727,6 +754,64 @@ void tst_QColumnView::sizes()
     expectedSizes[0] = 6;
     postSizes = view.columnWidths().mid(0, newSizes.count());
     QCOMPARE(postSizes, expectedSizes.mid(0, postSizes.count()));
+}
+
+void tst_QColumnView::rowDelegate()
+{
+    ColumnView view;
+    QItemDelegate *d = new QItemDelegate;
+    view.setItemDelegateForRow(3, d);
+
+    QDirModel model;
+    view.setModel(&model);
+    for (int i = 0; i < view.createdColumns.count(); ++i) {
+        QAbstractItemView *column = view.createdColumns.at(i);
+        QCOMPARE(column->itemDelegateForRow(3), d);
+    }
+    delete d;
+}
+
+void tst_QColumnView::resize()
+{
+    ColumnView view;
+    QDirModel model;
+    view.setModel(&model);
+    view.resize(200, 200);
+
+    view.show();
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+    QTest::qWait(ANIMATION_DELAY);
+
+    QVERIFY(view.horizontalScrollBar()->maximum() != 0);
+    view.resize(view.horizontalScrollBar()->maximum() * 10, 200);
+    QTest::qWait(ANIMATION_DELAY);
+    QVERIFY(view.horizontalScrollBar()->maximum() <= 0);
+}
+
+void tst_QColumnView::changeSameColumn()
+{
+    ColumnView view;
+    QDirModel model;
+    view.setModel(&model);
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+
+    QList<QPointer<QAbstractItemView> > old = view.createdColumns;
+    QModelIndex second;
+    for (int i = 0; i < model.rowCount(home.parent()); ++i) {
+        QModelIndex idx = model.index(i, 0, home.parent());
+        if (model.hasChildren(idx) && idx != home) {
+            second = idx;
+            break;
+        }
+    }
+    QVERIFY(second.isValid());
+    //qDebug() << view.currentIndex().data().toString();;
+    view.setCurrentIndex(second);
+    //qDebug() << view.currentIndex().data().toString();;
+
+    QCOMPARE(old, view.createdColumns);
 }
 
 QTEST_MAIN(tst_QColumnView)
