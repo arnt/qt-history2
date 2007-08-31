@@ -4049,8 +4049,9 @@ QRectF QGraphicsPathItem::boundingRect() const
         qreal pw = pen().widthF();
         if (pw == 0.0)
             d->boundingRect = d->path.controlPointRect();
-        else
-            d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        else {
+            d->boundingRect = shape().controlPointRect();
+        }
     }
     return d->boundingRect;
 }
@@ -4286,7 +4287,7 @@ QRectF QGraphicsRectItem::boundingRect() const
         if (pw == 0.0)
             d->boundingRect = d->rect;
         else
-            d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+            d->boundingRect = shape().controlPointRect();
     }
     return d->boundingRect;
 }
@@ -4586,7 +4587,7 @@ QRectF QGraphicsEllipseItem::boundingRect() const
         if (pw == 0.0)
             d->boundingRect = d->rect;
         else
-            d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+            d->boundingRect = shape().controlPointRect();
     }
     return d->boundingRect;
 }
@@ -4832,7 +4833,7 @@ QRectF QGraphicsPolygonItem::boundingRect() const
         if (pw == 0.0)
             d->boundingRect = d->polygon.boundingRect();
         else
-            d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+            d->boundingRect = shape().controlPointRect();
     }
     return d->boundingRect;
 }
@@ -5423,7 +5424,7 @@ QRectF QGraphicsPixmapItem::boundingRect() const
     qreal pw = 1.0;
     if (d->pixmap.isNull())
         return QRectF();
-    return QRectF(d->offset, d->pixmap.size()).adjusted(-pw/2, -pw/2, pw, pw);
+    return QRectF(d->offset, d->pixmap.size()).adjusted(-pw/2, -pw/2, pw/2, pw/2);
 }
 
 /*!

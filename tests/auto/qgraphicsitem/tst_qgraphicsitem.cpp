@@ -118,6 +118,9 @@ private slots:
     void type();
     void graphicsitem_cast();
     void hoverEventsGenerateRepaints();
+    void boundingRects_data();
+    void boundingRects();
+    void boundingRects2();
     void sceneBoundingRect();
     void childrenBoundingRect();
     void group();
@@ -2492,6 +2495,42 @@ void tst_QGraphicsItem::hoverEventsGenerateRepaints()
     QCOMPARE(tester->events.last(), QEvent::GraphicsSceneHoverLeave);
 }
 
+void tst_QGraphicsItem::boundingRects_data()
+{
+    QTest::addColumn<QGraphicsItem *>("item");
+    QTest::addColumn<QRectF>("boundingRect");
+
+    QRectF rect(0, 0, 100, 100);
+    QPainterPath path;
+    path.addRect(rect);
+    
+    QRectF adjustedRect(-0.5, -0.5, 101, 101);
+
+    QTest::newRow("path") << (QGraphicsItem *)new QGraphicsPathItem(path) << adjustedRect;
+    QTest::newRow("rect") << (QGraphicsItem *)new QGraphicsRectItem(rect) << adjustedRect;
+    QTest::newRow("ellipse") << (QGraphicsItem *)new QGraphicsEllipseItem(rect) << adjustedRect;
+    QTest::newRow("polygon") << (QGraphicsItem *)new QGraphicsPolygonItem(rect) << adjustedRect;
+}
+
+void tst_QGraphicsItem::boundingRects()
+{
+    QFETCH(QGraphicsItem *, item);
+    QFETCH(QRectF, boundingRect);
+
+    ((QAbstractGraphicsShapeItem *)item)->setPen(QPen(Qt::black, 1));
+    QCOMPARE(item->boundingRect(), boundingRect);
+}
+
+void tst_QGraphicsItem::boundingRects2()
+{
+    QGraphicsPixmapItem pixmap(QPixmap::fromImage(QImage(100, 100, QImage::Format_ARGB32_Premultiplied)));
+    QCOMPARE(pixmap.boundingRect(), QRectF(-0.5, -0.5, 101, 101));
+
+    QGraphicsLineItem line(0, 0, 100, 0);
+    line.setPen(QPen(Qt::black, 1));
+    QCOMPARE(line.boundingRect(), QRectF(-0.5, -0.5, 101, 1));
+}
+
 void tst_QGraphicsItem::sceneBoundingRect()
 {
     QGraphicsScene scene;
@@ -3206,7 +3245,7 @@ void tst_QGraphicsItem::defaultItemTest_QGraphicsPixmapItem()
     item.setOffset(QPointF(-10, -10));
     QCOMPARE(item.offset(), QPointF(-10, -10));
 
-    QCOMPARE(item.boundingRect(), QRectF(-10.5, -10.5, 301.5, 201.5));
+    QCOMPARE(item.boundingRect(), QRectF(-10.5, -10.5, 301, 201));
 }
 
 class ItemChangeTester : public QGraphicsRectItem
