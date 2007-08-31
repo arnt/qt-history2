@@ -456,6 +456,17 @@ void tst_QWSWindowSystem::toplevelMove()
     delete screen;
 }
 
+static void fillWindowSurface(QWidget *w, const QColor &color)
+{
+    QWindowSurface *s = w->windowSurface();
+    const QRect rect = s->rect(w);
+    s->beginPaint(rect);
+    QImage *img = s->buffer(w);
+    QPainter p(img);
+    p.fillRect(rect, color);
+    s->endPaint(rect);
+}
+
 void tst_QWSWindowSystem::dontFlushUnitializedWindowSurfaces()
 {
     QApplication::processEvents();
@@ -478,6 +489,7 @@ void tst_QWSWindowSystem::dontFlushUnitializedWindowSurfaces()
         QApplication::processEvents();
         QCOMPARE(p.allocatedRegion(), QRegion(r));
         QCOMPARE(w.visibleRegion(), QRegion());
+        fillWindowSurface(&w, Qt::black); // fill with "unitialized" data
 
         p.setRegion(QRegion());
 
@@ -506,10 +518,12 @@ void tst_QWSWindowSystem::dontFlushUnitializedWindowSurfaces()
         QApplication::processEvents();
         QCOMPARE(p.allocatedRegion(), QRegion(r));
         QCOMPARE(w.visibleRegion(), QRegion());
+        fillWindowSurface(&w, Qt::black); // fill with "unitialized" data
 
         p.setRegion(QRegion());
 
         QCOMPARE(w.visibleRegion(), QRegion());
+        sleep(2);
         VERIFY_COLOR(r, bgColor);
 
         QApplication::processEvents();
@@ -519,7 +533,16 @@ void tst_QWSWindowSystem::dontFlushUnitializedWindowSurfaces()
                  QRegion(r));
 
         QApplication::processEvents();
-        VERIFY_COLOR(r, w.color());
+
+        // compose expected color
+        QImage img(1, 1, QImage::Format_ARGB32_Premultiplied);
+        {
+            QPainter p(&img);
+            p.fillRect(QRect(0, 0, 1, 1), bgColor);
+            p.setOpacity(w.windowOpacity());
+            p.fillRect(QRect(0, 0, 1, 1), w.color());
+        }
+        VERIFY_COLOR(r, img.pixel(0, 0));
     }
 }
 
