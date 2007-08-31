@@ -259,7 +259,7 @@ static bool qt_parse_pattern(const char *s, uint *version, bool *debug, QByteArr
         } else if (qstrncmp("buildkey", pinfo.results[0],
                               pinfo.lengths[0]) == 0){
             // save buildkey
-            *key = QByteArray(pinfo.results[1], pinfo.lengths[1] + 1);
+            *key = QByteArray(pinfo.results[1], pinfo.lengths[1]);
         }
     } while (parse == 1 && parselen > 0);
 
