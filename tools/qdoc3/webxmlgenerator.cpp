@@ -129,6 +129,9 @@ void WebXMLGenerator::generateIndexSections(QXmlStreamWriter &writer,
 
         // Add documentation to this node if it exists.
         writer.writeStartElement("description");
+        writer.writeAttribute("path", node->doc().location().filePath());
+        writer.writeAttribute("line", QString::number(node->doc().location().lineNo()));
+        writer.writeAttribute("column", QString::number(node->doc().location().columnNo()));
         startText(node, marker);
 
         const Atom *atom = node->doc().body().firstAtom();
