@@ -101,9 +101,9 @@ QSize QDockWidgetTitleButton::sizeHint() const
 {
     ensurePolished();
 
-    int size = 2*style()->pixelMetric(QStyle::PM_DockWidgetTitleBarButtonMargin);
+    int size = 2*style()->pixelMetric(QStyle::PM_DockWidgetTitleBarButtonMargin, 0, this);
     if (!icon().isNull()) {
-        int iconSize = style()->pixelMetric(QStyle::PM_SmallIconSize);
+        int iconSize = style()->pixelMetric(QStyle::PM_SmallIconSize, 0, this);
         const QPixmap pm = icon().pixmap(iconSize);
         size += qMax(pm.width(), pm.height());
     }
@@ -128,7 +128,7 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     QRect r = rect();
-    QStyleOption opt;
+    QStyleOptionToolButton opt;
     opt.init(this);
     opt.state |= QStyle::State_AutoRaise;
 
@@ -145,17 +145,14 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
         style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
     }
 
-    int shiftHorizontal = opt.state & QStyle::State_Sunken ? style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal, &opt, this) : 0;
-    int shiftVertical = opt.state & QStyle::State_Sunken ? style()->pixelMetric(QStyle::PM_ButtonShiftVertical, &opt, this) : 0;
-
-    r.adjust(2, 2, -2, -2);
-    r.translate(shiftHorizontal, shiftVertical);
-
-    QPixmap pm = icon().pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize), isEnabled() ?
-                                underMouse() ? QIcon::Active : QIcon::Normal
-                                    : QIcon::Disabled,
-                                isDown() ? QIcon::On : QIcon::Off);
-    style()->drawItemPixmap(&p, r, Qt::AlignCenter, pm);
+    opt.icon = icon();
+    opt.subControls = 0;
+    opt.activeSubControls = 0;
+    opt.features = QStyleOptionToolButton::None;
+    opt.arrowType = Qt::NoArrow;
+    int size = style()->pixelMetric(QStyle::PM_SmallIconSize, 0, this);
+    opt.iconSize = QSize(size, size);
+    style()->drawComplexControl(QStyle::CC_ToolButton, &opt, &p, this);
 }
 
 /******************************************************************************
@@ -244,7 +241,7 @@ QSize QDockWidgetLayout::sizeFromContent(const QSize &content, bool floating) co
 #endif
 
     int fw = floating && !nativeDeco
-            ? w->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0)
+            ? w->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, w)
             : 0;
 
     const int th = titleHeight();
@@ -404,7 +401,7 @@ void QDockWidgetLayout::setGeometry(const QRect &geometry)
     bool nativeDeco = nativeWindowDeco();
 
     int fw = q->isFloating() && !nativeDeco
-            ? q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0)
+            ? q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q)
             : 0;
 
     if (nativeDeco) {
@@ -521,10 +518,12 @@ void QDockWidgetPrivate::init()
     QDockWidgetLayout *layout = new QDockWidgetLayout(q);
 
     QAbstractButton *button = new QDockWidgetTitleButton(q);
+    button->setObjectName(QLatin1String("qt_dockwidget_floatbutton"));
     QObject::connect(button, SIGNAL(clicked()), q, SLOT(_q_toggleTopLevel()));
     layout->setWidget(QDockWidgetLayout::FloatButton, button);
 
     button = new QDockWidgetTitleButton(q);
+    button->setObjectName(QLatin1String("qt_dockwidget_closebutton"));
     QObject::connect(button, SIGNAL(clicked()), q, SLOT(close()));
     layout->setWidget(QDockWidgetLayout::CloseButton, button);
 
