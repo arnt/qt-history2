@@ -76,6 +76,7 @@ public:
     QWSClient* client() const { return c; }
     const QRegion &requestedRegion() const { return requested_region; }
     QRegion allocatedRegion() const;
+    QRegion paintedRegion() const;
     bool isVisible() const { return !requested_region.isEmpty(); }
     bool isPartiallyObscured() const { return requested_region != allocatedRegion(); }
     bool isFullyObscured() const { return allocatedRegion().isEmpty(); }

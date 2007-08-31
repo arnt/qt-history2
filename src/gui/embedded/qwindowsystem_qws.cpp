@@ -550,11 +550,23 @@ QWSWindow::~QWSWindow()
     including any window decorations but excluding regions covered by
     other windows.
 
-    \sa requestedRegion()
+    \sa paintedRegion(), requestedRegion()
 */
 QRegion QWSWindow::allocatedRegion() const
 {
     return d->allocatedRegion;
+}
+
+/*!
+    \internal
+
+    Returns the region that the window is known to have drawn into.
+
+    \sa allocatedRegion(), requestedRegion()
+*/
+QRegion QWSWindow::paintedRegion() const
+{
+    return (d->painted ? d->allocatedRegion : QRegion());
 }
 
 inline void QWSWindow::setAllocatedRegion(const QRegion &region)
