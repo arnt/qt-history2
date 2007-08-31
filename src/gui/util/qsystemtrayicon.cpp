@@ -388,7 +388,7 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
     titleLabel->setTextFormat(Qt::PlainText); // to maintain compat with windows
 
     QPushButton *closeButton = new QPushButton;
-    closeButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
     closeButton->setIconSize(QSize(18, 18));
     closeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     closeButton->setFixedSize(18, 18);
