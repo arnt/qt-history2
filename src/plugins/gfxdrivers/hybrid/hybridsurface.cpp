@@ -1,0 +1,242 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "hybridsurface.h"
+
+#include <private/qwindowsurface_qws_p.h>
+#include <qscreen_qws.h>
+#include <qvarlengtharray.h>
+
+#include <qdebug.h>
+
+// TODO: shared memory when necessary.
+// Transfer image adress/shm key to remote object
+
+static void error(const char *message)
+{
+    const EGLint error = eglGetError();
+    qWarning("HybridSurface error: %s: 0x%x", message, error);
+}
+
+static void imgToVanilla(const QImage *img, VanillaPixmap *pix)
+{
+    pix->width = img->width();
+    pix->height = img->height();
+    pix->stride = img->bytesPerLine();
+
+    if (img->depth() == 32) {
+        pix->rSize = pix->gSize = pix->bSize = pix->aSize = 8;
+        pix->lSize = 0;
+        pix->rOffset = 16;
+        pix->gOffset = 8;
+        pix->bOffset = 0;
+        pix->aOffset = 24;
+    } else if (img->format() == QImage::Format_RGB16) {
+        pix->rSize = 5;
+        pix->gSize = 6;
+        pix->bSize = 5;
+        pix->aSize = 0;
+        pix->lSize = 0;
+        pix->rOffset = 11;
+        pix->gOffset = 5;
+        pix->bOffset = 0;
+        pix->aOffset = 0;
+    }
+
+    pix->padding = pix->padding2 = 0;
+    pix->pixels = const_cast<uchar*>(img->bits());
+}
+
+HybridSurface::HybridSurface()
+    : QWSGLWindowSurface()
+{
+    setSurfaceFlags(Buffered | Opaque);
+}
+
+HybridSurface::HybridSurface(QWidget *w, EGLDisplay disp)
+    :  QWSGLWindowSurface(w), display(disp), config(0),
+       surface(EGL_NO_SURFACE), context(EGL_NO_CONTEXT),
+       pdevice(new QWSGLPaintDevice(w))
+{
+    setSurfaceFlags(Buffered | Opaque);
+
+    EGLint configAttribs[] = {
+        EGL_RED_SIZE,        0,
+        EGL_GREEN_SIZE,      0,
+        EGL_BLUE_SIZE,       0,
+        EGL_ALPHA_SIZE,      0,
+        EGL_DEPTH_SIZE,      0,
+        EGL_STENCIL_SIZE,   EGL_DONT_CARE,
+        EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
+        EGL_NONE,           EGL_NONE
+    };
+
+
+    EGLBoolean status;
+    EGLint numConfigs;
+    status = eglChooseConfig(display, configAttribs, 0, 0, &numConfigs);
+    if (!status) {
+        error("chooseConfig");
+        return;
+    }
+
+    //If there isn't any configuration good enough
+    if (numConfigs < 1) {
+        error("chooseConfig, no matching configurations found");
+        return;
+    }
+
+    QVarLengthArray<EGLConfig> configs(numConfigs);
+
+    status = eglChooseConfig(display, configAttribs, configs.data(),
+                             numConfigs, &numConfigs);
+    if (!status) {
+        error("chooseConfig");
+        return;
+    }
+
+    // hw: if used on an image buffer we need to check whether the resulting
+    // configuration matches our requirements exactly!
+    config = configs[0];
+
+    context = eglCreateContext(display, config, 0, 0);
+                                      //(shareContext ? shareContext->d_func()->cx : 0),
+                                      //configAttribs);
+    if (context == EGL_NO_CONTEXT)
+        error("eglCreateContext");
+
+}
+
+HybridSurface::~HybridSurface()
+{
+}
+
+bool HybridSurface::isValid() const
+{
+    return true;
+}
+
+void HybridSurface::setGeometry(const QRect &rect, const QRegion &mask)
+{
+    const QSize size = rect.size();
+    if (img.size() != size) {
+//        QWidget *win = window();
+        QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
+        const int bytesPerPixel = 4;
+
+        const int bpl = (size.width() * bytesPerPixel + 3) & ~3;
+        const int imagesize = bpl * size.height();
+
+        if (imagesize == 0) {
+            eglDestroySurface(display, surface);
+            mem.detach();
+            img = QImage();
+        } else {
+            mem.detach();
+            if (!mem.create(imagesize)) {
+                perror("HybridSurface::setGeometry allocating shared memory");
+                qFatal("Error creating shared memory of size %d", imagesize);
+            }
+            uchar *base = static_cast<uchar*>(mem.address());
+            img = QImage(base, size.width(), size.height(), imageFormat);
+//            setImageMetrics(img, win);
+
+            imgToVanilla(&img, &vanillaPix);
+            surface = eglCreatePixmapSurface(display, config, &vanillaPix, 0);
+            if (surface == EGL_NO_SURFACE)
+                error("setGeometry:eglCreatePixmapSurface");
+
+        }
+    }
+    QWSWindowSurface::setGeometry(rect, mask);
+}
+
+QByteArray HybridSurface::permanentState() const
+{
+    QByteArray array;
+    array.resize(4 * sizeof(int) + sizeof(QImage::Format) +
+                 sizeof(SurfaceFlags));
+
+    char *ptr = array.data();
+
+    reinterpret_cast<int*>(ptr)[0] = mem.id();
+    reinterpret_cast<int*>(ptr)[1] = img.width();
+    reinterpret_cast<int*>(ptr)[2] = img.height();
+    reinterpret_cast<int*>(ptr)[3] = -1; //(memlock ? memlock->id() : -1);
+    ptr += 4 * sizeof(int);
+
+    *reinterpret_cast<QImage::Format*>(ptr) = img.format();
+    ptr += sizeof(QImage::Format);
+
+    *reinterpret_cast<SurfaceFlags*>(ptr) = surfaceFlags();
+
+    return array;
+}
+
+void HybridSurface::setPermanentState(const QByteArray &data)
+{
+    int memId;
+    int width;
+    int height;
+    int lockId;
+    QImage::Format format;
+    SurfaceFlags flags;
+
+    const char *ptr = data.constData();
+
+    memId = reinterpret_cast<const int*>(ptr)[0];
+    width = reinterpret_cast<const int*>(ptr)[1];
+    height = reinterpret_cast<const int*>(ptr)[2];
+    lockId = reinterpret_cast<const int*>(ptr)[3];
+    ptr += 4 * sizeof(int);
+
+    format = *reinterpret_cast<const QImage::Format*>(ptr);
+    ptr += sizeof(QImage::Format);
+    flags = *reinterpret_cast<const SurfaceFlags*>(ptr);
+
+    setSurfaceFlags(flags);
+//    setMemory(memId);
+    mem.detach();
+    if (!mem.attach(memId)) {
+        perror("QWSSharedMemSurface: attaching to shared memory");
+        qCritical("QWSSharedMemSurface: Error attaching to"
+                  " shared memory 0x%x", memId);
+//        return false;
+    }
+
+//    setLock(lockId);
+
+    uchar *base = static_cast<uchar*>(mem.address());
+    img = QImage(base, width, height, format);
+}
+
+QImage HybridSurface::image() const
+{
+    return img;
+}
+
+QPaintDevice* HybridSurface::paintDevice()
+{
+    return pdevice;
+}
+
+void HybridSurface::beginPaint(const QRegion &region)
+{
+    QWSGLWindowSurface::beginPaint(region);
+    eglBindAPI(EGL_OPENGL_ES_API);
+
+    EGLBoolean ok = eglMakeCurrent(display, surface, surface, context);
+    if (!ok)
+        error("qglMakeCurrent");
+}
+
