@@ -62,15 +62,13 @@ QToolBarLayout::QToolBarLayout(QWidget *parent)
 
 QToolBarLayout::~QToolBarLayout()
 {
-    for (int i = 0; i < items.count(); ++i) {
-        while (!items.isEmpty()) {
-            QToolBarItem *item = items.takeFirst();
-            if (QWidgetAction *widgetAction = qobject_cast<QWidgetAction*>(item->action)) {
-                if (item->customWidget)
-                    widgetAction->releaseWidget(item->widget());
-            }
-            delete item;
+    while (!items.isEmpty()) {
+        QToolBarItem *item = items.takeFirst();
+        if (QWidgetAction *widgetAction = qobject_cast<QWidgetAction*>(item->action)) {
+            if (item->customWidget)
+                widgetAction->releaseWidget(item->widget());
         }
+        delete item;
     }
 }
 
