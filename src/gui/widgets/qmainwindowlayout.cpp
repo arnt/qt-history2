@@ -1553,7 +1553,7 @@ void QMainWindowLayout::revert(QLayoutItem *widgetItem)
 
 bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
 {
-    if (currentGapPos.isEmpty())
+    if (!parentWidget()->isVisible() || parentWidget()->isMinimized() || currentGapPos.isEmpty())
         return false;
 
     fixToolBarOrientation(widgetItem, currentGapPos.at(1));
@@ -1829,7 +1829,8 @@ void QMainWindowLayout::updateGapIndicator()
 
 QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mousePos)
 {
-    if (pluggingWidget != 0 || widgetItem == 0)
+    if (!parentWidget()->isVisible() || parentWidget()->isMinimized()
+        || pluggingWidget != 0 || widgetItem == 0)
         return QList<int>();
 
     QWidget *widget = widgetItem->widget();
