@@ -77,84 +77,23 @@
     migrated to 6.x after the Qt 4 launch. FreeBSD-CURRENT is not supported.
 
     \target HP-UX
-    \section1 HP-UX PA-RISC - B.11.xx or later
+    \section1 HP-UX
 
-    \section2 64 bit
+    Qt supports HP-UX on both PA-RISC and the Itanium (IA64) architectures.
 
-    We do not support GCC to make 64 bit binaries on PA-RISC. Please consider
-    using aCC or producing 32 bit binaries. This is due to a bug in the
-    compiler toolchain - there seems to be a mismatch between GCC and the
-    HP-UX native 64 bit linker. 
+    \section2 PA-RISC - B.11.11 or later
 
-    \section2 HP-UX 11.*
+    You can configure Qt for aCC in 32 and 64 bit mode (hpux-acc-64 or
+    hpux-acc-32), or gcc in 32 bit mode (hpux-g++).  The default platform is
+    hpux-acc-32. The minimum required version for aCC (HP ANSI C++) on PA-RISC
+    is A.03.57. The supported gcc compiler is gcc 3.4.3.
 
-    You may need linker patch
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_33032}{PHSS_33032}
-    (HP-UX 11.00) or
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_33033}{PHSS_33033}
-    (HP-UX 11.11).
+    \section2 Itanium - B.11.23 or later
 
-    \section2 HP-UX 11.*
-
-    This ships with a faulty /usr/include/resolv.h, which results in a
-    linker error involving getres(). HP has released patches for it,
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHCO_26111}{PHCO_26111}
-    (HP-UX 11.00) and
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHCO_31923}{PHCO_31923}
-    (HP-UX 11.11).
-
-    \section2 HP-UX 11.* designer crash when using exceptions
-
-    If you encounter problems with designer on this platform either:
-
-    \list
-    \o disable exceptions using the -no-exceptions option to configure, or
-    \o disable optimizations by editing $QTDIR/mkspecs/hpux-g++/qmake.conf
-    and changing the line\br
-    \code
-                QMAKE_CFLAGS_RELEASE    = -O2
-    \endcode
-    to
-    \code
-                QMAKE_CFLAGS_RELEASE    =
-    \endcode
-    \endlist
-
-    \section2 HP-UX 11.11
-
-    This ships with a faulty /usr/include/sys/socket.h, which makes many
-    C++ programs fail to compile. HP has released a patch for it,
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHNE_33159}{PHNE_33159}.
-
-    \section2 libXmu
-
-    This library is needed for OpenGL support. If you get the error message
-    \code
-    /usr/ccs/bin/ld: DP relative code in file ....
-    \endcode
-
-    when linking a shared Qt library you have to install the shared versions
-    of libXmu and libXaw. HP have released patches for it,
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_29369}{PHSS_29369}/
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_29370}{PHSS_29370}
-    on HP-UX 11.00 (64-bit),
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_33130}{PHSS_33130}/
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_31001}{PHSS_31001}
-    on HP-UX 11.11, and
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_33550}{PHSS_33550}
-    on HP-UX 11.23.
-
-    \section2 GCC 3.* on HP-UX
-
-    This compiler gives compilation error
-    \code
-    ANSI C++ forbids declaration ... with no type
-    \endcode
-    on systems with old X11 header files. This is fixed by patches
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_31001}{PHSS_31001}
-    on HP-UX 11.11 and
-    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_30261}{PHSS_30261}
-    on HP-UX 11.00.
+    You can configure Qt for aCC in 32 and 64 bit mode (hpuxi-acc-64 or
+    hpuxi-acc-32). gcc is currently unsupported.  The default platform is
+    hpuxi-acc-64. The minimum required version for aCC (HP ANSI C++) on
+    Itanium is A.06.12.
 
     \target IRIX
     \section1 IRIX - 6.5.x

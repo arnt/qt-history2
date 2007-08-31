@@ -1920,14 +1920,25 @@ if [ -z "$PLATFORM" ]; then
         "
         ;;
      HP-UX:*)
-        #PLATFORM=hpux-g++
-        PLATFORM=hpux-acc
-        #PLATFORM=hpux-acc-64
-        #PLATFORM=hpux-cc
-        #PLATFORM=hpux-acc-o64
-        PLATFORM_NOTES="
-            - Also available for HP-UX: hpux-g++ hpux-acc-64 hpux-acc-o64
-        "
+        case "$UNAME_MACHINE" in
+            ia64)
+                #PLATFORM=hpuxi-acc-32
+                PLATFORM=hpuxi-acc-64
+                PLATFORM_NOTES="
+                    - Also available for HP-UXi: hpuxi-acc-32
+                "
+            ;;
+            *)
+                #PLATFORM=hpux-g++
+                PLATFORM=hpux-acc
+                #PLATFORM=hpux-acc-64
+                #PLATFORM=hpux-cc
+                #PLATFORM=hpux-acc-o64
+                PLATFORM_NOTES="
+                    - Also available for HP-UX: hpux-g++ hpux-acc-64 hpux-acc-o64
+                "
+            ;;
+        esac
         ;;
      OSF1:*)
         #PLATFORM=tru64-g++

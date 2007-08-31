@@ -45,7 +45,7 @@
 
     \section2 HP-UX
 
-    Please use gcc 3.2.3 or better.
+    The hpux-g++ platform is tested with gcc 3.4.3.
 
     \section2 Solaris
 
@@ -68,19 +68,10 @@
     \o Add -fno-gcse to the QMAKE_CXXFLAGS_RELEASE.
     \endlist
 
-    \section1 HP aC++ (HP-UX)
+    \section1 HP ANSI C++ (aCC)
 
-    If you are using an aCC earlier then aCC 3.3x you have to change the
-    \c QMAKE_CC in the following way when configuring Qt:
-
-    \code
-    QMAKE_CC = cc
-    \endcode
-
-    It maybe also be necessary to modify \c QMAKE_CFLAGS.
-
-    Earlier versions of aCC do not support the \c{-Ae} option (this enables
-    the ANSI C c89 mode) and therefore you need to use \c{cc} instead.
+    The hpux-acc-32 and hpux-acc-64 platforms are tested with aCC A.03.57. The
+    hpuxi-acc-32 and hpuxi-acc-64 platforms are tested with aCC A.06.12.
 
     \section1 Intel C++ Compiler
 

@@ -11,187 +11,93 @@
 **
 ****************************************************************************/
 
-#ifndef QATOMIC_IA64_H
-#define QATOMIC_IA64_H
+#ifndef IA64_QATOMIC_H
+#define IA64_QATOMIC_H
+
+#include <QtCore/qglobal.h>
 
 QT_BEGIN_HEADER
-
-#define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
-
-inline bool QBasicAtomicInt::isReferenceCountingNative()
-{ return true; }
-inline bool QBasicAtomicInt::isReferenceCountingWaitFree()
-{ return false; }
-
-#define Q_ATOMIC_INT_TEST_AND_SET_IS_ALWAYS_NATIVE
-#define Q_ATOMIC_INT_TEST_AND_SET_IS_WAIT_FREE
-
-inline bool QBasicAtomicInt::isTestAndSetNative()
-{ return true; }
-inline bool QBasicAtomicInt::isTestAndSetWaitFree()
-{ return true; }
-
-#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_ALWAYS_NATIVE
-
-inline bool QBasicAtomicInt::isFetchAndStoreNative()
-{ return true; }
-inline bool QBasicAtomicInt::isFetchAndStoreWaitFree()
-{ return false; }
-
-#define Q_ATOMIC_INT_FETCH_AND_ADD_IS_ALWAYS_NATIVE
-
-inline bool QBasicAtomicInt::isFetchAndAddNative()
-{ return true; }
-inline bool QBasicAtomicInt::isFetchAndAddWaitFree()
-{ return false; }
-
-#define Q_ATOMIC_POINTER_TEST_AND_SET_IS_ALWAYS_NATIVE
-#define Q_ATOMIC_POINTER_TEST_AND_SET_IS_WAIT_FREE
-
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetNative()
-{ return true; }
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetWaitFree()
-{ return true; }
-
-#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_ALWAYS_NATIVE
-
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreNative()
-{ return true; }
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreWaitFree()
-{ return false; }
-
-#define Q_ATOMIC_POINTER_FETCH_AND_ADD_IS_ALWAYS_NATIVE
-
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddNative()
-{ return true; }
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
-{ return false; }
 
 #if defined(Q_CC_INTEL)
 
 // intrinsics provided by the Intel C++ Compiler
 #include <ia64intrin.h>
 
-inline bool QBasicAtomicInt::testAndSetRelaxed(int expectedValue, int newValue)
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+{ return static_cast<int>(_InterlockedCompareExchange(ptr, newval, expected)) == expected; }
 
-    return (static_cast<int>(_InterlockedCompareExchange(&static_cast<unsigned int>(_q_value),
-                                                         newValue,
-                                                         expectedValue))
-            == expectedValue);
-}
-
-inline bool QBasicAtomicInt::testAndSetAcquire(int expectedValue, int newValue)
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
 {
-    return (static_cast<int>(_InterlockedCompareExchange_acq(&static_cast<unsigned int>(_q_value),
-                                                             newValue,
-                                                             expectedValue))
-            == expectedValue);
-}
+    return static_cast<int>(_InterlockedCompareExchange_acq(reinterpret_cast<volatile uint *>(ptr),
+                                                          newval, expected)) == expected; }
 
-inline bool QBasicAtomicInt::testAndSetRelease(int expectedValue, int newValue)
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
 {
-    return (static_cast<int>(_InterlockedCompareExchange_rel(&static_cast<unsigned int>(_q_value),
-                                                             newValue,
-                                                             expectedValue))
-            == expectedValue);
-}
+    return static_cast<int>(_InterlockedCompareExchange_rel(reinterpret_cast<volatile uint *>(ptr),
+                                                          newval, expected)) == expected; }
 
-inline bool QBasicAtomicInt::testAndSetOrdered(int expectedValue, int newValue)
-{
-    __memory_barrier();
-    return testAndSetAcquire(expectedValue, newValue);
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelaxed(T *expectedValue, T *newValue)
+inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
 {
     return _InterlockedCompareExchangePointer(reinterpret_cast<void * volatile*>(ptr),
                                               newval, expected) == expected;
 }
 
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetAcquire(T *expectedValue, T *newValue)
-{
-    return (_InterlockedCompareExchange64_acq(&reinterpret_cast<quintptr>(_q_value),
-                                              quintptr(newValue),
-                                              quintptr(expectedValue))
-            == quintptr(expected));
-}
+inline int q_atomic_increment(volatile int *ptr)
+{ return _InterlockedIncrement(ptr); }
 
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValue, T *newValue)
-{
-    return (_InterlockedCompareExchange64_rel(&reinterpret_cast<quintptr>(_q_value),
-                                              quintptr(newValue),
-                                              quintptr(expectedValue))
-            == quintptr(expected));
-}
+inline int q_atomic_decrement(volatile int *ptr)
+{ return _InterlockedDecrement(ptr); }
 
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
+inline int q_atomic_set_int(volatile int *ptr, int newval)
+{ return _InterlockedExchange(ptr, newval); }
+
+inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 {
-    __memory_barrier();
-    return testAndSetAcquire(expectedValue, newValue);
+    return _InterlockedExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval);
 }
 
 #else // !Q_CC_INTEL
 
 #  if defined(Q_CC_GNU)
 
-inline bool QBasicAtomicInt::testAndSetAcquire(int expectedValue, int newValue)
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
     int ret;
     asm volatile("mov ar.ccv=%2\n"
                  ";;\n"
                  "cmpxchg4.acq %0=%1,%3,ar.ccv\n"
-                 : "=r" (ret), "+m" (_q_value)
-                 : "r" (expectedValue), "r" (newValue)
+                 : "=r" (ret), "+m" (*ptr)
+                 : "r" (expected), "r" (newval)
                  : "memory");
-    return ret == expectedValue;
+    return ret == expected;
 }
 
-inline bool QBasicAtomicInt::testAndSetRelease(int expectedValue, int newValue)
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
 {
     int ret;
     asm volatile("mov ar.ccv=%2\n"
                  ";;\n"
                  "cmpxchg4.rel %0=%1,%3,ar.ccv\n"
-                 : "=r" (ret), "+m" (_q_value)
-                 : "r" (expectedValue), "r" (newValue)
+                 : "=r" (ret), "+m" (*ptr)
+                 : "r" (expected), "r" (newval)
                  : "memory");
-    return ret == expectedValue;
+    return ret == expected;
 }
 
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetAcquire(T *expectedValue, T *newValue)
-{
-    T *ret;
+inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval) {
+    void *ret;
     asm volatile("mov ar.ccv=%2\n"
                  ";;\n"
                  "cmpxchg8.acq %0=%1,%3,ar.ccv\n"
-                 : "=r" (ret), "+m" (_q_value)
-                 : "r" (expectedValue), "r" (newValue)
+                 : "=r" (ret), "+m" (*reinterpret_cast<volatile unsigned long *>(ptr))
+                 : "r" (expected), "r" (newval)
                  : "memory");
-    return ret == expectedValue;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValue, T *newValue)
-{
-    T *ret;
-    asm volatile("mov ar.ccv=%2\n"
-                 ";;\n"
-                 "cmpxchg8.rel %0=%1,%3,ar.ccv\n"
-                 : "=r" (ret), "+m" (_q_value)
-                 : "r" (expectedValue), "r" (newValue)
-                 : "memory");
-    return ret == expectedValue;
+    return ret == expected;
 }
 
 #elif defined Q_CC_HPACC
@@ -200,38 +106,42 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValu
 
 #define FENCE (_Asm_fence)(_UP_CALL_FENCE | _UP_SYS_FENCE | _DOWN_CALL_FENCE | _DOWN_SYS_FENCE)
 
-inline bool QBasicAtomicInt::testAndSetAcquire(int expectedValue, int newValue)
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
 {
-    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (unsigned)expectedValue, FENCE);
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (unsigned)expected, FENCE);
     int ret = _Asm_cmpxchg((_Asm_sz)_SZ_W, (_Asm_sem)_SEM_ACQ,
-                           &_q_value, (unsigned)newValue, (_Asm_ldhint)_LDHINT_NONE);
-    return ret == expectedValue;
+                           ptr, (unsigned)newval, (_Asm_ldhint)_LDHINT_NONE);
+    return ret == expected;
 }
 
-inline bool QBasicAtomicInt::testAndSetRelease(int expectedValue, int newValue)
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
 {
-    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (unsigned)expectedValue, FENCE);
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (unsigned)expected, FENCE);
     int ret = _Asm_cmpxchg((_Asm_sz)_SZ_W, (_Asm_sem)_SEM_REL,
-                           &_q_value, newValue, (_Asm_ldhint)_LDHINT_NONE);
-    return ret == expectedValue;
+                           ptr, newval, (_Asm_ldhint)_LDHINT_NONE);
+    return ret == expected;
 }
 
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetAcquire(T *expectedValue, T *newValue)
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
-    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (quint64)expectedValue, FENCE);
-    T *ret = (T *)_Asm_cmpxchg((_Asm_sz)_SZ_D, (_Asm_sem)_SEM_ACQ,
-                               &_q_value, (quint64)newValue, (_Asm_ldhint)_LDHINT_NONE);
-    return ret == expectedValue;
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (unsigned)expected, FENCE);
+    int ret = _Asm_cmpxchg((_Asm_sz)_SZ_W, (_Asm_sem)_SEM_ACQ,
+                           ptr, (unsigned)newval, (_Asm_ldhint)_LDHINT_NONE);
+    return ret == expected;
 }
 
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValue, T *newValue)
+inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
 {
-    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (quint64)expectedValue, FENCE);
-    T *ret = (T *)_Asm_cmpxchg((_Asm_sz)_SZ_D, (_Asm_sem)_SEM_REL,
-                               &_q_value, (quint64)newValue, (_Asm_ldhint)_LDHINT_NONE);
-    return ret == expectedValue;
+#ifndef __LP64__
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (quint32)expected, FENCE);
+    void *ret = (void *)_Asm_cmpxchg((_Asm_sz)_SZ_W, (_Asm_sem)_SEM_ACQ,
+                                     ptr, (quint32)newval, (_Asm_ldhint)_LDHINT_NONE);
+#else
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (quint64)expected, FENCE);
+    void *ret = (void *)_Asm_cmpxchg((_Asm_sz)_SZ_D, (_Asm_sem)_SEM_ACQ,
+                                     ptr, (quint64)newval, (_Asm_ldhint)_LDHINT_NONE);
+#endif
+    return ret == expected;
 }
 
 #else
@@ -243,225 +153,81 @@ extern "C" {
 
 #endif
 
-inline bool QBasicAtomicInt::testAndSetRelaxed(int expectedValue, int newValue)
+inline int q_atomic_increment(volatile int * const ptr)
 {
-    return testAndSetAcquire(expectedValue, newValue);
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
+    }
+    return expected != -1;
 }
 
-inline bool QBasicAtomicInt::testAndSetOrdered(int expectedValue, int newValue)
+inline int q_atomic_decrement(volatile int * const ptr)
 {
-    return testAndSetAcquire(expectedValue, newValue);
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
+    }
+    return expected != 1;
 }
 
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelaxed(T *expectedValue, T *newValue)
+inline int q_atomic_set_int(volatile int *ptr, int newval)
 {
-    return testAndSetAcquire(expectedValue, newValue);
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
+    }
+    return expected;
 }
 
-template <typename T>
-Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
+inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 {
-    return testAndSetAcquire(expectedValue, newValue);
+    register void *expected;
+    for (;;) {
+        expected = *reinterpret_cast<void * volatile *>(ptr);
+        if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
+    }
+    return expected;
 }
 
 #endif // Q_CC_INTEL
 
-inline int QBasicAtomicInt::fetchAndStoreRelaxed(int newValue)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
-    int returnValue;
+    register int originalValue;
     for (;;) {
-        returnValue = _q_value;
-        if (testAndSetRelaxed(returnValue, newValue))
+        originalValue = *ptr;
+        if (q_atomic_test_and_set_int(ptr, originalValue, originalValue + value))
             break;
     }
-    return returnValue;
+    return originalValue;
 }
 
-inline int QBasicAtomicInt::fetchAndStoreAcquire(int newValue)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
-    int returnValue;
+    register int originalValue;
     for (;;) {
-        returnValue = _q_value;
-        if (testAndSetAcquire(returnValue, newValue))
+        originalValue = *ptr;
+        if (q_atomic_test_and_set_acquire_int(ptr, originalValue, originalValue + value))
             break;
     }
-    return returnValue;
+    return originalValue;
 }
 
-inline int QBasicAtomicInt::fetchAndStoreRelease(int newValue)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
-    int returnValue;
+    register int originalValue;
     for (;;) {
-        returnValue = _q_value;
-        if (testAndSetRelease(returnValue, newValue))
+        originalValue = *ptr;
+        if (q_atomic_test_and_set_release_int(ptr, originalValue, originalValue + value))
             break;
     }
-    return returnValue;
-}
-
-inline int QBasicAtomicInt::fetchAndStoreOrdered(int newValue)
-{
-    int returnValue;
-    for (;;) {
-        returnValue = _q_value;
-        if (testAndSetOrdered(returnValue, newValue))
-            break;
-    }
-    return returnValue;
-}
-
-inline int QBasicAtomicInt::fetchAndAddRelaxed(int valueToAdd)
-{
-    int returnValue;
-    for (;;) {
-        returnValue = _q_value;
-        if (testAndSetRelaxed(returnValue, _q_value + valueToAdd))
-            break;
-    }
-    return returnValue;
-}
-
-inline int QBasicAtomicInt::fetchAndAddAcquire(int valueToAdd)
-{
-    int returnValue;
-    for (;;) {
-        returnValue = _q_value;
-        if (testAndSetAcquire(returnValue, _q_value + valueToAdd))
-            break;
-    }
-    return returnValue;
-}
-
-inline int QBasicAtomicInt::fetchAndAddRelease(int valueToAdd)
-{
-    int returnValue;
-    for (;;) {
-        returnValue = _q_value;
-        if (testAndSetRelease(returnValue, _q_value + valueToAdd))
-            break;
-    }
-    return returnValue;
-}
-
-inline int QBasicAtomicInt::fetchAndAddOrdered(int valueToAdd)
-{
-    int returnValue;
-    for (;;) {
-        returnValue = _q_value;
-        if (testAndSetOrdered(returnValue, _q_value + valueToAdd))
-            break;
-    }
-    return returnValue;
-}
-
-inline bool QBasicAtomicInt::ref()
-{
-    return fetchAndAddRelaxed(1) != -1;
-}
-
-inline bool QBasicAtomicInt::deref()
-{
-    return fetchAndAddRelaxed(-1) != 1;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelaxed(T *newValue)
-{
-    T *returnValue;
-    for (;;) {
-        returnValue = (_q_value);
-        if (testAndSetRelaxed(returnValue, newValue))
-            break;
-    }
-    return returnValue;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreAcquire(T *newValue)
-{
-    T *returnValue;
-    for (;;) {
-        returnValue = (_q_value);
-        if (testAndSetAcquire(returnValue, newValue))
-            break;
-    }
-    return returnValue;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreRelease(T *newValue)
-{
-    T *returnValue;
-    for (;;) {
-        returnValue = (_q_value);
-        if (testAndSetRelease(returnValue, newValue))
-            break;
-    }
-    return returnValue;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
-{
-    T *returnValue;
-    for (;;) {
-        returnValue = (_q_value);
-        if (testAndSetOrdered(returnValue, newValue))
-            break;
-    }
-    return returnValue;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelaxed(qptrdiff valueToAdd)
-{
-    T *returnValue;
-    for (;;) {
-        returnValue = (_q_value);
-        if (testAndSetRelaxed(returnValue, returnValue + valueToAdd))
-            break;
-    }
-    return returnValue;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE
-T *QBasicAtomicPointer<T>::fetchAndAddAcquire(qptrdiff valueToAdd)
-{
-    T *returnValue;
-    for (;;) {
-        returnValue = (_q_value);
-        if (testAndSetAcquire(returnValue, returnValue + valueToAdd))
-            break;
-    }
-    return returnValue;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelease(qptrdiff valueToAdd)
-{
-    T *returnValue;
-    for (;;) {
-        returnValue = (_q_value);
-        if (testAndSetRelease(returnValue, returnValue + valueToAdd))
-            break;
-    }
-    return returnValue;
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
-{
-    T *returnValue;
-    for (;;) {
-        returnValue = (_q_value);
-        if (testAndSetOrdered(returnValue, returnValue + valueToAdd))
-            break;
-    }
-    return returnValue;
+    return originalValue;
 }
 
 QT_END_HEADER
 
-#endif // QATOMIC_IA64_H
+#endif // IA64_QATOMIC_H

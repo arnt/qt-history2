@@ -16,6 +16,7 @@
 
 // Get Qt defines/settings
 
+#define _INCLUDE_LONGLONG
 #include "qglobal.h"
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
@@ -25,16 +26,15 @@
 
 // We are hot - unistd.h should have turned on the specific APIs we requested
 
-
+#define _REENTRANT
 #include <pthread.h>
+#include <sys/pstat.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <grp.h>
 #include <pwd.h>
 #include <signal.h>
 #include <dl.h>
-#define QT_HPUX_LD
-#define QT_NO_LIBRARY_UNLOAD
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -104,7 +104,7 @@
 #define QT_CHDIR		::chdir
 #define QT_MKDIR		::mkdir
 #define QT_RMDIR		::rmdir
-#define QT_OPEN_LARGEFILE       O_LARGEFILE
+#define QT_OPEN_LARGEFILE       0
 #define QT_OPEN_RDONLY		O_RDONLY
 #define QT_OPEN_WRONLY		O_WRONLY
 #define QT_OPEN_RDWR		O_RDWR
