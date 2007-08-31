@@ -2602,7 +2602,7 @@ void QHttpPrivate::_q_slotReadyRead()
         QString tmp;
         while (!end && socket->canReadLine()) {
             tmp = QString::fromAscii(socket->readLine());
-            if (tmp == QLatin1String("\r\n") || tmp == QLatin1String("\n"))
+            if (tmp == QLatin1String("\r\n") || tmp == QLatin1String("\n") || tmp.isEmpty())
                 end = true;
             else
                 headerStr += tmp;
