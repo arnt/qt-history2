@@ -548,19 +548,19 @@ bool QTransportAuth::authorizeRequest( QTransportAuth::Data &d, const QString &r
         char exeLink[BUF_SIZE]="";
         char cmdlinePath[BUF_SIZE]="";
         char cmdline[BUF_SIZE]="";
-        
+
         //get executable from /proc/pid/exe
         snprintf( exeLink, BUF_SIZE, "/proc/%d/exe", d.processId );
-        if ( -1 == ::readlink( exeLink, linkTarget, BUF_SIZE - 1 ) ) 
+        if ( -1 == ::readlink( exeLink, linkTarget, BUF_SIZE - 1 ) )
         {
-            qWarning( "SXE:- Error encountered in retrieving executable link target from /proc/%u/exe : %s", 
+            qWarning( "SXE:- Error encountered in retrieving executable link target from /proc/%u/exe : %s",
                 d.processId, strerror(errno) );
             snprintf( linkTarget, BUF_SIZE, "%s", linkTarget );
         }
 
         //get cmdline from proc/pid/cmdline
         snprintf( cmdlinePath, BUF_SIZE, "/proc/%d/cmdline", d.processId );
-        int  cmdlineFd = open( cmdlinePath, O_RDONLY ); 
+        int  cmdlineFd = open( cmdlinePath, O_RDONLY );
         if ( cmdlineFd == -1 )
         {
             qWarning( "SXE:- Error encountered in opening /proc/%u/cmdline: %s",
@@ -577,7 +577,7 @@ bool QTransportAuth::authorizeRequest( QTransportAuth::Data &d, const QString &r
             }
             close( cmdlineFd );
         }
-        
+
         syslog( LOG_ERR | LOG_LOCAL6, "%s // PID:%u // ProgId:%u // Exe:%s // Request:%s // Cmdline:%s",
                 "<SXE Breach>", d.processId, d.progId, linkTarget, qPrintable(request), cmdline);
     }
@@ -1479,7 +1479,7 @@ void GAREnforcer::logAuthAttempt( QDateTime time )
 #if defined(SXE_DISCOVERY)
         if ( QTransportAuth::getInstance()->isDiscoveryMode() ) {
             static QBasicAtomicInt reported = Q_BASIC_ATOMIC_INITIALIZER(0);
-            if ( reported.testAndSet(0,1) ) {
+            if ( reported.testAndSetRelaxed(0,1) ) {
 #ifndef QT_NO_TEXTSTREAM
                 QString logFilePath = QTransportAuth::getInstance()->logFilePath();
                 if ( !logFilePath.isEmpty() ) {
