@@ -14,13 +14,9 @@
 #include "hybridsurface.h"
 
 #include <private/qwindowsurface_qws_p.h>
+#include <private/qwslock_p.h>
 #include <qscreen_qws.h>
 #include <qvarlengtharray.h>
-
-#include <qdebug.h>
-
-// TODO: shared memory when necessary.
-// Transfer image adress/shm key to remote object
 
 static void error(const char *message)
 {
@@ -58,13 +54,13 @@ static void imgToVanilla(const QImage *img, VanillaPixmap *pix)
 }
 
 HybridSurface::HybridSurface()
-    : QWSGLWindowSurface()
+    : QWSGLWindowSurface(), memlock(0)
 {
     setSurfaceFlags(Buffered | Opaque);
 }
 
 HybridSurface::HybridSurface(QWidget *w, EGLDisplay disp)
-    :  QWSGLWindowSurface(w), display(disp), config(0),
+    :  QWSGLWindowSurface(w), memlock(0), display(disp), config(0),
        surface(EGL_NO_SURFACE), context(EGL_NO_CONTEXT),
        pdevice(new QWSGLPaintDevice(w))
 {
@@ -172,7 +168,7 @@ QByteArray HybridSurface::permanentState() const
     reinterpret_cast<int*>(ptr)[0] = mem.id();
     reinterpret_cast<int*>(ptr)[1] = img.width();
     reinterpret_cast<int*>(ptr)[2] = img.height();
-    reinterpret_cast<int*>(ptr)[3] = -1; //(memlock ? memlock->id() : -1);
+    reinterpret_cast<int*>(ptr)[3] = (memlock ? memlock->id() : -1);
     ptr += 4 * sizeof(int);
 
     *reinterpret_cast<QImage::Format*>(ptr) = img.format();
@@ -205,16 +201,22 @@ void HybridSurface::setPermanentState(const QByteArray &data)
     flags = *reinterpret_cast<const SurfaceFlags*>(ptr);
 
     setSurfaceFlags(flags);
-//    setMemory(memId);
-    mem.detach();
-    if (!mem.attach(memId)) {
-        perror("QWSSharedMemSurface: attaching to shared memory");
-        qCritical("QWSSharedMemSurface: Error attaching to"
-                  " shared memory 0x%x", memId);
-//        return false;
+
+//  setMemory(memId);
+    if (mem.id() != memId) {
+        mem.detach();
+        if (!mem.attach(memId)) {
+            perror("QWSSharedMemSurface: attaching to shared memory");
+            qCritical("QWSSharedMemSurface: Error attaching to"
+                      " shared memory 0x%x", memId);
+        }
     }
 
-//    setLock(lockId);
+//  setLock(lockId);
+    if (!memlock || memlock->id() == lockId) {
+        delete memlock;
+        memlock = (lockId == -1 ? 0 : new QWSLock(lockId));
+    }
 
     uchar *base = static_cast<uchar*>(mem.address());
     img = QImage(base, width, height, format);
@@ -238,5 +240,19 @@ void HybridSurface::beginPaint(const QRegion &region)
     EGLBoolean ok = eglMakeCurrent(display, surface, surface, context);
     if (!ok)
         error("qglMakeCurrent");
+}
+
+bool HybridSurface::lock(int timeout)
+{
+    Q_UNUSED(timeout);
+    if (!memlock)
+        return true;
+    return memlock->lock(QWSLock::BackingStore);
+}
+
+void HybridSurface::unlock()
+{
+    if (memlock)
+        memlock->unlock(QWSLock::BackingStore);
 }
 

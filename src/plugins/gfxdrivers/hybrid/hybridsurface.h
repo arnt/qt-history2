@@ -21,6 +21,7 @@
 
 class HybridPaintDevice;
 class HybridSurfacePrivate;
+class QWSLock;
 
 class HybridSurface : public QWSGLWindowSurface
 {
@@ -28,7 +29,11 @@ public:
     HybridSurface();
     HybridSurface(QWidget *w, EGLDisplay display);
     ~HybridSurface();
+
     void beginPaint(const QRegion &region);
+    bool lock(int timeout);
+    void unlock();
+
     bool isValid() const;
     void setGeometry(const QRect &rect, const QRegion &mask);
     QString key() const { return QLatin1String("hybrid"); }
@@ -42,6 +47,7 @@ public:
 private:
     QSharedMemory mem;
     QImage img;
+    QWSLock *memlock;
     EGLDisplay display;
     EGLConfig config;
     EGLSurface surface;
