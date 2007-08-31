@@ -695,8 +695,9 @@ QScript::ConnectionQObject::ConnectionQObject(QObject *sender,
                                               const QScriptValueImpl &receiver,
                                               const QScriptValueImpl &slot)
     : m_sender(sender), m_senderWrapper(senderWrapper),
-      m_signalIndex(signalIndex), m_receiver(receiver), m_slot(slot)
+      m_signalIndex(signalIndex), m_receiver(receiver)
 {
+    m_slot = slot;
 }
 
 QScript::ConnectionQObject::~ConnectionQObject()
