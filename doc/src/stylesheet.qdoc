@@ -3978,7 +3978,7 @@ blue green yellow * /
             top: 0px; left: 16px; bottom: 0px;
             width: 14px;
         }
-    \code
+    \endcode
 
     \section2 Customizing QFrame
 
