@@ -331,7 +331,9 @@ void HybridScreen::solidFill(const QColor &color, const QRegion &region)
 
 QWSWindowSurface* HybridScreen::createSurface(QWidget *widget) const
 {
-    return new HybridSurface(widget, d_ptr->display);
+    if (qobject_cast<QGLWidget*>(widget))
+        return new HybridSurface(widget, d_ptr->display);
+    return d_ptr->screen->createSurface(widget);
 }
 
 QWSWindowSurface* HybridScreen::createSurface(const QString &key) const
