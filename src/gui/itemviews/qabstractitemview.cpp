@@ -2803,14 +2803,11 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
     }
 
     // Remove all affected editors; this is more efficient than waiting for updateGeometries() to clean out editors for invalid indexes
-    _q_abstractitemview_editor_iterator it = d->editors.begin();
-    while (it != d->editors.end()) {
-        QModelIndex index = d->indexForIterator(it);
-        if (index.row() <= start && index.row() >= end && d->model->parent(index) == parent) {
-            d->releaseEditor(d->editorForIterator(it));
-            it = d->editors.erase(it);
-        } else {
-            ++it;
+    for (int i = d->editors.size() - 1; i >= 0; --i) { 
+        const QModelIndex index = d->editors.at(i).first; 
+        if (index.row() >= start && index.row() <= end && d->model->parent(index) == parent) { 
+            d->releaseEditor(d->editors.at(i).second); 
+            d->editors.removeAt(i);
         }
     }
 }
