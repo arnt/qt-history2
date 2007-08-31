@@ -492,8 +492,7 @@ void QColumnViewPrivate::_q_gripMoved(int offset)
     Q_Q(QColumnView);
 
     QObject *grip = q->sender();
-    if (!grip)
-        return;
+    Q_ASSERT(grip);
 
     if (q->isRightToLeft())
         offset = -1 * offset;
