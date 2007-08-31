@@ -984,9 +984,9 @@ void QColumnView::selectAll()
     }
 
     QModelIndex tl = model()->index(0, 0, parent);
-    QModelIndex br = model()->index(model()->rowCount(rootIndex()) - 1,
-                                    model()->columnCount(rootIndex()) - 1,
-                                    rootIndex());
+    QModelIndex br = model()->index(model()->rowCount(parent) - 1,
+                                    model()->columnCount(parent) - 1,
+                                    parent);
     selection.append(QItemSelectionRange(tl, br));
     selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
 }
