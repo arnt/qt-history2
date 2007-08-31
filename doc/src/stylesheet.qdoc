@@ -3053,10 +3053,11 @@ blue green yellow * /
                 
                 QMessageBox {
                     dialogbuttonbox-buttons-have-icons: true;
-                    dialog-ok-button: url(ok.svg);
-                    dialog-cancel-button: url(cancel.svg);
+                    dialog-ok-icon: url(ok.svg);
+                    dialog-cancel-icon: url(cancel.png), url(grayed_cancel.png) disabled;
                 }
             \endcode
+
     \row
         \o \bold Length \target Length
         \o \l{#Number}{Number} (\c px | \c pt | \c em | \c ex)?
