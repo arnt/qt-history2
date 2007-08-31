@@ -38,6 +38,16 @@ LayoutInfo::Type LayoutInfo::layoutType(const QDesignerFormEditorInterface *core
     return NoLayout;
 }
 
+LayoutInfo::Type LayoutInfo::layoutType(const QString &typeName)
+{
+    static QHash<QString, Type> nameTypeMap;
+    if (nameTypeMap.empty()) {
+        nameTypeMap.insert(QLatin1String("QVBoxLayout"), VBox);
+        nameTypeMap.insert(QLatin1String("QHBoxLayout"), HBox);
+        nameTypeMap.insert(QLatin1String("QGridLayout"), Grid);
+    }
+    return nameTypeMap.value(typeName, NoLayout);
+}
 /*!
   \overload
 */

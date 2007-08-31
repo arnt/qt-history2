@@ -744,12 +744,11 @@ QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *par
         layoutBase = layout->parentWidget();
     }
 
-    LayoutInfo::Type layoutType = LayoutInfo::Grid;
-    if (layoutName == QLatin1String("QVBoxLayout"))
-        layoutType = LayoutInfo::VBox;
-    else if (layoutName == QLatin1String("QHBoxLayout"))
-        layoutType = LayoutInfo::HBox;
-
+    LayoutInfo::Type layoutType = LayoutInfo::layoutType(layoutName);
+    if (layoutType == LayoutInfo::NoLayout) {
+        designerWarning(QObject::tr("The layout type '%' is not supported, defaulting to grid.").arg(layoutName));
+        layoutType = LayoutInfo::Grid;
+    }
     QLayout *lay = core()->widgetFactory()->createLayout(layoutBase, layout, layoutType);
     if (lay != 0)
         changeObjectName(lay, name);

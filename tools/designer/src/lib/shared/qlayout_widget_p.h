@@ -62,6 +62,9 @@ struct QDESIGNER_SHARED_EXPORT LayoutProperties
         SizeConstraintProperty = 0x100,
         AllProperties = 0xFFFF};
 
+    // return a PropertyMask of visible properties
+    static int visibleProperties(const  QLayout *layout);
+
     // Retrieve from /apply to sheet: A property mask is returned indicating the properties found in the sheet
     int fromPropertySheet(const QDesignerFormEditorInterface *core, QLayout *l, int mask = AllProperties);
     int toPropertySheet(const QDesignerFormEditorInterface *core, QLayout *l, int mask = AllProperties, bool applyChanged = true) const;

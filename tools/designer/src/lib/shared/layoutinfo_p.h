@@ -50,6 +50,7 @@ public:
 
     static Type layoutType(const QDesignerFormEditorInterface *core, const QWidget *w);
     static Type layoutType(const QDesignerFormEditorInterface *core, const QLayout *layout);
+    static Type layoutType(const QString &typeName);
 
     static QWidget *layoutParent(const QDesignerFormEditorInterface *core, QLayout *layout);
 

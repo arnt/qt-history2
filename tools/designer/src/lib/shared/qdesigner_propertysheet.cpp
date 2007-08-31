@@ -974,14 +974,10 @@ bool QDesignerPropertySheet::isVisible(int index) const
                 return false;
             switch (type) {
             case  PropertyLayoutSpacing:
-                if (qobject_cast<const QGridLayout *>(currentLayout))
-                    return false;
-                break;
+                return qdesigner_internal::LayoutProperties::visibleProperties(currentLayout) & qdesigner_internal::LayoutProperties::SpacingProperty;
             case PropertyLayoutHorizontalSpacing:
             case PropertyLayoutVerticalSpacing:
-                if (!qobject_cast<const QGridLayout *>(currentLayout))
-                    return false;
-                break;
+                return qdesigner_internal::LayoutProperties::visibleProperties(currentLayout) & qdesigner_internal::LayoutProperties::HorizSpacingProperty;
             default:
                 break;
             }

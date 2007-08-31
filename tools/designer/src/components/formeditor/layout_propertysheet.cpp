@@ -134,7 +134,7 @@ LayoutPropertySheet::LayoutPropertySheet(QLayout *object, QObject *parent)
     createFakeProperty(QLatin1String(bottomMargin), 0);
     setPropertyGroup(pindex, layoutGroup);
 
-    if (qobject_cast<const QGridLayout *>(m_layout)) {
+    if (LayoutProperties::visibleProperties(m_layout) & LayoutProperties::HorizSpacingProperty) {
         pindex = count();
         createFakeProperty(QLatin1String(horizontalSpacing), 0);
         setPropertyGroup(pindex, layoutGroup);
@@ -284,7 +284,7 @@ void LayoutPropertySheet::setChanged(int index, bool changed)
     const LayoutPropertyType type = layoutPropertyType(propertyName(index));
     switch (type) {
     case LayoutPropertySpacing:
-        if (qobject_cast<const QGridLayout *>(m_layout)) {
+        if (LayoutProperties::visibleProperties(m_layout) & LayoutProperties::HorizSpacingProperty) {
             setChanged(indexOf(QLatin1String(horizontalSpacing)), changed);
             setChanged(indexOf(QLatin1String(verticalSpacing)), changed);
         }

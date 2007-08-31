@@ -728,40 +728,30 @@ void FormWindowManager::slotUpdateActions()
     actionSimplifyLayout()->setEnabled(simplifyAvailable);
 }
 
+static inline QWidget *findLayoutContainer(const FormWindow *fw)
+{
+    QWidget *w = fw->mainContainer();
+    QList<QWidget*> l(fw->selectedWidgets());
+    fw->simplifySelection(&l);
+    return l.empty() ? w : l.front();
+}
+
 void FormWindowManager::layoutContainerHorizontal()
 {
-    QWidget *w = m_activeFormWindow->mainContainer();
-    QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
-    m_activeFormWindow->simplifySelection(&l);
-    if (l.count() > 0)
-        w = l.first();
-
-    if (w != 0)
-        m_activeFormWindow->layoutHorizontalContainer(w);
+    if (QWidget *container = findLayoutContainer(m_activeFormWindow))
+        m_activeFormWindow->layoutHorizontalContainer(container);
 }
 
 void FormWindowManager::layoutContainerVertical()
 {
-    QWidget *w = m_activeFormWindow->mainContainer();
-    QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
-    m_activeFormWindow->simplifySelection(&l);
-    if (l.count() > 0)
-        w = l.first();
-
-    if (w)
-        m_activeFormWindow->layoutVerticalContainer(w);
+    if (QWidget *container = findLayoutContainer(m_activeFormWindow))
+        m_activeFormWindow->layoutVerticalContainer(container);
 }
 
 void FormWindowManager::layoutContainerGrid()
 {
-    QWidget *w = m_activeFormWindow->mainContainer();
-    QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
-    m_activeFormWindow->simplifySelection(&l);
-    if (l.count() > 0)
-        w = l.first();
-
-    if (w)
-        m_activeFormWindow->layoutGridContainer(w);
+    if (QWidget *container = findLayoutContainer(m_activeFormWindow))
+        m_activeFormWindow->layoutGridContainer(container);
 }
 
 QDesignerFormWindowInterface *FormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WindowFlags flags)
