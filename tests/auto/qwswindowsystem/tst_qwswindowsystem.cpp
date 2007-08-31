@@ -465,31 +465,62 @@ void tst_QWSWindowSystem::dontFlushUnitializedWindowSurfaces()
     p.setRegion(r);
     QCOMPARE(p.allocatedRegion(), QRegion(r));
 
-    ColorWidget w(Qt::red);
-    w.setGeometry(r);
-    w.show();
-    QCOMPARE(w.visibleRegion(), QRegion());
+    { // Opaque widget, tests the blitting path in QScreen::compose()
+        ColorWidget w(Qt::red);
+        w.setGeometry(r);
+        w.show();
+        QCOMPARE(w.visibleRegion(), QRegion());
 
-    // At this point w has a windowsurface but it's completely covered by
-    // the directpainter so nothing will be painted here and the windowsurface
-    // is then unitialized.
+        // At this point w has a windowsurface but it's completely covered by
+        // the directpainter so nothing will be painted here and the
+        // windowsurface contains unitialized data.
 
-    QApplication::processEvents();
-    QCOMPARE(p.allocatedRegion(), QRegion(r));
-    QCOMPARE(w.visibleRegion(), QRegion());
+        QApplication::processEvents();
+        QCOMPARE(p.allocatedRegion(), QRegion(r));
+        QCOMPARE(w.visibleRegion(), QRegion());
 
-    p.setRegion(QRegion());
+        p.setRegion(QRegion());
 
-    QCOMPARE(w.visibleRegion(), QRegion());
-    VERIFY_COLOR(r, bgColor); // the server should not blit uninitialized data
+        QCOMPARE(w.visibleRegion(), QRegion());
+        VERIFY_COLOR(r, bgColor); // don't blit uninitialized data
 
-    QApplication::processEvents(); // send new region
-    QCOMPARE(w.visibleRegion(), QRegion());
-    QApplication::processEvents(); // get new clip region
-    QCOMPARE(w.visibleRegion().translated(w.geometry().topLeft()), QRegion(r));
+        QApplication::processEvents(); // send new region
+        QCOMPARE(w.visibleRegion(), QRegion());
+        QApplication::processEvents(); // get new clip region
+        QCOMPARE(w.visibleRegion().translated(w.geometry().topLeft()),
+                 QRegion(r));
 
-    QApplication::processEvents(); // do paint
-    VERIFY_COLOR(r, w.color());
+        QApplication::processEvents(); // do paint
+        VERIFY_COLOR(r, w.color());
+    }
+
+    p.setRegion(r);
+
+    { // Semi-transparent widget, tests the blending path in QScreen::compose()
+        ColorWidget w(Qt::red);
+        w.setGeometry(r);
+        w.setWindowOpacity(0.5);
+        w.show();
+        QCOMPARE(w.visibleRegion(), QRegion());
+
+        QApplication::processEvents();
+        QCOMPARE(p.allocatedRegion(), QRegion(r));
+        QCOMPARE(w.visibleRegion(), QRegion());
+
+        p.setRegion(QRegion());
+
+        QCOMPARE(w.visibleRegion(), QRegion());
+        VERIFY_COLOR(r, bgColor);
+
+        QApplication::processEvents();
+        QCOMPARE(w.visibleRegion(), QRegion());
+        QApplication::processEvents();
+        QCOMPARE(w.visibleRegion().translated(w.geometry().topLeft()),
+                 QRegion(r));
+
+        QApplication::processEvents();
+        VERIFY_COLOR(r, w.color());
+    }
 }
 
 QTEST_MAIN(tst_QWSWindowSystem)
