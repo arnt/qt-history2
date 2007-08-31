@@ -1578,7 +1578,7 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
             if (layout->nativeWindowDeco()) {
                 globalRect.adjust(0, layout->titleHeight(), 0, 0);
             } else {
-                int fw = widget->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0);
+                int fw = widget->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, widget);
                 globalRect.adjust(-fw, -fw, fw, fw);
             }
         }
