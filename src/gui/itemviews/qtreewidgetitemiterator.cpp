@@ -208,10 +208,15 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
         if ((flags & NotEditable) && (itemFlags & Qt::ItemIsEditable))
             return false;
     }
-
-    // ### We only test the check state for column 0
-    if ((flags & Checked|NotChecked) != 0 && (item->checkState(0) == Qt::Unchecked) != (bool)(flags & NotChecked)) {
-        return false;
+    
+    if (flags & (Checked|NotChecked)) {
+        // ### We only test the check state for column 0 
+        Qt::CheckState check = item->checkState(0);
+        // PartiallyChecked matches as Checked.
+        if ((flags & Checked) && (check == Qt::Unchecked))
+            return false;
+        if ((flags & NotChecked) && (check != Qt::Unchecked))
+            return false;
     }
 
     if ((flags & HasChildren) && !item->childCount())
