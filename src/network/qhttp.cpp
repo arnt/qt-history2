@@ -2422,6 +2422,8 @@ void QHttpPrivate::_q_slotSendRequest()
 #ifndef QT_NO_OPENSSL
         if (sslSocket && mode == QHttp::ConnectionModeHttps) {
 #ifndef QT_NO_NETWORKPROXY
+            // Disallow use of cacheing proxy with HTTPS; instead fall back to
+            // transparent HTTP CONNECT proxying.
             if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty())
                 socket->setProxy(proxy);
 #endif
@@ -2429,9 +2431,6 @@ void QHttpPrivate::_q_slotSendRequest()
         } else
 #endif
         {
-#ifndef QT_NO_NETWORKPROXY
-            socket->setProxy(QNetworkProxy::DefaultProxy);
-#endif
             socket->connectToHost(connectionHost, connectionPort);
         }
     } else {

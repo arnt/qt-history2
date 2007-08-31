@@ -50,6 +50,7 @@ private slots:
     void proxy_data();
     void proxy();
     void proxy2();
+    void proxy3();
 
     void reconnect();
     void setSocket();
@@ -491,6 +492,10 @@ void tst_QHttp::proxy()
 
 void tst_QHttp::proxy2()
 {
+    QFETCH_GLOBAL(bool, setProxy);
+    if (setProxy)
+        return;
+
     readyRead_ba.clear();
 
     QHttp http;
@@ -515,6 +520,33 @@ void tst_QHttp::proxy2_slot()
     readyRead_ba.append(http->readAll());
     if (!http->hasPendingRequests())
         QTestEventLoop::instance().exitLoop();
+}
+
+void tst_QHttp::proxy3()
+{
+    QFETCH_GLOBAL(bool, setProxy);
+    if (setProxy)
+        return;
+
+    readyRead_ba.clear();
+
+    QTcpSocket socket;
+    socket.setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, "fluke.troll.no", 3128));
+    
+    QHttp http;
+    http.setSocket(&socket);
+    http.setHost("intern.troll.no");
+    http.get("/index.cgi");
+    http.get("/index.cgi");
+
+    connect(&http, SIGNAL(requestFinished(int, bool)),
+            this, SLOT(proxy2_slot()));
+    QTestEventLoop::instance().enterLoop(30);
+    QVERIFY(!QTestEventLoop::instance().timeout());
+
+    QCOMPARE(readyRead_ba.count("trolllogin"), 2);
+
+    readyRead_ba.clear();
 }
 
 // test QHttp::currentId() and QHttp::currentRequest()
