@@ -2107,7 +2107,7 @@ QRect QDockAreaLayoutInfo::tabContentRect() const
 QDockAreaLayout::QDockAreaLayout(QMainWindow *win)
 {
     mainWindow = win;
-    sep = win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+    sep = win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, 0, win);
 #ifndef QT_NO_TABBAR
     const int tabShape = QTabBar::RoundedSouth;
 #else
