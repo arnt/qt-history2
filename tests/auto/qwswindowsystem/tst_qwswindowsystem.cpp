@@ -39,6 +39,7 @@ private slots:
     void initialGeometry();
     void WA_PaintOnScreen();
     void toplevelMove();
+    void dontFlushUnitializedWindowSurfaces();
 
 private:
     QWSWindow* getWindow(int windId);
@@ -453,6 +454,42 @@ void tst_QWSWindowSystem::toplevelMove()
         VERIFY_COLOR(QRect(100, 100, 50, 50), bgColor); // unchanged
     }
     delete screen;
+}
+
+void tst_QWSWindowSystem::dontFlushUnitializedWindowSurfaces()
+{
+    QApplication::processEvents();
+
+    const QRect r(50, 50, 50, 50);
+    QDirectPainter p(0, QDirectPainter::ReservedSynchronous);
+    p.setRegion(r);
+    QCOMPARE(p.allocatedRegion(), QRegion(r));
+
+    ColorWidget w(Qt::red);
+    w.setGeometry(r);
+    w.show();
+    QCOMPARE(w.visibleRegion(), QRegion());
+
+    // At this point w has a windowsurface but it's completely covered by
+    // the directpainter so nothing will be painted here and the windowsurface
+    // is then unitialized.
+
+    QApplication::processEvents();
+    QCOMPARE(p.allocatedRegion(), QRegion(r));
+    QCOMPARE(w.visibleRegion(), QRegion());
+
+    p.setRegion(QRegion());
+
+    QCOMPARE(w.visibleRegion(), QRegion());
+    VERIFY_COLOR(r, bgColor); // the server should not blit uninitialized data
+
+    QApplication::processEvents(); // send new region
+    QCOMPARE(w.visibleRegion(), QRegion());
+    QApplication::processEvents(); // get new clip region
+    QCOMPARE(w.visibleRegion().translated(w.geometry().topLeft()), QRegion(r));
+
+    QApplication::processEvents(); // do paint
+    VERIFY_COLOR(r, w.color());
 }
 
 QTEST_MAIN(tst_QWSWindowSystem)
