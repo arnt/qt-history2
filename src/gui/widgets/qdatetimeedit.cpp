@@ -137,10 +137,10 @@ public:
   today's date, and restricted the valid date range to today plus or
   minus 365 days. We've set the order to month, day, year.
 
-  The maximum and minimum values for a date value in the date editor
-  default to the maximum and minimum values for a QDate. You can
-  change this by calling setMinimumDate(), setMaximumDate(),
-  setMinimumTime(), and setMaximumTime().
+  The minimum value for QDateTimeEdit is 14 September 1752,
+  and 2 January 4713BC for QDate. You can change this by calling
+  setMinimumDate(), setMaximumDate(),  setMinimumTime(),
+  and setMaximumTime().
 
   \table 100%
   \row \o \inlineimage windowsxp-datetimeedit.png Screenshot of a Windows XP style date time editing widget
