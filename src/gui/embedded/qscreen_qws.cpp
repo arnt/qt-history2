@@ -2173,7 +2173,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
     QRegion blendRegion = exposed & blend;
 
     if (win)
-        blendRegion &= win->allocatedRegion();
+        blendRegion &= win->paintedRegion();
     if (!blendRegion.isEmpty()) {
 
         QPoint off = blend.boundingRect().topLeft();
