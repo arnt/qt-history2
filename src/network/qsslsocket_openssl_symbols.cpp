@@ -198,7 +198,9 @@ bool q_resolveOpenSslSymbols()
 {
     static volatile bool symbolsResolved = false;
     static volatile bool triedToResolveSymbols = false;
+#ifndef QT_NO_THREAD
     QMutexLocker locker(QMutexPool::globalInstanceGet((void *)&q_SSL_library_init));
+#endif
     if (symbolsResolved)
         return true;
     if (triedToResolveSymbols)
