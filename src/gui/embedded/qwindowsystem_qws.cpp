@@ -776,9 +776,11 @@ void QWSClient::sendEvent(QWSEvent* event)
 */
 void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     Q_D(QWSClient);
     if (d->clientLock)
         d->clientLock->lock(QWSLock::RegionEvent);
+#endif
 
     QWSRegionEvent event;
     event.setData(winid, rgn, type);
@@ -786,8 +788,10 @@ void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
 //    qDebug() << "Sending Region event to" << winid << "rgn" << rgn << "type" << type;
 
     sendEvent(&event);
+#ifndef QT_NO_QWS_MULTIPROCESS
     if (d->clientLock)
         csocket->waitForBytesWritten(); // ### must flush to prevent deadlock
+#endif
 }
 
 extern int qt_servershmid;

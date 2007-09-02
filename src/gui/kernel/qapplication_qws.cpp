@@ -847,10 +847,12 @@ void QWSDisplay::Data::fillQueue()
                            me->window(), mouse_event_count);
 #endif
             }
+#ifndef QT_NO_QWS_MULTIPROCESS
         } else if (e->type == QWSEvent::Region && clientLock) {
             // not really an unlock, decrements the semaphore
             clientLock->unlock(QWSLock::RegionEvent);
             queue.append(e);
+#endif
 #if 0
         } else if (e->type == QWSEvent::RegionModified) {
             QWSRegionModifiedEvent *re = static_cast<QWSRegionModifiedEvent *>(e);
@@ -1253,7 +1255,9 @@ bool QWSDisplay::getProperty(int winId, int property, char *&data, int &len)
     getPropertyLen = -2;
     getPropertyData = 0;
 
+#ifndef QT_NO_QWS_MULTIPROCESS
     d->waitForPropertyReply();
+#endif
 
     len = getPropertyLen;
     data = getPropertyData;

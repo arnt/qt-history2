@@ -1248,8 +1248,10 @@ void QWSDirectPainterSurface::setRegion(const QRegion &region)
 
     const int id = winId();
     QWidget::qwsDisplay()->requestRegion(id, key(), permanentState(), reg);
+#ifndef QT_NO_QWS_MULTIPROCESS
     if (synchronous)
         QWSDisplay::instance()->d->waitForRegionAck(id);
+#endif
 }
 
 void QWSDirectPainterSurface::flush(QWidget *, const QRegion &r, const QPoint &)
@@ -1275,11 +1277,13 @@ void QWSDirectPainterSurface::setPermanentState(const QByteArray &ba)
 void QWSDirectPainterSurface::beginPaint(const QRegion &region)
 {
     QWSWindowSurface::beginPaint(region);
+#ifndef QT_NO_QWS_MULTIPROCESS
     if (!synchronous) {
         flushingRegionEvents = true;
         QWSDisplay::instance()->d->waitForRegionEvents(winId());
         flushingRegionEvents = false;
     }
+#endif
 }
 
 bool QWSDirectPainterSurface::lock(int timeout)
