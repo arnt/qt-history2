@@ -70,11 +70,13 @@ public:
     uchar *sharedRam() const;
     int sharedRamSize() const;
 
+#ifndef QT_NO_QWS_PROPERTIES
     void addProperty(int winId, int property);
     void setProperty(int winId, int property, int mode, const QByteArray &data);
     void setProperty(int winId, int property, int mode, const char * data);
     void removeProperty(int winId, int property);
     bool getProperty(int winId, int property, char *&data, int &len);
+#endif // QT_NO_QWS_PROPERTIES
 
     QList<QWSWindowInfo> windowList();
     int windowAt(const QPoint &);

@@ -1193,6 +1193,7 @@ bool QWSDisplay::supportsDepth(int depth) const { return qt_screen->supportsDept
 uchar *QWSDisplay::sharedRam() const { return d->sharedRam; }
 int QWSDisplay::sharedRamSize() const { return d->sharedRamSize; }
 
+#ifndef QT_NO_QWS_PROPERTIES
 
 void QWSDisplay::addProperty(int winId, int property)
 {
@@ -1267,6 +1268,8 @@ bool QWSDisplay::getProperty(int winId, int property, char *&data, int &len)
 
     return len != -1;
 }
+
+#endif // QT_NO_QWS_PROPERTIES
 
 void QWSDisplay::setAltitude(int winId, int alt, bool fixed)
 {
