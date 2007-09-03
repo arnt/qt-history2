@@ -44,7 +44,15 @@
 #include "../drivers/sqlite2/qsql_sqlite2.h"
 #endif
 #ifdef QT_SQL_IBASE
+#undef SQL_FLOAT  // avoid clash with ODBC
+#undef SQL_DOUBLE
+#undef SQL_TIMESTAMP
+#undef SQL_TYPE_TIME
+#undef SQL_TYPE_DATE
+#undef SQL_DATE
+#define SCHAR IBASE_SCHAR  // avoid clash with ODBC (older versions of ibase.h with Firebird)
 #include "../drivers/ibase/qsql_ibase.h"
+#undef SCHAR
 #endif
 
 #include "qdebug.h"
