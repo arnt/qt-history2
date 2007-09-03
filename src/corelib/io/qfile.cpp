@@ -705,11 +705,16 @@ QFile::rename(const QString &oldName, const QString &newName)
 }
 
 /*!
-    Creates a link named \a linkName that points to the file currently specified by fileName().
-    What a link is depends on the underlying filesystem
-    (be it a shortcut on Windows or a symbolic link on Unix). Returns
-    true if successful; otherwise returns false.
-    
+
+    Creates a link named \a linkName that points to the file currently specified by
+    fileName().  What a link is depends on the underlying filesystem (be it a
+    shortcut on Windows or a symbolic link on Unix). Returns true if successful;
+    otherwise returns false.
+
+    This function will not overwrite an already existing entity in the file system;
+    in this case, \c link() will return false and set \l{QFile::}{error()} to
+    return \l{QFile::}{RenameError}.    
+
     \note To create a valid link on Windows, \a linkName must have a \c{.lnk} file extension.
 
     \sa setFileName()
