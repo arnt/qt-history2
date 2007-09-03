@@ -46,7 +46,7 @@
     models derived from the QAbstractItemModel class.
 
     \image qcolumnview.png
-    
+
     \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
@@ -60,12 +60,7 @@ QColumnView::QColumnView(QWidget * parent)
 :  QAbstractItemView(*new QColumnViewPrivate, parent)
 {
     Q_D(QColumnView);
-    setTextElideMode(Qt::ElideMiddle);
-    connect(&(d->currentAnimation), SIGNAL(frameChanged(int)),
-            horizontalScrollBar(), SLOT(setValue(int)));
-    connect(&(d->currentAnimation), SIGNAL(finished()), this, SLOT(_q_changeCurrentColumn()));
-    delete d->itemDelegate;
-    setItemDelegate(new QColumnViewDelegate(this));
+    d->initialize();
 }
 
 /*!
@@ -74,6 +69,19 @@ QColumnView::QColumnView(QWidget * parent)
 QColumnView::QColumnView(QColumnViewPrivate & dd, QWidget * parent)
 :  QAbstractItemView(dd, parent)
 {
+    Q_D(QColumnView);
+    d->initialize();
+}
+
+void QColumnViewPrivate::initialize()
+{
+    Q_Q(QColumnView);
+    q->setTextElideMode(Qt::ElideMiddle);
+    q->connect(&currentAnimation, SIGNAL(frameChanged(int)),
+            q->horizontalScrollBar(), SLOT(setValue(int)));
+    q->connect(&currentAnimation, SIGNAL(finished()), q, SLOT(_q_changeCurrentColumn()));
+    delete itemDelegate;
+    q->setItemDelegate(new QColumnViewDelegate(q));
 }
 
 /*!

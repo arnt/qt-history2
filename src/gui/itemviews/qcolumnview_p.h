@@ -110,6 +110,7 @@ class Q_AUTOTEST_EXPORT QColumnViewPrivate : public QAbstractItemViewPrivate
 public:
     QColumnViewPrivate();
     ~QColumnViewPrivate();
+    void initialize();
 
     QAbstractItemView *createColumn(const QModelIndex &index, bool show);
 
