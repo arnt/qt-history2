@@ -432,7 +432,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value FontWeight
     \value FontItalic
     \value FontUnderline
-    \value FontOverline
+    \value FontOverline \e{This property has been deprecated.} Use QTextFormat::TextUnderlineStyle instead.
     \value FontStrikeOut
     \value FontFixedPitch
     \value FontPixelSize
