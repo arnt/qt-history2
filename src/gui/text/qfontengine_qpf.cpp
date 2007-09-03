@@ -1030,9 +1030,12 @@ void QPFGenerator::writeGMap()
     writeUInt16(0); // padding
     writeUInt32(glyphCount * 4);
 
-    const quint32 emptyGlyph = 0xffffffff;
-    for (quint16 i = 0; i < glyphCount; ++i)
-        dev->write((const char *)&emptyGlyph, sizeof(emptyGlyph));
+    QByteArray &buffer = dev->buffer();
+    const int numBytes = glyphCount * sizeof(quint32);
+    qint64 pos = buffer.size();
+    buffer.resize(pos + numBytes);
+    qMemSet(buffer.data() + pos, 0xff, numBytes);
+    dev->seek(pos + numBytes);
 }
 
 void QPFGenerator::writeBlock(QFontEngineQPF::BlockTag tag, const QByteArray &data)
