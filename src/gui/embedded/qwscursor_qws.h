@@ -34,7 +34,6 @@ public:
 
     QPoint hotSpot() const { return hot; }
     QImage &image() { return cursor; }
-    const QRegion region() const { return rgn; }
 
     static QWSCursor *systemCursor(int id);
 
@@ -45,7 +44,6 @@ private:
 private:
     QPoint hot;
     QImage cursor;
-    QRegion rgn;
 };
 
 QT_END_HEADER

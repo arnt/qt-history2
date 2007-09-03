@@ -497,7 +497,7 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
     hot.setX(hx);
     hot.setY(hy);
 
-    cursor  =  QImage(width,height, QImage::Format_Indexed8);
+    cursor = QImage(width,height, QImage::Format_Indexed8);
 
     if (!width || !height || !data || !mask)
         return;
@@ -513,6 +513,8 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 
     int x = -1, w = 0;
 
+    uchar *cursor_data = cursor.bits();
+    int bpl = cursor.bytesPerLine();
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < bytesPerLine; j++, data++, mask++)
@@ -524,13 +526,12 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
                 if (d && m) p = 0;
                 else if (!d && m) p = 1;
                 else p = 2;
-                cursor.setPixel(j*8+b, i, p);
+                cursor_data[j*8+b] = p;
 
                 // calc region
                 if (x < 0 && m)
                     x = j*8+b;
                 else if (x >= 0 && !m) {
-                    rgn = rgn.united(QRect(x, i, w, 1));
                     x = -1;
                     w = 0;
                 }
@@ -539,10 +540,10 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
             }
         }
         if (x >= 0) {
-            rgn = rgn.united(QRect(x, i, w, 1));
             x = -1;
             w = 0;
         }
+        cursor_data += bpl;
     }
 
     if (qt_screencursor) {
