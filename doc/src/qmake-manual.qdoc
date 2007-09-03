@@ -3638,6 +3638,10 @@
     \o \c $QMAKESPEC/../features/unix/myfeatures.prf and
        \c $QMAKESPEC/../features/myfeatures.prf
     \endlist
+
+    \note The \c{.prf} files must have names in lower case.
+    
+    
 */
 
 /*!
