@@ -301,16 +301,13 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     m_filterWidget->setEnabled(true);
 
     const ActionList actionList = qFindChildren<QAction*>(formWindow->mainContainer());
-    foreach (QAction *action, actionList) {
-        if (!core()->metaDataBase()->item(action)
-            || action->isSeparator()
-            // ### || action->menu()
-            ) {
-            continue;
+    foreach (QAction *action, actionList)
+        if (!action->isSeparator() && core()->metaDataBase()->item(action) != 0) {
+            // Show unless it has a menu. However, listen for change on menu actions also as it might be removed
+            if (!action->menu())
+                m_actionView->model()->addAction(action);
+            connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
         }
-        m_actionView->model()->addAction(action);
-        connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
-    }
 
     setFilter(m_filter);
 }
