@@ -1347,6 +1347,9 @@ void QGraphicsView::translate(qreal dx, qreal dy)
     Because \a pos is a floating point coordinate, and the scroll bars operate
     on integer coordinates, the centering is only an approximation.
 
+    \note If the item is close to or outside the border, it will be visible
+    in the view, but not centered.
+
     \sa ensureVisible()
 */
 void QGraphicsView::centerOn(const QPointF &pos)
