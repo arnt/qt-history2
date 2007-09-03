@@ -709,7 +709,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 painter->drawPixmap(ir, pixmap);
             } else {
                 QRectF sr;
-                if (d->dont_stream_pixmaps) {
+                if (d->in_memory_only) {
                     int index;
                     s >> r >> index >> sr;
                     Q_ASSERT(index < d->pixmap_list.size());
@@ -723,7 +723,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             break;
         case QPicturePrivate::PdcDrawTiledPixmap: {
             QPixmap pixmap;
-            if (d->dont_stream_pixmaps) {
+            if (d->in_memory_only) {
                 int index;
                 s >> r >> index >> p;
                 Q_ASSERT(index < d->pixmap_list.size());
@@ -788,11 +788,25 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             painter->setFont(font);
             break;
         case QPicturePrivate::PdcSetPen:
-            s >> pen;
+            if (d->in_memory_only) {
+                int index;
+                s >> index;
+                Q_ASSERT(index < d->pen_list.size());
+                pen = d->pen_list.at(index);
+            } else {
+                s >> pen;
+            }
             painter->setPen(pen);
             break;
         case QPicturePrivate::PdcSetBrush:
-            s >> brush;
+            if (d->in_memory_only) {
+                int index;
+                s >> index;
+                Q_ASSERT(index < d->brush_list.size());
+                brush = d->brush_list.at(index);
+            } else {
+                s >> brush;
+            }
             painter->setBrush(brush);
             break;
 // #ifdef Q_Q3PAINTER

@@ -387,7 +387,7 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         gccaps = AllFeatures;
 
         d->m_pic = new QPicture();
-        d->m_pic->d_ptr->dont_stream_pixmaps = true;
+        d->m_pic->d_ptr->in_memory_only = true;
         d->m_picpainter = new QPainter(d->m_pic);
         d->m_picengine = d->m_picpainter->paintEngine();
 
