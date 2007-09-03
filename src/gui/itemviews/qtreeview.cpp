@@ -2822,7 +2822,6 @@ int QTreeViewPrivate::itemHeight(int item) const
 {
     if (uniformRowHeights)
         return defaultItemHeight;
-    executePostedLayout();
     if (viewItems.isEmpty())
         return 0;
     const QModelIndex &index = viewItems.at(item).index;
@@ -2896,7 +2895,6 @@ int QTreeViewPrivate::coordinateForItem(int item) const
 int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
 {
     Q_Q(const QTreeView);
-    executePostedLayout();
     const int itemCount = viewItems.count();
     if (itemCount == 0)
         return -1;
