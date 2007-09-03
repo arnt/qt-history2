@@ -148,6 +148,8 @@ shared memory segment. The server then transfers the contents of this
 shared memory into an OpenGL texture before they are drawn onto the
 screen during window compositing.
 
+\omit
+
 \section1 Future Directions
 
 \section2 API Improvements
@@ -190,5 +192,7 @@ reused.
 Related technologies included in the \l
 {http://www.khronos.org/openkode} {OpenKODE} API set will also be
 considered.
+
+\endomit
 
 */
