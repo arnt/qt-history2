@@ -1032,7 +1032,7 @@ qreal QFontEngineFT::minRightBearing() const
         const QChar *ch = (const QChar *)(const void*)char_table;
         QGlyphLayout glyphs[char_table_entries];
         int ng = char_table_entries;
-        stringToCMap(ch, char_table_entries, glyphs, &ng, 0);
+        stringToCMap(ch, char_table_entries, glyphs, &ng, QTextEngine::GlyphIndicesOnly);
         while (--ng) {
             if (glyphs[ng].glyph) {
                 glyph_metrics_t gi = const_cast<QFontEngineFT *>(this)->boundingBox(glyphs[ng].glyph);

@@ -181,7 +181,7 @@ QFixed QFontEngine::xHeight() const
     QGlyphLayout glyphs[8];
     int nglyphs = 7;
     QChar x((ushort)'x');
-    stringToCMap(&x, 1, glyphs, &nglyphs, 0);
+    stringToCMap(&x, 1, glyphs, &nglyphs, QTextEngine::GlyphIndicesOnly);
 
     glyph_metrics_t bb = const_cast<QFontEngine *>(this)->boundingBox(glyphs[0].glyph);
     return bb.height;
@@ -192,7 +192,7 @@ QFixed QFontEngine::averageCharWidth() const
     QGlyphLayout glyphs[8];
     int nglyphs = 7;
     QChar x((ushort)'x');
-    stringToCMap(&x, 1, glyphs, &nglyphs, 0);
+    stringToCMap(&x, 1, glyphs, &nglyphs, QTextEngine::GlyphIndicesOnly);
 
     glyph_metrics_t bb = const_cast<QFontEngine *>(this)->boundingBox(glyphs[0].glyph);
     return bb.xoff;
@@ -1368,9 +1368,9 @@ bool QFontEngineMulti::canRender(const QChar *string, int len)
 
     QVarLengthArray<QGlyphLayout, 256> glyphs(len);
     int nglyphs = len;
-    if (stringToCMap(string, len, glyphs.data(), &nglyphs, 0) == false) {
+    if (stringToCMap(string, len, glyphs.data(), &nglyphs, QTextEngine::GlyphIndicesOnly) == false) {
         glyphs.resize(nglyphs);
-        stringToCMap(string, len, glyphs.data(), &nglyphs, 0);
+        stringToCMap(string, len, glyphs.data(), &nglyphs, QTextEngine::GlyphIndicesOnly);
     }
 
     bool allExist = true;
