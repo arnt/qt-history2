@@ -2979,7 +2979,8 @@ QRegion QWidget::childrenRegion() const
     the current size is smaller.
 
     The minimum size set by this function will override the minimum size defined by QLayout.
-
+    In order to unset the minimum size, use QSize(0, 0).
+    
     \sa minimumWidth, minimumHeight, maximumSize, sizeIncrement
 */
 
