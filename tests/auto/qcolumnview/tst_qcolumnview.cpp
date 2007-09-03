@@ -788,7 +788,7 @@ void tst_QColumnView::resize()
     view.resize(200, 200);
 
     view.show();
-    QModelIndex home = model.index(QDir::homePath());
+    QModelIndex home = model.index(QDir::homePath()).parent();
     view.setCurrentIndex(home);
     QTest::qWait(ANIMATION_DELAY);
 
