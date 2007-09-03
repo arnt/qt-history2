@@ -490,7 +490,9 @@ void QFileDialog::setDirectory(const QString &directory)
     if (d->rootPath() == directory)
         return;
     QModelIndex idx = d->model->index(directory);
+#ifndef QT_NO_COMPLETER
     d->completer->setCompletionPrefix(directory);
+#endif
     QModelIndex root = d->model->setRootPath(directory);
     d->qFileDialogUi->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled);
     d->setRootIndex(root);
