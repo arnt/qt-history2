@@ -57,7 +57,7 @@ private slots:
     void moveCursor_data();
     void moveCursor();
     void selectAll();
-    void clicked() const;
+    void clicked();
     void selectedColumns();
     void setSelection();
     void setSelectionModel();
@@ -473,7 +473,7 @@ void tst_QColumnView::selectAll()
     QVERIFY(view.selectionModel()->selectedIndexes().count() == 0);
 }
 
-void tst_QColumnView::clicked() const
+void tst_QColumnView::clicked()
 {
     ColumnView view;
     QDirModel model;
@@ -627,9 +627,10 @@ void tst_QColumnView::moveGrip()
     view.show();
     QTest::qWait(ANIMATION_DELAY);
 
-    QObjectList list = view.createdColumns.last()->children();
+    int columnNum = view.createdColumns.count() - 2;
+    QVERIFY(columnNum >= 0);
+    QObjectList list = view.createdColumns[columnNum]->children();
     QColumnViewGrip *grip = 0;
-    int columnNum = view.createdColumns.count() - 1;
     for (int i = 0; i < list.count(); ++i) {
         if ((grip = qobject_cast<QColumnViewGrip *>(list[i]))) {
             break;
