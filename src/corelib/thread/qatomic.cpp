@@ -14,6 +14,7 @@
 /*!
     \class QAtomicInt
     \brief The QAtomicInt class provides platform-independent atomic operations on integers.
+    \since 4.4
 
     \ingroup thread
 
@@ -616,6 +617,7 @@
 /*!
     \class QAtomicPointer
     \brief The QAtomicPointer class is a template class that provides platform-independent atomic operations on pointers.
+    \since 4.4
 
     \ingroup thread
 
