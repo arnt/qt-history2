@@ -17,6 +17,7 @@
 #include <qdebug.h>
 #include <qitemdelegate.h>
 #include <qscrollbar.h>
+#include <private/qcolumnview_p.h>
 
 //TESTED_CLASS=QColumnView
 //TESTED_FILES=gui/itemviews/qcolumnview.h gui/itemviews/qcolumnview.cpp
@@ -80,9 +81,17 @@ protected slots:
     void setPreviewWidget();
 };
 
+class ColumnViewPrivate : public QColumnViewPrivate
+{
+public:
+    ColumnViewPrivate() : QColumnViewPrivate() {}
+};
+
 class ColumnView : public QColumnView {
 
 public:
+    ColumnView(QWidget *parent = 0) : QColumnView(*new ColumnViewPrivate, parent){}
+
     QList<QPointer<QAbstractItemView> > createdColumns;
     void ScrollContentsBy(int x, int y) {scrollContentsBy(x,y); }
     int HorizontalOffset() const { return horizontalOffset(); }
@@ -486,7 +495,7 @@ void tst_QColumnView::clicked() const
     QSignalSpy spy(&view, SIGNAL(clicked(const QModelIndex &)));
 
     // find the column to click on that contains child
-    QRect rect = view.visualRect(parent);
+    QRect rect = view.visualRect(home);
     QVERIFY(!rect.isNull());
     TRY_VERIFY(view.isVisible());
     QPoint globalPoint = view.mapToGlobal(rect.center());
@@ -501,7 +510,7 @@ void tst_QColumnView::clicked() const
     qApp->processEvents();
     for (int i = 0; i < view.createdColumns.count(); ++i) {
         QAbstractItemView *column = view.createdColumns.at(i);
-        if (column && column->selectionModel() && (column->rootIndex() == home.parent()))
+        if (column && column->selectionModel() && (column->rootIndex() == home))
                 QVERIFY(column->selectionModel()->selectedIndexes().isEmpty());
     }
 }
@@ -618,10 +627,10 @@ void tst_QColumnView::moveGrip()
     view.show();
     QTest::qWait(ANIMATION_DELAY);
 
-    QObjectList list = view.children();
+    QObjectList list = view.createdColumns.last()->children();
     QColumnViewGrip *grip = 0;
+    int columnNum = view.createdColumns.count() - 1;
     for (int i = 0; i < list.count(); ++i) {
-        list += (list[i]->children());
         if ((grip = qobject_cast<QColumnViewGrip *>(list[i]))) {
             break;
         }
@@ -631,9 +640,9 @@ void tst_QColumnView::moveGrip()
 
     QAbstractItemView *column = qobject_cast<QAbstractItemView *>(grip->parent());
     int oldX = column->width();
-    QCOMPARE(view.columnWidths()[0], oldX);
+    QCOMPARE(view.columnWidths()[columnNum], oldX);
     grip->moveGrip(10);
-    QCOMPARE(view.columnWidths()[0], (oldX + (reverse ? -10 : 10)));
+    QCOMPARE(view.columnWidths()[columnNum], (oldX + (reverse ? -10 : 10)));
 }
 
 void tst_QColumnView::doubleClick()
@@ -794,11 +803,10 @@ void tst_QColumnView::changeSameColumn()
     ColumnView view;
     QDirModel model;
     view.setModel(&model);
+    QModelIndex second;
+
     QModelIndex home = model.index(QDir::homePath());
     view.setCurrentIndex(home);
-
-    QList<QPointer<QAbstractItemView> > old = view.createdColumns;
-    QModelIndex second;
     for (int i = 0; i < model.rowCount(home.parent()); ++i) {
         QModelIndex idx = model.index(i, 0, home.parent());
         if (model.hasChildren(idx) && idx != home) {
@@ -806,10 +814,21 @@ void tst_QColumnView::changeSameColumn()
             break;
         }
     }
+    if (!second.isValid()) {
+        home = model.index(QDir::tempPath());
+        view.setCurrentIndex(home);
+        for (int i = 0; i < model.rowCount(home.parent()); ++i) {
+            QModelIndex idx = model.index(i, 0, home.parent());
+            if (model.hasChildren(idx) && idx != home) {
+                second = idx;
+                break;
+            }
+        }
+    }
     QVERIFY(second.isValid());
-    //qDebug() << view.currentIndex().data().toString();;
+
+    QList<QPointer<QAbstractItemView> > old = view.createdColumns;
     view.setCurrentIndex(second);
-    //qDebug() << view.currentIndex().data().toString();;
 
     QCOMPARE(old, view.createdColumns);
 }
