@@ -82,6 +82,10 @@ private slots:
     void appendChildFromToDocument() const;
     void iterateCDATA() const;
     void appendDocumentNode() const;
+    void germanUmlautToByteArray() const;
+    void germanUmlautToFile() const;
+
+    void cleanupTestCase() const;
 
 private:
     static QDomDocument generateRequest();
@@ -1630,6 +1634,89 @@ void tst_QDom::appendDocumentNode() const
     elem.appendChild(xml.firstChild());
     QCOMPARE(doc.childNodes().count(), 1);
     QCOMPARE(doc.toString(0), expected);
+}
+
+static const QChar umlautName[] =
+{
+    'a', 0xfc, 'b'
+};
+
+/*!
+  \internal
+ 
+  Write a german umlaut to a QByteArray, via a QTextStream.
+ */
+void tst_QDom::germanUmlautToByteArray() const
+{
+    QCOMPARE(sizeof(umlautName) /  sizeof(QChar), unsigned(3));
+    const QString name(umlautName, 3);
+
+    QDomDocument d;
+    d.appendChild(d.createElement(name));
+    QByteArray data;
+    QBuffer buffer(&data);
+    QVERIFY(buffer.open(QIODevice::WriteOnly));
+    QTextStream ts(&buffer);
+    ts.setCodec("UTF-8");
+    ts << d.toString();
+    buffer.close();
+    
+    QByteArray baseline("<a");
+
+    /* http://www.fileformat.info/info/unicode/char/00FC/index.htm */
+    baseline += 0xC3;
+    baseline += 0xBC;
+    baseline += "b/>\n";
+
+    QCOMPARE(data, baseline);
+}
+
+/*!
+  \internal
+ 
+  Write a german umlaut to a QFile, via a QTextStream.
+ */
+void tst_QDom::germanUmlautToFile() const
+{
+    /* http://www.fileformat.info/info/unicode/char/00FC/index.htm */
+    QString name(QLatin1String("german"));
+    name += QChar(0xFC);
+    name += QLatin1String("umlaut");
+    QCOMPARE(name.length(), 13);
+
+    QDomDocument d("test");
+    d.appendChild(d.createElement(name));
+    QFile file("germanUmlautToFile.xml");
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    QTextStream ts(&file);
+    ts.setCodec("UTF-8");
+    ts << d.toString();
+    file.close();
+
+    QFile inFile("germanUmlautToFile.xml");
+    QVERIFY(inFile.open(QIODevice::ReadOnly));
+
+    QString baseline(QLatin1String("<!DOCTYPE test>\n<german"));
+    baseline += QChar(0xFC);
+    baseline += QLatin1String("umlaut/>\n");
+
+    const QByteArray in(inFile.readAll());
+    /* Check that it was wwritten out correctly. */
+    QCOMPARE(in.length(), 34);
+    QCOMPARE(in, baseline.toUtf8());
+    inFile.close();
+
+    /* Check that we read it in correctly with QDomDocument::setContent(). */
+    QVERIFY(inFile.open(QIODevice::ReadOnly));
+    QDomDocument dd;
+    QVERIFY(dd.setContent(&inFile));
+
+    QCOMPARE(dd.toString(), baseline);
+}
+
+void tst_QDom::cleanupTestCase() const
+{
+    QVERIFY(QFile::remove("germanUmlautToFile.xml"));
 }
 
 QTEST_MAIN(tst_QDom)
