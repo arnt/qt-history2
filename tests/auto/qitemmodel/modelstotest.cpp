@@ -227,16 +227,17 @@ QModelIndex ModelsToTest::populateTestArea(QAbstractItemModel *model)
             model->insertRows(0, 26 + i, parent);
             model->insertColumns(0, 26 + i, parent);
             // Fill in some values to make it easier to debug
+            /*
             for (int x = 0; x < 26 + i; ++x) {
                 QString xval = QString::number(x);
                 for (int y = 0; y < 26 + i; ++y) {
                     QString val = xval + QString::number(y) + QString::number(i);
                     QModelIndex index = model->index(x, y, parent);
                     model->setData(index, val);
-                    if (x % 2 == 0)
-                        model->setData(index, blue, Qt::TextColorRole);
+                    model->setData(index, blue, Qt::TextColorRole);
                 }
             }
+            */
         }
         return model->index(0,0);
     }
@@ -251,16 +252,17 @@ QModelIndex ModelsToTest::populateTestArea(QAbstractItemModel *model)
             realModel->insertRows(0, 26+i, parent);
             realModel->insertColumns(0, 26+i, parent);
             // Fill in some values to make it easier to debug
+            /*
             for (int x = 0; x < 26+i; ++x) {
                 QString xval = QString::number(x);
-                for (int y = 0; y < 26+i; ++y) {
+                for (int y = 0; y < 26 + i; ++y) {
                     QString val = xval + QString::number(y) + QString::number(i);
                     QModelIndex index = realModel->index(x, y, parent);
                     realModel->setData(index, val);
-                    if (x % 2 == 0)
-                        realModel->setData(index, blue, Qt::TextColorRole);
+                    realModel->setData(index, blue, Qt::TextColorRole);
                 }
             }
+            */
         }
         QModelIndex returnIndex = model->index(0,0);
         Q_ASSERT(returnIndex.isValid());
