@@ -219,7 +219,7 @@ inline bool QBasicAtomicInt::testAndSetRelease(int expectedValue, int newValue)
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetAcquire(T *expectedValue, T *newValue)
 {
-#ifndef __LP64__
+#ifdef __LP64__
     _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (quint64)expectedValue, FENCE);
     T *ret = (T *)_Asm_cmpxchg((_Asm_sz)_SZ_D, (_Asm_sem)_SEM_ACQ,
                                &_q_value, (quint64)newValue, (_Asm_ldhint)_LDHINT_NONE);
@@ -234,7 +234,7 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetAcquire(T *expectedValu
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValue, T *newValue)
 {
-#ifndef __LP64__
+#ifdef __LP64__
     _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (quint64)expectedValue, FENCE);
     T *ret = (T *)_Asm_cmpxchg((_Asm_sz)_SZ_D, (_Asm_sem)_SEM_REL,
                                &_q_value, (quint64)newValue, (_Asm_ldhint)_LDHINT_NONE);
