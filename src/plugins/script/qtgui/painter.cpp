@@ -866,7 +866,7 @@ static QScriptValue setRenderHint(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue setRenderHints(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, setRenderHints);
-    self->setRenderHints(static_cast<QPainter::RenderHints>(ctx->argument(0).toInt32()),
+    self->setRenderHints(QPainter::RenderHints(ctx->argument(0).toInt32()),
                          ctx->argument(1).toBoolean());
     return eng->undefinedValue();
 }

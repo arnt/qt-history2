@@ -222,7 +222,7 @@ BEGIN_DECLARE_METHOD(QGraphicsItem, parentItem) {
 } END_DECLARE_METHOD
 
 BEGIN_DECLARE_METHOD(QGraphicsItem, setAcceptedMouseButtons) {
-    self->setAcceptedMouseButtons(static_cast<Qt::MouseButtons>(ctx->argument(0).toInt32()));
+    self->setAcceptedMouseButtons(Qt::MouseButtons(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 } END_DECLARE_METHOD
 
@@ -241,7 +241,7 @@ BEGIN_DECLARE_METHOD(QGraphicsItem, setFlag) {
 } END_DECLARE_METHOD
 
 BEGIN_DECLARE_METHOD(QGraphicsItem, setFlags) {
-    self->setFlags(static_cast<QGraphicsItem::GraphicsItemFlags>(ctx->argument(0).toInt32()));
+    self->setFlags(QGraphicsItem::GraphicsItemFlags(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 } END_DECLARE_METHOD
 

@@ -273,7 +273,7 @@ static QScriptValue invalidate(QScriptContext *ctx, QScriptEngine *eng)
                          ctx->argument(1).toNumber(),
                          ctx->argument(2).toNumber(),
                          ctx->argument(3).toNumber(),
-                         static_cast<QGraphicsScene::SceneLayers>(ctx->argument(4).toInt32()));
+                         QGraphicsScene::SceneLayers(ctx->argument(4).toInt32()));
     } else {
         self->invalidate(ctx->argument(0).toNumber(),
                          ctx->argument(1).toNumber(),

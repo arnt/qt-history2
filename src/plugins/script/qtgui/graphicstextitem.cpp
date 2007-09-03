@@ -140,7 +140,7 @@ static QScriptValue setTextCursor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue setTextInteractionFlags(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsTextItem, setTextInteractionFlags);
-    self->setTextInteractionFlags(static_cast<Qt::TextInteractionFlags>(ctx->argument(0).toInt32()));
+    self->setTextInteractionFlags(Qt::TextInteractionFlags(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
 

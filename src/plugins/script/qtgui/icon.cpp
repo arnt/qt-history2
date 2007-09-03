@@ -123,16 +123,16 @@ static QScriptValue paint(QScriptContext *ctx, QScriptEngine *eng)
     }
     QRect rect = qscriptvalue_cast<QRect>(ctx->argument(1));
     if (ctx->argumentCount() >= 5) {
-        Qt::Alignment alignment = static_cast<Qt::Alignment>(ctx->argument(2).toInt32());
+        Qt::Alignment alignment = Qt::Alignment(ctx->argument(2).toInt32());
         QIcon::Mode mode = static_cast<QIcon::Mode>(ctx->argument(3).toInt32());
         QIcon::State state = static_cast<QIcon::State>(ctx->argument(4).toInt32());
         self->paint(painter, rect, alignment, mode, state);
     } else if (ctx->argumentCount() == 4) {
-        Qt::Alignment alignment = static_cast<Qt::Alignment>(ctx->argument(2).toInt32());
+        Qt::Alignment alignment = Qt::Alignment(ctx->argument(2).toInt32());
         QIcon::Mode mode = static_cast<QIcon::Mode>(ctx->argument(3).toInt32());
         self->paint(painter, rect, alignment, mode);
     } else if (ctx->argumentCount() == 3) {
-        Qt::Alignment alignment = static_cast<Qt::Alignment>(ctx->argument(2).toInt32());
+        Qt::Alignment alignment = Qt::Alignment(ctx->argument(2).toInt32());
         self->paint(painter, rect, alignment);
     } else {
         self->paint(painter, rect);
