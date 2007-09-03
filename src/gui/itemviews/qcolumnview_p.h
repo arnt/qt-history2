@@ -103,7 +103,7 @@ private:
     QWidget *previewWidget;
 };
 
-class QColumnViewPrivate : public QAbstractItemViewPrivate
+class Q_AUTOTEST_EXPORT QColumnViewPrivate : public QAbstractItemViewPrivate
 {
     Q_DECLARE_PUBLIC(QColumnView)
 
