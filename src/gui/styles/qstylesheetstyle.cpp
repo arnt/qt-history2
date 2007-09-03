@@ -2097,7 +2097,7 @@ static int extendedPseudoClass(QWidget *w)
         pc |= (combo->isEditable() ? PseudoClass_Editable : PseudoClass_ReadOnly);
     } else
 #endif
-#ifndef QT_NO_LINEDIT
+#ifndef QT_NO_LINEEDIT
     if (QLineEdit *edit = qobject_cast<QLineEdit *>(w)) {
         pc |= (edit->isReadOnly() ? PseudoClass_ReadOnly : PseudoClass_Editable);
     } else
