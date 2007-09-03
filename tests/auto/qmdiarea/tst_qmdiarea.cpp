@@ -1457,6 +1457,7 @@ void tst_QMdiArea::tileSubWindows()
 
     QCOMPARE(workspace.size(), QSize(150, 150));
     workspace.tileSubWindows();
+    workspace.setActiveSubWindow(0);
     int frameWidth = 0;
     if (workspace.style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, &workspace))
         frameWidth = workspace.style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
