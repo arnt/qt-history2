@@ -469,8 +469,6 @@ void QColumnView::setSelectionModel(QItemSelectionModel * newSelectionModel)
     Q_D(const QColumnView);
     for (int i = 0; i < d->columns.size(); ++i) {
         if (d->columns.at(i)->selectionModel() == selectionModel()) {
-            if (d->columns.at(i)->selectionModel() != selectionModel())
-                d->columns.at(i)->selectionModel()->deleteLater();
             d->columns.at(i)->setSelectionModel(newSelectionModel);
             break;
         }
