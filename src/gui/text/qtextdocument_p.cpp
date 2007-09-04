@@ -1005,6 +1005,9 @@ void QTextDocumentPrivate::emitRedoAvailable(bool available)
 
 void QTextDocumentPrivate::enableUndoRedo(bool enable)
 {
+    if (enable && maximumBlockCount > 0)
+        return;
+
     if (!enable) {
         undoState = 0;
         truncateUndoStack();
