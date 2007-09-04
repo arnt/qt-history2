@@ -549,6 +549,7 @@ qint64 QFSFileEnginePrivate::readFdFh(char *data, qint64 len)
     if (len) {
         int result;
         qint64 read = 0;
+        errno = 0;
 
         // Read in blocks of 4k to avoid platform limitations (Windows
         // commonly bails out if you read or write too large blocks at once).
@@ -565,7 +566,7 @@ qint64 QFSFileEnginePrivate::readFdFh(char *data, qint64 len)
         // if an error occurred.
         if (read > 0) {
             ret += read;
-        } else {
+        } else if (read < 0) {
             ret = -1;
             q->setError(QFile::ReadError, qt_error_string(errno));
         }

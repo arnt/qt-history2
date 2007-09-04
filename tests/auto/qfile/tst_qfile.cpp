@@ -133,6 +133,9 @@ private slots:
     void standarderror();
     void handle();
 
+    void readEof_data();
+    void readEof();
+
     // --- Task related tests below this line
     void task167217();
     
@@ -2017,6 +2020,56 @@ void tst_QFile::handle()
     QCOMPARE(int(file3.handle()), fd);
     QT_CLOSE(fd);
 #endif
+}
+
+void tst_QFile::readEof_data()
+{
+    QTest::addColumn<int>("imode");
+    QTest::newRow("buffered") << 0;
+    QTest::newRow("unbuffered") << int(QIODevice::Unbuffered);
+}
+
+void tst_QFile::readEof()
+{
+    QFETCH(int, imode);
+    QIODevice::OpenMode mode = QIODevice::OpenMode(imode);
+
+    {
+        QFile file("testfile.txt");
+        QVERIFY(file.open(QIODevice::ReadOnly | mode));
+        QVERIFY(file.seek(245));
+        QVERIFY(file.atEnd());
+
+        char buf[10];
+        int ret = file.read(buf, sizeof buf);
+        QCOMPARE(ret, 0);
+        QVERIFY(file.error() == QFile::NoError);
+        QVERIFY(file.atEnd());
+    }
+
+    {
+        QFile file("testfile.txt");
+        QVERIFY(file.open(QIODevice::ReadOnly | mode));
+        QVERIFY(file.seek(245));
+        QVERIFY(file.atEnd());
+
+        QByteArray ret = file.read(10);
+        QVERIFY(ret.isEmpty());
+        QVERIFY(file.error() == QFile::NoError);
+        QVERIFY(file.atEnd());
+    }
+
+    {
+        QFile file("testfile.txt");
+        QVERIFY(file.open(QIODevice::ReadOnly | mode));
+        QVERIFY(file.seek(245));
+        QVERIFY(file.atEnd());
+
+        QByteArray ret = file.readLine();
+        QVERIFY(ret.isEmpty());
+        QVERIFY(file.error() == QFile::NoError);
+        QVERIFY(file.atEnd());
+    }
 }
 
 void tst_QFile::task167217()
