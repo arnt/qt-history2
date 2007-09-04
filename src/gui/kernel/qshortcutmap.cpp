@@ -102,6 +102,7 @@ public:
     int ambigCount;                             // Index of last enabled ambiguous dispatch
     QKeySequence::SequenceMatch currentState;
     QVector<QKeySequence> currentSequences;     // Sequence for the current state
+    QVector<QKeySequence> newEntries;
     QKeySequence prevSequence;                  // Sequence for the previous identical match
     QVector<const QShortcutEntry*> identicals;  // Last identical matches
 };
@@ -394,14 +395,13 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     if (!d->sequences.count())
         return QKeySequence::NoMatch;
 
-    static QVector<QKeySequence> newEntries;
-    createNewSequences(e, newEntries);
+    createNewSequences(e, d->newEntries);
 #if defined(DEBUG_QSHORTCUTMAP)
-    qDebug() << "Possible shortcut key sequences:" << newEntries;
+    qDebug() << "Possible shortcut key sequences:" << d->newEntries;
 #endif
 
     // Should never happen
-    if (newEntries == d->currentSequences) {
+    if (d->newEntries == d->currentSequences) {
         Q_ASSERT_X(e->key() != Qt::Key_unknown || e->text().length(),
                    "QShortcutMap::find", "New sequence to find identical to previous");
         return QKeySequence::NoMatch;
@@ -414,8 +414,8 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     bool identicalDisabledFound = false;
     QVector<QKeySequence> okEntries;
     int result = QKeySequence::NoMatch;
-    for (int i = newEntries.count()-1; i >= 0 ; --i) {
-        QShortcutEntry entry(newEntries.at(i)); // needed for searching
+    for (int i = d->newEntries.count()-1; i >= 0 ; --i) {
+        QShortcutEntry entry(d->newEntries.at(i)); // needed for searching
         QList<QShortcutEntry>::ConstIterator itEnd = d->sequences.constEnd();
         QList<QShortcutEntry>::ConstIterator it =
              qLowerBound(d->sequences.constBegin(), itEnd, entry);
@@ -453,13 +453,13 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         if (oneKSResult > result) {
             okEntries.clear();
 #if defined(DEBUG_QSHORTCUTMAP)
-            qDebug() << "Found better match (" << newEntries << "), clearing key sequence list";
+            qDebug() << "Found better match (" << d->newEntries << "), clearing key sequence list";
 #endif
         }
         if (oneKSResult && oneKSResult >= result) {
-            okEntries << newEntries.at(i);
+            okEntries << d->newEntries.at(i);
 #if defined(DEBUG_QSHORTCUTMAP)
-            qDebug() << "Added ok key sequence" << newEntries;
+            qDebug() << "Added ok key sequence" << d->newEntries;
 #endif
         }
     }
@@ -492,6 +492,7 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
 void QShortcutMap::clearSequence(QVector<QKeySequence> &ksl)
 {
     ksl.clear();
+    d_func()->newEntries.clear();
 }
 
 /*! \internal
