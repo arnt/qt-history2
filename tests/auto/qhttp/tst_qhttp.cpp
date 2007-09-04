@@ -12,11 +12,13 @@
 #include <qbuffer.h>
 #include <qcoreapplication.h>
 #include <qfile.h>
+#include <qhostinfo.h>
 #include <qhttp.h>
 #include <qlist.h>
 #include <qpointer.h>
 #include <qtcpsocket.h>
 #include <qtcpserver.h>
+#include <qauthenticator.h>
 #ifdef TEST_QNETWORK_PROXY
 # include <QNetworkProxy>
 #endif
@@ -51,6 +53,7 @@ private slots:
     void proxy();
     void proxy2();
     void proxy3();
+    void postAuthNtlm();
 
     void reconnect();
     void setSocket();
@@ -71,6 +74,8 @@ protected slots:
 
     void reconnect_state(int state);
     void proxy2_slot();
+
+    void proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth);
 
 private:
     QHttp *newHttp();
@@ -977,6 +982,39 @@ void tst_QHttp::caseInsensitiveKeys()
     header.addValue("Content-Length", "215");
     qDebug() << header.toString();
 }
+
+void tst_QHttp::proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth)
+{
+    auth->setUser("Administrator");
+    auth->setPassword("--the-password-goes-here--"); // write the password here
+}
+
+void tst_QHttp::postAuthNtlm()
+{
+    // This test is not stable enough to be run at all times.
+    // The proxy server this tries to connect to (the Win2003 Server "macondo") is
+    // constantly crashing. It does not do the actual download either -- it's only
+    // there for the NTLM negotiation testing.
+    //
+    // This was added in response to bug 176822
+    QSKIP("This test is disabled - read comments in the source code", SkipAll);
+
+    QHostInfo info = QHostInfo::fromName(QHostInfo::localHostName());
+    QByteArray postData("Hello World");
+    QHttp http;
+
+    http.setHost("ares.troll.no");
+    http.setProxy("10.3.3.250", 8080);
+    http.post("/", postData);
+
+    connect(&http, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+            SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
+
+    QObject::connect(&http, SIGNAL(done(bool)), &QTestEventLoop::instance(), SLOT(exitLoop()));
+    QTestEventLoop::instance().enterLoop(3);
+    QObject::disconnect(&http, SIGNAL(done(bool)), &QTestEventLoop::instance(), SLOT(exitLoop()));
+    QVERIFY(!QTestEventLoop::instance().timeout());
+};
 
 QTEST_MAIN(tst_QHttp)
 #include "tst_qhttp.moc"
