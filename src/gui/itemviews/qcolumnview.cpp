@@ -608,8 +608,6 @@ void QColumnViewPrivate::closeColumns(const QModelIndex &parent, bool build)
 void QColumnViewPrivate::_q_clicked(const QModelIndex &index)
 {
     Q_Q(QColumnView);
-    if (!index.isValid())
-        return;
     QModelIndex parent = index.parent();
     QAbstractItemView *columnClicked = 0;
     for (int column = 0; column < columns.count(); ++column) {
@@ -864,9 +862,6 @@ QList<int> QColumnView::columnWidths() const
 void QColumnView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     Q_D(QColumnView);
-    if (!model())
-        return;
-
     if (!current.isValid()) {
         QAbstractItemView::currentChanged(current, previous);
         return;
