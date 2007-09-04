@@ -667,7 +667,7 @@ void tst_QFiledialog::clearLineEdit()
     QListView* list = fd.findChild<QListView*>("listView");
     QVERIFY(list);
     QModelIndex root = list->rootIndex();
-    QVERIFH(root.isValid());
+    QVERIFY(root.isValid());
     QModelIndex subdir;
     TRY_VERIFY(list->model()->rowCount(root) > 0);
     for (int i = 0; i < list->model()->rowCount(root); ++i)
