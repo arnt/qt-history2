@@ -92,7 +92,7 @@ protected:
 private:
     Q_DISABLE_COPY(QLocalSocket)
 #ifdef Q_OS_WIN
-    Q_PRIVATE_SLOT(d_func(), void _q_activated(HANDLE hEvent));
+    Q_PRIVATE_SLOT(d_func(), void _q_notified());
 #else
     Q_PRIVATE_SLOT(d_func(), void _q_stateChanged(QAbstractSocket::SocketState));
     Q_PRIVATE_SLOT(d_func(), void _q_connectToSocket());

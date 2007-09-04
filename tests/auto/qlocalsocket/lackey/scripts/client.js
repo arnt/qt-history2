@@ -16,7 +16,7 @@ do {
     ++tries;
 } while ((socket.errorString() == "QLocalSocket::connectToName: Invalid name"
         || (socket.errorString() == "QlocalSocket::connectToName: ConnectionRefused"))
-        && tries < 1000);
+        && tries < 5000);
 socket.waitForConnected(), socket;
 //print("client: connected");
 socket.waitForReadyRead();

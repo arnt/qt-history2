@@ -16,6 +16,8 @@
 
 #include <qdebug.h>
 
+#define NOTIFYTIMEOUT 100
+
 void QLocalSocketPrivate::setErrorString(const QString &function)
 {
     Q_Q(QLocalSocket);
@@ -54,6 +56,7 @@ QLocalSocketPrivate::QLocalSocketPrivate() : QIODevicePrivate(),
        error(QLocalSocket::UnknownSocketError),
        handle(INVALID_HANDLE_VALUE),
        pipeWriter(0),
+       readyRead(false),
        state(QLocalSocket::UnconnectedState)
 {
 }
@@ -130,6 +133,7 @@ qint64 QLocalSocket::readData(char *data, qint64 maxSize)
 	d->setErrorString(QLatin1String("QLocalSocket::readData"));
         return 0;
     }
+    d->readyRead = false;
     return bytesRead;
 }
 
@@ -177,9 +181,15 @@ bool QLocalSocket::canReadLine() const
            && PeekNamedPipe(d->handle, &line, 100, &lpBytesRead,
                             &lpTotalBytesAvail,
                             &lpBytesLeftThisMessage)) {
-	for (uint i = 0; i < lpBytesRead; ++i)
-	    if (line[i] == '\n')
-                return true;
+	for (uint i = 0; i < lpBytesRead; ++i) {
+	    if (line[i] == '\n') {
+            	if (!d->readyRead) {
+  		    emit const_cast<QLocalSocket*>(this)->readyRead();
+  		    const_cast<QLocalSocketPrivate*>(d)->readyRead = true;
+		}
+		return true;
+	    }
+	}
     }
     return QIODevice::canReadLine();
 }
@@ -231,13 +241,22 @@ bool QLocalSocket::setSocketDescriptor(int socketDescriptor,
     d->handle = (int*)socketDescriptor;
     d->state = socketState;
     emit stateChanged(d->state);
-    d->handleNotifier.setHandle(d->handle);
+    d->notifier.start(NOTIFYTIMEOUT);
     return true;
 }
 
-void QLocalSocketPrivate::_q_activated(HANDLE hEvent)
+void QLocalSocketPrivate::_q_notified()
 {
-    qDebug() << "socket: I got an event? why?" << hEvent;
+    Q_Q(QLocalSocket);
+    if (q->bytesAvailable() != 0) {
+        if (!readyRead) {
+	    readyRead = true;
+	    q->emit readyRead();
+	}
+    }
+
+    if (q->isValid())
+	notifier.start(NOTIFYTIMEOUT);
 }
 
 int QLocalSocket::socketDescriptor() const
@@ -249,8 +268,7 @@ int QLocalSocket::socketDescriptor() const
 void QLocalSocketPrivate::init()
 {
     Q_Q(QLocalSocket);
-    QObject::connect(&handleNotifier, SIGNAL(activated(HANDLE)),
-		     q, SLOT(_q_activated(HANDLE)));
+    QObject::connect(&notifier, SIGNAL(timeout()), q, SLOT(_q_notified()));
 }
 
 qint64 QLocalSocket::readBufferSize() const
@@ -292,10 +310,16 @@ bool QLocalSocket::isValid() const
 
 bool QLocalSocket::waitForReadyRead(int msecs)
 {
+    Q_D(QLocalSocket);
     QIncrementalSleepTimer timer(msecs);
     forever {
-        if (bytesAvailable() != 0)
-            return true;
+        if (bytesAvailable() != 0) {
+            if (!d->readyRead) {
+	    	d->readyRead = true;
+		emit readyRead();
+	    }
+	    return true;
+	}
 
         Sleep(timer.nextSleepTime());
         if (timer.hasTimedOut())
