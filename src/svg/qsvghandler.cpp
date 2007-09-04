@@ -934,14 +934,14 @@ static void parsePen(QSvgNode *node,
                     if (dummy)
                         group = static_cast<QSvgStructureNode*>(dummy);
                     if (group) {
-                        QSvgStyleProperty *style =
-                            group->scopeStyle(id);
-                        if (style->type() == QSvgStyleProperty::GRADIENT) {
-                            QBrush b(*((QSvgGradientStyle*)style)->qgradient());
-                            pen.setBrush(b);
-                        } else if (style->type() == QSvgStyleProperty::GRADIENT) {
-                            pen.setColor(
-                                ((QSvgSolidColorStyle*)style)->qcolor());
+                        if (QSvgStyleProperty *style = group->scopeStyle(id)) {
+                            if (style->type() == QSvgStyleProperty::GRADIENT) {
+                                QBrush b(*((QSvgGradientStyle*)style)->qgradient());
+                                pen.setBrush(b);
+                            } else if (style->type() == QSvgStyleProperty::SOLID_COLOR) {
+                                pen.setColor(
+                                    ((QSvgSolidColorStyle*)style)->qcolor());
+                            }
                         }
                     } else {
                         qDebug()<<"QSvgHandler::parsePen no parent group?";

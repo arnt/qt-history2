@@ -27,6 +27,7 @@ public:
 
 private slots:
     void getSetCheck();
+    void inexistentUrl();
 };
 
 tst_QSvgRenderer::tst_QSvgRenderer()
@@ -51,6 +52,16 @@ void tst_QSvgRenderer::getSetCheck()
     QCOMPARE(0, obj1.framesPerSecond()); // Can't have a negative framerate
     obj1.setFramesPerSecond(INT_MAX);
     QCOMPARE(INT_MAX, obj1.framesPerSecond());
+}
+
+void tst_QSvgRenderer::inexistentUrl()
+{
+    const char *src = "<svg><g><path d=\"\" style=\"stroke:url(#inexistent)\"/></g></svg>";
+
+    QByteArray data(src);
+    QSvgRenderer renderer(data);
+
+    QVERIFY(renderer.isValid());
 }
 
 QTEST_MAIN(tst_QSvgRenderer)
