@@ -34,6 +34,7 @@
 #include <QtGui/QGroupBox>
 #include <QtGui/QStyle>
 #include <QtGui/QApplication>
+#include <QtGui/QToolBar>
 
 // #define SIMULATE_JAMBI
 #ifdef SIMULATE_JAMBI
@@ -399,6 +400,8 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("acceptDrops"));
         createFakeProperty(QLatin1String("dragEnabled"));
         createFakeProperty(QLatin1String("windowModality"));
+        if (qobject_cast<const QToolBar *>(d->m_object)) // prevent toolbars from being dragged off
+            createFakeProperty(QLatin1String("floatable"), QVariant(true));
 
         if (d->m_canHaveLayoutAttributes) {
             static const QString layoutGroup = QLatin1String("Layout");

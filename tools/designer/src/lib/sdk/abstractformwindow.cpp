@@ -19,6 +19,8 @@
 #include <QtGui/QToolBox>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMainWindow>
+#include <QtGui/QDockWidget>
+#include <QtGui/QToolBar>
 
 #include <QtCore/qdebug.h>
 
@@ -161,13 +163,33 @@ QDesignerFormEditorInterface *QDesignerFormWindowInterface::core() const
 
     Returns the form window interface for the given \a widget.
 */
+
+static inline bool stopFindAtTopLevel(const QWidget *w)
+{
+    // Do we need to go beyond top levels when looking for the form window?
+    // 1) A dialog has a window attribute at the moment it is created
+    //    before it is properly embedded into a form window. The property
+    //    sheet queries the layout attributes precisely at this moment.
+    // 2) In the case of floating toolbars, we also need to go beyond the top level window.
+    if (w->inherits("QDesignerDialog"))
+        return false;
+    if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(w))
+        if (dw->isFloating())
+            return false;
+    if (const QToolBar *tb = qobject_cast<const QToolBar *>(w))
+        if (tb->isFloating())
+            return false;
+    return true;
+}
+
 QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidget *w)
 {
     while (w != 0) {
         if (QDesignerFormWindowInterface *fw = qobject_cast<QDesignerFormWindowInterface*>(w)) {
             return fw;
-        } else if (w->isWindow() && !w->inherits("QDesignerDialog")) {
-            break;
+        } else {
+            if (w->isWindow() && stopFindAtTopLevel(w))
+                break;
         }
 
         w = w->parentWidget();
