@@ -53,6 +53,7 @@ private slots:
     void indexAt();
     void scrollContentsBy_data();
     void scrollContentsBy();
+    void scrollTo_data();
     void scrollTo();
     void moveCursor_data();
     void moveCursor();
@@ -76,9 +77,25 @@ private slots:
     void rowDelegate();
     void resize();
     void changeSameColumn();
-
+    void parentCurrentIndex_data();
+    void parentCurrentIndex();
 protected slots:
     void setPreviewWidget();
+};
+
+class DirModel : public QDirModel
+{
+public:
+    Qt::ItemFlags flags(const QModelIndex &index) const
+    {
+        if (index.row() % 2 == 0) {
+            Qt::ItemFlags f = QDirModel::flags(index);
+            f ^= Qt::ItemIsEnabled;
+            return f;
+        }
+        return QDirModel::flags(index);
+    }
+
 };
 
 class ColumnViewPrivate : public QColumnViewPrivate
@@ -95,6 +112,7 @@ public:
     QList<QPointer<QAbstractItemView> > createdColumns;
     void ScrollContentsBy(int x, int y) {scrollContentsBy(x,y); }
     int HorizontalOffset() const { return horizontalOffset(); }
+    void emitClicked() { emit clicked(QModelIndex()); }
 
     enum PublicCursorAction {
         MoveUp = QAbstractItemView::MoveUp,
@@ -155,7 +173,7 @@ void tst_QColumnView::rootIndex()
     // no model
     view.setRootIndex(QModelIndex());
 
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
 
     QModelIndex drive = model.index(0, 0);
@@ -216,7 +234,7 @@ void tst_QColumnView::rootIndex()
 void tst_QColumnView::grips()
 {
     QColumnView view;
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     QCOMPARE(view.resizeGripsVisible(), true);
 
@@ -252,7 +270,7 @@ void tst_QColumnView::isIndexHidden()
     ColumnView view;
     QModelIndex idx;
     QCOMPARE(view.IsIndexHidden(idx), false);
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     QCOMPARE(view.IsIndexHidden(idx), false);
 }
@@ -261,7 +279,7 @@ void tst_QColumnView::indexAt()
 {
     QColumnView view;
     QCOMPARE(view.indexAt(QPoint(0,0)), QModelIndex());
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
 
     QModelIndex home = model.index(QDir::homePath());
@@ -308,7 +326,6 @@ void tst_QColumnView::scrollContentsBy_data()
     QTest::newRow("reverse") << true;
 }
 
-
 void tst_QColumnView::scrollContentsBy()
 {
     QFETCH(bool, reverse);
@@ -320,15 +337,25 @@ void tst_QColumnView::scrollContentsBy()
     // ### view.children?
 }
 
+void tst_QColumnView::scrollTo_data()
+{
+    QTest::addColumn<bool>("reverse");
+    QTest::newRow("normal") << false;
+    QTest::newRow("reverse") << true;
+}
+
 void tst_QColumnView::scrollTo()
 {
+    QFETCH(bool, reverse);
+    if (reverse)
+        qApp->setLayoutDirection(Qt::RightToLeft);
     ColumnView view;
     view.resize(200, 200);
     view.show();
     view.scrollTo(QModelIndex(), QAbstractItemView::EnsureVisible);
     QCOMPARE(view.HorizontalOffset(), 0);
 
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     view.scrollTo(QModelIndex(), QAbstractItemView::EnsureVisible);
 
@@ -403,7 +430,7 @@ void tst_QColumnView::moveCursor()
     // don't do anything
     QCOMPARE(view.MoveCursor(ColumnView::MoveEnd, Qt::NoModifier), QModelIndex());
 
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     QModelIndex home = model.index(QDir::homePath());
     QModelIndex ci = view.currentIndex();
@@ -449,7 +476,7 @@ void tst_QColumnView::selectAll()
     ColumnView view;
     view.selectAll();
 
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     view.selectAll();
     QVERIFY(view.selectionModel()->selectedIndexes().count() >= 0);
@@ -476,7 +503,8 @@ void tst_QColumnView::selectAll()
 void tst_QColumnView::clicked()
 {
     ColumnView view;
-    QDirModel model;
+
+    DirModel model;
     view.setModel(&model);
     view.resize(800,300);
     view.show();
@@ -518,7 +546,7 @@ void tst_QColumnView::clicked()
 void tst_QColumnView::selectedColumns()
 {
     ColumnView view;
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     view.resize(800,300);
     view.show();
@@ -549,7 +577,7 @@ void tst_QColumnView::setSelection()
 void tst_QColumnView::setSelectionModel()
 {
     ColumnView view;
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     view.show();
 
@@ -577,7 +605,7 @@ void tst_QColumnView::visualRegionForSelection()
     QCOMPARE(QRegion(), view.visualRegionForSelection(emptyItemSelection));
 
     // a region that isn't empty
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
 
     QModelIndex home = model.index(QDir::homePath());
@@ -619,7 +647,7 @@ void tst_QColumnView::moveGrip()
     if (reverse)
         qApp->setLayoutDirection(Qt::RightToLeft);
     ColumnView view;
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     QModelIndex home = model.index(QDir::homePath());
     view.setCurrentIndex(home);
@@ -688,7 +716,7 @@ void tst_QColumnView::preview()
 {
     QColumnView view;
     QCOMPARE(view.previewWidget(), (QWidget*)0);
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     QCOMPARE(view.previewWidget(), (QWidget*)0);
     QModelIndex home = model.index(QDir::homePath());
@@ -749,7 +777,7 @@ void tst_QColumnView::sizes()
     view.setColumnWidths(newSizes);
     QCOMPARE(view.columnWidths(), visibleSizes);
 
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     QModelIndex home = model.index(QDir::homePath());
     view.setCurrentIndex(home);
@@ -772,7 +800,7 @@ void tst_QColumnView::rowDelegate()
     QItemDelegate *d = new QItemDelegate;
     view.setItemDelegateForRow(3, d);
 
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     for (int i = 0; i < view.createdColumns.count(); ++i) {
         QAbstractItemView *column = view.createdColumns.at(i);
@@ -784,7 +812,7 @@ void tst_QColumnView::rowDelegate()
 void tst_QColumnView::resize()
 {
     ColumnView view;
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     view.resize(200, 200);
 
@@ -802,7 +830,7 @@ void tst_QColumnView::resize()
 void tst_QColumnView::changeSameColumn()
 {
     ColumnView view;
-    QDirModel model;
+    DirModel model;
     view.setModel(&model);
     QModelIndex second;
 
@@ -832,6 +860,61 @@ void tst_QColumnView::changeSameColumn()
     view.setCurrentIndex(second);
 
     QCOMPARE(old, view.createdColumns);
+}
+
+void tst_QColumnView::parentCurrentIndex_data()
+{
+    QTest::addColumn<int>("firstRow");
+    QTest::addColumn<int>("secondRow");
+    QTest::newRow("down") << 0 << 1;
+    QTest::newRow("up") << 1 << 0;
+}
+
+void tst_QColumnView::parentCurrentIndex()
+{
+    QFETCH(int, firstRow);
+    QFETCH(int, secondRow);
+
+    ColumnView view;
+    QStandardItemModel model;
+    QStandardItem *parentItem = model.invisibleRootItem();
+    for (int i = 0; i < 4; ++i) {
+        QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
+        parentItem->appendRow(item);
+        QStandardItem *item2 = new QStandardItem(QString("item %0").arg(i));
+        parentItem->appendRow(item2);
+        item2->appendRow(new QStandardItem(QString("item %0").arg(i)));
+        parentItem = item;
+    }
+    view.setModel(&model);
+    view.show();
+
+    QModelIndex first;
+    QModelIndex second;
+    QModelIndex third;
+    first = model.index(0, 0, QModelIndex());
+    second = model.index(firstRow, 0, first);
+    third = model.index(0, 0, second);
+    QVERIFY(first.isValid());
+    QVERIFY(second.isValid());
+    QVERIFY(third.isValid());
+    view.setCurrentIndex(third);
+    QTest::qWait(ANIMATION_DELAY);
+    QCOMPARE(view.createdColumns[0]->currentIndex(), first);
+    QCOMPARE(view.createdColumns[1]->currentIndex(), second);
+    QCOMPARE(view.createdColumns[2]->currentIndex(), third);
+
+    first = model.index(0, 0, QModelIndex());
+    second = model.index(secondRow, 0, first);
+    third = model.index(0, 0, second);
+    QVERIFY(first.isValid());
+    QVERIFY(second.isValid());
+    QVERIFY(third.isValid());
+    view.setCurrentIndex(third);
+    QTest::qWait(ANIMATION_DELAY * 2);
+    QCOMPARE(view.createdColumns[0]->currentIndex(), first);
+    QCOMPARE(view.createdColumns[1]->currentIndex(), second);
+    QCOMPARE(view.createdColumns[2]->currentIndex(), third);
 }
 
 QTEST_MAIN(tst_QColumnView)
