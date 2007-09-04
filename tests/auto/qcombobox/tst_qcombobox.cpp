@@ -1684,13 +1684,13 @@ void tst_QComboBox::flaggedItems()
     comboBox.setView(&listWidget);
     comboBox.show();
     comboBox.setFocus();
-    qApp->processEvents();
+    QTest::qWait(1000);
 
     if (editable)
         comboBox.lineEdit()->selectAll();
 
     foreach (Qt::Key key, keyMovementList) {
-        qApp->processEvents();
+        QTest::qWait(400);
         QTest::keyClick(&comboBox, key);
     }
 
