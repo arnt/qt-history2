@@ -334,7 +334,10 @@ void tst_QColumnView::scrollContentsBy()
     ColumnView view;
     view.ScrollContentsBy(-1, -1);
     view.ScrollContentsBy(0, 0);
-    // ### view.children?
+
+    DirModel model;
+    view.setModel(&model);
+    view.ScrollContentsBy(0, 0);
 }
 
 void tst_QColumnView::scrollTo_data()
@@ -360,6 +363,7 @@ void tst_QColumnView::scrollTo()
     view.scrollTo(QModelIndex(), QAbstractItemView::EnsureVisible);
 
     QModelIndex home = model.index(QDir::currentPath()).parent();
+    view.scrollTo(home, QAbstractItemView::EnsureVisible);
     QModelIndex homeFile = model.index(0, 0, home);
     view.setRootIndex(home);
 
@@ -820,9 +824,11 @@ void tst_QColumnView::resize()
     QModelIndex home = model.index(QDir::homePath()).parent();
     view.setCurrentIndex(home);
     QTest::qWait(ANIMATION_DELAY);
+    view.resize(200, 300);
+    QTest::qWait(ANIMATION_DELAY);
 
     QVERIFY(view.horizontalScrollBar()->maximum() != 0);
-    view.resize(view.horizontalScrollBar()->maximum() * 10, 200);
+    view.resize(view.horizontalScrollBar()->maximum() * 10, 300);
     QTest::qWait(ANIMATION_DELAY);
     QVERIFY(view.horizontalScrollBar()->maximum() <= 0);
 }

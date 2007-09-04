@@ -222,7 +222,7 @@ void QColumnView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QColumnView);
     Q_UNUSED(hint);
-    if (!model() || !index.isValid() || d->columns.isEmpty())
+    if (!index.isValid() || d->columns.isEmpty())
         return;
 
     if (d->currentAnimation.state() == QTimeLine::Running)
@@ -338,7 +338,7 @@ QModelIndex QColumnView::moveCursor(CursorAction cursorAction, Qt::KeyboardModif
         break;
 
     case MoveRight:
-        if (current.isValid() && model()->hasChildren(current))
+        if (model()->hasChildren(current))
             return model()->index(0, 0, current);
         else
             return current.sibling(current.row() + 1, current.column());
@@ -354,7 +354,7 @@ QModelIndex QColumnView::moveCursor(CursorAction cursorAction, Qt::KeyboardModif
 /*!
     \reimp
 */
-void QColumnView::resizeEvent( QResizeEvent *event )
+void QColumnView::resizeEvent(QResizeEvent *event)
 {
     Q_D(QColumnView);
     d->doLayout();
