@@ -44,7 +44,7 @@ template<typename T>
 class ControlElement : public T
 {
 public:
-    ControlElement(QMdiSubWindow *child) : T(0)
+    ControlElement(QMdiSubWindow *child) : T(child, 0)
     {
         Q_ASSERT(child);
         mdiChild = child;
