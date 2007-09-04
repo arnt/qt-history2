@@ -935,16 +935,16 @@ void tst_QCompleter::focusIn()
     lineEdit2->show();
 
     comboBox->setFocus();
-    qApp->processEvents();
+    QTest::qWait(1000);
     QVERIFY(completer.widget() == comboBox);
     lineEdit->setFocus();
-    qApp->processEvents();
+    QTest::qWait(1000);
     QVERIFY(completer.widget() == lineEdit);
     comboBox->setFocus();
-    qApp->processEvents();
+    QTest::qWait(1000);
     QVERIFY(completer.widget() == comboBox);
     lineEdit2->setFocus();
-    qApp->processEvents();
+    QTest::qWait(1000);
     QVERIFY(completer.widget() == comboBox);
 }
 
