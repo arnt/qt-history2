@@ -1003,7 +1003,7 @@ bool QIBaseResult::exec()
             return false;
 
         // Not all stored procedures necessarily return values.
-        if (d->queryType == isc_info_sql_stmt_exec_procedure && colCount() == 0)
+        if (d->queryType == isc_info_sql_stmt_exec_procedure && d->sqlda->sqld == 0)
             delDA(d->sqlda);
 
         if (d->sqlda)

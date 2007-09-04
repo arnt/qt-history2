@@ -127,6 +127,8 @@ private slots:
     void ibase_useCustomCharset(); // For task 134608
     void ibase_procWithoutReturnValues_data() { generic_data(); } // For task 165423
     void ibase_procWithoutReturnValues();
+    void ibase_procWithReturnValues_data() { generic_data(); } // For task 177530
+    void ibase_procWithReturnValues();
 
     void odbc_reopenDatabase_data() { generic_data(); }
     void odbc_reopenDatabase();
@@ -1797,11 +1799,47 @@ void tst_QSqlDatabase::ibase_procWithoutReturnValues()
     DBMS_SPECIFIC(db, "QIBASE");
 
     QSqlQuery q(db);
-    QString tableName = qTableName("qtest_procWithoutReturnValues");
-    q.exec(QString("drop procedure %1").arg(tableName));
-    QVERIFY2(q.exec(QString("CREATE PROCEDURE %1(str VARCHAR(10))\nAS BEGIN\nstr='test';\nEND;").arg(tableName)), q.lastError().text());
-    QVERIFY2(q.exec(QString("execute procedure %1('qtest')").arg(tableName)), q.lastError().text());
-    q.exec(QString("drop procedure %1").arg(tableName));
+    QString procName = qTableName("qtest_proc1");
+    q.exec(QString("drop procedure %1").arg(procName));
+    QVERIFY2(q.exec("CREATE PROCEDURE " + procName + " (str VARCHAR(10))\nAS BEGIN\nstr='test';\nEND;"), q.lastError().text());
+    QVERIFY2(q.exec(QString("execute procedure %1('qtest')").arg(procName)), q.lastError().text());
+    q.exec(QString("drop procedure %1").arg(procName));
+}
+
+void tst_QSqlDatabase::ibase_procWithReturnValues()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QIBASE")) {
+       QSKIP("InterBase specific test", SkipSingle);
+       return;
+    }
+
+    QString procName = qTableName("qtest_proc2");
+
+    QSqlQuery q(db);
+    q.exec(QString("drop procedure %1").arg(procName));
+    QVERIFY2(q.exec("CREATE PROCEDURE " + procName + " ("
+                        "\nABC INTEGER)"
+                        "\nRETURNS ("
+                        "\nRESULT INTEGER)"
+                        "\nAS"
+                        "\nbegin"
+                        "\nRESULT = 10;"
+                        "\nsuspend;"
+                        "\nend"), q.lastError().text());
+
+    // Interbase procedures can be executed in two ways: EXECUTE PROCEDURE or SELECT
+    QVERIFY2(q.exec(QString("execute procedure %1(123)").arg(procName)), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toInt(), 10);
+    QVERIFY2(q.exec(QString("select result from %1(456)").arg(procName)), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toInt(), 10);
+
+    q.exec(QString("drop procedure %1").arg(procName));
 }
 
 void tst_QSqlDatabase::formatValueTrimStrings()
