@@ -126,6 +126,7 @@ void tst_QFileSystemModel::cleanup()
     delete model;
     model = 0;
     QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
+    qDebug() << tmp;
     QDir dir(tmp);
     if (dir.exists(tmp)) {
         QStringList list = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
