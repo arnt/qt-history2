@@ -202,20 +202,23 @@ bool QVFbScreen::connect(const QString &displaySpec)
     int dimIdxW = -1;
     int dimIdxH = -1;
     for (int i = 0; i < displayArgs.size(); ++i) {
-        if (displayArgs.at(i).startsWith(QLatin1String("mmWidth="))) {
+        if (displayArgs.at(i).startsWith(QLatin1String("mmWidth"))) {
             dimIdxW = i;
             break;
         }
     }
     for (int i = 0; i < displayArgs.size(); ++i) {
-        if (displayArgs.at(i).startsWith(QLatin1String("mmHeight="))) {
+        if (displayArgs.at(i).startsWith(QLatin1String("mmHeight"))) {
             dimIdxH = i;
             break;
         }
     }
     if (dimIdxW >= 0) {
         bool ok;
-        int pw = displayArgs.at(dimIdxW).mid(8).toInt(&ok);
+        int pos = 7;
+        if (displayArgs.at(dimIdxW).at(pos) == '=')
+            ++pos;
+        int pw = displayArgs.at(dimIdxW).mid(pos).toInt(&ok);
         if (ok) {
             physWidth = pw;
             if (dimIdxH < 0)
@@ -224,11 +227,14 @@ bool QVFbScreen::connect(const QString &displaySpec)
     }
     if (dimIdxH >= 0) {
         bool ok;
-        int pw = displayArgs.at(dimIdxH).mid(8).toInt(&ok);
+        int pos = 8;
+        if (displayArgs.at(dimIdxH).at(pos) == '=')
+            ++pos;
+        int ph = displayArgs.at(dimIdxH).mid(pos).toInt(&ok);
         if (ok) {
-            physWidth = pw;
-            if (dimIdxH < 0)
-                physHeight = dh*physWidth/dw;
+            physHeight = ph;
+            if (dimIdxW < 0)
+                physWidth = dw*physHeight/dh;
         }
     }
     if (dimIdxW < 0 && dimIdxH < 0) {
