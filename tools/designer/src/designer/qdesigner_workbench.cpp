@@ -76,17 +76,22 @@ static QDockWidget *dockWidgetOf(const QWidget *w)
     return 0;
 }
 
-QMdiSubWindow *createFormMdiSubWindow(QMdiArea *a, QDesignerFormWindow *fw, Qt::WindowFlags f)
+QMdiSubWindow *createFormMdiSubWindow(QMdiArea *a, QDesignerFormWindow *fw, Qt::WindowFlags f, const QKeySequence &designerCloseActionShortCut)
 {
     typedef QList<QAction *> ActionList;
 
     QMdiSubWindow *rc = a->addSubWindow(fw, f);
     // Make action shortcuts respond only if focused to avoid conflicts with designer menu actions
-    const ActionList systemMenuActions = rc->systemMenu()->actions();
-    if (!systemMenuActions.empty()) {
-        const ActionList::const_iterator cend = systemMenuActions.constEnd();
-        for (ActionList::const_iterator it = systemMenuActions.constBegin(); it != cend; ++it) {
-            (*it)->setShortcutContext(Qt::WidgetShortcut);
+    if (designerCloseActionShortCut == QKeySequence(QKeySequence::Close)) {
+        const ActionList systemMenuActions = rc->systemMenu()->actions();
+        if (!systemMenuActions.empty()) {
+            const ActionList::const_iterator cend = systemMenuActions.constEnd();
+            for (ActionList::const_iterator it = systemMenuActions.constBegin(); it != cend; ++it) {
+                if ( (*it)->shortcut() == designerCloseActionShortCut) {
+                    (*it)->setShortcutContext(Qt::WidgetShortcut);
+                    break;
+                }
+            }
         }
     }
     rc->setMinimumSize(QSize(0, 0));
@@ -567,7 +572,7 @@ void QDesignerWorkbench::switchToDockedMode()
     mw->restoreState(settings.mainWindowState(), 2);
 
     foreach (QDesignerFormWindow *fw, m_formWindows)
-        createFormMdiSubWindow(m_mdiArea, fw, magicalWindowFlags(fw))->hide();
+        createFormMdiSubWindow(m_mdiArea, fw, magicalWindowFlags(fw), m_actionManager->closeFormAction()->shortcut())->hide();
 
     m_actionManager->setBringAllToFrontVisible(false);
     mw->show();
@@ -681,7 +686,7 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
     if (m_mdiArea) {
-        m_mdiArea->setActiveSubWindow(createFormMdiSubWindow(m_mdiArea, formWindow, magicalWindowFlags(formWindow)));
+        m_mdiArea->setActiveSubWindow(createFormMdiSubWindow(m_mdiArea, formWindow, magicalWindowFlags(formWindow), m_actionManager->closeFormAction()->shortcut()));
     } else {
         const QRect formWindowGeometryHint = formWindow->geometryHint();
         formWindow->setAttribute(Qt::WA_DeleteOnClose, true);

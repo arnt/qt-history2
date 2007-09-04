@@ -963,7 +963,11 @@ void QDesignerActions::addRecentFile(const QString &fileName)
     updateRecentFileActions();
 }
 
-
+QAction *QDesignerActions::closeFormAction() const
+{
+    return m_closeFormAction;
+}
+ 
 QAction *QDesignerActions::minimizeAction() const
 {
     return m_minimizeAction;
