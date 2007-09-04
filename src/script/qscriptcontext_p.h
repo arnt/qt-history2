@@ -98,10 +98,8 @@ inline QScriptValueImpl QScriptContextPrivate::argument(int index) const
     if (index >= argc)
         return QScriptEnginePrivate::get(engine())->undefinedValue();
 
-    else if (args != 0)
-        return args[index];
-
-    return tempStack[index - argc + 1];
+    Q_ASSERT(args != 0);
+    return args[index];
 }
 
 inline int QScriptContextPrivate::argumentCount() const

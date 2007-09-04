@@ -873,6 +873,7 @@ Ltop:
         else
             activation_data->m_scope = eng->m_globalObject;
         nested_data->tempStack = stackPtr;
+        nested_data->args = &argp[1];
         eng->newUndefined(&nested_data->m_result);
 
         QScriptObject *instance = nested_data->m_thisObject.m_object_value;
