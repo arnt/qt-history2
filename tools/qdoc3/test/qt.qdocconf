@@ -70,6 +70,7 @@ extraimages.HTML        = qt-logo \
                           trolltech-logo
 
 macro.br.HTML           = "<br />"
+macro.hr.HTML           = "<hr />"
 macro.QD                = "\\e{Qt Designer}"
 macro.QA                = "\\e{Qt Assistant}"
 macro.eacute.HTML       = "&eacute;"
