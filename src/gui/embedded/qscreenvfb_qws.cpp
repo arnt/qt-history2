@@ -216,7 +216,7 @@ bool QVFbScreen::connect(const QString &displaySpec)
     if (dimIdxW >= 0) {
         bool ok;
         int pos = 7;
-        if (displayArgs.at(dimIdxW).at(pos) == '=')
+        if (displayArgs.at(dimIdxW).at(pos) == QLatin1Char('='))
             ++pos;
         int pw = displayArgs.at(dimIdxW).mid(pos).toInt(&ok);
         if (ok) {
@@ -228,7 +228,7 @@ bool QVFbScreen::connect(const QString &displaySpec)
     if (dimIdxH >= 0) {
         bool ok;
         int pos = 8;
-        if (displayArgs.at(dimIdxH).at(pos) == '=')
+        if (displayArgs.at(dimIdxH).at(pos) == QLatin1Char('='))
             ++pos;
         int ph = displayArgs.at(dimIdxH).mid(pos).toInt(&ok);
         if (ok) {
