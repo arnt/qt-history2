@@ -667,8 +667,9 @@ void tst_QFiledialog::clearLineEdit()
     QListView* list = fd.findChild<QListView*>("listView");
     QVERIFY(list);
     QModelIndex root = list->rootIndex();
+    QVERIFH(root.isValid());
     QModelIndex subdir;
-    QVERIFY(list->model()->rowCount(root) > 0);
+    TRY_VERIFY(list->model()->rowCount(root) > 0);
     for (int i = 0; i < list->model()->rowCount(root); ++i)
         if (list->model()->hasChildren(list->model()->index(i, 0, root)))
             subdir = list->model()->index(i, 0, root);
