@@ -191,6 +191,8 @@ QScriptEngine *QScriptContext::engine() const
 QScriptValue QScriptContext::argument(int index) const
 {
     Q_D(const QScriptContext);
+    if (index < 0)
+        return QScriptValue();
     return d->argument(index);
 }
 
