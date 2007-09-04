@@ -1115,8 +1115,8 @@ void QRasterizer::rasterize(const QPainterPath &path, Qt::FillRule fillRule)
             {
             QT_FT_Vector p1 = last;
             QT_FT_Vector p2 = PointToVector(path.elementAt(i));
-            QT_FT_Vector p3 = PointToVector(path.elementAt(i+1));
-            QT_FT_Vector p4 = PointToVector(path.elementAt(i+2));
+            QT_FT_Vector p3 = PointToVector(path.elementAt(++i));
+            QT_FT_Vector p4 = PointToVector(path.elementAt(++i));
             d->scanConverter.mergeCurve(p1, p2, p3, p4);
             last = p4;
             break;
