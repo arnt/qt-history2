@@ -524,6 +524,7 @@ void tst_QHttp::proxy2_slot()
 
 void tst_QHttp::proxy3()
 {
+#ifdef TEST_QNETWORK_PROXY
     QFETCH_GLOBAL(bool, setProxy);
     if (setProxy)
         return;
@@ -547,6 +548,7 @@ void tst_QHttp::proxy3()
     QCOMPARE(readyRead_ba.count("trolllogin"), 2);
 
     readyRead_ba.clear();
+#endif
 }
 
 // test QHttp::currentId() and QHttp::currentRequest()
