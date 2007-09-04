@@ -116,6 +116,49 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     if (m_activeFormWindow == 0 && eventType != QEvent::WindowActivate)
         return false;
 
+    switch (eventType) { // Uninteresting events
+    case QEvent::Create:
+    case QEvent::Destroy:
+    case QEvent::AccessibilityDescription:
+    case QEvent::AccessibilityHelp:
+    case QEvent::AccessibilityPrepare:
+    case QEvent::ActionAdded:
+    case QEvent::ActionChanged:
+    case QEvent::ActionRemoved:
+    case QEvent::ChildAdded:
+    case QEvent::ChildPolished:
+    case QEvent::ChildRemoved:
+    case QEvent::Clipboard:
+    case QEvent::ContentsRectChange:
+    case QEvent::DeferredDelete:
+    case QEvent::FileOpen:
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+    case QEvent::LanguageChange:
+    case QEvent::MetaCall:
+    case QEvent::ModifiedChange:
+    case QEvent::Paint:
+    case QEvent::PaletteChange:
+    case QEvent::ParentAboutToChange:
+    case QEvent::ParentChange:
+    case QEvent::Polish:
+    case QEvent::PolishRequest:
+    case QEvent::QueryWhatsThis:
+    case QEvent::StatusTip:
+    case QEvent::StyleChange:
+    case QEvent::Timer:
+    case QEvent::ToolBarChange:
+    case QEvent::ToolTip:
+    case QEvent::WhatsThis:
+    case QEvent::WhatsThisClicked:
+    case QEvent::Wheel:
+    case QEvent::DynamicPropertyChange:
+        return false;
+    default:
+        break;
+    }
+
     QWidget *widget = static_cast<QWidget*>(o);
 
     if (qobject_cast<WidgetHandle*>(widget)) { // ### remove me
