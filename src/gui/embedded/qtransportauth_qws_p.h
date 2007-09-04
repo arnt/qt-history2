@@ -333,24 +333,24 @@ public:
 
 /*!
   \internal
-  Enforces the Global Authentication Rate.  If more than 30 authentications
-  are received per minute the sxemonitor is notified that the GAR has been exceeded
+  Enforces the False Authentication Rate.  If more than 4 authentications
+  are received per minute the sxemonitor is notified that the FAR has been exceeded
 */
-class GAREnforcer
+class FAREnforcer
 {
     public:
-        static GAREnforcer *getInstance();
+        static FAREnforcer *getInstance();
         void logAuthAttempt( QDateTime time = QDateTime::currentDateTime() );
         void reset();
 
-    #ifndef TEST_GAR_ENFORCER
+    #ifndef TEST_FAR_ENFORCER
     private:
     #endif
-        GAREnforcer();
-        GAREnforcer( const GAREnforcer & );
-        GAREnforcer &operator=(GAREnforcer const & );
+        FAREnforcer();
+        FAREnforcer( const FAREnforcer & );
+        FAREnforcer &operator=(FAREnforcer const & );
         
-        static const QString GARMessage;
+        static const QString FARMessage;
         static const int minutelyRate;
         static const QString SxeTag;
         static const int minute;

@@ -1333,7 +1333,6 @@ bool QTransportAuth::authFromMessage( QTransportAuth::Data &d, const char *msg, 
     {
         auth_tok = clientKey;
         multi_tok = true;  // 1 or more keys are in the clientKey
-        GAREnforcer::getInstance()->logAuthAttempt( QDateTime::currentDateTime() );
     }
     while( true )
     {
@@ -1350,6 +1349,8 @@ bool QTransportAuth::authFromMessage( QTransportAuth::Data &d, const char *msg, 
         auth_tok += QSXE_KEY_LEN;
     }
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::FailMatch;
+    qWarning() << "QTransportAuth::authFromMessage():failed authentication";
+    FAREnforcer::getInstance()->logAuthAttempt( QDateTime::currentDateTime() );
     emit authViolation( d );
     return false;
 }
@@ -1450,12 +1451,12 @@ static int hmac_md5(
 }
 
 
-const int GAREnforcer::minutelyRate = 40; //allowed number of authentication attempts per minute
-const QString GAREnforcer::GARMessage = "GAR_Exceeded";
-const QString GAREnforcer::SxeTag = "<SXE Breach>";
-const int GAREnforcer::minute = 60;
+const int FAREnforcer::minutelyRate = 4; //allowed number of false authentication attempts per minute
+const QString FAREnforcer::FARMessage = "FAR_Exceeded";
+const QString FAREnforcer::SxeTag = "<SXE Breach>";
+const int FAREnforcer::minute = 60;
 
-GAREnforcer::GAREnforcer():authAttempts()
+FAREnforcer::FAREnforcer():authAttempts()
 {
     QDateTime nullDateTime = QDateTime();
     for (int i = 0; i < minutelyRate; i++ )
@@ -1463,13 +1464,13 @@ GAREnforcer::GAREnforcer():authAttempts()
 }
 
 
-GAREnforcer *GAREnforcer::getInstance()
+FAREnforcer *FAREnforcer::getInstance()
 {
-    static GAREnforcer theInstance;
+    static FAREnforcer theInstance;
     return &theInstance;
 }
 
-void GAREnforcer::logAuthAttempt( QDateTime time )
+void FAREnforcer::logAuthAttempt( QDateTime time )
 {
     QDateTime dt =  authAttempts.takeFirst();
 
@@ -1489,7 +1490,7 @@ void GAREnforcer::logAuthAttempt( QDateTime time )
                                  qPrintable(logFilePath) );
                     } else {
                         QTextStream ts( &log );
-                        ts << "\t\tWarning: Global Authentication rate of " <<  minutelyRate << "\n"
+                        ts << "\t\tWarning: False Authentication Rate of " <<  minutelyRate << "\n"
                            << "\t\tserver connections/authentications per minute has been exceeded,\n"
                            << "\t\tno further warnings will be issued\n";
                     }
@@ -1501,13 +1502,13 @@ void GAREnforcer::logAuthAttempt( QDateTime time )
         }
 #endif
         syslog( LOG_ERR | LOG_LOCAL6, "%s %s",
-                qPrintable( GAREnforcer::SxeTag ),
-                qPrintable( GAREnforcer::GARMessage ) );
+                qPrintable( FAREnforcer::SxeTag ), 
+                qPrintable( FAREnforcer::FARMessage ) );
         reset();
     }
 }
 
-void GAREnforcer::reset()
+void FAREnforcer::reset()
 {
     QDateTime nullDateTime = QDateTime();
     for (int i = 0; i < minutelyRate; i++ )
