@@ -10,12 +10,12 @@ var tries = 0;
 do {
     socket.peerName = "qlocalsocket_autotest";
     if ((socket.errorString() != "QLocalSocket::connectToName: Invalid name")
-        || (socket.errorString() != "QLocalSocket::connectToName: Connection Refused"))
+        && (socket.errorString() != "QLocalSocket::connectToName: Connection refused"))
         break;
     socket.sleep(1);
     ++tries;
 } while ((socket.errorString() == "QLocalSocket::connectToName: Invalid name"
-        || (socket.errorString() == "QlocalSocket::connectToName: ConnectionRefused"))
+        || (socket.errorString() == "QlocalSocket::connectToName: Connection refused"))
         && tries < 5000);
 socket.waitForConnected(), socket;
 //print("client: connected");
