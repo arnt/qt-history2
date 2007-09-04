@@ -154,6 +154,7 @@ void QLocalSocket::connectToName(const QString &name, OpenMode newOpenMode)
     if (state() == ConnectedState || state() == ConnectingState)
         return;
 
+    d->errorString = QString();
     d->unixSocket.setSocketState(QAbstractSocket::ConnectingState);
     d->state = ConnectingState;
     emit stateChanged(ConnectingState);
