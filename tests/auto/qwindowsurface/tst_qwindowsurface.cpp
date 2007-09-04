@@ -131,6 +131,8 @@ void tst_QWindowSurface::flushOutsidePaintEvent()
     surface->endPaint(rect);
     surface->flush(&w, rect, QPoint());
 
+    VERIFY_COLOR(w.geometry(), Qt::black);
+
     // the paintEvent() should overwrite the painted rectangle
     QApplication::processEvents();
 #ifdef Q_WS_X11
@@ -139,8 +141,10 @@ void tst_QWindowSurface::flushOutsidePaintEvent()
 
 #if defined(Q_WS_QWS) && (QT_VERSION < 0x040400)
     QEXPECT_FAIL("", "task 176755", Abort);
-#endif
     VERIFY_COLOR(w.geometry(), w.color);
+#else
+    VERIFY_COLOR(w.geometry(), w.color);
+#endif
     QCOMPARE(QRegion(w.rect()), w.r);
     w.reset();
 }
