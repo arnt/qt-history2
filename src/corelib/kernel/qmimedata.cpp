@@ -203,7 +203,7 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
         void MyWidget::dragEnterEvent(QDragEnterEvent *event)
         {
             if (event->mimeData()->hasUrls())
-                event->acceptProposedEvent();
+                event->acceptProposedAction();
         }
 
         void MyWidget::dropEvent(QDropEvent *event)
