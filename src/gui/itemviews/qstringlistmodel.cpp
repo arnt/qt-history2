@@ -238,4 +238,12 @@ void QStringListModel::setStringList(const QStringList &strings)
     reset();
 }
 
+/*!
+  \reimp
+*/
+Qt::DropActions QStringListModel::supportedDropActions() const
+{
+    return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
+}
+
 #endif // QT_NO_STRINGLISTMODEL

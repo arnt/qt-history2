@@ -36,7 +36,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
-    
+
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
@@ -44,6 +44,8 @@ public:
 
     QStringList stringList() const;
     void setStringList(const QStringList &strings);
+
+    Qt::DropActions supportedDropActions() const;
 
 private:
     Q_DISABLE_COPY(QStringListModel)
