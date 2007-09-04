@@ -744,10 +744,15 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
             return noErr;
         if(ekind == kEventControlDraw) {
             if(widget && qt_isGenuineQWidget(hiview)) {
-                if (qt_event_remove_window_change(widget)) {
+
+                // if there is a window change event pending,
+                // send it immediately. (required for flicker-free
+                // resizing)
+                if (widget->d_func()->needWindowChange) {
                     QEvent glChangeEvent(QEvent::MacGLWindowChange);
                     QApplication::sendEvent(widget, &glChangeEvent);
                 }
+
                 //requested rgn
                 widget->d_func()->clp_serial++;
                 RgnHandle rgn;
@@ -1763,7 +1768,6 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         }
         d->setWinId(0);
     }
-    qt_event_remove_window_change(this);
 }
 
 void QWidgetPrivate::transferChildren()

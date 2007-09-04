@@ -678,7 +678,6 @@ private:
     friend bool qt_mac_is_metal(const QWidget *w);
     friend HIViewRef qt_mac_hiview_for(const QWidget *w);
     friend void qt_event_request_window_change(QWidget *widget);
-    friend bool qt_event_remove_window_change(QWidget *widget);
 #endif
 #ifdef Q_WS_QWS
     friend class QWSBackingStore;

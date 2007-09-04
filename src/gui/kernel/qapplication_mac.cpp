@@ -674,21 +674,9 @@ Q_GUI_EXPORT void qt_event_request_window_change(QWidget *widget)
     if (!widget)
         return;
     widget->d_func()->needWindowChange = true;
-    EventRef windowChangeEvent;
-    CreateEvent(0, kEventClassQt, kEventQtRequestWindowChange, GetCurrentEventTime(),
-                kEventAttributeUserEvent, &windowChangeEvent);
-    SetEventParameter(windowChangeEvent, kEventParamQWidget, typeQWidget, sizeof(widget), &widget);
-    PostEventToQueue(GetMainEventQueue(), windowChangeEvent, kEventPriorityHigh);
+    QEvent *glWindowChangeEvent = new QEvent(QEvent::MacGLWindowChange);
+    QApplication::postEvent(widget, glWindowChangeEvent);
 }
-
-bool qt_event_remove_window_change(QWidget *widget)
-{
-    if (!widget)
-        return false;
-    widget->d_func()->needWindowChange = false;
-    return true;
-}
-
 
 Q_GUI_EXPORT void qt_event_request_window_change()
 {
@@ -857,7 +845,6 @@ struct QMacAppleEventTypeSpec {
 /* watched events */
 static EventTypeSpec app_events[] = {
     { kEventClassQt, kEventQtRequestTimer },
-    { kEventClassQt, kEventQtRequestWindowChange },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestShowSheet },
     { kEventClassQt, kEventQtRequestContext },
@@ -1297,14 +1284,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
                 if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)
                     ShowHide(window, true);
-            }
-        } else if(ekind == kEventQtRequestWindowChange) {
-            QWidget *widget;
-            GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
-            if (widget->d_func()->needWindowChange) {
-                QEvent glWindowChangeEvent(QEvent::MacGLWindowChange);
-                QApplication::sendEvent(widget, &glWindowChangeEvent);
-                // We *could* reset the need window change here, but we don't need to ATM.
             }
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             qt_mac_event_release(request_menubarupdate_pending);

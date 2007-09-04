@@ -576,13 +576,17 @@ QRegion qt_mac_get_widget_rgn(const QWidget *widget)
 
 bool QGLWidget::event(QEvent *e)
 {
+    Q_D(QGLWidget);
     if (e->type() == QEvent::MacGLWindowChange
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
            && QSysInfo::MacintoshVersion < QSysInfo::MV_10_5
 #endif
         ) {
-        d_func()->glcx->updatePaintDevice();
-        update();
+        if (d->needWindowChange) {
+            d->needWindowChange = false;
+            d->glcx->updatePaintDevice();
+            update();
+        }
         return true;
     }
     return QWidget::event(e);
