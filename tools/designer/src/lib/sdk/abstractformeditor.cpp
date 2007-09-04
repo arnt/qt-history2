@@ -453,11 +453,23 @@ QString QDesignerFormEditorInterface::resourceLocation() const
 #endif
 }
 
+/*!
+    \internal
+
+    Returns the dialog GUI used by the form editor.
+*/
+
 QDesignerDialogGuiInterface *QDesignerFormEditorInterface::dialogGui() const
 {
     Q_D(const QDesignerFormEditorInterface);
     return d->m_dialogGui;
 }
+
+/*!
+    \internal
+
+    Sets the dialog GUI used by the form editor to the specified \a dialogGui.
+*/
 
 void QDesignerFormEditorInterface::setDialogGui(QDesignerDialogGuiInterface *dialogGui)
 {

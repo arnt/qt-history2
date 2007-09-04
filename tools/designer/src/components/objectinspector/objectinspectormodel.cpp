@@ -64,8 +64,7 @@ static inline QLayout *layoutOfQLayoutWidget(QObject *o)
     return 0;
 }
 
-// Cannot edit spacer items and layout widgets
-static inline bool isNameColumnEditable(const QObject */*o*/)
+static inline bool isNameColumnEditable(const QObject *)
 {
     return true;
 }
