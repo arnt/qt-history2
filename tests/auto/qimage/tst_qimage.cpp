@@ -272,6 +272,15 @@ void tst_QImage::convertToFormat_data()
     QTest::newRow("blue rgb32 -> argb32") << int(QImage::Format_RGB32) << 0xff0000ff
                                        << int(QImage::Format_ARGB32) << 0xff0000ff;
 
+    QTest::newRow("red rgb32 -> rgb16") << int(QImage::Format_RGB32) << 0xffff0000
+                                      << int(QImage::Format_RGB16) << 0xffff0000;
+    QTest::newRow("green rgb32 -> rgb16") << int(QImage::Format_RGB32) << 0xff00ff00
+                                        << int(QImage::Format_RGB16) << 0xff00ff00;
+    QTest::newRow("blue rgb32 -> rgb16") << int(QImage::Format_RGB32) << 0xff0000ff
+                                       << int(QImage::Format_RGB16) << 0xff0000ff;
+    QTest::newRow("funky rgb32 -> rgb16") << int(QImage::Format_RGB32) << 0xfff0c080
+                                       << int(QImage::Format_RGB16) << 0xfff7c384;
+
     QTest::newRow("red rgb32 -> argb32_pm") << int(QImage::Format_RGB32) << 0xffff0000
                                          << int(QImage::Format_ARGB32_Premultiplied) << 0xffff0000;
     QTest::newRow("green rgb32 -> argb32_pm") << int(QImage::Format_RGB32) << 0xff00ff00

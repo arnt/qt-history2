@@ -46,7 +46,7 @@
 static inline ushort qt_convRgbTo16(QRgb c)
 {
     return ((c >> 8) & 0xf800)
-        | ((c >> 3) & 0x07e0)
+        | ((c >> 5) & 0x07e0)
         | ((c >> 3) & 0x1f);
 }
 
