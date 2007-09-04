@@ -1,5 +1,5 @@
 StartDocument( )
-DTD( text="<!DOCTYPE test>" )
+DTD( text="<!DOCTYPE test>" dtdName="test" )
 StartElement( name="germanÃ¼umlaut" qualifiedName="germanÃ¼umlaut" )
 EndElement( name="germanÃ¼umlaut" qualifiedName="germanÃ¼umlaut" )
 EndDocument( )
