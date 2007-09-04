@@ -1697,8 +1697,16 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
         case WM_ACTIVATEAPP:
-            if (wParam == FALSE)
+            if (wParam == FALSE) {
                 QApplication::setActiveWindow(0);
+                // Another application was activated while our popups are open,
+                // then close all popups.  In case some popup refuses to close,
+                // we give up after 1024 attempts (to avoid an infinite loop).
+                int maxiter = 1024;
+                QWidget *popup;
+                while ((popup=QApplication::activePopupWidget()) && maxiter--)
+                    popup->close();
+            }
             break;
 
         case WM_ACTIVATE:
