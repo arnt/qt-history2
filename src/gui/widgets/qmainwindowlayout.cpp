@@ -48,7 +48,7 @@
 ** debug
 */
 
-#ifdef Q_DEBUG_MAINWINDOW_LAYOUT
+#if defined(Q_DEBUG_MAINWINDOW_LAYOUT) && !defined(QT_NO_DOCKWIDGET)
 
 #include <QTextStream>
 
@@ -129,8 +129,7 @@ void qt_dumpLayout(QTextStream &qout, QMainWindow *window)
     dumpLayout(qout, layout->layoutState.dockAreaLayout, QString());
 }
 
-#endif // Q_DEBUG_MAINWINDOW_LAYOUT
-
+#endif // Q_DEBUG_MAINWINDOW_LAYOUT && !QT_NO_DOCKWIDGET
 
 /******************************************************************************
 ** QMainWindowLayoutState
