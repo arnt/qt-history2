@@ -338,6 +338,11 @@ void tst_QColumnView::scrollContentsBy()
     DirModel model;
     view.setModel(&model);
     view.ScrollContentsBy(0, 0);
+
+    QModelIndex home = model.index(QDir::currentPath()).parent();
+    view.setCurrentIndex(home);
+    QTest::qWait(ANIMATION_DELAY);
+    view.ScrollContentsBy(0, 0);
 }
 
 void tst_QColumnView::scrollTo_data()
