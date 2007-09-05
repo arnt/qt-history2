@@ -81,21 +81,22 @@
 
     \list
     \o Intel(R) C++ Compiler for applications running on IA-32,
-       Version 10.0 Build 20070613 Package ID: l_cc_c_10.0.025
+       Version 10.0 Build 20070809 Package ID: l_cc_c_10.0.026
     \o Intel(R) C++ Compiler for applications running on Intel(R) 64,
-       Version 10.0 Build 20070613 Package ID: l_cc_c_10.0.025
+       Version 10.0 Build 20070809 Package ID: l_cc_c_10.0.026
     \endlist
 
     \section2 Known issues with Intel C++ Compiler for Linux
 
     \list
-    \o Precompiled header support does not work with version 10.0.025
-       of this compiler.  For now, configure Qt with -no-pch.
-    \o Version 10.0.025 for Intel 64 is known to miscompile qmake when
-       building in release mode. For now, configure Qt with -debug.
+    \o Precompiled header support does not work prior in version
+       10.0.025 and older. For these compilers, you should configure Qt
+       with -no-pch. Precompiled header support works properly in version
+       10.0.026.
+    \o Version 10.0.026 for Intel 64 is known to miscompile qmake when
+       building in release mode. For now, configure Qt with -debug. This
+       issue has been reported to Intel and is awaiting resolution.
     \endlist
-
-    These issues have been reported to Intel and are awaiting resolution.
 
     \section2 Intel C++ Compiler (Windows, Altix)
 
