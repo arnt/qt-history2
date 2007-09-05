@@ -13,7 +13,7 @@
 
 #include <qplatformdefs.h>
 #include <qdom.h>
-#include "qxmlutils_p.h"
+#include "../qxmlutils_p.h"
 
 #ifndef QT_NO_DOM
 
