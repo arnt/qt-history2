@@ -925,7 +925,9 @@
     directly onto the screen. Widgets with this attribute set do not
     participate in composition management, i.e. they cannot be
     semi-transparent or shine through semi-transparent overlapping
-    widgets. This is only supported on X11. The flag is set or
+    widgets. This is only supported on X11. On Qtopia Core the flag
+    currently only works when set on a top level widget and relies on
+    support from the active screen driver. The flag is set or
     cleared by the widget's author. For rendering outside of Qt's
     paint system; e.g. if you need to use native X11 painting primitives,
     you need to reimplement QWidget::paintEngine() to return 0 and set
