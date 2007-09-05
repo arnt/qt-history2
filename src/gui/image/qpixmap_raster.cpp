@@ -419,11 +419,15 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 
 QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode ) const
 {
+    if (depth() == 1)
+        return QBitmap::fromImage(data->image.transformed(matrix, mode));
     return QPixmap::fromImage(data->image.transformed(matrix, mode));
 }
 
 QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mode ) const
 {
+    if (depth() == 1)
+        return QBitmap::fromImage(data->image.transformed(matrix, mode));
     return QPixmap::fromImage(data->image.transformed(matrix, mode));
 }
 
