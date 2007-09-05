@@ -3305,6 +3305,8 @@ void QWidget::setFixedSize(int w, int h)
 
     if (isWindow())
         d->setConstraints_sys();
+    else
+        d->updateGeometry_helper(true);
 
     resize(w, h);
 }
@@ -5634,7 +5636,7 @@ void QWidget::setVisible(bool visible)
         setAttribute(Qt::WA_WState_Hidden, false);
 
         if (needUpdateGeometry)
-            updateGeometry();
+            d->updateGeometry_helper(true);
 
 #ifdef QT3_SUPPORT
         QApplication::sendPostedEvents(this, QEvent::ChildInserted);
@@ -7555,6 +7557,19 @@ QWidget *QWidget::childAt(const QPoint &p) const
     return 0;
 }
 
+void QWidgetPrivate::updateGeometry_helper(bool forceUpdate)
+{
+    Q_Q(QWidget);
+    QWidget *parent;
+    if (forceUpdate || !extra || extra->minw != extra->maxw || extra->minh != extra->maxh) {
+        if (!q->isWindow() && !q->isHidden() && (parent = q->parentWidget())) {
+            if (parent->d_func()->layout)
+                parent->d_func()->layout->invalidate();
+            else if (parent->isVisible())
+                QApplication::postEvent(parent, new QEvent(QEvent::LayoutRequest));
+        }
+    }
+}
 
 /*!
     Notifies the layout system that this widget has changed and may
@@ -7569,13 +7584,7 @@ QWidget *QWidget::childAt(const QPoint &p) const
 void QWidget::updateGeometry()
 {
     Q_D(QWidget);
-    if (!isWindow() && !isHidden() && parentWidget()
-        && (!d->extra || d->extra->minw != d->extra->maxw || d->extra->minh != d->extra->maxh)) {
-        if (parentWidget()->d_func()->layout)
-            parentWidget()->d_func()->layout->invalidate();
-        else if (parentWidget()->isVisible())
-            QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
-    }
+    d->updateGeometry_helper(false);
 }
 
 /*! \property QWidget::windowFlags

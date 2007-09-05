@@ -364,6 +364,7 @@ public:
     bool setMinimumSize_helper(int &minw, int &minh);
     bool setMaximumSize_helper(int &maxw, int &maxh);
     void setConstraints_sys();
+    void updateGeometry_helper(bool forceUpdate);
 
     void getLayoutItemMargins(int *left, int *top, int *right, int *bottom) const;
     void setLayoutItemMargins(int left, int top, int right, int bottom);
