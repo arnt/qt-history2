@@ -337,7 +337,7 @@ public:
             ++tries;
         } while ((socket.error() == QLocalSocket::NotFoundError
                   || socket.error() == QLocalSocket::ConnectionRefusedError) && tries < 1000);
-        if (socket.state() != QLocalSocket::ConnectedState) {
+        if (tries == 0 && socket.state() != QLocalSocket::ConnectedState) {
             QVERIFY(socket.waitForConnected(10000));
             QVERIFY(socket.state() == QLocalSocket::ConnectedState);
         }
