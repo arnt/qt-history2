@@ -1766,6 +1766,7 @@ void QHeaderView::initializeSections(int start, int end)
     Q_ASSERT(start >= 0);
     Q_ASSERT(end >= 0);
 
+    d->executePostedLayout();
     d->invalidateCachedSizeHint();
 
     if (end < d->sectionCount) {
@@ -1810,7 +1811,8 @@ void QHeaderView::initializeSections(int start, int end)
         d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize, d->globalResizeMode);
     //Q_ASSERT(d->headerLength() == d->length);
 
-    emit sectionCountChanged(oldCount,  d->sectionCount);
+    if (d->sectionCount != oldCount)
+        emit sectionCountChanged(oldCount,  d->sectionCount);
     d->viewport->update();
 }
 
