@@ -67,6 +67,8 @@ void QLocalSocket::connectToName(const QString &name, OpenMode openMode)
     if (state() == ConnectedState || state() == ConnectingState)
         return;
 
+    d->error = QLocalSocket::UnknownSocketError;
+    d->errorString = QString();
     d->state = ConnectingState;
     emit stateChanged(d->state);
 
