@@ -251,6 +251,7 @@ SUBDIRS += bic \
            qstyle \
            qstyleoption \
            qsvgdevice \
+           qsvggenerator \
            qsvgrenderer \
            qsyntaxhighlighter \
            qsystemtrayicon \
