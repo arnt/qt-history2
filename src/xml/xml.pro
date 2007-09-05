@@ -8,9 +8,13 @@ include(../qbase.pri)
 
 PRECOMPILED_HEADER = ../corelib/global/qt_pch.h
 
-HEADERS += qxml.h qdom.h qxmlstream.h qxmlutils_p.h
-SOURCES += qxml.cpp qdom.cpp qxmlstream.cpp qxmlutils_p.cpp
+HEADERS += qxmlutils_p.h
+SOURCES += qxmlutils_p.cpp
 win32-borland {
         QMAKE_CFLAGS_WARN_ON        += -w-use
         QMAKE_CXXFLAGS_WARN_ON        += -w-use
 }
+
+include(dom/dom.pri)
+include(sax/sax.pri)
+include(stream/stream.pri)
