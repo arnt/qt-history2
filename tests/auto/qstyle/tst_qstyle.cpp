@@ -168,19 +168,19 @@ void tst_QStyle::testAllFunctions(QStyle *style)
     testWidget->setStyle(style);
     
     //Tests styleHint with default arguments for potential crashes
-    for ( int hint = 0 ; hint < QStyle::SH_ScrollBar_RollBetweenButtons ; ++hint) {
+    for ( int hint = 0 ; hint < int(QStyle::SH_ScrollBar_RollBetweenButtons); ++hint) {
         style->styleHint(QStyle::StyleHint(hint));
         style->styleHint(QStyle::StyleHint(hint), &opt, testWidget);
     }
     
     //Tests pixelMetric with default arguments for potential crashes
-    for ( int pm = 0 ; pm < QStyle::PM_DockWidgetTitleMargin ; ++pm) {
+    for ( int pm = 0 ; pm < int(QStyle::PM_DockWidgetTitleMargin); ++pm) {
         style->pixelMetric(QStyle::PixelMetric(pm));
         style->pixelMetric(QStyle::PixelMetric(pm), &opt, testWidget);        
     }
 
     //Tests drawControl with default arguments for potential crashes
-    for ( int control = 0 ; control < QStyle::CE_ToolBar ; ++control) {
+    for ( int control = 0 ; control < int(QStyle::CE_ToolBar); ++control) {
         QPixmap surface(QSize(200, 200));
         QPainter painter(&surface);
         style->drawControl(QStyle::ControlElement(control), &opt, &painter, 0);
@@ -223,9 +223,9 @@ void tst_QStyle::testAllFunctions(QStyle *style)
         style->drawComplexControl(QStyle::CC_Dial, &copt4, &painter, 0);
         style->drawComplexControl(QStyle::CC_Q3ListView, &copt8, &painter, 0);
     }
-    
+
     //Check standard pixmaps/icons
-    for ( int i = 0 ; i < QStyle::SP_ToolBarVerticalExtensionButton ; ++i) {
+    for ( int i = 0 ; i < int(QStyle::SP_ToolBarVerticalExtensionButton); ++i) {
         QPixmap pixmap = style->standardPixmap(QStyle::StandardPixmap(i));
         if (pixmap.isNull()) {
             qWarning("missing StandardPixmap: %d", i);
@@ -235,7 +235,7 @@ void tst_QStyle::testAllFunctions(QStyle *style)
             qWarning("missing StandardIcon: %d", i);
         }
     }
-	
+
     style->itemPixmapRect(QRect(0, 0, 100, 100), Qt::AlignHCenter, QPixmap(200, 200));
     style->itemTextRect(QFontMetrics(qApp->font()), QRect(0, 0, 100, 100), Qt::AlignHCenter, true, QString("Test"));
     
@@ -259,7 +259,7 @@ void tst_QStyle::testPlastiqueStyle()
 {
     QPlastiqueStyle pstyle;
     testAllFunctions(&pstyle);
-	lineUpLayoutTest(&pstyle);
+    lineUpLayoutTest(&pstyle);
 }
 
 void tst_QStyle::testCleanlooksStyle()
@@ -268,14 +268,14 @@ void tst_QStyle::testCleanlooksStyle()
     QCleanlooksStyle cstyle;
     testAllFunctions(&cstyle);
 #endif
-	lineUpLayoutTest(&cstyle);
+    lineUpLayoutTest(&cstyle);
 }
 
 void tst_QStyle::testWindowsStyle()
 {
     QWindowsStyle wstyle;
     testAllFunctions(&wstyle);
-	lineUpLayoutTest(&wstyle);
+    lineUpLayoutTest(&wstyle);
 }
 
 void tst_QStyle::testWindowsXPStyle()
@@ -283,7 +283,7 @@ void tst_QStyle::testWindowsXPStyle()
 #ifdef Q_WS_WIN
     QWindowsXPStyle xpstyle;
     testAllFunctions(&xpstyle);
-	  lineUpLayoutTest(&xpstyle);
+    lineUpLayoutTest(&xpstyle);
 #endif
 }
 
@@ -529,7 +529,6 @@ void tst_QStyle::progressBarChangeStyle()
 void tst_QStyle::lineUpLayoutTest(QStyle *style)
 {
 	QWidget widget;
-	widget.setStyle(style);
 	QHBoxLayout layout;
 	QFont font;
 	font.setPointSize(9); //Plastique is lined up for odd numbers...
@@ -542,9 +541,13 @@ void tst_QStyle::lineUpLayoutTest(QStyle *style)
 	layout.addWidget(&lineedit);
 	layout.addWidget(&combo);
 	widget.setLayout(&layout);
+        widget.setStyle(style);
+        // propagate the style.
+        foreach (QWidget *w, qFindChildren<QWidget *>(&widget))
+            w->setStyle(style);
 	widget.show();
-	qApp->processEvents();
-	
+        QTest::qWait( 500 );
+
 	QVERIFY(qAbs(spinbox.height() - lineedit.height()) <= 1);
 	QVERIFY(qAbs(spinbox.height() - combo.height()) <= 1);
 }
