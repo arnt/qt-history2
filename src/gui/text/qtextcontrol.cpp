@@ -2616,9 +2616,6 @@ QAbstractTextDocumentLayout::PaintContext QTextControl::getPaintContext(QWidget 
     Q_D(const QTextControl);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
-    if (rect.isValid())
-        p->setClipRect(rect, Qt::IntersectClip);
-    ctx.clip = rect;
     
     ctx.selections = d->extraSelections;
     ctx.palette = d->palette;
