@@ -1318,6 +1318,11 @@ void QWidgetPrivate::deleteExtra()
         delete extra->curs;
 #endif
         deleteSysExtra();
+#ifndef QT_NO_STYLE_STYLESHEET
+        // dereference the stylesheet style
+        if (QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(extra->style))
+            proxy->deref();
+#endif
         if (extra->topextra) {
             deleteTLSysExtra();
             delete extra->topextra->icon;
