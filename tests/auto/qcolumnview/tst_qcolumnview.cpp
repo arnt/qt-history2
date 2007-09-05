@@ -569,7 +569,7 @@ void tst_QColumnView::selectedColumns()
             continue;
         if (!column->rootIndex().isValid() || column->rootIndex() == home)
             continue;
-        QVERIFY(column->currentIndex().isValid());
+        TRY_VERIFY(column->currentIndex().isValid());
     }
 }
 
