@@ -2002,6 +2002,8 @@ void QTextEngine::splitItem(int item, int pos) const
 //     qDebug("split at position %d itempos=%d", pos, item);
 }
 
+extern int qt_defaultDpiX();
+
 QFixed QTextEngine::nextTab(const QScriptItem *si, QFixed x) const
 {
     // #### should work for alignright and righttoleft
@@ -2009,16 +2011,27 @@ QFixed QTextEngine::nextTab(const QScriptItem *si, QFixed x) const
         option.textDirection() != Qt::LeftToRight)
         return x + si->width;
 
+    QFixed dpiScale = 1;
+    if (block.docHandle() && block.docHandle()->layout()) {
+        QPaintDevice *pdev = block.docHandle()->layout()->paintDevice();
+        if (pdev)
+            dpiScale = QFixed::fromReal(pdev->logicalDpiX() / qreal(qt_defaultDpiX()));
+    } else {
+        dpiScale = QFixed::fromReal(fnt.d->dpi / qreal(qt_defaultDpiX()));
+    }
+
     QList<qreal> tabArray = option.tabArray();
     if (!tabArray.isEmpty()) {
         for (int i = 0; i < tabArray.size(); ++i) {
-            if (tabArray.at(i) > x.toReal())
-                return QFixed::fromReal(tabArray.at(i));
+            QFixed tab = QFixed::fromReal(tabArray.at(i)) * dpiScale;
+            if (tab > x)
+                return tab;
         }
     }
     QFixed tab = QFixed::fromReal(option.tabStop());
     if (tab <= 0)
         tab = 80; // default
+    tab *= dpiScale;
     return ((x / tab).truncate() + 1) * tab;
 }
 
