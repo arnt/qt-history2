@@ -212,7 +212,7 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
     case QVariant::Double: {
         QDoubleSpinBox *sb = new QDoubleSpinBox(parent);
         sb->setFrame(false);
-        sb->setMinimum(DBL_MIN);
+        sb->setMinimum(-DBL_MAX);
         sb->setMaximum(DBL_MAX);
         return sb; }
 #endif

@@ -13,6 +13,7 @@
 #include <qstandarditemmodel.h>
 #include <qapplication.h>
 #include <qdatetimeedit.h>
+#include <qspinbox.h>
 #include <qlistview.h>
 #include <qtableview.h>
 #include <qtreeview.h>
@@ -176,6 +177,7 @@ private slots:
     void sizeHint();
     void editorKeyPress_data();
     void editorKeyPress();
+    void doubleEditorNegativeInput();
     void font_data();
     void font();
     void doLayout_data();
@@ -330,6 +332,39 @@ void tst_QItemDelegate::editorKeyPress()
     QApplication::processEvents();
 
     QCOMPARE(index.data().toString(), expected);
+}
+
+void tst_QItemDelegate::doubleEditorNegativeInput()
+{
+    QStandardItemModel model;
+
+    QStandardItem *item = new QStandardItem;
+    item->setData(10.0, Qt::DisplayRole);
+    model.appendRow(item);
+
+    QListView view;    
+    view.setModel(&model);
+    view.show();
+
+    QModelIndex index = model.index(0, 0);
+    view.setCurrentIndex(index); // the editor will only selectAll on the current index
+    view.edit(index);
+
+    QList<QDoubleSpinBox*> editors = qFindChildren<QDoubleSpinBox *>(&view);
+    QCOMPARE(editors.count(), 1);
+
+    QDoubleSpinBox *editor = editors.at(0);
+    QCOMPARE(editor->value(), double(10));
+
+    QTest::keyClick(editor, Qt::Key_Minus);
+    QTest::keyClick(editor, Qt::Key_1);
+    QTest::keyClick(editor, Qt::Key_0);
+    QTest::keyClick(editor, Qt::Key_Period);
+    QTest::keyClick(editor, Qt::Key_0);
+    QTest::keyClick(editor, Qt::Key_Enter);
+    QApplication::processEvents();
+
+    QCOMPARE(index.data().toString(), QString("-10"));
 }
 
 void tst_QItemDelegate::font_data()
