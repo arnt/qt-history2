@@ -4125,11 +4125,11 @@ void QWidgetPrivate::render_helper(QWidget *widget, QPaintDevice *result, const 
                                    const QRect &rect, QWidget::RenderFlags renderFlags)
 {
     // Draw the widget's background.
-    if (widget->d_func()->hasBackground() && (renderFlags & QWidget::DrawWindowBackground)
-        || widget->autoFillBackground()) {
+    const bool asRoot = (renderFlags & QWidget::DrawWindowBackground);
+    if (widget->d_func()->hasBackground() || asRoot || widget->autoFillBackground()) {
         QPainter painter(result);
         painter.translate(-rect.topLeft() + offset);
-        widget->d_func()->paintBackground(&painter, rect);
+        widget->d_func()->paintBackground(&painter, rect, asRoot);
     }
 
     // Redirect all paint commands from the widget to the paint device and

@@ -5092,6 +5092,18 @@ void tst_QWidget::render()
 
     QCOMPARE(targetImage.pixel(target.width() / 2, 29), QColor(Qt::red).rgb());
     QCOMPARE(targetImage.pixel(target.width() / 2, 30), sourceImage.pixel(source.width() / 2, 0));
+
+    // Test that a child widget properly fills its background
+    {
+        QWidget window;
+        window.resize(100, 100);
+        QWidget child(&window);
+        child.resize(100, 100);
+        window.show();
+        QTest::qWait(100);
+        
+        QCOMPARE(QPixmap::grabWidget(&child), QPixmap::grabWidget(&window));
+    }
 }
 
 void tst_QWidget::setContentsMargins()
