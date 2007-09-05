@@ -38,6 +38,7 @@ private slots:
     void qproperty();
     void palettePropagation();
     void fontPropagation();
+    void onWidgetDestroyed();
 private:
     QColor COLOR(const QWidget& w) {
         w.ensurePolished();
@@ -624,6 +625,16 @@ void tst_QStyleSheetStyle::fontPropagation()
     QCOMPARE(FONTSIZE(pb), 10);
     window.setStyleSheet("");
     QVERIFY(FONTSIZE(pb) == APPFONTSIZE());
+}
+
+void tst_QStyleSheetStyle::onWidgetDestroyed()
+{
+    qApp->setStyleSheet("");
+    QLabel *l = new QLabel;
+    l->setStyleSheet("QLabel { color: red }");
+    QPointer<QStyleSheetStyle> ss = (QStyleSheetStyle *) l->style();
+    delete l;
+    QVERIFY(ss.isNull());
 }
 
 QTEST_MAIN(tst_QStyleSheetStyle)
