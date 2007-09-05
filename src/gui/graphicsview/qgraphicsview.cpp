@@ -2904,7 +2904,12 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     foreach (QRect rect, exposedRegion.rects()) {
         QPolygonF exposedPoly = mapToScene(rect.adjusted(-1, -1, 1, 1));
         exposedPolys << exposedPoly;
+#ifdef Q_WS_X11
+        // ### Workaround for rounding error on X11
+        exposedRects << exposedPoly.boundingRect().adjusted(-0.5, -0.5, 0.5, 0.5);
+#else
         exposedRects << exposedPoly.boundingRect();
+#endif
     }
 
     // Find all exposed items
