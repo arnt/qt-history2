@@ -2154,8 +2154,18 @@ bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
 bool QSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     Q_D(const QSortFilterProxyModel);
-    if (d->filter_regexp.isEmpty() || d->filter_column == -1)
+    if (d->filter_regexp.isEmpty())
         return true;
+    if (d->filter_column == -1) {
+        int column_count = d->model->columnCount(source_parent);
+        for (int column = 0; column < column_count; ++column) {
+            QModelIndex source_index = d->model->index(source_row, column, source_parent);
+            QString key = d->model->data(source_index, d->filter_role).toString();
+            if (key.contains(d->filter_regexp))
+                return true;
+        }
+        return false;
+    }
     QModelIndex source_index = d->model->index(source_row, d->filter_column, source_parent);
     if (!source_index.isValid()) // the column may not exist
         return true;
