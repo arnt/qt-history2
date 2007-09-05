@@ -1435,6 +1435,12 @@ void QTextDocument::print(QPrinter *printer) const
         doc = clone(const_cast<QTextDocument *>(this));
         clonedDoc = const_cast<QTextDocument *>(doc);
 
+        for (QTextBlock srcBlock = firstBlock(), dstBlock = clonedDoc->firstBlock();
+             srcBlock.isValid() && dstBlock.isValid();
+             srcBlock = srcBlock.next(), dstBlock = dstBlock.next()) {
+            dstBlock.layout()->setAdditionalFormats(srcBlock.layout()->additionalFormats());
+        }
+
         QAbstractTextDocumentLayout *layout = doc->documentLayout();
         layout->setPaintDevice(p.device());
 
