@@ -609,6 +609,7 @@ QT_INSTALL_TRANSLATIONS=
 QT_INSTALL_SETTINGS=
 QT_INSTALL_EXAMPLES=
 QT_INSTALL_DEMOS=
+QT_HOST_PREFIX=
 
 #flags for SQL drivers
 QT_CFLAGS_PSQL=
@@ -763,6 +764,16 @@ while [ "$#" -gt 0 ]; do
             shift;
             VAL=$1
         fi
+	;;
+    -hostprefix)
+        VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
+        # this option may or may not be followed by an argument
+        if [ -z "$2" ] || echo "$2" | grep '^-' >/dev/null 2>&1; then
+            VAL=$outpath
+        else
+            shift;
+            VAL=$1
+        fi
         ;;
     -iwmmxt)
 	CFG_IWMMXT="yes"
@@ -874,6 +885,9 @@ while [ "$#" -gt 0 ]; do
     prefix)
         QT_INSTALL_PREFIX="$VAL"
         ;;
+    hostprefix)
+	QT_HOST_PREFIX="$VAL"
+	;;
     docdir)
         QT_INSTALL_DOCS="$VAL"
         ;;
@@ -2613,6 +2627,20 @@ Installation options:
 
     -prefix <dir> ...... This will install everything relative to <dir>
                          (default $QT_INSTALL_PREFIX)
+EOF
+if [ "$PLATFORM_QWS" = "yes" ]; then
+cat <<EOF
+
+    -hostprefix [dir] .. Tools and libraries needed when developing
+                         applications are installed in [dir]. If [dir] is
+                         not given, the current build directory will be used.
+
+                         Please note that if you specify [dir]
+                         you currently have to manually copy the tools
+                         and libraries to [dir].
+EOF
+fi
+cat <<EOF
 
   * -prefix-install .... Force a sandboxed "local" installation of
                          Qt. This will install into
@@ -3345,6 +3373,44 @@ esac
 #-------------------------------------------------------------------------------
 [ -d "$outpath/src/corelib/global" ] || mkdir -p "$outpath/src/corelib/global"
 
+cat > "$outpath/src/corelib/global/qconfig.cpp.new" <<EOF
+/* License Info */
+static const char qt_configure_licensee_str          [256 + 12] = "$LICENSE_USER_STR";
+static const char qt_configure_licensed_products_str [256 + 12] = "$LICENSE_PRODUCTS_STR";
+EOF
+
+if [ ! -z "$QT_HOST_PREFIX" ]; then
+HOSTPREFIX_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_prfxpath=$QT_HOST_PREFIX" "\\0"`
+HOSTDOCUMENTATION_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_docspath=$QT_HOST_PREFIX/doc" "\\0"`
+HOSTHEADERS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_hdrspath=$QT_HOST_PREFIX/include" "\\0"`
+HOSTLIBRARIES_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_libspath=$QT_HOST_PREFIX/lib" "\\0"`
+HOSTBINARIES_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_binspath=$QT_HOST_PREFIX/bin" "\\0"`
+HOSTPLUGINS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_plugpath=$QT_HOST_PREFIX/plugins" "\\0"`
+HOSTDATA_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_datapath=$QT_HOST_PREFIX" "\\0"`
+HOSTTRANSLATIONS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_trnspath=$QT_HOST_PREFIX/translations" "\\0"`
+HOSTSETTINGS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
+HOSTEXAMPLES_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_xmplpath=$QT_INSTALL_EXAMPLES" "\\0"`
+HOSTDEMOS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_demopath=$QT_INSTALL_DEMOS" "\\0"`
+
+cat >> "$outpath/src/corelib/global/qconfig.cpp.new" <<EOF
+
+#ifdef QT_BOOTSTRAPPED
+/* Installation Info */
+static const char qt_configure_prefix_path_str       [256 + 12] = "$HOSTPREFIX_PATH_STR";
+static const char qt_configure_documentation_path_str[256 + 12] = "$HOSTDOCUMENTATION_PATH_STR";
+static const char qt_configure_headers_path_str      [256 + 12] = "$HOSTHEADERS_PATH_STR";
+static const char qt_configure_libraries_path_str    [256 + 12] = "$HOSTLIBRARIES_PATH_STR";
+static const char qt_configure_binaries_path_str     [256 + 12] = "$HOSTBINARIES_PATH_STR";
+static const char qt_configure_plugins_path_str      [256 + 12] = "$HOSTPLUGINS_PATH_STR";
+static const char qt_configure_data_path_str         [256 + 12] = "$HOSTDATA_PATH_STR";
+static const char qt_configure_translations_path_str [256 + 12] = "$HOSTTRANSLATIONS_PATH_STR";
+static const char qt_configure_settings_path_str     [256 + 12] = "$HOSTSETTINGS_PATH_STR";
+static const char qt_configure_examples_path_str     [256 + 12] = "$HOSTEXAMPLES_PATH_STR";
+static const char qt_configure_demos_path_str        [256 + 12] = "$HOSTDEMOS_PATH_STR";
+#else // QT_BOOTSTRAPPED
+EOF
+fi
+
 LICENSE_USER_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_lcnsuser=$Licensee" "\\0"`
 LICENSE_PRODUCTS_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_lcnsprod=$Edition" "\\0"`
 PREFIX_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_prfxpath=$QT_INSTALL_PREFIX" "\\0"`
@@ -3359,10 +3425,7 @@ SETTINGS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_stngpath=$QT_I
 EXAMPLES_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_xmplpath=$QT_INSTALL_EXAMPLES" "\\0"`
 DEMOS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_demopath=$QT_INSTALL_DEMOS" "\\0"`
 
-cat > "$outpath/src/corelib/global/qconfig.cpp.new" <<EOF
-/* License Info */
-static const char qt_configure_licensee_str          [256 + 12] = "$LICENSE_USER_STR";
-static const char qt_configure_licensed_products_str [256 + 12] = "$LICENSE_PRODUCTS_STR";
+cat >> "$outpath/src/corelib/global/qconfig.cpp.new" <<EOF
 /* Installation Info */
 static const char qt_configure_prefix_path_str       [256 + 12] = "$PREFIX_PATH_STR";
 static const char qt_configure_documentation_path_str[256 + 12] = "$DOCUMENTATION_PATH_STR";
@@ -3375,6 +3438,16 @@ static const char qt_configure_translations_path_str [256 + 12] = "$TRANSLATIONS
 static const char qt_configure_settings_path_str     [256 + 12] = "$SETTINGS_PATH_STR";
 static const char qt_configure_examples_path_str     [256 + 12] = "$EXAMPLES_PATH_STR";
 static const char qt_configure_demos_path_str        [256 + 12] = "$DEMOS_PATH_STR";
+EOF
+
+if [ ! -z "$QT_HOST_PREFIX" ]; then
+cat >> "$outpath/src/corelib/global/qconfig.cpp.new" <<EOF
+#endif // QT_BOOTSTRAPPED
+
+EOF
+fi
+
+cat >> "$outpath/src/corelib/global/qconfig.cpp.new" <<EOF
 /* strlen( "qt_lcnsxxxx" ) == 12 */
 #define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;
 #define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;
