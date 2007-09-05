@@ -1,0 +1,51 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the Patternist project on Trolltech Labs.
+**
+** $TROLLTECH_GPL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+***************************************************************************
+*/
+
+#ifndef Patternist_NodeNamespaceResolver_H
+#define Patternist_NodeNamespaceResolver_H
+
+#include <QHash>
+
+#include "NamespaceResolver.h"
+#include "Item.h"
+
+QT_BEGIN_HEADER 
+
+namespace Patternist
+{
+    /**
+     * @short A NamespaceResolver that use a Node's in-scope namespace
+     * bindings for resolving namespaces.
+     *
+     * @ingroup Patternist
+     * @author Frans Englich <fenglich@trolltech.com>
+     */
+    class NodeNamespaceResolver : public NamespaceResolver
+    {
+    public:
+        NodeNamespaceResolver(const Item &item);
+
+        virtual void addBinding(const NamespaceBinding nb);
+        virtual QName::NamespaceCode lookupNamespaceURI(const QName::PrefixCode prefix) const;
+        virtual Bindings bindings() const;
+
+    private:
+        const Node m_node;
+    };
+}
+
+QT_END_HEADER 
+
+#endif
+// vim: et:ts=4:sw=4:sts=4

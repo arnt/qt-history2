@@ -1,0 +1,169 @@
+/* FIXME: see the links below(\l). If I prepend those lines with \sa, the links fail to parse. How to fix? */
+
+/*!
+    \page patternist-manual.html
+    \title Patternist Manual
+    \ingroup architecture
+    \brief An overview of Qt's XQuery support.
+
+    XQuery is an XML-aware language that allows XML to be queried and created in
+    convenient and safe ways.
+    
+    An example:
+
+    \quotefromfile introductionExample.xq
+    \printuntil
+    
+    The query opens the file \c library.xml, and for each \c book element that is
+    a child of the top element \c bib, and whose attribute by name \c year is larger
+    than 1991 and has Addison-Wesley as a publisher, it constructs a \c book element
+    and attaches it to the parent element called \c bibliography element. Phew!
+
+    Table of contents:
+
+    \tableofcontents
+
+    \section1 Using Patternist
+
+    Evaluating queries can be done via an ordinary Qt C++ API and using a command line interface.
+
+    \section2 C++ API
+
+    See QXmlQuery for how to use the C++ API.
+
+    \section2 Command line utility
+
+    A command line utility called \c patternist is installed and available
+    like the other command line utilities such as \c moc or \c uic. It takes
+    a single argument that is the filename of the query to execute:
+
+    \tt{patternist myQuery.xq}
+
+    The query will be run and the output written to \c stdout.
+
+    Pass in the \c -help switch to get a brief description printed to the console, such as how
+    to bind variables using the command line.
+
+    \section1 An Introduction to the XQuery Language
+
+    To be written..
+
+    \target QtXDM
+    \section1 Qt's and XQuery's Data Model
+
+    XQuery and Qt has different data models. All data in XQuery takes the form of sequences of items,
+    where an item is either a node, or an atomic value. Nodes are represented in varying ways: sometimes
+    as XML, sometimes with QObject instances, and so on.
+
+    Atomic values, when not being serialized, are represented with QVariant. The mapping is as follows:
+
+    \table
+    \header
+        \o From
+        \o To
+    \row
+        \o QVariant::LongLong
+        \o \c xs:integer
+    \row
+        \o QVariant::String
+        \o \c xs:string
+    \row
+        \o QVariant::Double
+        \o \c xs:double
+    \row
+        \o QVariant::Float
+        \o \c xs:float
+    \row
+        \o QVariant::Bool
+        \o \c xs:boolean
+    \row
+        \o \c xs:decimal
+        \o QVariant::Double
+    \row
+        \o QVariant::ByteArray
+        \o \c xs:hexBinary
+    \row
+        \o \c xs:base64Binary
+        \o QVariant::ByteArray
+    \row
+        \o c xs:time
+        \o QVariant::DateTime
+    \row
+        \o c xs:date
+        \o QVariant::DateTime
+    \row
+        \o c xs:dateTime
+        \o QVariant::DateTime
+    \row
+        \o \c xs:gYear
+        \o QVariant::DateTime
+    \row
+        \o \c xs:gYearMonth
+        \o QVariant::DateTime
+    \row
+        \o \c xs:gMonthDay
+        \o QVariant::DateTime
+    \row
+        \o \c xs:gDay
+        \o QVariant::DateTime
+    \row
+        \o \c xs:gMonth
+        \o QVariant::DateTime
+    \row
+        \o QVariant::StringList
+        \o \c xs:string*
+    \row
+        \o \c xs:anyURI
+        \o QVariant::Url
+    \row
+        \o \c xs:duration
+        \o Should we add a QDuration type to QtCore?
+    \row
+        \o QVariantList
+        \o A sequence of atomic values, whose type is the same as the first item in the QVariantList instance. If all
+           the items in the QVariantList is not of the same type, behavior is undefined.
+    \endtable
+
+    \section1 Features and conformance
+    
+    \section2 Conformance 
+    Patternist aims at being a conformant XQuery implementation. In addition to supporting
+    minimal conformance, the serialization and full-axis features are supported. 94% of the tests
+    in W3C's test suite for XQuery are currently passed.
+
+    XML 1.0 and XML Namespaces 1.0 are supported, as opposed to the 1.1 versions.
+
+    Since XPath 2.0 is a subset of XQuery 1.0, that is supported as well.
+
+    The specifications discusses conformance further: \l{http://www.w3.org/TR/xquery/}{XQuery 1.0: An XML Query Language}.
+    W3C's XQuery testing effort can be of interest as well, \l{http://www.w3.org/XML/Query/test-suite/}{XML Query Test Suite}.
+
+    \section2 File Loading
+
+    When Patternist attempts to load XML files, such as via XQuery's \c fn:doc() function,
+    it currently supports local files only. For instance, if a HTTP URI is passed in, it will fail
+    to load it.
+
+    \section2 Security
+
+    \section3 Query Injection
+
+    XQuery is subject to query injection in the same
+    manner that SQL is. If a query is constructed by concatenating strings
+    where some of the strings are from user input, the query can be altered by carefully
+    crafting malicious strings, unless they are properly escaped.
+
+    The best solutions against these attacks is to never construct queries from user-written
+    strings, but instead input the user data to the query using variable bindings. This
+    avoids all query injection attacks.
+
+    See \l {http://www.ibm.com/developerworks/xml/library/x-xpathinjection.html}{Avoid the dangers of XPath injection, Robi Sen} or
+        \l {http://www.packetstormsecurity.org/papers/bypass/Blind_XPath_Injection_20040518.pdf}{Blind XPath Injection, Amit Klein}
+    for deeper discussions.
+
+    \section3 Denial of Service Attacks
+
+    Patternist have, as all other systems, limits. Generally, these are not checked. This
+    is not a problem for regular use, but it does mean that a malicious query can relatively easy
+    be constructed that crash or exercise undefined behavior.
+ */

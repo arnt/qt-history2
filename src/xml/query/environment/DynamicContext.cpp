@@ -1,0 +1,42 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the Patternist project on Trolltech Labs.
+**
+** $TROLLTECH_GPL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+***************************************************************************
+*/
+
+#include "Focus.h"
+#include "ListIterator.h"
+#include "ReceiverDynamicContext.h"
+#include "StackContextBase.h"
+
+#include "DynamicContext.h"
+
+using namespace Patternist;
+
+DynamicContext::Ptr DynamicContext::createFocus() const
+{
+    return DynamicContext::Ptr(new Focus(DynamicContext::Ptr(const_cast<DynamicContext *>(this))));
+}
+
+DynamicContext::Ptr DynamicContext::createStack() const
+{
+    return DynamicContext::Ptr(new StackContext(DynamicContext::Ptr(const_cast<DynamicContext *>(this))));
+}
+
+DynamicContext::Ptr DynamicContext::createReceiverContext(const SequenceReceiver::Ptr &receiver) const
+{
+    Q_ASSERT(receiver);
+    return DynamicContext::Ptr
+        (new ReceiverDynamicContext(DynamicContext::Ptr(const_cast<DynamicContext *>(this)),
+                                    receiver));
+}
+
+// vim: et:ts=4:sw=4:sts=4
