@@ -76,7 +76,7 @@ contains(QT_CONFIG, openssl) {
 
     # Only for static builds, we link against OpenSSL.
     contains(CONFIG, static) {
-        win32:LIBS += ssleay32 libeay32
+        win32:LIBS += -lssleay32 -llibeay32
         unix:LIBS += -lssl -lcrypto
     }
 
