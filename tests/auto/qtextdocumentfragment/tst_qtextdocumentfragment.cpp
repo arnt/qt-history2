@@ -106,6 +106,7 @@ private slots:
     void whitespaceWithFragmentMarkers();
     void html_emptyParapgraphs1();
     void html_emptyParapgraphs2();
+    void html_emptyParagraphs3();
     void html_font();
     void html_fontSize();
     void html_fontSizeAdjustment();
@@ -1469,10 +1470,35 @@ void tst_QTextDocumentFragment::html_emptyParapgraphs1()
 
 void tst_QTextDocumentFragment::html_emptyParapgraphs2()
 {
-    const char html[] = "<p></p><p>One paragraph</p>";
+    const char html[] = "<p style=\"margin-left:80px\"></p><p>One paragraph</p>";
     setHtml(html);
 
     QCOMPARE(doc->blockCount(), 1);
+    QCOMPARE(cursor.blockFormat().leftMargin(), qreal(0));
+
+    const char html2[] = "<p style=\"margin-left:80px\"></p>One paragraph";
+    setHtml(html2);
+    QCOMPARE(doc->blockCount(), 1);
+    QCOMPARE(cursor.blockFormat().leftMargin(), qreal(0));
+
+    const char html3[] = "<p style=\"margin-left:80px\">Foo</p><p></p>Two paragraphs";
+    setHtml(html3);
+    QCOMPARE(doc->blockCount(), 2);
+    cursor = QTextCursor(doc);
+    QCOMPARE(cursor.blockFormat().leftMargin(), qreal(80));
+    QCOMPARE(cursor.block().next().blockFormat().leftMargin(), qreal(0));
+}
+
+void tst_QTextDocumentFragment::html_emptyParagraphs3()
+{
+    const char html[] = "<ul><p>Foo</p><p></p></ul><h4>Bar</h4>";
+
+    setHtml(html);
+
+    QCOMPARE(doc->blockCount(), 2);
+
+    cursor = QTextCursor(doc);
+    QCOMPARE(cursor.block().next().blockFormat().indent(), 0);
 }
 
 void tst_QTextDocumentFragment::html_font()

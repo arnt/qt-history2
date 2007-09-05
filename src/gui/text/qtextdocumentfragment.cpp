@@ -442,7 +442,15 @@ void QTextHtmlImporter::import()
             if (blockTagClosed
                 && !currentNode->isBlock()
                 && currentNode->id != Html_unknown)
+            {
                 hasBlock = false;
+            } else if (hasBlock) {
+                // when collapsing subsequent block tags we need to clear the block format
+                QTextBlockFormat block = currentNode->blockFormat;
+                block.setIndent(indent);
+
+                cursor.setBlockFormat(block);
+            }
         }
 
         if (currentNode->displayMode == QTextHtmlElement::DisplayNone) {
