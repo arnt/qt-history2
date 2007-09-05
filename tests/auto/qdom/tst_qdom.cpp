@@ -1648,7 +1648,7 @@ static const QChar umlautName[] =
  */
 void tst_QDom::germanUmlautToByteArray() const
 {
-    QCOMPARE(sizeof(umlautName) /  sizeof(QChar), unsigned(3));
+    QCOMPARE(ulong(sizeof(umlautName) /  sizeof(QChar)), ulong(3));
     const QString name(umlautName, 3);
 
     QDomDocument d;
