@@ -14,12 +14,8 @@
 
 #include <qdebug.h>
 
-#if QT_VERSION >= 0x040100
-
 //TESTED CLASS=
-//TESTED_FILES=gui/itemviews/qmappingproxymodel.h gui/itemviews/qmappingproxymodel.cpp
-
-#if QT_VERSION >= 0x040200
+//TESTED_FILES=gui/itemviews/qsortfilterproxymodel.h gui/itemviews/qsortfilterproxymodel.cpp
 
 typedef QList<int> IntList;
 typedef QPair<int, int> IntPair;
@@ -29,8 +25,6 @@ Q_DECLARE_METATYPE(IntList)
 Q_DECLARE_METATYPE(IntPair)
 Q_DECLARE_METATYPE(IntPairList)
 Q_DECLARE_METATYPE(QModelIndex)
-
-#endif // QT_VERSION
 
 class tst_QSortFilterProxyModel : public QObject
 {
@@ -69,6 +63,8 @@ private slots:
     void filter();
     void filterHierarchy_data();
     void filterHierarchy();
+    void filterColumns_data();
+    void filterColumns();
 
     void filterTable();
 //    void filterCurrent();
@@ -1137,6 +1133,66 @@ void tst_QSortFilterProxyModel::removeColumns()
     }
 }
 
+
+void tst_QSortFilterProxyModel::filterColumns_data()
+{
+    QTest::addColumn<QString>("pattern");
+    QTest::addColumn<QStringList>("initial");
+    QTest::addColumn<bool>("data");
+
+    QTest::newRow("all") << "a"
+                         << (QStringList()
+                             << "delta"
+                             << "yankee"
+                             << "bravo"
+                             << "lima")
+                         << true;
+
+    QTest::newRow("some") << "lie"
+                          << (QStringList()
+                              << "charlie"
+                              << "juliet"
+                              << "tango"
+                              << "hotel")
+                          << true;
+
+    QTest::newRow("nothing") << "zoo"
+                             << (QStringList()
+                                 << "foxtrot"
+                                 << "uniform"
+                                 << "alpha"
+                                 << "golf")
+                             << false;
+}
+
+void tst_QSortFilterProxyModel::filterColumns()
+{
+    QFETCH(QString, pattern);
+    QFETCH(QStringList, initial);
+    QFETCH(bool, data);
+    // prepare model
+    m_model->setColumnCount(initial.count());
+    m_model->setRowCount(1);
+    QCOMPARE(m_model->columnCount(QModelIndex()), initial.count());
+    QCOMPARE(m_model->rowCount(QModelIndex()), 1);
+    // set data
+    QCOMPARE(m_model->rowCount(QModelIndex()), 1);
+    for (int col = 0; col < m_model->columnCount(QModelIndex()); ++col) {
+        QModelIndex index = m_model->index(0, col, QModelIndex());
+        m_model->setData(index, initial.at(col), Qt::DisplayRole);
+    }
+    m_proxy->setFilterRegExp(pattern);
+    m_proxy->setFilterKeyColumn(-1);
+    // make sure the model is unchanged
+    for (int col = 0; col < m_model->columnCount(QModelIndex()); ++col) {
+        QModelIndex index = m_model->index(0, col, QModelIndex());
+        QCOMPARE(m_model->data(index, Qt::DisplayRole).toString(), initial.at(col));
+    }
+    // make sure the proxy is filtered
+    QModelIndex index = m_proxy->index(0, 0, QModelIndex());
+    QCOMPARE(index.isValid(), data);
+}
+
 void tst_QSortFilterProxyModel::filter_data()
 {
     QTest::addColumn<QString>("pattern");
@@ -1358,6 +1414,8 @@ void tst_QSortFilterProxyModel::checkHierarchy(const QStringList &l, const QAbst
     }
 
 }
+
+
 
 class TestModel: public QAbstractTableModel
 {
@@ -2261,8 +2319,3 @@ void tst_QSortFilterProxyModel::sourceInsertRows()
 
 QTEST_MAIN(tst_QSortFilterProxyModel)
 #include "tst_qsortfilterproxymodel.moc"
-
-#else // QT_VERSION
-QTEST_NOOP_MAIN
-#endif
-
