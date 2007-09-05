@@ -6561,7 +6561,11 @@ bool QWidget::event(QEvent *event)
             }
             break;
         }
-
+#ifdef Q_WS_MAC
+    case QEvent::MacGLWindowChange:
+        d->needWindowChange = false;
+        break;
+#endif
     default:
         return QObject::event(event);
     }
