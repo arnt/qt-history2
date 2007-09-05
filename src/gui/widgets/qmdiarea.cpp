@@ -743,8 +743,10 @@ void QMdiAreaPrivate::activateWindow(QMdiSubWindow *child)
 void QMdiAreaPrivate::activateCurrentWindow()
 {
     QMdiSubWindow *current = q_func()->currentSubWindow();
-    if (current && !isExplicitlyDeactivated(current))
+    if (current && !isExplicitlyDeactivated(current)) {
+        current->d_func()->activationEnabled = true;
         current->d_func()->setActive(true);
+    }
 }
 
 /*!
@@ -805,7 +807,7 @@ void QMdiAreaPrivate::resetActiveWindow(QMdiSubWindow *deactivatedWindow)
             return;
         active = 0;
         if ((aboutToBecomeActive || isActivated || lastWindowAboutToBeDestroyed())
-                && !isExplicitlyDeactivated(deactivatedWindow)) {
+            && !isExplicitlyDeactivated(deactivatedWindow) && !q->window()->isMinimized()) {
             return;
         }
         emit q->subWindowActivated(0);
@@ -1247,7 +1249,7 @@ QMdiSubWindow *QMdiArea::currentSubWindow() const
     if (d->active)
         return d->active;
 
-    if (d->isActivated)
+    if (d->isActivated && !window()->isMinimized())
         return 0;
 
     Q_ASSERT(d->indicesToActivatedChildren.count() > 0);
@@ -1822,10 +1824,12 @@ bool QMdiArea::eventFilter(QObject *object, QEvent *event)
     Q_D(QMdiArea);
     if (!qobject_cast<QMdiSubWindow *>(object)) {
         // QApplication events:
-        if (event->type() == QEvent::ApplicationActivate && !d->active)
+        if (event->type() == QEvent::ApplicationActivate && !d->active
+            && isVisible() && !window()->isMinimized()) {
             d->activateCurrentWindow();
-        else if (event->type() == QEvent::ApplicationDeactivate && d->active)
+        } else if (event->type() == QEvent::ApplicationDeactivate && d->active) {
             d->setActive(d->active, false);
+        }
         return QAbstractScrollArea::eventFilter(object, event);
     }
 

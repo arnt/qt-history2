@@ -288,7 +288,7 @@ void tst_QMdiArea::subWindowActivated2()
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
     QTest::qWait(100);
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
+#if defined(Q_WS_QWS)
     QEXPECT_FAIL("", "task 168682", Abort);
 #endif
     QCOMPARE(spy.count(), 1);
@@ -301,9 +301,6 @@ void tst_QMdiArea::subWindowActivated2()
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
     QTest::qWait(100);
-#if defined(Q_WS_MAC)
-    QEXPECT_FAIL("", "task 168682", Abort);
-#endif
     QCOMPARE(spy.count(), 1);
     QCOMPARE(mdiArea.activeSubWindow(), activeSubWindow);
     spy.clear();
