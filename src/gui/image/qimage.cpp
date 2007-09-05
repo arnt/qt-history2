@@ -367,7 +367,9 @@ QImageData::~QImageData()
     returns the image's entire color table. To obtain a single entry,
     use the pixelIndex() function to retrieve the pixel index for a
     given pair of coordinates, then use the color() function to
-    retrieve the color.
+    retrieve the color. Note that if you create an 8-bit image
+    manually, you have to set a valid color table on the image as
+    well.
 
     The hasAlphaChannel() function tells if the image's format
     respects the alpha channel, or not. The allGray() and
