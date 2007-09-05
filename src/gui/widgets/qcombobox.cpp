@@ -2110,9 +2110,6 @@ void QComboBox::showPopup()
     view()->selectionModel()->setCurrentIndex(d->currentIndex,
                                               QItemSelectionModel::ClearAndSelect);
     QComboBoxPrivateContainer* container = d->viewContainer();
-    // use top item as height for complete listView
-    int itemHeight = view()->sizeHintForIndex(d->model->index(0, d->modelColumn, d->root)).height()
-                     + container->spacing();
     QStyleOptionComboBox opt;
     initStyleOption(&opt);
     QRect listRect(style()->subControlRect(QStyle::CC_ComboBox, &opt,
@@ -2124,11 +2121,20 @@ void QComboBox::showPopup()
     int aboveHeight = above.y() - screen.y();
 
     const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this);
-    if (usePopup)
-        listRect.setHeight(itemHeight * count());
-    else
+    if (usePopup) {
+        int listHeight = 0;
+        for (int row = 0; row < count() ; ++row) {
+             listHeight += view()->sizeHintForIndex(d->model->index(row, 
+                                                    d->modelColumn, d->root)).height() + 
+                                                    container->spacing();
+        }
+        listRect.setHeight(listHeight);
+    } else {
+        // use top item as height for complete listView
+        int itemHeight = view()->sizeHintForIndex(d->model->index(0, d->modelColumn, d->root)).height() + 
+                                                  container->spacing();
         listRect.setHeight(itemHeight * qMin(d->maxVisibleItems, count()));
-
+    }
     // ### Adjusting by PM_DefaultFrameWidth is not enough. Since QFrame supports
     // SE_FrameContents, QFrame needs API to return the frameWidths
     listRect.setHeight(listRect.height() + 2*container->spacing()
