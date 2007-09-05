@@ -1,30 +1,30 @@
-HEADERS += iterators/CachingIterator.h          \
-           iterators/DistinctIterator.h         \
-           iterators/Docs.h                     \
-           iterators/EmptyIterator.h            \
-           iterators/ExceptIterator.h           \
-           iterators/IndexOfIterator.h          \
-           iterators/InsertionIterator.h        \
-           iterators/IntersectIterator.h        \
-           iterators/ItemMappingIterator.h      \
-           iterators/Iterator.h                 \
-           iterators/ListIterator.h             \
-           iterators/RangeIterator.h            \
-           iterators/RemovalIterator.h          \
-           iterators/SequenceMappingIterator.h  \
-           iterators/SingletonIterator.h        \
-           iterators/SubsequenceIterator.h      \
-           iterators/ToCodepointsIterator.h     \
-           iterators/UnionIterator.h
+HEADERS += $$PWD/CachingIterator.h          \
+           $$PWD/DistinctIterator.h         \
+           $$PWD/Docs.h                     \
+           $$PWD/EmptyIterator.h            \
+           $$PWD/ExceptIterator.h           \
+           $$PWD/IndexOfIterator.h          \
+           $$PWD/InsertionIterator.h        \
+           $$PWD/IntersectIterator.h        \
+           $$PWD/ItemMappingIterator.h      \
+           $$PWD/Iterator.h                 \
+           $$PWD/ListIterator.h             \
+           $$PWD/RangeIterator.h            \
+           $$PWD/RemovalIterator.h          \
+           $$PWD/SequenceMappingIterator.h  \
+           $$PWD/SingletonIterator.h        \
+           $$PWD/SubsequenceIterator.h      \
+           $$PWD/ToCodepointsIterator.h     \
+           $$PWD/UnionIterator.h
 
-SOURCES += iterators/CachingIterator.cpp        \
-           iterators/DistinctIterator.cpp       \
-           iterators/ExceptIterator.cpp         \
-           iterators/IndexOfIterator.cpp        \
-           iterators/InsertionIterator.cpp      \
-           iterators/IntersectIterator.cpp      \
-           iterators/RangeIterator.cpp          \
-           iterators/RemovalIterator.cpp        \
-           iterators/SubsequenceIterator.cpp    \
-           iterators/ToCodepointsIterator.cpp   \
-           iterators/UnionIterator.cpp
+SOURCES += $$PWD/CachingIterator.cpp        \
+           $$PWD/DistinctIterator.cpp       \
+           $$PWD/ExceptIterator.cpp         \
+           $$PWD/IndexOfIterator.cpp        \
+           $$PWD/InsertionIterator.cpp      \
+           $$PWD/IntersectIterator.cpp      \
+           $$PWD/RangeIterator.cpp          \
+           $$PWD/RemovalIterator.cpp        \
+           $$PWD/SubsequenceIterator.cpp    \
+           $$PWD/ToCodepointsIterator.cpp   \
+           $$PWD/UnionIterator.cpp

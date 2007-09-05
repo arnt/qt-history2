@@ -1,9 +1,9 @@
-HEADERS += parser/ParserContext.h           \
-           parser/QueryTransformParser.h    \
-           parser/Tokenizer.h               \
-           parser/XQueryTokenizer.h         \
+HEADERS += $$PWD/ParserContext.h           \
+           $$PWD/QueryTransformParser.h    \
+           $$PWD/Tokenizer.h               \
+           $$PWD/XQueryTokenizer.h         \
 
-SOURCES += parser/QueryTransformParser.cpp  \
-           parser/ParserContext.cpp         \
-           parser/Tokenizer.cpp             \
-           parser/XQueryTokenizer.cpp
+SOURCES += $$PWD/QueryTransformParser.cpp  \
+           $$PWD/ParserContext.cpp         \
+           $$PWD/Tokenizer.cpp             \
+           $$PWD/XQueryTokenizer.cpp

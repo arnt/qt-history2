@@ -1,9 +1,9 @@
-HEADERS += janitors/Atomizer.h              \
-           janitors/CardinalityVerifier.h   \
-           janitors/ItemVerifier.h          \
-           janitors/UntypedAtomicConverter.h
+HEADERS += $$PWD/Atomizer.h              \
+           $$PWD/CardinalityVerifier.h   \
+           $$PWD/ItemVerifier.h          \
+           $$PWD/UntypedAtomicConverter.h
 
-SOURCES += janitors/Atomizer.cpp                \
-           janitors/CardinalityVerifier.cpp     \
-           janitors/ItemVerifier.cpp            \
-           janitors/UntypedAtomicConverter.cpp
+SOURCES += $$PWD/Atomizer.cpp                \
+           $$PWD/CardinalityVerifier.cpp     \
+           $$PWD/ItemVerifier.cpp            \
+           $$PWD/UntypedAtomicConverter.cpp

@@ -1,32 +1,33 @@
-HEADERS += api/qabstractxmlpullprovider.h           \
-           api/PullBridge_p.h                       \
-           api/PushBridge_p.h                       \
-           api/qabstractmessagehandler.h            \
-           api/qabstracturiresolver.h               \
-           api/qabstractxmlpushcallback.h           \
-           api/qxmlitemiterator.h                   \
-           api/qxmlitemiterator_p.h                 \
-           api/qserializationsettings.h             \
-           api/qsourcelocation.h                    \
-           api/qxmlname.h                           \
-           api/qxmlquery_p.h                        \
-           api/VariableLoader_p.h                   \
-           $$PWD/../../cli/ColoringMessageHandler.h \
-           api/qxmlquery.h
+HEADERS += $$PWD/qabstractxmlpullprovider.h                             \
+           $$PWD/PullBridge_p.h                                         \
+           $$PWD/PushBridge_p.h                                         \
+           $$PWD/qabstractmessagehandler.h                              \
+           $$PWD/qabstracturiresolver.h                                 \
+           $$PWD/qabstractxmlpushcallback.h                             \
+           $$PWD/qxmlitemiterator.h                                     \
+           $$PWD/qxmlitemiterator_p.h                                   \
+           $$PWD/qserializationsettings.h                               \
+           $$PWD/qsourcelocation.h                                      \
+           $$PWD/qxmlname.h                                             \
+           $$PWD/qxmlquery_p.h                                          \
+           $$PWD/VariableLoader_p.h                                     \
+           $$PWD/../../../../tools/patternist/ColoringMessageHandler.h  \
+           $$PWD/../../../../tools/patternist/ColorOutput.h             \
+           $$PWD/qxmlquery.h
 
-SOURCES += api/qabstractxmlpullprovider.cpp             \
-           api/PullBridge_p.cpp                         \
-           api/PushBridge_p.cpp                         \
-           api/VariableLoader_p.cpp                     \
-           api/qabstractmessagehandler.cpp              \
-           api/qabstractxmlpushcallback.cpp             \
-           api/qxmlitemiterator.cpp                     \
-           api/qserializationsettings.cpp               \
-           api/qsourcelocation.cpp                      \
-           api/qabstracturiresolver.cpp                 \
-           api/qxmlname.cpp                             \
-           $$PWD/../../cli/ColoringMessageHandler.cpp   \
-           $$PWD/../../cli/ColorOutput.cpp              \
-           api/qxmlquery.cpp
+SOURCES += $$PWD/qabstractxmlpullprovider.cpp                               \
+           $$PWD/PullBridge_p.cpp                                           \
+           $$PWD/PushBridge_p.cpp                                           \
+           $$PWD/VariableLoader_p.cpp                                       \
+           $$PWD/qabstractmessagehandler.cpp                                \
+           $$PWD/qabstractxmlpushcallback.cpp                               \
+           $$PWD/qxmlitemiterator.cpp                                       \
+           $$PWD/qserializationsettings.cpp                                 \
+           $$PWD/qsourcelocation.cpp                                        \
+           $$PWD/qabstracturiresolver.cpp                                   \
+           $$PWD/qxmlname.cpp                                               \
+           $$PWD/../../../../tools/patternist/ColoringMessageHandler.cpp    \
+           $$PWD/../../../../tools/patternist/ColorOutput.cpp               \
+           $$PWD/qxmlquery.cpp
 
-INCLUDEPATH += $$PWD/../../cli/
+INCLUDEPATH += $$PWD/../../../../tools/patternist/

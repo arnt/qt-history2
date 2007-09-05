@@ -1,11 +1,11 @@
-SOURCES += acceltree/AccelTree.cpp                  \
-           acceltree/AccelTreeBuilder.cpp           \
-           acceltree/AccelTreeResourceLoader.cpp    \
-           acceltree/AccelIterators.cpp             \
-           acceltree/CompressedWhitespace.cpp
+SOURCES += $$PWD/AccelTree.cpp                  \
+           $$PWD/AccelTreeBuilder.cpp           \
+           $$PWD/AccelTreeResourceLoader.cpp    \
+           $$PWD/AccelIterators.cpp             \
+           $$PWD/CompressedWhitespace.cpp
 
-HEADERS += acceltree/AccelTreeBuilder.h             \
-           acceltree/AccelTree.h                    \
-           acceltree/AccelTreeResourceLoader.h      \
-           acceltree/AccelIterators.h               \
-           acceltree/CompressedWhitespace.h
+HEADERS += $$PWD/AccelTreeBuilder.h             \
+           $$PWD/AccelTree.h                    \
+           $$PWD/AccelTreeResourceLoader.h      \
+           $$PWD/AccelIterators.h               \
+           $$PWD/CompressedWhitespace.h

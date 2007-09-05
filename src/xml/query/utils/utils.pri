@@ -1,29 +1,29 @@
-HEADERS += utils/CommonNamespaces.h         \
-       utils/CppCastingHelper.h             \
-       utils/Debug.h                        \
-       utils/Docs.h                         \
-       utils/Exception.h                    \
-       utils/GenericNamespaceResolver.h     \
-       utils/PatternistLocale.h             \
-       utils/NamePool.h                     \
-       utils/NamespaceBinding.h             \
-       utils/NamespaceResolver.h            \
-       utils/OutputValidator.h              \
-       utils/PlainSharedPtr.h               \
-       utils/QName.h                        \
-       utils/Serializer.h                   \
-       utils/QName.h                        \
-       utils/TestHelper.h                   \
-       utils/XPathHelper.h                  \
-       utils/DelegatingNamespaceResolver.h  \
-       utils/NodeNamespaceResolver.h
+HEADERS += $$PWD/CommonNamespaces.h         \
+       $$PWD/CppCastingHelper.h             \
+       $$PWD/Debug.h                        \
+       $$PWD/Docs.h                         \
+       $$PWD/Exception.h                    \
+       $$PWD/GenericNamespaceResolver.h     \
+       $$PWD/PatternistLocale.h             \
+       $$PWD/NamePool.h                     \
+       $$PWD/NamespaceBinding.h             \
+       $$PWD/NamespaceResolver.h            \
+       $$PWD/OutputValidator.h              \
+       $$PWD/PlainSharedPtr.h               \
+       $$PWD/QName.h                        \
+       $$PWD/Serializer.h                   \
+       $$PWD/QName.h                        \
+       $$PWD/TestHelper.h                   \
+       $$PWD/XPathHelper.h                  \
+       $$PWD/DelegatingNamespaceResolver.h  \
+       $$PWD/NodeNamespaceResolver.h
 
-SOURCES += utils/GenericNamespaceResolver.cpp   \
-    utils/PatternistLocale.cpp                  \
-    utils/NamePool.cpp                          \
-    utils/NamespaceResolver.cpp                 \
-    utils/OutputValidator.cpp                   \
-    utils/Serializer.cpp                        \
-    utils/XPathHelper.cpp                       \
-    utils/DelegatingNamespaceResolver.cpp       \
-    utils/NodeNamespaceResolver.cpp
+SOURCES += $$PWD/GenericNamespaceResolver.cpp   \
+    $$PWD/PatternistLocale.cpp                  \
+    $$PWD/NamePool.cpp                          \
+    $$PWD/NamespaceResolver.cpp                 \
+    $$PWD/OutputValidator.cpp                   \
+    $$PWD/Serializer.cpp                        \
+    $$PWD/XPathHelper.cpp                       \
+    $$PWD/DelegatingNamespaceResolver.cpp       \
+    $$PWD/NodeNamespaceResolver.cpp

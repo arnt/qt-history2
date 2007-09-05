@@ -1,22 +1,22 @@
-HEADERS += environment/DelegatingDynamicContext.h   \
-           environment/DynamicContext.h             \
-           environment/ExternalEnvironment.h        \
-           environment/Focus.h                      \
-           environment/GenericStaticContext.h       \
-           environment/GenericDynamicContext.h      \
-           environment/ReceiverDynamicContext.h     \
-           environment/ReportContext.h              \
-           environment/StackContextBase.h           \
-           environment/StaticContext.h              \
-           environment/StaticFocusContext.h
+HEADERS += $$PWD/DelegatingDynamicContext.h   \
+           $$PWD/DynamicContext.h             \
+           $$PWD/ExternalEnvironment.h        \
+           $$PWD/Focus.h                      \
+           $$PWD/GenericStaticContext.h       \
+           $$PWD/GenericDynamicContext.h      \
+           $$PWD/ReceiverDynamicContext.h     \
+           $$PWD/ReportContext.h              \
+           $$PWD/StackContextBase.h           \
+           $$PWD/StaticContext.h              \
+           $$PWD/StaticFocusContext.h
 
-SOURCES += environment/DelegatingDynamicContext.cpp \
-           environment/DynamicContext.cpp           \
-           environment/ExternalEnvironment.cpp      \
-           environment/Focus.cpp                    \
-           environment/GenericStaticContext.cpp     \
-           environment/GenericDynamicContext.cpp    \
-           environment/ReceiverDynamicContext.cpp   \
-           environment/ReportContext.cpp            \
-           environment/StaticContext.cpp            \
-           environment/StaticFocusContext.cpp
+SOURCES += $$PWD/DelegatingDynamicContext.cpp \
+           $$PWD/DynamicContext.cpp           \
+           $$PWD/ExternalEnvironment.cpp      \
+           $$PWD/Focus.cpp                    \
+           $$PWD/GenericStaticContext.cpp     \
+           $$PWD/GenericDynamicContext.cpp    \
+           $$PWD/ReceiverDynamicContext.cpp   \
+           $$PWD/ReportContext.cpp            \
+           $$PWD/StaticContext.cpp            \
+           $$PWD/StaticFocusContext.cpp

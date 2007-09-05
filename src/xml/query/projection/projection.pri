@@ -1,4 +1,4 @@
-SOURCES += projection/DocumentProjector.cpp
+SOURCES += $$PWD/DocumentProjector.cpp
 
-HEADERS += projection/DocumentProjector.h   \
-           projection/ProjectedExpression.h
+HEADERS += $$PWD/DocumentProjector.h   \
+           $$PWD/ProjectedExpression.h
