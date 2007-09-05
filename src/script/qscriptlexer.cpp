@@ -400,7 +400,7 @@ int QScript::Lexer::lex()
     if (stackToken >= 0) {
         setDone(Other);
         token = stackToken;
-        stackToken = 0;
+        stackToken = -1;
     }
 
     while (!done) {
@@ -458,8 +458,16 @@ int QScript::Lexer::lex()
             } else {
                 recordStartPos();
                 token = matchPunctuator(current, next1, next2, next3);
-                if (token != -1)
+                if (token != -1) {
+                    if (terminator && !delimited
+                        && (token == QScriptGrammar::T_PLUS_PLUS
+                            || token == QScriptGrammar::T_MINUS_MINUS)) {
+                        // automatic semicolon insertion
+                        stackToken = token;
+                        token = QScriptGrammar::T_SEMICOLON;
+                    }
                     setDone(Other);
+                }
                 else {
                     setDone(Bad);
                     errmsg = QLatin1String("Illegal character");

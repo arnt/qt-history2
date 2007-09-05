@@ -982,6 +982,12 @@ case 228: {
               continue;
             }
 
+          else if ((state == INITIAL_STATE) && (yytoken == 0)) {
+              // accept empty input
+              yytoken = T_SEMICOLON;
+              continue;
+          }
+
           int ers = state;
           int shifts = 0;
           int reduces = 0;

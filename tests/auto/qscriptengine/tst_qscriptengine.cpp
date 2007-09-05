@@ -56,6 +56,7 @@ private slots:
     void stacktrace();
     void numberParsing_data();
     void numberParsing();
+    void automaticSemicolonInsertion();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -402,6 +403,7 @@ void tst_QScriptEngine::canEvaluate_data()
     QTest::newRow("0") << QString("0") << true;
     QTest::newRow("!") << QString("!\n") << false;
     QTest::newRow("if (") << QString("if (\n") << false;
+    QTest::newRow("if (10) //") << QString("if (10) //\n") << false;
     QTest::newRow("a = 1; if (") << QString("a = 1;\nif (\n") << false;
     QTest::newRow("./test.js") << QString("./test.js\n") << true;
     QTest::newRow("if (0) print(1)") << QString("if (0)\nprint(1)\n") << true;
@@ -428,6 +430,12 @@ void tst_QScriptEngine::evaluate_data()
     QTest::addColumn<bool>("expectHadError");
     QTest::addColumn<int>("expectErrorLineNumber");
 
+    QTest::newRow("(newline)") << QString("\n") << -1 << false << -1;
+    QTest::newRow("0 //")   << QString("0 //") << -1 << false << -1;
+    QTest::newRow("/* */")   << QString("/* */") << -1 << false << -1;
+    QTest::newRow("//") << QString("//") << -1 << false << -1;
+    QTest::newRow("(spaces)")  << QString("  ") << -1 << false << -1;
+    QTest::newRow("(empty)")   << QString("") << -1 << false << -1;
     QTest::newRow("0")     << QString("0")       << -1 << false << -1;
     QTest::newRow("0=1")   << QString("\n0=1\n") << -1 << true  << 2;
     QTest::newRow("a=1")   << QString("a=1\n")   << -1 << false << -1;
@@ -1201,6 +1209,54 @@ void tst_QScriptEngine::numberParsing()
     QVERIFY(ret.isNumber());
     qsreal actual = ret.toNumber();
     QCOMPARE(actual, expect);
+}
+
+// see ECMA-262, section 7.9
+void tst_QScriptEngine::automaticSemicolonInsertion()
+{
+    QScriptEngine eng;
+    {
+        QScriptValue ret = eng.evaluate("{ 1 2 } 3");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QString::fromLatin1("SyntaxError: Expected `;', `;'"));
+    }
+    {
+        QScriptValue ret = eng.evaluate("{ 1\n2 } 3");
+        QVERIFY(ret.isNumber());
+        QCOMPARE(ret.toInt32(), 3);
+    }
+    {
+        QScriptValue ret = eng.evaluate("for (a; b\n)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QString::fromLatin1("SyntaxError: Expected `;'"));
+    }
+    {
+        QScriptValue ret = eng.evaluate("return\n1 + 2");
+        QVERIFY(ret.isUndefined());
+    }
+    {
+        eng.evaluate("c = 2; b = 1");
+        QScriptValue ret = eng.evaluate("a = b\n++c");
+        QVERIFY(ret.isNumber());
+        QCOMPARE(ret.toInt32(), 3);
+    }
+    {
+        QScriptValue ret = eng.evaluate("if (a > b)\nelse c = d");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QString::fromLatin1("SyntaxError"));
+    }
+    {
+        eng.evaluate("function c() { return { foo: function() { return 5; } } }");
+        eng.evaluate("b = 1; d = 2; e = 3");
+        QScriptValue ret = eng.evaluate("a = b + c\n(d + e).foo()");
+        QVERIFY(ret.isNumber());
+        QCOMPARE(ret.toInt32(), 6);
+    }
+    {
+        QScriptValue ret = eng.evaluate("throw\n1");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QString::fromLatin1("SyntaxError"));
+    }
 }
 
 QTEST_MAIN(tst_QScriptEngine)
