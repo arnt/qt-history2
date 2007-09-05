@@ -250,14 +250,16 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     else
         dev = QLatin1String("/dev/fb0");
 
-    d_ptr->fd = open(dev.toLatin1().constData(), O_RDWR);
+    if (access(dev.toLatin1().constData(), R_OK|W_OK) == 0)
+        d_ptr->fd = open(dev.toLatin1().constData(), O_RDWR);
     if (d_ptr->fd == -1) {
         if (QApplication::type() == QApplication::GuiServer) {
             perror("QScreenLinuxFb::connect");
             qCritical("Error opening framebuffer device %s", qPrintable(dev));
             return false;
         }
-        d_ptr->fd = open(dev.toLatin1().constData(), O_RDONLY);
+        if (access(dev.toLatin1().constData(), R_OK) == 0)
+            d_ptr->fd = open(dev.toLatin1().constData(), O_RDONLY);
     }
 
     fb_fix_screeninfo finfo;
@@ -441,7 +443,8 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 void QLinuxFbScreen::disconnect()
 {
     data -= dataoffset;
-    munmap((char*)data,mapsize);
+    if (data)
+        munmap((char*)data,mapsize);
     close(d_ptr->fd);
 }
 
