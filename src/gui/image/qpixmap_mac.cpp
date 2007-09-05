@@ -868,7 +868,7 @@ static QPixmap qt_mac_grabScreenRect(const QRect &rect)
 
     qt_mac_flipPixmap(buffer.data(), bytewidth, rect.height());
 
-    QCFType<CGColorSpaceRef> cSpace = CGColorSpaceCreateWithName(kCGColorSpaceUserRGB);
+    QCFType<CGColorSpaceRef> cSpace = CGColorSpaceCreateDeviceRGB();//CGColorSpaceCreateWithName(kCGColorSpaceUserRGB);
     QCFType<CGContextRef> bitmap = CGBitmapContextCreate(buffer.data(), rect.width(), rect.height(), 8, bytewidth,
                                                          cSpace, kCGImageAlphaNoneSkipFirst);
 
