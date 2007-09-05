@@ -653,7 +653,7 @@ static QString fixedCharData(const QString &data, bool *ok)
 
     *ok = true;
     return result;
-};
+}
 
 // [15] Comment ::= '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 // can't escape "--", since entities are not recognised within comments

@@ -1814,7 +1814,7 @@ void QXmlStreamReader::addExtraNamespaceDeclaration(const QXmlStreamNamespaceDec
     QXmlStreamReaderPrivate::NamespaceDeclaration &namespaceDeclaration = d->namespaceDeclarations.push();
     namespaceDeclaration.prefix = d->addToStringStorage(extraNamespaceDeclaration.prefix());
     namespaceDeclaration.namespaceUri = d->addToStringStorage(extraNamespaceDeclaration.namespaceUri());
-};
+}
 
 /*!
   Like addExtraNamespaceDeclaration() but for a vector of namespace declarations
@@ -1825,7 +1825,7 @@ void QXmlStreamReader::addExtraNamespaceDeclarations(const QXmlStreamNamespaceDe
 {
     for (int i = 0; i < extraNamespaceDeclarations.size(); ++i)
         addExtraNamespaceDeclaration(extraNamespaceDeclarations.at(i));
-};
+}
 
 
 /*!  Convenience function to be called in case a StartElement was
