@@ -682,11 +682,9 @@ int QScript::Lexer::lex()
     } else if (state == Hex) { // scan hex numbers
         quint64 i;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-        sscanf_s(buffer8, "%Lx", &i);
-#elif defined(Q_OS_MAC)
-        sscanf(buffer8, "%llx", &i);
+        sscanf_s(buffer8, "%llx", &i);
 #else
-        sscanf(buffer8, "%Lx", &i);
+        sscanf(buffer8, "%llx", &i);
 #endif
 #if defined Q_CC_MSVC && !defined Q_CC_MSVC_NET
         dval = qint64(i);
@@ -697,9 +695,9 @@ int QScript::Lexer::lex()
     } else if (state == Octal) {   // scan octal number
         quint64 ui;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-        sscanf_s(buffer8, "%Lo", &ui);
+        sscanf_s(buffer8, "%llo", &ui);
 #else
-        sscanf(buffer8, "%Lo", &ui);
+        sscanf(buffer8, "%llo", &ui);
 #endif
 #if defined Q_CC_MSVC && !defined Q_CC_MSVC_NET
         dval = qint64(ui);

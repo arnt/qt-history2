@@ -54,6 +54,8 @@ private slots:
     void gcWithNestedDataStructure();
     void processEventsWhileRunning();
     void stacktrace();
+    void numberParsing_data();
+    void numberParsing();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -1171,6 +1173,34 @@ void tst_QScriptEngine::stacktrace()
         QScriptValue bt = result.property("backtrace").call(result);
         QCOMPARE(qscriptvalue_cast<QStringList>(bt), backtrace);
     }
+}
+
+void tst_QScriptEngine::numberParsing_data()
+{
+    QTest::addColumn<QString>("string");
+    QTest::addColumn<qsreal>("expect");
+
+    QTest::newRow("") << QString("0") << qsreal(0);
+    QTest::newRow("") << QString("00") << qsreal(00);
+    QTest::newRow("") << QString("0x0") << qsreal(0x0);
+    QTest::newRow("") << QString("100") << qsreal(100);
+    QTest::newRow("") << QString("0x100") << qsreal(0x100);
+    QTest::newRow("") << QString("0100") << qsreal(0100);
+    QTest::newRow("") << QString("4294967296") << qsreal(Q_UINT64_C(4294967296));
+    QTest::newRow("") << QString("0x100000000") << qsreal(Q_UINT64_C(0x100000000));
+    QTest::newRow("") << QString("040000000000") << qsreal(Q_UINT64_C(040000000000));
+}
+
+void tst_QScriptEngine::numberParsing()
+{
+    QFETCH(QString, string);
+    QFETCH(qsreal, expect);
+
+    QScriptEngine eng;
+    QScriptValue ret = eng.evaluate(string);
+    QVERIFY(ret.isNumber());
+    qsreal actual = ret.toNumber();
+    QCOMPARE(actual, expect);
 }
 
 QTEST_MAIN(tst_QScriptEngine)
