@@ -51,8 +51,8 @@ QFileInfoGatherer::~QFileInfoGatherer()
 {
     mutex.lock();
     abort = true;
-    mutex.unlock();
     condition.wakeOne();
+    mutex.unlock();
     wait();
 }
 
@@ -102,8 +102,8 @@ void QFileInfoGatherer::fetchExtendedInformation(const QString &path, const QStr
     }
     this->path.push(path);
     this->files.push(files);
-    mutex.unlock();
     condition.wakeAll();
+    mutex.unlock();
 }
 
 /*!
