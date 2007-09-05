@@ -279,7 +279,7 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::estimateItemsInRect(const QRectF &
 
     QList<QGraphicsItem *> itemsInRect;
     foreach (QGraphicsItem *item, q->items()) {
-        QRectF boundingRect = item->sceneBoundingRect();
+        QRectF boundingRect = _q_adjustedRect(item->sceneBoundingRect());
         if (item->isVisible() && (boundingRect.intersects(rect) || boundingRect.contains(rect)))
             itemsInRect << item;
     }
