@@ -194,8 +194,9 @@ private slots:
 
     void repaintWhenChildDeleted();
     void hideOpaqueChildWhileHidden();
+#if defined(Q_WS_WIN) || defined(Q_WS_X11)
     void alienWidgets();
-
+#endif
 private:
     QWidget *testWidget;
 };
