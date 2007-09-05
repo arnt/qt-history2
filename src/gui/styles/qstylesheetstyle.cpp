@@ -69,6 +69,149 @@ static QSet<const QWidget *> *autoFillDisabledWidgets = 0;
 
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
 
+enum PseudoElement {
+    PseudoElement_None,
+    PseudoElement_DownArrow,
+    PseudoElement_UpArrow,
+    PseudoElement_LeftArrow,
+    PseudoElement_RightArrow,
+    PseudoElement_Indicator,
+    PseudoElement_ExclusiveIndicator,
+    PseudoElement_PushButtonMenuIndicator,
+    PseudoElement_ComboBoxDropDown,
+    PseudoElement_ComboBoxArrow,
+    PseudoElement_Item,
+    PseudoElement_SpinBoxUpButton,
+    PseudoElement_SpinBoxUpArrow,
+    PseudoElement_SpinBoxDownButton,
+    PseudoElement_SpinBoxDownArrow,
+    PseudoElement_GroupBoxTitle,
+    PseudoElement_GroupBoxIndicator,
+    PseudoElement_ToolButtonMenu,
+    PseudoElement_ToolButtonMenuArrow,
+    PseudoElement_ToolButtonDownArrow,
+    PseudoElement_ToolBoxTab,
+    PseudoElement_ScrollBarSlider,
+    PseudoElement_ScrollBarAddPage,
+    PseudoElement_ScrollBarSubPage,
+    PseudoElement_ScrollBarAddLine,
+    PseudoElement_ScrollBarSubLine,
+    PseudoElement_ScrollBarFirst,
+    PseudoElement_ScrollBarLast,
+    PseudoElement_ScrollBarUpArrow,
+    PseudoElement_ScrollBarDownArrow,
+    PseudoElement_ScrollBarLeftArrow,
+    PseudoElement_ScrollBarRightArrow,
+    PseudoElement_SplitterHandle,
+    PseudoElement_ToolBarHandle,
+    PseudoElement_ToolBarSeparator,
+    PseudoElement_MenuScroller,
+    PseudoElement_MenuTearoff,
+    PseudoElement_MenuCheckMark,
+    PseudoElement_MenuSeparator,
+    PseudoElement_MenuIcon,
+    PseudoElement_MenuRightArrow,
+    PseudoElement_TreeViewBranch,
+    PseudoElement_HeaderViewSection,
+    PseudoElement_HeaderViewUpArrow,
+    PseudoElement_HeaderViewDownArrow,
+    PseudoElement_ProgressBarChunk,
+    PseudoElement_TabBarTab,
+    PseudoElement_TabBarScroller,
+    PseudoElement_TabBarTear,
+    PseudoElement_SliderGroove,
+    PseudoElement_SliderHandle,
+    PseudoElement_SliderAddPage,
+    PseudoElement_SliderSubPage,
+    PseudoElement_SliderTickmark,
+    PseudoElement_TabWidgetPane,
+    PseudoElement_TabWidgetTabBar,
+    PseudoElement_TabWidgetLeftCorner,
+    PseudoElement_TabWidgetRightCorner,
+    PseudoElement_DockWidgetTitle,
+    PseudoElement_DockWidgetCloseButton,
+    PseudoElement_DockWidgetFloatButton,
+    PseudoElement_DockWidgetSeparator,
+    PseudoElement_MdiCloseButton,
+    PseudoElement_MdiMinButton,
+    PseudoElement_MdiNormalButton,
+    NumPseudoElements
+};
+
+struct PseudoElementInfo {
+    QStyle::SubControl subControl;
+    const char *name;
+};
+
+static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
+    { QStyle::SC_None, "", },
+    { QStyle::SC_None, "down-arrow" },
+    { QStyle::SC_None, "up-arrow" },
+    { QStyle::SC_None, "left-arrow" },
+    { QStyle::SC_None, "right-arrow" },
+    { QStyle::SC_None, "indicator" },
+    { QStyle::SC_None, "indicator" },
+    { QStyle::SC_None, "menu-indicator" },
+    { QStyle::SC_ComboBoxArrow, "drop-down" },
+    { QStyle::SC_ComboBoxArrow, "down-arrow" },
+    { QStyle::SC_None, "item" },
+    { QStyle::SC_SpinBoxUp, "up-button" },
+    { QStyle::SC_SpinBoxUp, "up-arrow" },
+    { QStyle::SC_SpinBoxDown, "down-button" },
+    { QStyle::SC_SpinBoxDown, "down-arrow" },
+    { QStyle::SC_GroupBoxLabel, "title" },
+    { QStyle::SC_GroupBoxCheckBox, "indicator" },
+    { QStyle::SC_ToolButtonMenu, "menu-button" },
+    { QStyle::SC_ToolButtonMenu, "menu-arrow" },
+    { QStyle::SC_None, "menu-indicator" },
+    { QStyle::SC_None, "tab" },
+    { QStyle::SC_ScrollBarSlider, "handle" },
+    { QStyle::SC_ScrollBarAddPage, "add-page" },
+    { QStyle::SC_ScrollBarSubPage, "sub-page" },
+    { QStyle::SC_ScrollBarAddLine, "add-line" },
+    { QStyle::SC_ScrollBarSubLine, "sub-line" },
+    { QStyle::SC_ScrollBarFirst, "first" },
+    { QStyle::SC_ScrollBarLast, "last" },
+    { QStyle::SC_ScrollBarSubLine, "up-arrow" },
+    { QStyle::SC_ScrollBarAddLine, "down-arrow" },
+    { QStyle::SC_ScrollBarSubLine, "left-arrow" },
+    { QStyle::SC_ScrollBarAddLine, "right-arrow" },
+    { QStyle::SC_None, "handle" },
+    { QStyle::SC_None, "handle" },
+    { QStyle::SC_None, "separator" },
+    { QStyle::SC_None, "scroller" },
+    { QStyle::SC_None, "tearoff" },
+    { QStyle::SC_None, "indicator" },
+    { QStyle::SC_None, "separator" },
+    { QStyle::SC_None, "icon" },
+    { QStyle::SC_None, "right-arrow" },
+    { QStyle::SC_None, "branch" },
+    { QStyle::SC_None, "section" },
+    { QStyle::SC_None, "down-arrow" },
+    { QStyle::SC_None, "up-arrow" },
+    { QStyle::SC_None, "chunk" },
+    { QStyle::SC_None, "tab" },
+    { QStyle::SC_None, "scroller" },
+    { QStyle::SC_None, "tear" },
+    { QStyle::SC_SliderGroove, "groove" },
+    { QStyle::SC_SliderHandle, "handle" },
+    { QStyle::SC_None, "add-page" },
+    { QStyle::SC_None, "sub-page"},
+    { QStyle::SC_SliderTickmarks, "tick-mark" },
+    { QStyle::SC_None, "pane" },
+    { QStyle::SC_None, "tab-bar" },
+    { QStyle::SC_None, "left-corner" },
+    { QStyle::SC_None, "right-corner" },
+    { QStyle::SC_None, "title" },
+    { QStyle::SC_None, "close-button" },
+    { QStyle::SC_None, "float-button" },
+    { QStyle::SC_None, "separator" },
+    { QStyle::SC_MdiCloseButton, "close-button" },
+    { QStyle::SC_MdiMinButton, "minimize-button" },
+    { QStyle::SC_MdiNormalButton, "normal-button" }
+};
+
+
 struct QStyleSheetBorderImageData : public QSharedData
 {
     QStyleSheetBorderImageData()
@@ -424,6 +567,33 @@ static const char *knownStyleHints[] = {
 
 static const int numKnownStyleHints = sizeof(knownStyleHints)/sizeof(knownStyleHints[0]);
 
+static QList<QVariant> subControlLayout(const QString& layout)
+{
+    QList<QVariant> buttons;
+    for (int i = 0; i < layout.count(); i++) {
+        int button = layout[i].toAscii();
+        if (button == 'm') {
+            buttons.append(PseudoElement_MdiMinButton);
+        } else if (button == 'X') {
+            buttons.append(PseudoElement_MdiCloseButton);
+        } else if (button == 'N') {
+            buttons.append(PseudoElement_MdiNormalButton);
+        }
+    }
+    return buttons;
+}
+
+static QStyle::StandardPixmap subControlIcon(int pe)
+{
+    switch (pe) {
+    case PseudoElement_MdiCloseButton: return QStyle::SP_TitleBarCloseButton;
+    case PseudoElement_MdiMinButton: return QStyle::SP_TitleBarMinButton;
+    case PseudoElement_MdiNormalButton: return QStyle::SP_TitleBarNormalButton;
+    default: break;
+    }
+    return QStyle::SP_CustomBase;
+}
+
 QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget)
 : features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), ou(0), geo(0), p(0), img(0), clipset(0)
 {
@@ -543,6 +713,9 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
                        hintValue = decl.sizeValue();
                    } else if (hintName.endsWith(QLatin1String("icon"))) {
                        hintValue = decl.iconValue();
+                   } else if (hintName == QLatin1String("button-layout")
+                              && decl.values.count() != 0 && decl.values.first().type == Value::String) {
+                       hintValue = subControlLayout(decl.values.first().variant.toString());
                    } else {
                        int integer;
                        decl.intValue(&integer);
@@ -1286,142 +1459,6 @@ QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Rendering rules
-enum PseudoElement {
-    PseudoElement_None,
-    PseudoElement_DownArrow,
-    PseudoElement_UpArrow,
-    PseudoElement_LeftArrow,
-    PseudoElement_RightArrow,
-    PseudoElement_Indicator,
-    PseudoElement_ExclusiveIndicator,
-    PseudoElement_PushButtonMenuIndicator,
-    PseudoElement_ComboBoxDropDown,
-    PseudoElement_ComboBoxArrow,
-    PseudoElement_Item,
-    PseudoElement_SpinBoxUpButton,
-    PseudoElement_SpinBoxUpArrow,
-    PseudoElement_SpinBoxDownButton,
-    PseudoElement_SpinBoxDownArrow,
-    PseudoElement_GroupBoxTitle,
-    PseudoElement_GroupBoxIndicator,
-    PseudoElement_ToolButtonMenu,
-    PseudoElement_ToolButtonMenuArrow,
-    PseudoElement_ToolButtonDownArrow,
-    PseudoElement_ToolBoxTab,
-    PseudoElement_ScrollBarSlider,
-    PseudoElement_ScrollBarAddPage,
-    PseudoElement_ScrollBarSubPage,
-    PseudoElement_ScrollBarAddLine,
-    PseudoElement_ScrollBarSubLine,
-    PseudoElement_ScrollBarFirst,
-    PseudoElement_ScrollBarLast,
-    PseudoElement_ScrollBarUpArrow,
-    PseudoElement_ScrollBarDownArrow,
-    PseudoElement_ScrollBarLeftArrow,
-    PseudoElement_ScrollBarRightArrow,
-    PseudoElement_SplitterHandle,
-    PseudoElement_ToolBarHandle,
-    PseudoElement_ToolBarSeparator,
-    PseudoElement_MenuScroller,
-    PseudoElement_MenuTearoff,
-    PseudoElement_MenuCheckMark,
-    PseudoElement_MenuSeparator,
-    PseudoElement_MenuIcon,
-    PseudoElement_MenuRightArrow,
-    PseudoElement_TreeViewBranch,
-    PseudoElement_HeaderViewSection,
-    PseudoElement_HeaderViewUpArrow,
-    PseudoElement_HeaderViewDownArrow,
-    PseudoElement_ProgressBarChunk,
-    PseudoElement_TabBarTab,
-    PseudoElement_TabBarScroller,
-    PseudoElement_TabBarTear,
-    PseudoElement_SliderGroove,
-    PseudoElement_SliderHandle,
-    PseudoElement_SliderAddPage,
-    PseudoElement_SliderSubPage,
-    PseudoElement_SliderTickmark,
-    PseudoElement_TabWidgetPane,
-    PseudoElement_TabWidgetTabBar,
-    PseudoElement_TabWidgetLeftCorner,
-    PseudoElement_TabWidgetRightCorner,
-    PseudoElement_DockWidgetTitle,
-    PseudoElement_DockWidgetCloseButton,
-    PseudoElement_DockWidgetFloatButton,
-    PseudoElement_DockWidgetSeparator,
-    NumPseudoElements
-};
-
-struct PseudoElementInfo {
-    QStyle::SubControl subControl;
-    const char *name;
-};
-
-static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
-    { QStyle::SC_None, "", },
-    { QStyle::SC_None, "down-arrow" },
-    { QStyle::SC_None, "up-arrow" },
-    { QStyle::SC_None, "left-arrow" },
-    { QStyle::SC_None, "right-arrow" },
-    { QStyle::SC_None, "indicator" },
-    { QStyle::SC_None, "indicator" },
-    { QStyle::SC_None, "menu-indicator" },
-    { QStyle::SC_ComboBoxArrow, "drop-down" },
-    { QStyle::SC_ComboBoxArrow, "down-arrow" },
-    { QStyle::SC_None, "item" },
-    { QStyle::SC_SpinBoxUp, "up-button" },
-    { QStyle::SC_SpinBoxUp, "up-arrow" },
-    { QStyle::SC_SpinBoxDown, "down-button" },
-    { QStyle::SC_SpinBoxDown, "down-arrow" },
-    { QStyle::SC_GroupBoxLabel, "title" },
-    { QStyle::SC_GroupBoxCheckBox, "indicator" },
-    { QStyle::SC_ToolButtonMenu, "menu-button" },
-    { QStyle::SC_ToolButtonMenu, "menu-arrow" },
-    { QStyle::SC_None, "menu-indicator" },
-    { QStyle::SC_None, "tab" },
-    { QStyle::SC_ScrollBarSlider, "handle" },
-    { QStyle::SC_ScrollBarAddPage, "add-page" },
-    { QStyle::SC_ScrollBarSubPage, "sub-page" },
-    { QStyle::SC_ScrollBarAddLine, "add-line" },
-    { QStyle::SC_ScrollBarSubLine, "sub-line" },
-    { QStyle::SC_ScrollBarFirst, "first" },
-    { QStyle::SC_ScrollBarLast, "last" },
-    { QStyle::SC_ScrollBarSubLine, "up-arrow" },
-    { QStyle::SC_ScrollBarAddLine, "down-arrow" },
-    { QStyle::SC_ScrollBarSubLine, "left-arrow" },
-    { QStyle::SC_ScrollBarAddLine, "right-arrow" },
-    { QStyle::SC_None, "handle" },
-    { QStyle::SC_None, "handle" },
-    { QStyle::SC_None, "separator" },
-    { QStyle::SC_None, "scroller" },
-    { QStyle::SC_None, "tearoff" },
-    { QStyle::SC_None, "indicator" },
-    { QStyle::SC_None, "separator" },
-    { QStyle::SC_None, "icon" },
-    { QStyle::SC_None, "right-arrow" },
-    { QStyle::SC_None, "branch" },
-    { QStyle::SC_None, "section" },
-    { QStyle::SC_None, "down-arrow" },
-    { QStyle::SC_None, "up-arrow" },
-    { QStyle::SC_None, "chunk" },
-    { QStyle::SC_None, "tab" },
-    { QStyle::SC_None, "scroller" },
-    { QStyle::SC_None, "tear" },
-    { QStyle::SC_SliderGroove, "groove" },
-    { QStyle::SC_SliderHandle, "handle" },
-    { QStyle::SC_None, "add-page" },
-    { QStyle::SC_None, "sub-page"},
-    { QStyle::SC_SliderTickmarks, "tick-mark" },
-    { QStyle::SC_None, "pane" },
-    { QStyle::SC_None, "tab-bar" },
-    { QStyle::SC_None, "left-corner" },
-    { QStyle::SC_None, "right-corner" },
-    { QStyle::SC_None, "title" },
-    { QStyle::SC_None, "close-button" },
-    { QStyle::SC_None, "float-button" },
-    { QStyle::SC_None, "separator" }
-};
-
 QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoClass = PseudoClass_Unspecified)
 {
     QVector<Declaration> decls;
@@ -2791,6 +2828,38 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         break;
 #endif // QT_NO_SLIDER
 
+    case CC_MdiControls:
+        if (hasStyleRule(w, PseudoElement_MdiCloseButton)
+            || hasStyleRule(w, PseudoElement_MdiNormalButton)
+            || hasStyleRule(w, PseudoElement_MdiMinButton)) {
+            QList<QVariant> layout = rule.styleHint(QLatin1String("button-layout")).toList();
+            if (layout.isEmpty())
+                layout = subControlLayout(QLatin1String("mNX"));
+
+            QStyleOptionComplex optCopy(*opt);
+            optCopy.subControls = 0;
+            for (int i = 0; i < layout.count(); i++) {
+                int layoutButton = layout[i].toInt();
+                QStyle::SubControl control = knownPseudoElements[layoutButton].subControl;
+                if (!(opt->subControls & control))
+                    continue;
+                QRenderRule subRule = renderRule(w, opt, layoutButton);
+                if (subRule.hasDrawable()) {
+                    QRect rect = subRule.boxRect(subControlRect(CC_MdiControls, opt, control, w), Margin);
+                    subRule.drawRule(p, rect);
+                    QIcon icon = standardIcon(subControlIcon(layoutButton));
+                    icon.paint(p, subRule.contentsRect(rect), Qt::AlignCenter);
+                } else {
+                    optCopy.subControls |= control;
+                }
+            }
+
+            if (optCopy.subControls)
+                baseStyle()->drawComplexControl(CC_MdiControls, &optCopy, p, w);
+            return;
+        }
+        break;
+
     default:
         break;
     }
@@ -3744,6 +3813,13 @@ QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, co
                                  const QPoint &pt, const QWidget *w) const
 {
     switch (cc) {
+    case CC_MdiControls:
+        if (hasStyleRule(w, PseudoElement_MdiCloseButton)
+            || hasStyleRule(w, PseudoElement_MdiNormalButton)
+            || hasStyleRule(w, PseudoElement_MdiMinButton))
+            return QWindowsStyle::hitTestComplexControl(cc, opt, pt, w);
+        break;
+
     case CC_ScrollBar: {
         QRenderRule rule = renderRule(w, opt);
         if (!rule.hasDrawable())
@@ -4150,6 +4226,33 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         break;
                        }
 #endif // QT_NO_TABBAR
+
+    case CT_MdiControls:
+        if (const QStyleOptionComplex *ccOpt = qstyleoption_cast<const QStyleOptionComplex *>(opt)) {
+            if (!hasStyleRule(w, PseudoElement_MdiCloseButton)
+                && !hasStyleRule(w, PseudoElement_MdiNormalButton)
+                && !hasStyleRule(w, PseudoElement_MdiMinButton))
+                break;
+
+            QList<QVariant> layout = rule.styleHint(QLatin1String("button-layout")).toList();
+            if (layout.isEmpty())
+                layout = subControlLayout(QLatin1String("mNX"));
+
+            int width = 0, height = 0;
+            for (int i = 0; i < layout.count(); i++) {
+                int layoutButton = layout[i].toInt();
+                QStyle::SubControl sc = knownPseudoElements[layoutButton].subControl;
+                if (!(ccOpt->subControls & sc))
+                    continue;
+                QRenderRule subRule = renderRule(w, opt, layoutButton);
+                QSize sz = subRule.size();
+                width += sz.width();
+                height = qMax(height, sz.height());
+            }
+
+            return QSize(width, height);
+        }
+        break;
 
     default:
         break;
@@ -4588,6 +4691,32 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
         }
         break;
 #endif // QT_NO_SLIDER
+
+    case CC_MdiControls:
+        if (hasStyleRule(w, PseudoElement_MdiCloseButton)
+            || hasStyleRule(w, PseudoElement_MdiNormalButton)
+            || hasStyleRule(w, PseudoElement_MdiMinButton)) {
+            QList<QVariant> layout = rule.styleHint(QLatin1String("button-layout")).toList();
+            if (layout.isEmpty())
+                layout = subControlLayout(QLatin1String("mNX"));
+
+            int x = 0, width = 0;
+            QRenderRule subRule;
+            for (int i = 0; i < layout.count(); i++) {
+                int layoutButton = layout[i].toInt();
+                QStyle::SubControl control = knownPseudoElements[layoutButton].subControl;
+                if (!(opt->subControls & control))
+                    continue;
+                subRule = renderRule(w, opt, layoutButton);
+                width = subRule.size().width();
+                if (sc == control)
+                    break;
+                x += width;
+            }
+
+            return subRule.borderRect(QRect(x, opt->rect.top(), width, opt->rect.height()));
+        }
+        break;
 
     default:
         break;
