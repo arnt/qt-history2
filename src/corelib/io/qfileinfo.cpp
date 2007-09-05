@@ -286,8 +286,10 @@ QDateTime
     those without a trailing slash (e.g., "C:/WINDOWS/hosts.txt")
     are treated as files.
 
-    To speed up performance, QFileInfo caches information about the
-    file. Because files can be changed by other users or programs, or
+    \note To speed up performance, QFileInfo caches information about the
+    file. 
+    
+    Because files can be changed by other users or programs, or
     even by other parts of the same program, there is a function that
     refreshes the file information: refresh(). If you want to switch
     off a QFileInfo's caching and force it to access the file system
