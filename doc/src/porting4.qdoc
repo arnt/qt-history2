@@ -58,6 +58,15 @@
     \l{Moving from Qt 3 to Qt 4} for tips on how to write Qt 3 code
     that is easy to port to Qt 4.
 
+    \bold{Other porting guides:}
+
+    \list
+    \o \l{Porting to Qt 4 (Drag and Drop)}
+    \o \l{Porting .ui Files to Qt 4}
+    \o \l{Porting to Graphics View}
+    \o \l{qt3to4 - The Qt 3 to 4 Porting Tool}
+    \endlist
+
     The Qt 4 series is not binary compatible with the 3 series. This
     means programs compiled for Qt 3 must be recompiled to work with
     Qt 4. Qt 4 is also not completely \e source compatible with 3,
@@ -956,7 +965,7 @@
     \endtable
 
     \l{The Graphics View Framework} replaces QCanvas. For more on porting to
-    Graphics View, see \l {Porting to Graphics View}.
+    Graphics View, see \l{Porting to Graphics View}.
 
     \section1 QColor
 
