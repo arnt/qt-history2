@@ -140,11 +140,9 @@ void tst_QWindowSurface::flushOutsidePaintEvent()
 #endif
 
 #if defined(Q_WS_QWS) && (QT_VERSION < 0x040400)
-    QEXPECT_FAIL("", "task 176755", Abort);
-    VERIFY_COLOR(w.geometry(), w.color);
-#else
-    VERIFY_COLOR(w.geometry(), w.color);
+    QSKIP("task 176755", SkipAll);
 #endif
+    VERIFY_COLOR(w.geometry(), w.color);
     QCOMPARE(QRegion(w.rect()), w.r);
     w.reset();
 }
