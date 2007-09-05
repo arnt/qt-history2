@@ -137,6 +137,8 @@
     \page qt3to4-treewalker.html
     \title Contributions to the Following qt3to4 Files: treewalker.h, treedump.cpp, treedump.h, treewalker.cpp
     \ingroup licensing
+    \brief License information for contributions to the qt3to4 source code.
+
     \legalese
     Copyright (C) 2005-$THISYEAR$ $TROLLTECH$. All rights reserved. \BR
     Copyright (C) 2005 Roberto Raggi
