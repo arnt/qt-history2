@@ -542,9 +542,9 @@ int QSvgGenerator::metric(QPaintDevice::PaintDeviceMetric metric) const
     case QPaintDevice::PdmDpiY:
         return d->engine->resolution();
     case QPaintDevice::PdmHeightMM:
-        return int(d->engine->size().height() / d->engine->resolution() * 2.54);
+        return int(d->engine->size().height() * 2.54 / d->engine->resolution());
     case QPaintDevice::PdmWidthMM:
-        return int(d->engine->size().width() / d->engine->resolution() * 2.54);
+        return int(d->engine->size().width() * 2.54 / d->engine->resolution());
     case QPaintDevice::PdmNumColors:
         return 0xffffffff;
     case QPaintDevice::PdmPhysicalDpiX:
@@ -606,9 +606,14 @@ bool QSvgPaintEngine::begin(QPaintDevice *)
         return false;
     }
 
-    if (!d->outputDevice->isOpen() &&
-        !d->outputDevice->open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning("QSvgPaintEngine::begin(), could not open output device: '%s'",
+    if (!d->outputDevice->isOpen()) {
+        if (!d->outputDevice->open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning("QSvgPaintEngine::begin(), could not open output device: '%s'",
+                     qPrintable(d->outputDevice->errorString()));
+            return false;
+        }
+    } else if (!d->outputDevice->isWritable()) {
+        qWarning("QSvgPaintEngine::begin(), could not write to read-only output device: '%s'",
                  qPrintable(d->outputDevice->errorString()));
         return false;
     }
@@ -623,7 +628,7 @@ bool QSvgPaintEngine::begin(QPaintDevice *)
 
     // stream out the header...
     *d->stream << "<?xml version=\"1.0\" standalone=\"no\"?>" << endl;
-    *d->stream << "<svg width=\"" << wmm << "cm\" height=\"" << hmm << "cm\"" << endl;
+    *d->stream << "<svg width=\"" << wmm << "mm\" height=\"" << hmm << "mm\"" << endl;
     *d->stream << " viewBox=\"0 0 " << w << " " << h << "\"" << endl;
     *d->stream << " xmlns=\"http://www.w3.org/2000/svg\""
                << " xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
