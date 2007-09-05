@@ -19,19 +19,6 @@
 
 #include <QtCore>
 
-quint32 qntoh(quint32 source)
-{
-#if Q_BYTE_ORDER == Q_BIG_ENDIAN
-    return source;
-#else
-    return 0
-        | ((source & 0x000000ff) << 24)
-        | ((source & 0x0000ff00) << 8)
-        | ((source & 0x00ff0000) >> 8)
-        | ((source & 0xff000000) >> 24);
-#endif
-}
-
 TrackerClient::TrackerClient(TorrentClient *downloader, QObject *parent)
     : QObject(parent), torrentDownloader(downloader)
 {
@@ -82,41 +69,12 @@ void TrackerClient::fetchPeerList()
     // Prepare connection details
     QUrl url(metaInfo.announceUrl());
 
-    QByteArray infoHash = torrentDownloader->infoHash();
-    unsigned int *messageDigest = (unsigned int *)infoHash.constData();
-
     // Percent encode the hash
-    QByteArray encodedSum;
-    const char hex[] = "0123456789ABCDEF";
-    unsigned char chars[4];
-
-    for (int i = 0; i < 5; ++i) {
-        unsigned int digest = qntoh(messageDigest[i]);
-        chars[0] = (digest & 0xff000000) >> 24;
-        chars[1] = (digest & 0x00ff0000) >> 16;
-        chars[2] = (digest & 0x0000ff00) >> 8;
-        chars[3] = (digest & 0x000000ff);
-
-        for (int j = 0; j < 4; ++j) {
-            unsigned char c = chars[j];
-            if ((c >= '0' && c <= '9')
-                || (c >= 'a' && c <= 'z')
-                || (c >= 'A' && c <= 'Z'))
-                encodedSum += c;
-            else switch (c) {
-            case '$': case '-': case '_': case '.':
-            case '+': case '!': case '*': case '\'':
-            case '(': case ')':
-                encodedSum += c;
-                break;
-            default: {
-                encodedSum += "%";
-                encodedSum += hex[(c & 0xf0) >> 4];
-                encodedSum += hex[c & 0xf];
-                break;
-            }
-            }
-        }
+    QByteArray infoHash = torrentDownloader->infoHash();
+    QString encodedSum;
+    for (int i = 0; i < infoHash.size(); ++i) {
+        encodedSum += '%';
+        encodedSum += QString::number(infoHash[i], 16).right(2).rightJustified(2, '0');
     }
 
     bool seeding = (torrentDownloader->state() == TorrentClient::Seeding);

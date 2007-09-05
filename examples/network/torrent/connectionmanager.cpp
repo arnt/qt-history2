@@ -52,9 +52,9 @@ QByteArray ConnectionManager::clientId() const
         int startupTime = int(QDateTime::currentDateTime().toTime_t());
 
         QString s;
-        s.sprintf("-QT%06x", QT_VERSION);
+        s.sprintf("-QT%04x-", (QT_VERSION % 0xffff00) >> 8);
         id += s.toLatin1();
-        id += QByteArray::number(startupTime, 16);
+        id += QByteArray::number(startupTime, 10);
         id += QByteArray(20 - id.size(), '-');
     }
     return id;
