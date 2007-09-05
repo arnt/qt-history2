@@ -1,6 +1,6 @@
 /*!
     \page model-view-programming.html
-    \nextpage Model/View Introduction
+    \nextpage An Introduction to Model/View Programming
     \startpage index.html Qt Reference Documentation
 
     \title Model/View Programming
@@ -9,6 +9,8 @@
     item view classes.
 
     \list
+    \o \l{An Introduction to Model/View Programming}
+      \tableofcontents{1 An Introduction to Model/View Programming}
     \o \l{Using Models and Views}
       \tableofcontents{1 Using Models and Views}
     \o \l{Model Classes}
@@ -50,7 +52,7 @@
     \nextpage Using Models and Views
     \startpage index.html Qt Reference Documentation
 
-    \title Model/View Introduction
+    \title An Introduction to Model/View Programming
 
     \tableofcontents
 
@@ -242,7 +244,7 @@
 /*!
     \page model-view-using.html
     \contentspage model-view-programming.html Contents
-    \previouspage Model/View Programming
+    \previouspage An Introduction to Model/View Programming
     \nextpage Model Classes
 
     \title Using Models and Views
