@@ -875,7 +875,7 @@
     typcially contains the executable and all the resources it
     needs. See the image below:
 
-    \image deployment-mac-bundlestructure
+    \image deployment-mac-bundlestructure.png
 
     The bundle provides many advantages to the user. One primary
     advantage is that, since it is a single entity, it allows for
