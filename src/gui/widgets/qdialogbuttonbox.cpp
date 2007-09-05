@@ -523,7 +523,7 @@ const char *QDialogButtonBoxPrivate::standardButtonText(QDialogButtonBox::Standa
     const char *buttonText = 0;
     switch (sbutton) {
     case QDialogButtonBox::Ok:
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "OK");
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "&OK");
         break;
     case QDialogButtonBox::Save:
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Save");
