@@ -4164,12 +4164,13 @@ void tst_QWidget::moveChild()
     ColorWidget parent;
     ColorWidget child(&parent, Qt::blue);
 
-    parent.setGeometry(10, 10, 100, 100);
+    parent.setGeometry(QRect(QPoint(QApplication::desktop()->availableGeometry(&parent).topLeft()),
+                             QSize(100, 100)));
     child.setGeometry(25, 25, 50, 50);
     QPoint childOffset = child.mapToGlobal(QPoint());
 
     parent.show();
-    QTest::qWait(100);
+    QTest::qWait(1000);
     const QPoint tlwOffset = parent.geometry().topLeft();
 
     QCOMPARE(parent.r, QRegion(parent.rect()) - child.geometry());
@@ -4187,7 +4188,7 @@ void tst_QWidget::moveChild()
 
     QPoint pos = child.pos() + offset;
     child.move(pos);
-    QTest::qWait(100);
+    QTest::qWait(1000);
     QCOMPARE(pos, child.pos());
 
     QCOMPARE(parent.r, QRegion(oldGeometry) - child.geometry());
