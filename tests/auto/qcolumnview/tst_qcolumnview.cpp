@@ -399,8 +399,11 @@ void tst_QColumnView::scrollTo()
         QTest::qWait(ANIMATION_DELAY);
         view.scrollTo(index, QAbstractItemView::EnsureVisible);
         index = index.parent();
-        if (start != level)
-            QVERIFY(last < view.HorizontalOffset());
+	if (start != level)
+	    if (!reverse)
+                QVERIFY(last < view.HorizontalOffset());
+	    else
+	        QVERIFY(last > view.HorizontalOffset());
         level--;
         last = view.HorizontalOffset();
     }
