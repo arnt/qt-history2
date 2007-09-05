@@ -709,7 +709,7 @@ QAbstractItemView *QColumnViewPrivate::createColumn(const QModelIndex &index, bo
 
     Return the new view.  QColumnView will automatically take ownership of the widget.
 
-    \sa setPreviewWidget(), initilizeColumn()
+    \sa setPreviewWidget()
  */
 QAbstractItemView *QColumnView::createColumn(const QModelIndex &index)
 {
