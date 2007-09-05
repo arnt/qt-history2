@@ -64,30 +64,24 @@ void DragWidget::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void DragWidget::dragMoveEvent(QDragMoveEvent *event)
-{
-    if (event->mimeData()->hasText()) {
-        if (children().contains(event->source())) {
-            event->setDropAction(Qt::MoveAction);
-            event->accept();
-        } else {
-            event->acceptProposedAction();
-        }
-    } else {
-        event->ignore();
-    }
-}
-
 void DragWidget::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasText()) {
-        QStringList pieces = event->mimeData()->text().split(QRegExp("\\s+"),
+        const QMimeData *mime = event->mimeData();
+        QStringList pieces = mime->text().split(QRegExp("\\s+"),
                              QString::SkipEmptyParts);
         QPoint position = event->pos();
+        QPoint hotSpot;
+
+        QList<QByteArray> hotSpotPos = mime->data("application/x-hotspot").split(' ');
+        if (hotSpotPos.size() == 2) {
+            hotSpot.setX(hotSpotPos.first().toInt());
+            hotSpot.setY(hotSpotPos.last().toInt());
+        }
 
         foreach (QString piece, pieces) {
             DragLabel *newLabel = new DragLabel(piece, this);
-            newLabel->move(position);
+            newLabel->move(position - hotSpot);
             newLabel->show();
 
             position += QPoint(newLabel->width(), 0);

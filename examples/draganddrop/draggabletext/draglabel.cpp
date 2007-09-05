@@ -25,17 +25,24 @@ DragLabel::DragLabel(const QString &text, QWidget *parent)
 
 void DragLabel::mousePressEvent(QMouseEvent *event)
 {
-    QString plainText = text(); // for quoting purposes
+    QPoint hotSpot = event->pos();
 
     QMimeData *mimeData = new QMimeData;
-    mimeData->setText(plainText);
+    mimeData->setText(text());
+    mimeData->setData("application/x-hotspot",
+                      QByteArray::number(hotSpot.x())
+                      + " " + QByteArray::number(hotSpot.y()));
+
+    QPixmap pixmap(size());
+    render(&pixmap);
 
     QDrag *drag = new QDrag(this);
     drag->setMimeData(mimeData);
-    drag->setHotSpot(event->pos() - rect().topLeft());
+    drag->setPixmap(pixmap);
+    drag->setHotSpot(hotSpot);
 
     Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction);
-    
+
     if (dropAction == Qt::MoveAction) {
         close();
         update();
