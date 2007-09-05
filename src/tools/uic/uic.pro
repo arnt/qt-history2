@@ -21,7 +21,7 @@ win32:LIBS += -luser32
 
 CONFIG -= qt
 INCLUDEPATH	 = ../../corelib/arch/generic $$QT_BUILD_TREE/include . \
-                   $$QT_BUILD_TREE/include/QtCore $$QT_BUILD_TREE/include/QtXml
+                   $$QT_BUILD_TREE/include/QtCore $$QT_BUILD_TREE/include/QtXml ../../xml
 DEPENDPATH	+= $$INCLUDEPATH ../../corelib/base ../../corelib/tools ../../corelib/io ../../corelib/codecs ../../xml
 
 include(uic.pri)
@@ -66,9 +66,9 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
            ../../corelib/codecs/qtsciicodec.cpp \
            ../../corelib/codecs/qlatincodec.cpp \
            ../../corelib/codecs/qsimplecodec.cpp \
-           ../../xml/qdom.cpp \
+           ../../xml/dom/qdom.cpp \
            ../../xml/qxmlutils_p.cpp \
-	   ../../xml/qxml.cpp
+	   ../../xml/sax/qxml.cpp
 
 unix:SOURCES += ../../corelib/io/qfsfileengine_unix.cpp ../../corelib/io/qfsfileengine_iterator_unix.cpp
 
