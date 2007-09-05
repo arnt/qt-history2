@@ -38,6 +38,9 @@
     features, and can be created manually or by using the \c qconfig
     tool located in the \c /tools/qconfig directory.
 
+    \note The \c qconfig tool is intended to be built against Qt on
+    X11 platforms.
+
     \image qtopiacore-qconfigtool.png
 
     The \c qconfig tool's interface displays all of Qt's

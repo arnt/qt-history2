@@ -89,7 +89,7 @@
         make
     \endcode
 
-    On some systems the \c make utility is called differently, e.g. \c
+    On some systems the \c make utility is named differently, e.g. \c
     gmake. The \c configure script tells you which \c make utility to
     use.
 
