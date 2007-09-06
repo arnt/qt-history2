@@ -822,7 +822,7 @@ QString QAction::statusTip() const
     the action. The text may contain rich text. There is no default
     "What's This?" text.
 
-    \sa QWhatsThis QStyleSheet
+    \sa QWhatsThis Q3StyleSheet
 */
 void QAction::setWhatsThis(const QString &whatsthis)
 {

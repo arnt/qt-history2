@@ -166,7 +166,7 @@
     \skipto void EditorWindow::find()
     \printuntil /^\}/
 
-    \sa QDialogButtonBox, QTabDialog, QWidget, QProgressDialog,
+    \sa QDialogButtonBox, QTabWidget, QWidget, QProgressDialog,
         {fowler}{GUI Design Handbook: Dialogs, Standard}, {Extension Example},
         {Standard Dialogs Example}
 */
