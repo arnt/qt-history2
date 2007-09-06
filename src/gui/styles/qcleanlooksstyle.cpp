@@ -1955,10 +1955,17 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 if (act && !dis)
                     mode = QIcon::Active;
                 QPixmap pixmap;
+
+                int smallIconSize = pixelMetric(PM_SmallIconSize);
+                QSize iconSize(smallIconSize, smallIconSize); 
+                if (const QComboBox *combo = qobject_cast<const QComboBox*>(widget))
+                    iconSize = combo->iconSize();
+
                 if (checked)
-                    pixmap = menuItem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode, QIcon::On);
+                    pixmap = menuItem->icon.pixmap(iconSize, mode, QIcon::On);
                 else
-                    pixmap = menuItem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
+                    pixmap = menuItem->icon.pixmap(iconSize, mode);
+
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
 
@@ -3748,11 +3755,18 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         break;
     case CT_MenuBarItem:
 	    newSize += QSize(0, 2);
-	break;
+	    break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
-            if (menuItem->menuItemType == QStyleOptionMenuItem::Separator && !menuItem->text.isEmpty())
-                newSize.setHeight(menuItem->fontMetrics.lineSpacing());
+            if (menuItem->menuItemType == QStyleOptionMenuItem::Separator) {
+                if (!menuItem->text.isEmpty()) {
+                    newSize.setHeight(menuItem->fontMetrics.lineSpacing());
+                }
+            } else if (!menuItem->icon.isNull()) {
+                if (const QComboBox *combo = qobject_cast<const QComboBox*>(widget)) {
+                    newSize.setHeight(qMax(combo->iconSize().height() + 2, newSize.height()));
+                }
+            }
         }
         break;
     case CT_SizeGrip:
