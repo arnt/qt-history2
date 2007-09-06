@@ -53,21 +53,24 @@ static inline QSpacerItem *createGridSpacer()
 }
 
 // Grid/form Helpers: get info (overloads to make templates work)
-static inline int gridRowCount(const QGridLayout *gridLayout)    { return  gridLayout->rowCount(); }
-static inline int gridColumnCount(const QGridLayout *gridLayout) { return  gridLayout->columnCount(); }
+
+namespace { // Do not use static, will break HP-UX due to templates 
+inline int gridRowCount(const QGridLayout *gridLayout)    { return  gridLayout->rowCount(); }
+inline int gridColumnCount(const QGridLayout *gridLayout) { return  gridLayout->columnCount(); }
 
 // QGridLayout/QFormLayout Helpers: get item position (overloads to make templates work)
-static inline void getGridItemPosition(QGridLayout *gridLayout, int index, int *row, int *column, int *rowspan, int *colspan)
+ inline void getGridItemPosition(QGridLayout *gridLayout, int index, int *row, int *column, int *rowspan, int *colspan)
 {
     gridLayout->getItemPosition(index, row, column, rowspan, colspan);
 }
 
-static QRect gridItemInfo(QGridLayout *grid, int index)
+QRect gridItemInfo(QGridLayout *grid, int index)
 {
     int row, column, rowSpan, columnSpan;
     // getItemPosition is not const, grmbl..
     grid->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
     return QRect(column, row, columnSpan, rowSpan);
+}
 }
 
 // QGridLayout/QFormLayout Helpers: Debug items of GridLikeLayout
