@@ -34,7 +34,7 @@
 #include "HexBinary.h"
 #include "Integer.h"
 #include "AtomicString.h"
-#include "Time.h"
+#include "SchemaTime.h"
 #include "UntypedAtomic.h"
 #include "YearMonthDuration.h"
 
@@ -169,7 +169,7 @@ Item StringToDateTimeCaster::castFrom(const Item &from,
 Item StringToTimeCaster::castFrom(const Item &from,
                                        const PlainSharedPtr<DynamicContext> &) const
 {
-    return Time::fromLexical(from.stringValue());
+    return SchemaTime::fromLexical(from.stringValue());
 }
 
 Item StringToDateCaster::castFrom(const Item &from,
@@ -303,7 +303,7 @@ Item AbstractDateTimeToTimeCaster::castFrom(const Item &from,
     QDateTime dt(from.as<AbstractDateTime>()->toDateTime());
     // TODO DT dt.setDateOnly(false);
 
-    return Time::fromDateTime(dt);
+    return SchemaTime::fromDateTime(dt);
 }
 
 // vim: et:ts=4:sw=4:sts=4

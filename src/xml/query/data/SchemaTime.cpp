@@ -15,15 +15,15 @@
 #include "BuiltinTypes.h"
 #include "Item.h"
 
-#include "Time.h"
+#include "SchemaTime.h"
 
 using namespace Patternist;
 
-Time::Time(const QDateTime &dateTime) : AbstractDateTime(dateTime)
+SchemaTime::SchemaTime(const QDateTime &dateTime) : AbstractDateTime(dateTime)
 {
 }
 
-Time::Ptr Time::fromLexical(const QString &lexical)
+SchemaTime::Ptr SchemaTime::fromLexical(const QString &lexical)
 {
     static const CaptureTable captureTable( // STATIC DATA
         QRegExp(QLatin1String(
@@ -51,10 +51,10 @@ Time::Ptr Time::fromLexical(const QString &lexical)
     AtomicValue::Ptr err;
     const QDateTime retval(create(err, lexical, captureTable));
 
-    return err ? err : Time::Ptr(new Time(retval));
+    return err ? err : SchemaTime::Ptr(new SchemaTime(retval));
 }
 
-Time::Ptr Time::fromDateTime(const QDateTime &dt)
+SchemaTime::Ptr SchemaTime::fromDateTime(const QDateTime &dt)
 {
     Q_ASSERT(dt.isValid());
     /* Singleton value, allocated once instead of each time it's needed. */
@@ -63,23 +63,23 @@ Time::Ptr Time::fromDateTime(const QDateTime &dt)
                                         AbstractDateTime::DefaultMonth,
                                         AbstractDateTime::DefaultDay);
 
-    return Time::Ptr(new Time(QDateTime(time_defaultDate,
+    return SchemaTime::Ptr(new SchemaTime(QDateTime(time_defaultDate,
                                         dt.time(),
                                         dt.timeSpec())));
 }
 
-Item Time::fromValue(const QDateTime &dt) const
+Item SchemaTime::fromValue(const QDateTime &dt) const
 {
     Q_ASSERT(dt.isValid());
     return fromDateTime(dt);
 }
 
-QString Time::stringValue() const
+QString SchemaTime::stringValue() const
 {
     return timeToString() + zoneOffsetToString();
 }
 
-ItemType::Ptr Time::type() const
+ItemType::Ptr SchemaTime::type() const
 {
     return BuiltinTypes::xsTime;
 }

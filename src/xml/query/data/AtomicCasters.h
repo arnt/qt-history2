@@ -506,7 +506,7 @@ namespace Patternist
     };
 
     /**
-     * @short Casts an AbstractDateTime instance to Time.
+     * @short Casts an AbstractDateTime instance to SchemaTime.
      *
      * @ingroup Patternist_xdm
      * @author Frans Englich <fenglich@trolltech.com>
@@ -519,7 +519,7 @@ namespace Patternist
     };
 
     /**
-     * @short Casts an AbstractDateTime instance to Time.
+     * @short Casts an AbstractDateTime instance to SchemaTime.
      *
      * @ingroup Patternist_xdm
      * @author Frans Englich <fenglich@trolltech.com>

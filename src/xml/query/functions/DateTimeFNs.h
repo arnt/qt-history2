@@ -188,7 +188,7 @@ namespace Patternist
     };
 
     /**
-     * @short Extracts the minute property from a sub-class of AbstractDateTime such as DateTime or Time.
+     * @short Extracts the minute property from a sub-class of AbstractDateTime such as DateTime or SchemaTime.
      * Implements the functions <tt>fn:hours-from-dateTime()</tt> and
      * <tt>fn:hours-from-time()</tt>.
      *

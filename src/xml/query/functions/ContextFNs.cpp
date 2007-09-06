@@ -19,7 +19,7 @@
 #include "Integer.h"
 #include "Literal.h"
 #include "AtomicString.h"
-#include "Time.h"
+#include "SchemaTime.h"
 
 #include "ContextFNs.h"
 
@@ -55,7 +55,7 @@ Item CurrentDateFN::evaluateSingleton(const DynamicContext::Ptr &context) const
 
 Item CurrentTimeFN::evaluateSingleton(const DynamicContext::Ptr &context) const
 {
-    return toItem(Time::fromDateTime(context->currentDateTime()));
+    return toItem(SchemaTime::fromDateTime(context->currentDateTime()));
 }
 
 Expression::Ptr StaticBaseURIFN::typeCheck(const StaticContext::Ptr &context,

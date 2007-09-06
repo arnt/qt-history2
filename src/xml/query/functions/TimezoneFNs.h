@@ -22,7 +22,7 @@
  * @file
  * @short Contains classes implementing the functions found in
  * <a href="http://www.w3.org/TR/xpath-functions/#timezone.functions">XQuery 1.0 and
- * XPath 2.0 Functions and Operators, 10.7 Timezone Adjustment on Dates and Time Values</a>.
+ * XPath 2.0 Functions and Operators, 10.7 Timezone Adjustment on Dates and SchemaTime Values</a>.
  * @ingroup Patternist_functions
  */
 

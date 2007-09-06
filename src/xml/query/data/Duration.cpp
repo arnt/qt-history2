@@ -59,7 +59,7 @@ Duration::Ptr Duration::fromLexical(const QString &lexical)
                 "(?:(\\d+)M)?"                  /* Month part. */
                 "(?:(\\d+)D)?"                  /* Day part. */
                 "(?:"                           /* Here starts the optional time part. */
-                "(T)"                           /* Time delimiter. */
+                "(T)"                           /* SchemaTime delimiter. */
                 "(?:(\\d+)H)?"                  /* Hour part. */
                 "(?:(\\d+)M)?"                  /* Minute part. */
                 "(?:(\\d+)(?:\\.(\\d+))?S)?"    /* Seconds & milli seconds. */

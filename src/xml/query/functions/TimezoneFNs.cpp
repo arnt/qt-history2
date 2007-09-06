@@ -19,7 +19,7 @@
 #include "DayTimeDuration.h"
 #include "Debug.h"
 #include "PatternistLocale.h"
-#include "Time.h"
+#include "SchemaTime.h"
 
 #include "TimezoneFNs.h"
 
@@ -135,7 +135,7 @@ Item AdjustDateToTimezoneFN::createValue(const QDateTime &dt) const
 Item AdjustTimeToTimezoneFN::createValue(const QDateTime &dt) const
 {
     Q_ASSERT(dt.isValid());
-    return Time::fromDateTime(dt);
+    return SchemaTime::fromDateTime(dt);
 }
 
 // vim: et:ts=4:sw=4:sts=4
