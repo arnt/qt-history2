@@ -13,7 +13,6 @@ HEADERS += $$PWD/CommonNamespaces.h         \
        $$PWD/QName.h                        \
        $$PWD/Serializer.h                   \
        $$PWD/QName.h                        \
-       $$PWD/TestHelper.h                   \
        $$PWD/XPathHelper.h                  \
        $$PWD/DelegatingNamespaceResolver.h  \
        $$PWD/NodeNamespaceResolver.h
