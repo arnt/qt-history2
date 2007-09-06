@@ -1032,7 +1032,7 @@ void QAbstractItemModelPrivate::reset()
 
 /*!
     \fn QObject *QAbstractItemModel::parent() const
-    \reimp
+    \internal
 */
 
 /*!
