@@ -29,7 +29,6 @@ QMAKE_CXXFLAGS += -ansi                 \
                   -Wsign-compare        \
                   -Wundef               \
                   -Wunused              \
-                  -Wunused-macros       \
                   -pedantic             \
                   -Wno-long-long
 # -Wshadow              \ Qt sources can't handle this.
