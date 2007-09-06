@@ -218,4 +218,24 @@ void Q3SqlSelectCursor::populateCursor()
 /*! \fn QString Q3SqlSelectCursor::toString(const QString&, const QString&) const
     \internal
 */
+
+/*!
+    \fn int Q3SqlSelectCursor::update(const QString & filter, bool invalidate = true)
+
+    \overload
+
+    Updates the database with the current contents of the cursor edit
+    buffer using the specified \a filter. Returns the number of
+    records which were updated.
+    For error information, use lastError().
+
+    Only records which meet the filter criteria are updated, otherwise
+    all records in the table are updated.
+
+    If \a invalidate is true (the default), the cursor can no longer
+    be navigated. A new select() call must be made before you can move
+    to a valid record.
+
+    \sa Q3SqlCursor::update() primeUpdate() setMode() lastError()
+*/
 #endif // QT_NO_SQL
