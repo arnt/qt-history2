@@ -85,6 +85,7 @@ Item::Iterator::Ptr OrderBy::evaluateSequence(const DynamicContext::Ptr &context
 {
     return m_operand->evaluateSequence(context);
 
+#if 0
     Item::List tuples(m_operand->evaluateSequence(context)->toList());
 
     const qLess<Item::List> sorter(m_orderSpecs);
@@ -96,7 +97,6 @@ Item::Iterator::Ptr OrderBy::evaluateSequence(const DynamicContext::Ptr &context
     else
         qSort(tuples.begin(), tuples.end(), sorter);
 
-#if 0
     typedef QPair<Item::List, Item::Iterator::Ptr> SparseSortTuple;
     QList<SparseSortTuple> tuples;
 
