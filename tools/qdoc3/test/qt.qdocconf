@@ -62,8 +62,9 @@ defines                 = Q_QDOC \
                           Q_WS_.* \
                           Q_OS_.* \
                           Q_BYTE_ORDER \
+                          __cplusplus \
+                          Q_NO_USING_KEYWORD \
 			  QT_DEPRECATED \
-                          __cplusplus
 
 codeindent              = 1
 extraimages.HTML        = qt-logo \
@@ -129,6 +130,7 @@ Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           Q_GUI_EXPORT_STYLE_WINDOWS \
                           Q_GUI_EXPORT_STYLE_WINDOWSXP \
                           Q_INLINE_TEMPLATE \
+                          Q_INTERNAL_WIN_NO_THROW \
                           Q_NETWORK_EXPORT \
                           Q_OPENGL_EXPORT \
                           Q_OUTOFLINE_TEMPLATE \
