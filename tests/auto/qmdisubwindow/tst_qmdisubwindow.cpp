@@ -169,6 +169,7 @@ private slots:
     void replaceMenuBarWhileMaximized();
     void closeOnDoubleClick();
 #endif
+    void setFont();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1760,6 +1761,39 @@ void tst_QMdiSubWindow::closeOnDoubleClick()
     QVERIFY(!systemMenu || !systemMenu->isVisible());
 }
 #endif
+
+void tst_QMdiSubWindow::setFont()
+{
+    QMdiArea mdiArea;
+    QMdiSubWindow *subWindow = mdiArea.addSubWindow(new QPushButton(QLatin1String("test")));
+    subWindow->resize(300, 100);
+    subWindow->setWindowTitle(QLatin1String("Window title"));
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    const QFont originalFont = subWindow->font();
+    QStyleOptionTitleBar opt;
+    opt.initFrom(subWindow);
+    const int titleBarHeight = subWindow->style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt);
+    const QRect titleBarRect = QRect(0, 0, subWindow->width(), titleBarHeight);
+    const QImage originalTitleBar = QPixmap::grabWidget(subWindow, titleBarRect).toImage();
+
+    QFont newFont(QLatin1String("Helvetica"), 16);
+    newFont.setBold(true);
+    subWindow->setFont(newFont);
+    qApp->processEvents();
+    QCOMPARE(subWindow->font(), newFont);
+    QImage newTitleBar = QPixmap::grabWidget(subWindow, titleBarRect).toImage();
+    QVERIFY(newTitleBar != originalTitleBar);
+
+    subWindow->setFont(originalFont);
+    qApp->processEvents();
+    QCOMPARE(subWindow->font(), originalFont);
+    newTitleBar = QPixmap::grabWidget(subWindow, titleBarRect).toImage();
+    QCOMPARE(newTitleBar, originalTitleBar);
+}
 
 QTEST_MAIN(tst_QMdiSubWindow)
 #include "tst_qmdisubwindow.moc"
