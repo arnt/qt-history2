@@ -1594,12 +1594,6 @@ void QMapData::dump()
 */
 
 /*!
-    \fn bool QMultiMap::contains() const
-    \overload
-    \sa QMap::contains()
-*/
-
-/*!
     \fn int QMultiMap::remove(const Key &key, const T &value)
     \since 4.3
 
@@ -1654,12 +1648,6 @@ void QMapData::dump()
 
 /*!
     \fn typename QMap<Key, T>::iterator QMultiMap::find(const Key &key)
-    \overload
-    \sa QMap::find()
-*/
-
-/*!
-    \fn typename QMap<Key, T>::iterator QMultiMap::find()
     \overload
     \sa QMap::find()
 */
