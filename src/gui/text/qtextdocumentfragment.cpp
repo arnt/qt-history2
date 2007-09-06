@@ -413,7 +413,7 @@ void QTextHtmlImporter::import()
     blockTagClosed = false;
     for (currentNodeIdx = 0; currentNodeIdx < count(); ++currentNodeIdx) {
         currentNode = &at(currentNodeIdx);
-        wsm = currentNode->wsm;
+        wsm = textEditMode ? QTextHtmlParserNode::WhiteSpacePreWrap : currentNode->wsm;
 
         /*
          * process each node in three stages:

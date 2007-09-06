@@ -216,6 +216,7 @@ private slots:
     void html_rootFrameProperties();
     void html_alignmentPropertySet();
     void html_appendList();
+    void html_qt3RichtextWhitespaceMode();
     void html_brAfterHr();
 
 private:
@@ -3408,6 +3409,18 @@ void tst_QTextDocumentFragment::html_alignmentPropertySet()
     const char html[] = "<p>Test</p>";
     setHtml(QString::fromLatin1(html));
     QVERIFY(!doc->begin().blockFormat().hasProperty(QTextFormat::BlockAlignment));
+}
+
+void tst_QTextDocumentFragment::html_qt3RichtextWhitespaceMode()
+{
+    setHtml(QString::fromLatin1("<html><head><meta name=\"qrichtext\" content=\"1\" /></head><p>   line with whitespace</p><p>    another line with whitespace</p></body></html>"));
+    QCOMPARE(doc->blockCount(), 2);
+
+    QTextBlock block = doc->begin();
+    QVERIFY(block.text().startsWith("   "));
+
+    block = block.next();
+    QVERIFY(block.text().startsWith("   "));
 }
 
 void tst_QTextDocumentFragment::html_brAfterHr()
