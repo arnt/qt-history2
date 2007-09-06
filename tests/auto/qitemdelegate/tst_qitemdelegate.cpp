@@ -359,6 +359,7 @@ void tst_QItemDelegate::doubleEditorNegativeInput()
     QTest::keyClick(editor, Qt::Key_Minus);
     QTest::keyClick(editor, Qt::Key_1);
     QTest::keyClick(editor, Qt::Key_0);
+    QTest::keyClick(editor, Qt::Key_Comma); //support both , and . locales
     QTest::keyClick(editor, Qt::Key_Period);
     QTest::keyClick(editor, Qt::Key_0);
     QTest::keyClick(editor, Qt::Key_Enter);
