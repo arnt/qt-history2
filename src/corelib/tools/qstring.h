@@ -483,16 +483,16 @@ public:
     inline QT3_SUPPORT QChar constref(uint i) const
     { return at(i); }
     QT3_SUPPORT QChar &ref(uint i);
-    inline QT3_SUPPORT QString leftJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
-    { return leftJustified(width, fill, trunc); }
-    inline QT3_SUPPORT QString rightJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
-    { return rightJustified(width, fill, trunc); }
+    inline QT3_SUPPORT QString leftJustify(int width, QChar aFill = QLatin1Char(' '), bool trunc=false) const
+    { return leftJustified(width, aFill, trunc); }
+    inline QT3_SUPPORT QString rightJustify(int width, QChar aFill = QLatin1Char(' '), bool trunc=false) const
+    { return rightJustified(width, aFill, trunc); }
     inline QT3_SUPPORT QString lower() const { return toLower(); }
     inline QT3_SUPPORT QString upper() const { return toUpper(); }
     inline QT3_SUPPORT QString stripWhiteSpace() const { return trimmed(); }
     inline QT3_SUPPORT QString simplifyWhiteSpace() const { return simplified(); }
-    inline QT3_SUPPORT QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
-    { return setUtf16(unicode_as_ushorts, size); }
+    inline QT3_SUPPORT QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int aSize)
+    { return setUtf16(unicode_as_ushorts, aSize); }
     inline QT3_SUPPORT const ushort *ucs2() const { return utf16(); }
     inline static QT3_SUPPORT QString fromUcs2(const ushort *unicode, int size = -1)
     { return fromUtf16(unicode, size); }
@@ -605,7 +605,7 @@ private:
 
 
 
-inline QString::QString(const QLatin1String &latin1) : d(fromLatin1_helper(latin1.latin1()))
+inline QString::QString(const QLatin1String &aLatin1) : d(fromLatin1_helper(aLatin1.latin1()))
 { }
 inline int QString::length() const
 { return d->size; }
@@ -984,8 +984,8 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QString &);
 class QConstString : public QString
 {
 public:
-    inline QT3_SUPPORT_CONSTRUCTOR QConstString(const QChar *unicode, int size)
-        :QString(unicode, size){} // cannot use fromRawData() due to changed semantics
+    inline QT3_SUPPORT_CONSTRUCTOR QConstString(const QChar *aUnicode, int aSize)
+        :QString(aUnicode, aSize){} // cannot use fromRawData() due to changed semantics
     inline QT3_SUPPORT const QString &string() const { return *this; }
 };
 #endif

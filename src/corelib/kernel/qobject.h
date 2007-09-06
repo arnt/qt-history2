@@ -127,12 +127,12 @@ public:
 
 #ifndef QT_NO_MEMBER_TEMPLATES
     template<typename T>
-    inline T findChild(const QString &name = QString()) const
-    { return qFindChild<T>(this, name); }
+    inline T findChild(const QString &aName = QString()) const
+    { return qFindChild<T>(this, aName); }
 
     template<typename T>
-    inline QList<T> findChildren(const QString &name = QString()) const
-    { return qFindChildren<T>(this, name); }
+    inline QList<T> findChildren(const QString &aName = QString()) const
+    { return qFindChildren<T>(this, aName); }
 
 #ifndef QT_NO_REGEXP
     template<typename T>
@@ -232,7 +232,7 @@ public:
     inline QT3_SUPPORT const char *name() const { return objectName().latin1_helper(); }
     inline QT3_SUPPORT const char *name(const char *defaultName) const
         { QString s = objectName(); return s.isEmpty()?defaultName:s.latin1_helper(); }
-    inline QT3_SUPPORT void setName(const char *name) { setObjectName(QLatin1String(name)); }
+    inline QT3_SUPPORT void setName(const char *aName) { setObjectName(QLatin1String(aName)); }
 protected:
     inline QT3_SUPPORT bool checkConnectArgs(const char *signal,
                                   const QObject *,

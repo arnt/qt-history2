@@ -309,7 +309,7 @@ public:
     iterator erase(iterator it);
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT iterator remove(iterator it) { return erase(it); }
-    inline QT3_SUPPORT void erase(const Key &key) { remove(key); }
+    inline QT3_SUPPORT void erase(const Key &aKey) { remove(aKey); }
 #endif
 
     // more Qt
@@ -329,7 +329,7 @@ public:
 #endif
     iterator insertMulti(const Key &key, const T &value);
 #ifdef QT3_SUPPORT
-    inline QT3_SUPPORT iterator replace(const Key &key, const T &value) { return insert(key, value); }
+    inline QT3_SUPPORT iterator replace(const Key &aKey, const T &aValue) { return insert(aKey, aValue); }
 #endif
     QMap<Key, T> &unite(const QMap<Key, T> &other);
 

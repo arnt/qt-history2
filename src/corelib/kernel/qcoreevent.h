@@ -291,7 +291,7 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QCustomEvent(int type, void *data = 0);
     ~QCustomEvent();
     QT3_SUPPORT void *data()  const { return d; }
-    QT3_SUPPORT void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
+    QT3_SUPPORT void setData(void* aData) { d = reinterpret_cast<QEventPrivate *>(aData); }
 };
 #endif
 

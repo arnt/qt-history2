@@ -59,8 +59,8 @@ public:
     void setPatternSyntax(PatternSyntax syntax);
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT bool wildcard() const { return patternSyntax() == Wildcard; }
-    inline QT3_SUPPORT void setWildcard(bool wildcard)
-    { setPatternSyntax(wildcard ? Wildcard : RegExp); }
+    inline QT3_SUPPORT void setWildcard(bool aWildcard)
+    { setPatternSyntax(aWildcard ? Wildcard : RegExp); }
 #endif
 
     bool isMinimal() const;
@@ -93,11 +93,11 @@ public:
     static QString escape(const QString &str);
 
 #ifdef QT3_SUPPORT
-    inline QT3_SUPPORT_CONSTRUCTOR QRegExp(const QString &pattern, bool cs, bool wildcard = false)
+    inline QT3_SUPPORT_CONSTRUCTOR QRegExp(const QString &aPattern, bool cs, bool aWildcard = false)
     {
         new (this)
-            QRegExp(pattern, cs ? Qt::CaseSensitive : Qt::CaseInsensitive,
-                    wildcard ? Wildcard : RegExp);
+            QRegExp(aPattern, cs ? Qt::CaseSensitive : Qt::CaseInsensitive,
+                    aWildcard ? Wildcard : RegExp);
     }
 #endif
 

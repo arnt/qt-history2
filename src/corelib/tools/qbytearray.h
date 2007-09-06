@@ -166,10 +166,10 @@ public:
     QByteArray rightJustified(int width, char fill = ' ', bool truncate = false) const;
 
 #ifdef QT3_SUPPORT
-    inline QT3_SUPPORT QByteArray leftJustify(uint width, char fill = ' ', bool truncate = false) const
-    { return leftJustified(int(width), fill, truncate); }
-    inline QT3_SUPPORT QByteArray rightJustify(uint width, char fill = ' ', bool truncate = false) const
-    { return rightJustified(int(width), fill, truncate); }
+    inline QT3_SUPPORT QByteArray leftJustify(uint width, char aFill = ' ', bool aTruncate = false) const
+    { return leftJustified(int(width), aFill, aTruncate); }
+    inline QT3_SUPPORT QByteArray rightJustify(uint width, char aFill = ' ', bool aTruncate = false) const
+    { return rightJustified(int(width), aFill, aTruncate); }
 #endif
 
     QByteArray &prepend(char c);
@@ -349,8 +349,8 @@ inline bool QByteArray::isDetached() const
 inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
 { d->ref.ref(); }
 #ifdef QT3_SUPPORT
-inline QByteArray::QByteArray(int size) : d(&shared_null)
-{ d->ref.ref(); if (size > 0) fill('\0', size); }
+inline QByteArray::QByteArray(int aSize) : d(&shared_null)
+{ d->ref.ref(); if (aSize > 0) fill('\0', aSize); }
 #endif
 
 inline int QByteArray::capacity() const

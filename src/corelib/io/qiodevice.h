@@ -139,8 +139,8 @@ private:
 public:
     typedef qint64 Offset;
 
-    inline QT3_SUPPORT int flags() const { return (int) openMode(); }
-    inline QT3_SUPPORT int mode() const { return (int) openMode(); }
+    inline QT3_SUPPORT int flags() const { return static_cast<int>(openMode()); }
+    inline QT3_SUPPORT int mode() const { return static_cast<int>(openMode()); }
     inline QT3_SUPPORT int state() const;
 
     inline QT3_SUPPORT bool isDirectAccess() const { return !isSequential(); }

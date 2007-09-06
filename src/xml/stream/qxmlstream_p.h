@@ -93,7 +93,7 @@ public:
 
     GOTO_INDEX_OFFSET = 418,
     GOTO_INFO_OFFSET = 925,
-    GOTO_CHECK_OFFSET = 925,
+    GOTO_CHECK_OFFSET = 925
   };
 
   static const char  *const spell [];

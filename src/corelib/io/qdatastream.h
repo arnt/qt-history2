@@ -134,9 +134,9 @@ public:
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QDataStream &readRawBytes(char *str, uint len)
-        { readRawData(str, (int)len); return *this; }
+        { readRawData(str, static_cast<int>(len)); return *this; }
     inline QT3_SUPPORT QDataStream &writeRawBytes(const char *str, uint len)
-        { writeRawData(str, (int)len); return *this; }
+        { writeRawData(str, static_cast<int>(len)); return *this; }
     inline QT3_SUPPORT bool isPrintableData() const { return false; }
     inline QT3_SUPPORT void setPrintableData(bool) {}
 #endif
