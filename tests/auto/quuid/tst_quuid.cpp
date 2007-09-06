@@ -101,7 +101,7 @@ void tst_QUuid::less()
     QVERIFY( !(uuidA < uuidB) );
 
     QUuid null_uuid;
-    QVERIFY( !(null_uuid < uuidA) ); // Not the same variant, so always false
+    QVERIFY(null_uuid < uuidA); // Null uuid is always less than a valid one
 }
 
 
@@ -110,7 +110,7 @@ void tst_QUuid::more()
     QVERIFY( uuidA > uuidB );
 
     QUuid null_uuid;
-    QVERIFY( !(null_uuid > uuidA) ); // Not the same variant, so always false
+    QVERIFY( !(null_uuid > uuidA) ); // Null uuid is always less than a valid one
 }
 
 
