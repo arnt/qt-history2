@@ -605,9 +605,13 @@ void tst_QStyleSheetStyle::fontPropagation()
     cb.addItem("item2");
     cb.setStyleSheet("QComboBox { font-size: 20pt; }");
     QVERIFY(FONTSIZE(cb) == 20);
+
+// On Mac the popup font does not have 
+// the same size as the application font.
+#ifndef Q_WS_MAC
     QAbstractItemView *popup = cb.view();
     QVERIFY(FONTSIZE(*popup) == APPFONTSIZE());
-
+#endif
     QGroupBox gb;
     QPushButton *push = new QPushButton(&gb);
     QPushButton &pb = *push;
