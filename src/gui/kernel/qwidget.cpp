@@ -1584,7 +1584,6 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
         rgn -= (r.translated(offset) & clipRgn);
 }
 
-#if defined(Q_WIDGET_USE_DIRTYLIST) || (QT_VERSION >= 0x040400)
 QRegion QWidgetPrivate::getOpaqueSiblings() const
 {
     Q_Q(const QWidget);
@@ -1610,7 +1609,6 @@ QRegion QWidgetPrivate::getOpaqueSiblings() const
 
     return opaqueSiblings.translated(myOffset);
 }
-#endif
 
 //subtract any relatives that are higher up than me --- this is too expensive !!!
 void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
@@ -1619,30 +1617,7 @@ void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) 
     if (disableSubtractOpaqueSiblings)
         return;
 
-#if defined(Q_WIDGET_USE_DIRTYLIST) || (QT_VERSION >= 0x040400)
     rgn -= getOpaqueSiblings().translated(offset);
-#else
-    Q_Q(const QWidget);
-
-    if (q->isWindow())
-        return;
-
-    QPoint myOffset = offset - q->data->crect.topLeft();
-    const QWidgetPrivate *pd = q->parentWidget()->d_func();
-    pd->subtractOpaqueSiblings(rgn, myOffset);
-
-    const int startIdx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1;
-    for (int i = startIdx; i < pd->children.size(); ++i) {
-        const QWidget *sibling = qobject_cast<QWidget *>(pd->children.at(i));
-        if (!sibling || !sibling->isVisible() || sibling->isWindow())
-            continue;
-
-        QRegion childRgn = sibling->geometry().translated(myOffset) & q->rect();
-        const QWidgetPrivate *sd = sibling->d_func();
-        sd->subtractOpaqueChildren(rgn, childRgn,
-                                   myOffset + sibling->geometry().topLeft());
-    }
-#endif
 }
 
 #else // Q_WIDGET_CACHE_OPAQUEREGIONS
@@ -2985,7 +2960,7 @@ QRegion QWidget::childrenRegion() const
 
     The minimum size set by this function will override the minimum size defined by QLayout.
     In order to unset the minimum size, use QSize(0, 0).
-    
+
     \sa minimumWidth, minimumHeight, maximumSize, sizeIncrement
 */
 
@@ -7599,9 +7574,9 @@ void QWidget::updateGeometry()
     Qt::Widget or Qt::SubWindow, it is put at position (0, 0)
     relative to its parent widget.
 
-    \note This function calls setParent() when changing the flags for 
+    \note This function calls setParent() when changing the flags for
     a window, and the side effects documented in setParent() also apply.
-    
+
     \sa windowType(), {Window Flags Example}
 */
 void QWidget::setWindowFlags(Qt::WindowFlags flags)
@@ -7663,7 +7638,7 @@ void QWidget::overrideWindowFlags(Qt::WindowFlags flags)
 
     If the "new" parent widget is the old parent widget, this function
     does nothing.
-    
+
     \note The widget becomes invisible as part of changing its parent,
     even if it was previously visible. You must call show() to make the
     widget visible again.
