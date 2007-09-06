@@ -1248,6 +1248,7 @@ OSStatus
 QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;
+    QScopedLoopLevelCounter loopLevelCounter(app->d_func()->threadData);
     long result;
     if (app->filterEvent(&event, &result))
         return result;

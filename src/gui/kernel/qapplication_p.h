@@ -36,6 +36,7 @@
 #include "QtCore/qhash.h"
 #include "private/qcoreapplication_p.h"
 #include "private/qshortcutmap_p.h"
+#include <private/qthread_p.h>
 #ifdef Q_WS_QWS
 #include "QtGui/qscreen_qws.h"
 #endif
@@ -135,6 +136,17 @@ extern "C" {
     typedef bool (*Ptrqt_dispatchAccelEvent)(QWidget *w, QKeyEvent *e);
 }
 #endif
+
+class QScopedLoopLevelCounter
+{
+    QThreadData *threadData;
+public:
+    QScopedLoopLevelCounter(QThreadData *threadData)
+        : threadData(threadData)
+    { ++threadData->loopLevel; }
+    ~QScopedLoopLevelCounter()
+    { --threadData->loopLevel; }
+};
 
 class Q_GUI_EXPORT QApplicationPrivate : public QCoreApplicationPrivate
 {

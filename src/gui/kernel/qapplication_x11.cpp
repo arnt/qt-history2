@@ -2676,6 +2676,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 int QApplication::x11ProcessEvent(XEvent* event)
 {
     Q_D(QApplication);
+    QScopedLoopLevelCounter loopLevelCounter(d->threadData);
 #ifdef ALIEN_DEBUG
     //qDebug() << "QApplication::x11ProcessEvent:" << event->type;
 #endif

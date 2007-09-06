@@ -1209,6 +1209,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
     if (!qApp)                                // unstable app state
         goto do_default;
 
+    QScopedLoopLevelCounter loopLevelCounter(qApp->d_func()->threadData);
+
 #if 0
     // make sure we update widgets also when the user resizes
     if (inLoop && qApp->loopLevel())
@@ -1675,7 +1677,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                                              QString::fromLocal8Bit((char*)msg.lParam));
                 if (area == QLatin1String("intl"))
                     QApplication::postEvent(widget, new QEvent(QEvent::LocaleChange));
-            } 
+            }
             else if (msg.wParam == SPI_SETICONTITLELOGFONT) {
                 if (qApp->desktopSettingsAware()) {
                     widget = (QETWidget*)QWidget::find(hwnd);
@@ -1924,7 +1926,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 }
                 if (fw && fw->isEnabled()) {
                     QPoint pos = fw->inputMethodQuery(Qt::ImMicroFocus).toRect().center();
-                    QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos), 
+                    QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos),
                                       qt_win_getKeyboardModifiers());
                     result = qt_sendSpontaneousEvent(fw, &e);
                 }
@@ -2752,7 +2754,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         } else if (type == QEvent::MouseButtonRelease && button == Qt::RightButton
                 && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
-            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos, 
+            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos,
                               qt_win_getKeyboardModifiers());
             bool res2 = QApplication::sendSpontaneousEvent( target, &e2 );
             if (!res) // RMB not accepted
@@ -2787,7 +2789,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         // non client area events are only informational, you cannot "handle" them
         res = res && e.isAccepted() && !nonClientAreaEvent;
         if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
-            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos, 
+            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos,
                               qt_win_getKeyboardModifiers());
             bool res2 = QApplication::sendSpontaneousEvent(widget, &e2);
             if (!res)

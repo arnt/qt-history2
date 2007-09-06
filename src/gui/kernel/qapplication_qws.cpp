@@ -2497,6 +2497,7 @@ void QApplication::alert(QWidget *, int)
 int QApplication::qwsProcessEvent(QWSEvent* event)
 {
     Q_D(QApplication);
+    QScopedLoopLevelCounter loopLevelCounter(d->threadData);
     int oldstate = -1;
     bool isMove = false;
     if (event->type == QWSEvent::Mouse) {
