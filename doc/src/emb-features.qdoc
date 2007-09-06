@@ -12,34 +12,66 @@
 ****************************************************************************/
 
 /*!
-    \page qtopiacore-features.html
+    \if defined(qtce)
+      \page qtce-features.html
+      \title Fine-Tuning Features in Qt/CE
+      \ingroup qtce
+    \else
+      \page qtopiacore-features.html
+      \title Fine-Tuning Features in Qtopia Core
+      \ingroup qtopiacore
+    \endif
 
-    \title Fine-Tuning Features in Qtopia Core
-    \ingroup qtopiacore
+    In many cases, only a fixed set of applications are deployed on an
+    embedded device, making it possible to save resources by minimizing
+    the size of the associated libraries. The Qt installation can easily
+    be optimized by avoiding to compile in the features that are not
+    required.
 
-    It is often a fixed set of applications on an embedded device,
-    making it possible to save resources by minimizing the size of the
-    associated libraries. The Qt installation can easily be optimized
-    by avoiding to compile in the features that are not required.
+    \if defined(qtce)
+      To disable a particular feature, just run the \c configure script 
+      with the set of required \c -D<feature> options. For example,
+      you can use the \c -D option to define \c{QT_NO_THREAD}:
 
-    To disable a particular feature, just run the \c configure script
-    with the \c -no-feature-<feature> option. For example:
+      \code
+          configure.exe -D QT_NO_THREAD
+      \endcode
 
-    \code
-        ./configure -no-feature-thread
-    \endcode
+      The \c -D option only creates a Qt internal define. If you get linker
+      errors you have to define \c QT_NO_THREAD also for your project.
+      You can do this by adding \c DEFINES += \c QT_NO_THREAD to your
+      \c .pro file.
 
-    The feature can easily be enabled again by running \c configure
-    with the \c -feature-<feature> option.
+    \else
 
-    You can also disable a \e set of features by creating a custom
+      To disable a particular feature, just run the \c configure script 
+      for Qtopia Core with the \c -no-feature-<feature> option. For example:
+
+      \code
+          ./configure -no-feature-thread
+      \endcode
+
+      The feature can easily be enabled again by running \c configure
+      with the \c -feature-<feature> option.
+    \endif
+
+    You can look up the different feature definitions in
+    \c{/src/corelib/global/qfeatures.txt}.
+
+    If you want to disable a lot of features, it is more comfortable
+    to use the \c qconfig tool.
+    You can disable a \e set of features by creating a custom
     configuration file that defines the preferred subset of Qt's
     functionality. Such a file uses macros to disable the unwanted
     features, and can be created manually or by using the \c qconfig
     tool located in the \c /tools/qconfig directory.
 
     \note The \c qconfig tool is intended to be built against Qt on
-    X11 platforms.
+    desktop platforms.
+    \if defined(qtce)
+    The Qt/CE package contains a \c qconfig executable that you can run
+    on a Windows desktop to configure the build.
+    \endif
 
     \image qtopiacore-qconfigtool.png
 
@@ -59,18 +91,29 @@
 
     To be able to apply the custom configuration, it must be saved in
     a file called \c qconfig-myfile.h in the \c /src/corelib/global
-    directory. Then use the \c configure script's \c -qconfig option
+    directory. Then use the \c configure tool's \c -qconfig option
     and pass the configuration's filename without the \c qconfig-
-    prefix and \c .h extension, as argument. For example:
+    prefix and \c .h extension, as argument.
+    For example:
 
-    \code
-        ./configure -qconfig myfile
-    \endcode
+    \if defined(qtce)
+      \code
+          configure.exe -qconfig myfile
+      \endcode
+    \else
+      \code
+          ./configure -qconfig myfile
+      \endcode
+    \endif
 
     Qt provides several ready-made custom configuration files,
     defining minimal, small, medium and large installations,
     respectively. These files are located in the \c
     /src/corelib/global directory.
 
-    \sa {Qtopia Core Performance Tuning}{Performance Tuning}
+    \if defined(qtce)
+      \sa {Qt/CE Performance Tuning}{Performance Tuning}
+    \else
+      \sa {Qtopia Core Performance Tuning}{Performance Tuning}
+    \endif
 */

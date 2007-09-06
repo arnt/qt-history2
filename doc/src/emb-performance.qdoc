@@ -12,21 +12,31 @@
 ****************************************************************************/
 
 /*!
-    \page qtopiacore-performance.html
+    \if defined(qtce)
+      \page qtce-performance.html
+      \title Qt/CE Performance Tuning
+      \ingroup qtce
+    \else
+      \page qtopiacore-performance.html
+      \title Qtopia Core Performance Tuning
+      \ingroup qtopiacore
+    \endif
 
-    \title Qtopia Core Performance Tuning
-    \ingroup qtopiacore
-
-    When building embedded applications on low-powered devices, \l
-    {Qtopia Core} provides a number of options that reduce the memory
+    When building embedded applications on low-powered devices,
+    \if defined(qtce)
+      \l{Qtopia Core}
+    \else
+      \l{Qt/CE}
+    \endif
+    provides a number of options that reduce the memory
     and/or CPU requirements by making various trade-offs. These
     options range from variations in programming style, to linking and
     memory allocation.
 
     But note that the most direct way of saving resources, is to avoid
-    compiling in features that are not required. See the \l {Fine-Tuning
-    Features in Qtopia Core}{fine tuning features} documentation for
-    details.
+    compiling in features that are not required. See the
+    \l{Fine-Tuning Features in Qt for Embeded Systems}{fine tuning features}
+    documentation for details.
 
     \tableofcontents
 
@@ -128,11 +138,16 @@
 
     \section1 Bypassing the Backing Store
 
-    When rendering, Qt uses the concept of a backing store, i.e., a
+    When rendering, Qt uses the concept of a backing store; i.e., a
     paint buffer, to reduce flicker and to support graphics operations
     such as blending.
 
-    \l {Qtopia Core}'s default behavior is for each client to render
+    \if defined(qtce)
+      \l {Qt/CE}'s
+    \else
+      \l {Qtopia Core}'s
+    \endif
+    default behavior is for each client to render
     its widgets into memory while the server is responsible for
     putting the contents of the memory onto the screen. But when the
     hardware is known and well defined, as is often the case with
@@ -143,7 +158,11 @@
     There are two approaches to direct painting: The first approach is
     to set the Qt::WA_PaintOnScreen window attribute for each widget,
     the other is to use the QDirectPainter class to reserve a region
-    of the framebuffer. For more information, see the \l { Qtopia Core
-    Architecture#Direct Painting}{direct painting} section of the \l {
-    Qtopia Core Architecture}{architecture} documentation.
+    of the framebuffer.
+    \if !defined(qtce)
+      For more information, see the
+      \l{Qtopia Core Architecture#Direct Painting}{direct painting}
+      section of the \l{Qtopia Core Architecture}{architecture}
+      documentation.
+    \endif
 */
