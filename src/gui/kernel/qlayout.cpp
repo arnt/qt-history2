@@ -303,8 +303,11 @@ bool QLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
 }
 
 /*!
-    \fn void setAlignment(Qt::Alignment alignment)
-    \reimp
+    \fn void QLayout::setAlignment(Qt::Alignment alignment)
+
+    Sets the alignment of this item to \a alignment.
+
+    \sa QLayoutItem::setAlignment()
 */
 
 /*!

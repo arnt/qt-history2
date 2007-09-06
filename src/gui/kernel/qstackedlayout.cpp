@@ -105,6 +105,11 @@ public:
 */
 
 /*!
+    \fn QWidget *QStackedLayout::widget()
+    \internal
+*/
+
+/*!
     Constructs a QStackedLayout with no parent.
 
     This QStackedLayout must be installed on a widget later on to
