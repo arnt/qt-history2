@@ -16,21 +16,3 @@ INCLUDEPATH += $$PWD/acceltree      \
 
 DEPENDPATH += $$INCLUDEPATH
 
-linux-g++ {
-QMAKE_CXXFLAGS += -ansi                 \
-                  -Wcast-align          \
-                  -Wchar-subscripts     \
-                  -Wconversion          \
-                  -Wfloat-equal         \
-                  -Wold-style-cast      \
-                  -Woverloaded-virtual  \
-                  -Wpointer-arith       \
-                  -Wredundant-decls     \
-                  -Wsign-compare        \
-                  -Wundef               \
-                  -Wunused              \
-                  -pedantic             \
-                  -Wno-long-long
-# -Wshadow              \ Qt sources can't handle this.
-# FIXME           -Wlong-long           \
-}
