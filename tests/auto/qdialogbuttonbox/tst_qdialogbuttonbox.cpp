@@ -401,7 +401,7 @@ void tst_QDialogButtonBox::testStandardButtonMapping_data()
 
     QTest::newRow("QDialogButtonBox::Ok") << QDialogButtonBox::Ok
                                           << QDialogButtonBox::AcceptRole
-                                          << QDialogButtonBox::tr("OK");
+                                          << QDialogButtonBox::tr("&OK");
     QTest::newRow("QDialogButtonBox::Open") << QDialogButtonBox::Open
                                             << QDialogButtonBox::AcceptRole
                                             << QDialogButtonBox::tr("Open");
