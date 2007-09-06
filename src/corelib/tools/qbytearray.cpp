@@ -151,7 +151,8 @@ char *qstrncpy(char *dst, const char *src, uint len)
     \sa qstrlen()
 */
 
-/*! \relates QByteArray
+/*! 
+    \relates QByteArray
 
     A safe \c strcmp() function.
 
@@ -161,7 +162,7 @@ char *qstrncpy(char *dst, const char *src, uint len)
 
     Special case 1: Returns 0 if \a str1 and \a str2 are both 0.
 
-    Special case 2: Returns a random non-zero value if \a str1 is 0
+    Special case 2: Returns an arbitrary non-zero value if \a str1 is 0
     or \a str2 is 0 (but not both).
 
     \sa qstrncmp(), qstricmp(), qstrnicmp(), {Note on 8-bit character comparisons}
