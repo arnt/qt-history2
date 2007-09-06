@@ -1305,7 +1305,12 @@ bool QDockWidget::event(QEvent *event)
         d->updateButtons();
         break;
     case QEvent::ZOrderChange: {
-        if (!isFloating() && layout != 0)
+        bool onTop = false;
+        if (win != 0) {
+            const QObjectList &siblings = win->children();
+            onTop = siblings.count() > 0 && siblings.last() == (QObject*)this;
+        }
+        if (!isFloating() && layout != 0 && onTop)
             layout->raise(this);
         break;
     }

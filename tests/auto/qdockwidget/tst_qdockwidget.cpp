@@ -524,6 +524,7 @@ void tst_QDockWidget::visibilityChanged()
     QDockWidget dw2;
     mw.tabifyDockWidget(&dw, &dw2);
     dw2.show();
+    dw2.raise();
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).at(0).toBool(), false);
     spy.clear();
@@ -535,6 +536,7 @@ void tst_QDockWidget::visibilityChanged()
     spy.clear();
 
     dw2.show();
+    dw2.raise();
     qApp->processEvents();
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).at(0).toBool(), false);
