@@ -1482,16 +1482,23 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
 
     d->invalidateCachedSizeHint();
 
+    int firstVisualIndex = INT_MAX, lastVisualIndex = -1;
+
+    for(int section = logicalFirst; section <= logicalLast; ++section) {
+        const int visual = visualIndex(section);
+        firstVisualIndex = qMin(firstVisualIndex, visual);
+        lastVisualIndex =  qMax(lastVisualIndex,  visual);
+    }
+
+    d->executePostedResize();
+    const int first = d->headerSectionPosition(firstVisualIndex),
+              last = d->headerSectionPosition(lastVisualIndex) 
+                        + d->headerSectionSize(lastVisualIndex);
+
     if (orientation == Qt::Horizontal) {
-        int left = sectionViewportPosition(logicalFirst);
-        int right = sectionViewportPosition(logicalLast);
-        right += sectionSize(logicalLast);
-        d->viewport->update(left, 0, right - left, d->viewport->height());
+        d->viewport->update(first, 0, last - first, d->viewport->height());
     } else {
-        int top = sectionViewportPosition(logicalFirst);
-        int bottom = sectionViewportPosition(logicalLast);
-        bottom += sectionSize(logicalLast);
-        d->viewport->update(0, top, d->viewport->width(), bottom - top);
+        d->viewport->update(0, first, d->viewport->width(), last - first);
     }
 }
 
