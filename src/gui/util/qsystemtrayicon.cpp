@@ -132,6 +132,10 @@ QSystemTrayIcon::~QSystemTrayIcon()
 
     On Mac OS X, this is currenly converted to a NSMenu, so the
     aboutToHide() signal is not emitted.
+
+    \note The system tray icon does not take ownership of the menu. You must
+    ensure that it is deleted at the appropriate time by, for example, creating
+    the menu with a suitable parent object.
 */
 void QSystemTrayIcon::setContextMenu(QMenu *menu)
 {
