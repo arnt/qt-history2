@@ -1645,6 +1645,8 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
         break;
 
     case PPK_NumberOfCopies:
+        if (!d->devMode)
+            break;
         d->num_copies = value.toInt();
         QT_WA( { d->devModeW()->dmCopies = d->num_copies; },
                { d->devModeA()->dmCopies = d->num_copies; });
