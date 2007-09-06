@@ -894,7 +894,7 @@ void tst_QColumnView::resize()
 void tst_QColumnView::changeSameColumn()
 {
     ColumnView view;
-    QFileSystemModel model;
+    QDirModel model;
     view.setModel(&model);
     QModelIndex second;
 
