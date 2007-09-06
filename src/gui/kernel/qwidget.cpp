@@ -7067,7 +7067,7 @@ QVariant QWidget::inputMethodQuery(Qt::InputMethodQuery query) const
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
 
-    \sa QTextDrag, QImageDrag, QDragEnterEvent
+    \sa QDrag, QDragEnterEvent
 */
 void QWidget::dragEnterEvent(QDragEnterEvent *)
 {
@@ -7085,7 +7085,7 @@ void QWidget::dragEnterEvent(QDragEnterEvent *)
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
 
-    \sa QTextDrag, QImageDrag, QDragMoveEvent
+    \sa QDrag, QDragMoveEvent
 */
 void QWidget::dragMoveEvent(QDragMoveEvent *)
 {
@@ -7101,7 +7101,7 @@ void QWidget::dragMoveEvent(QDragMoveEvent *)
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
 
-    \sa QTextDrag, QImageDrag, QDragLeaveEvent
+    \sa QDrag, QDragLeaveEvent
 */
 void QWidget::dragLeaveEvent(QDragLeaveEvent *)
 {
@@ -7116,7 +7116,7 @@ void QWidget::dragLeaveEvent(QDragLeaveEvent *)
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
 
-    \sa QTextDrag, QImageDrag, QDropEvent
+    \sa QDrag, QDropEvent
 */
 void QWidget::dropEvent(QDropEvent *)
 {
