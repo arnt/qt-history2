@@ -271,8 +271,6 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueTo
 
 #else
 
-#if !(defined Q_CC_BOR) || (__BORLANDC__ < 0x560)
-
 extern "C" {
     __declspec(dllimport) long __stdcall InterlockedCompareExchange(long *, long, long);
     __declspec(dllimport) long __stdcall InterlockedIncrement(long *);
@@ -281,43 +279,43 @@ extern "C" {
     __declspec(dllimport) long __stdcall InterlockedExchangeAdd(long *, long);
 }
 
-#else
-
-extern "C" {
-    __declspec(dllimport) long __stdcall InterlockedCompareExchange(long volatile*, long, long);
-    __declspec(dllimport) long __stdcall InterlockedIncrement(long volatile*);
-    __declspec(dllimport) long __stdcall InterlockedDecrement(long volatile*);
-    __declspec(dllimport) long __stdcall InterlockedExchange(long volatile*, long);
-    __declspec(dllimport) long __stdcall InterlockedExchangeAdd(long volatile*, long);
-}
-
-#endif
-
-inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
-{ return InterlockedCompareExchange(reinterpret_cast<long *>(const_cast<int *>(ptr)), newval, expected) == expected; }
-
-inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
-{ return InterlockedCompareExchange(reinterpret_cast<long *>(const_cast<void *>(ptr)),
-                                    reinterpret_cast<long>(newval),
-                                    reinterpret_cast<long>(expected)) == reinterpret_cast<long>(expected); }
-
-inline int q_atomic_increment(volatile int *ptr)
-{ return InterlockedIncrement(reinterpret_cast<long *>(const_cast<int *>(ptr))); }
-
-inline int q_atomic_decrement(volatile int *ptr)
-{ return InterlockedDecrement(reinterpret_cast<long *>(const_cast<int *>(ptr))); }
-
-inline int q_atomic_set_int(volatile int *ptr, int newval)
-{ return InterlockedExchange(reinterpret_cast<long *>(const_cast<int *>(ptr)), newval); }
-
-inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
-{ return reinterpret_cast<void *>(InterlockedExchange(reinterpret_cast<long *>(const_cast<void *>(ptr)),
-                                  reinterpret_cast<long>(newval))); }
-
-inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
+inline bool QBasicAtomicInt::ref()
 {
-    return InterlockedExchangeAdd(reinterpret_cast<long *>(const_cast<int *>(ptr)), value);
+    return InterlockedIncrement(reinterpret_cast<long *>(const_cast<int *>(&_q_value))) != 0;
 }
+
+inline bool QBasicAtomicInt::deref()
+{
+    return InterlockedDecrement(reinterpret_cast<long *>(const_cast<int *>(&_q_value))) != 0;
+}
+
+inline bool QBasicAtomicInt::testAndSetOrdered(int expectedValue, int newValue)
+{
+    return InterlockedCompareExchange(reinterpret_cast<long *>(const_cast<int *>(&_q_value)), newValue, expectedValue) == expectedValue;
+}
+
+inline int QBasicAtomicInt::fetchAndStoreOrdered(int newValue)
+{ return InterlockedExchange(reinterpret_cast<long *>(const_cast<int *>(&_q_value)), newValue); }
+
+inline int QBasicAtomicInt::fetchAndAddOrdered(int valueToAdd)
+{
+    return InterlockedExchangeAdd(reinterpret_cast<long *>(const_cast<int *>(&_q_value)), valueToAdd);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T* newValue)
+{ return InterlockedCompareExchange(reinterpret_cast<long *>(const_cast<T **>(&_q_value)),
+                                    reinterpret_cast<long>(newValue),
+                                    reinterpret_cast<long>(expectedValue)) == reinterpret_cast<long>(expectedValue); }
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T* newValue)
+{ return reinterpret_cast<T *>(InterlockedExchange(reinterpret_cast<long *>(&_q_value),
+			                           reinterpret_cast<long>(newValue))); }
+
+template <typename T>
+Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
+{ return reinterpret_cast<T *>(InterlockedExchangeAdd(reinterpret_cast<long *>(&_q_value), valueToAdd * sizeof(T))); }
 
 #endif // Q_CC_GNU
 
