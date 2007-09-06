@@ -1773,7 +1773,7 @@ void tst_QMdiSubWindow::setFont()
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
 
-    const QFont originalFont = subWindow->font();
+    const QFont originalFont = QApplication::font("QWorkspaceTitleBar");
     QStyleOptionTitleBar opt;
     opt.initFrom(subWindow);
     const int titleBarHeight = subWindow->style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt);
