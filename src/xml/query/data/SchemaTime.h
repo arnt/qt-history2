@@ -24,10 +24,13 @@ namespace Patternist
     /**
      * @short Implements the value instance of the @c xs:time type.
      *
+     * The header file for this class was orignally called Time.h, but this
+     * clashed with a system header on MinGW.
+     *
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_xdm
      */
-    class Time : public AbstractDateTime
+    class SchemaTime : public AbstractDateTime
     {
     public:
         typedef AtomicValue::Ptr Ptr;
@@ -35,8 +38,8 @@ namespace Patternist
         /**
          * Creates an instance from the lexical representation @p string.
          */
-        static Time::Ptr fromLexical(const QString &string);
-        static Time::Ptr fromDateTime(const QDateTime &dt);
+        static SchemaTime::Ptr fromLexical(const QString &string);
+        static SchemaTime::Ptr fromDateTime(const QDateTime &dt);
 
         virtual ItemType::Ptr type() const;
         virtual QString stringValue() const;
@@ -45,7 +48,7 @@ namespace Patternist
     protected:
         friend class CommonValues;
 
-        Time(const QDateTime &dateTime);
+        SchemaTime(const QDateTime &dateTime);
     };
 }
 
