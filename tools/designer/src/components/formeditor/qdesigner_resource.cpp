@@ -569,9 +569,9 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
             spacer->setObjectName(domSpacer->attributeName());
         core()->metaDataBase()->add(spacer);
 
-        spacer->setInteraciveMode(false);
+        spacer->setInteractiveMode(false);
         applyProperties(spacer, ui_layoutItem->elementSpacer()->elementProperty());
-        spacer->setInteraciveMode(true);
+        spacer->setInteractiveMode(true);
 
         if (m_formWindow) {
             m_formWindow->manageWidget(spacer);

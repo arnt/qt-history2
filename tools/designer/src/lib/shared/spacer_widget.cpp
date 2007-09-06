@@ -27,15 +27,14 @@
 
 using namespace qdesigner_internal;
 
-Spacer::Spacer(QWidget *parent)
-    : QWidget(parent),
-      orient(Qt::Vertical), interactive(true), sh(0, 0)
+Spacer::Spacer(QWidget *parent) :
+    QWidget(parent),
+    m_orientation(Qt::Vertical),
+    m_interactive(true),
+    m_sizeHint(0, 0)
 {
     setAttribute(Qt::WA_MouseNoMask);
     m_formWindow = QDesignerFormWindowInterface::findFormWindow(this);
-    // Ensure we are visible and selectable by rubber band
-    // on the form
-    setMinimumSize(1, 1);
     setSizeType(QSizePolicy::Expanding);
 }
 
@@ -47,35 +46,38 @@ void Spacer::paintEvent(QPaintEvent *)
 
     QPainter p(this);
     p.setPen(Qt::blue);
-
-    if (orient == Qt::Horizontal) {
+    const int w = width();
+    const int h = height();
+    if (w < 2 && h < 2)
+        return;
+    if (m_orientation == Qt::Horizontal) {
         const int dist = 3;
-        const int amplitude = qMin(3, height() / 3);
-        const int base = height() / 2;
+        const int amplitude = qMin(3, h / 3);
+        const int base = h / 2;
         int i = 0;
         p.setPen(Qt::white);
-        for (i = 0; i < width() / 3 +2; ++i)
+        for (i = 0; i < w / 3 +2; ++i)
             p.drawLine(i * dist, base - amplitude, i * dist + dist / 2, base + amplitude);
         p.setPen(Qt::blue);
-        for (i = 0; i < width() / 3 +2; ++i)
+        for (i = 0; i < w / 3 +2; ++i)
             p.drawLine(i * dist + dist / 2, base + amplitude, i * dist + dist, base - amplitude);
-        int y = height()/2;
+        const int y = h/2;
         p.drawLine(0, y-10, 0, y+10);
-        p.drawLine(width() - 1, y-10, width() - 1, y+10);
+        p.drawLine(w - 1, y-10, w - 1, y+10);
     } else {
         const int dist = 3;
-        const int amplitude = qMin(3, width() / 3);
-        const int base = width() / 2;
+        const int amplitude = qMin(3, w / 3);
+        const int base = w / 2;
         int i = 0;
         p.setPen(Qt::white);
-        for (i = 0; i < height() / 3 +2; ++i)
+        for (i = 0; i < h / 3 +2; ++i)
             p.drawLine(base - amplitude, i * dist, base + amplitude,i * dist + dist / 2);
         p.setPen(Qt::blue);
-        for (i = 0; i < height() / 3 +2; ++i)
+        for (i = 0; i < h / 3 +2; ++i)
             p.drawLine(base + amplitude, i * dist + dist / 2, base - amplitude, i * dist + dist);
-        int x = width()/2;
+        const int x = w/2;
         p.drawLine(x-10, 0, x+10, 0);
-        p.drawLine(x-10, height() - 1, x+10, height() - 1);
+        p.drawLine(x-10, h - 1, x+10, h - 1);
     }
 }
 
@@ -90,86 +92,83 @@ void Spacer::resizeEvent(QResizeEvent* e)
 
     updateMask();
 
-    if (!interactive)
+    if (!m_interactive)
         return;
 
     if (!parentWidget() || (m_formWindow && LayoutInfo::layoutType(m_formWindow->core(), parentWidget()) == LayoutInfo::NoLayout))
-        sh = size();
+        m_sizeHint = size();
 }
 
 void Spacer::updateMask()
 {
     QRegion r(rect());
-    if (orient == Qt::Horizontal) {
-        const int amplitude = qMin(3, height() / 3);
-        const int base = height() / 2;
-        r = r.subtract(QRect(1, 0, width() - 2, base - amplitude));
-        r = r.subtract(QRect(1, base + amplitude, width() - 2, height() - base - amplitude));
-    } else {
-        const int amplitude = qMin(3, width() / 3);
-        const int base = width() / 2;
-        r = r.subtract(QRect(0, 1, base - amplitude, height() - 2));
-        r = r.subtract(QRect(base + amplitude, 1, width() - base - amplitude, height() - 2));
+    const int w = width();
+    const int h = height();
+    if (w > 1 && h > 1) {
+        if (m_orientation == Qt::Horizontal) {
+            const int amplitude = qMin(3, h / 3);
+            const int base = h / 2;
+            r = r.subtract(QRect(1, 0, w - 2, base - amplitude));
+            r = r.subtract(QRect(1, base + amplitude, w - 2, h - base - amplitude));
+        } else {
+            const int amplitude = qMin(3, w / 3);
+            const int base = w / 2;
+            r = r.subtract(QRect(0, 1, base - amplitude, h - 2));
+            r = r.subtract(QRect(base + amplitude, 1, w - base - amplitude, h - 2));
+        }
     }
     setMask(r);
 }
 
 void Spacer::setSizeType(QSizePolicy::Policy t)
 {
-    QSizePolicy sizeP;
-    if (orient == Qt::Vertical)
-        sizeP = QSizePolicy(QSizePolicy::Minimum, t);
-    else
-        sizeP = QSizePolicy(t, QSizePolicy::Minimum);
+    const QSizePolicy sizeP = m_orientation == Qt::Vertical ? QSizePolicy(QSizePolicy::Minimum, t) : QSizePolicy(t, QSizePolicy::Minimum);
     setSizePolicy(sizeP);
 }
 
 
 QSizePolicy::Policy Spacer::sizeType() const
 {
-    if (orient == Qt::Vertical)
-        return sizePolicy().verticalPolicy();
-    return sizePolicy().horizontalPolicy();
+    return m_orientation == Qt::Vertical ? sizePolicy().verticalPolicy() : sizePolicy().horizontalPolicy();
 }
 
 Qt::Alignment Spacer::alignment() const
 {
-    if (orient == Qt::Vertical)
-        return Qt::AlignHCenter;
-    return Qt::AlignVCenter;
+    // For grid layouts
+    return m_orientation == Qt::Vertical ?  Qt::AlignHCenter : Qt::AlignVCenter;
 }
 
 QSize Spacer::sizeHint() const
 {
-    return sh;
+    return m_sizeHint;
 }
 
 void Spacer::setSizeHint(const QSize &s)
 {
-    sh = s;
+    m_sizeHint = s;
 
     if (!parentWidget() || (m_formWindow && LayoutInfo::layoutType(m_formWindow->core(), parentWidget()) == LayoutInfo::NoLayout))
-        resize(sizeHint());
+        resize(s);
 
     updateGeometry();
 }
 
 Qt::Orientation Spacer::orientation() const
 {
-    return orient;
+    return m_orientation;
 }
 
 void Spacer::setOrientation(Qt::Orientation o)
 {
-    if (orient == o)
+    if (m_orientation == o)
         return;
 
-    QSizePolicy::Policy st = sizeType();
-    orient = o;
+    const QSizePolicy::Policy st = sizeType(); // flip size type
+    m_orientation = o;
     setSizeType(st);
 
-    if (interactive) {
-        sh = QSize(sh.height(), sh.width());
+    if (m_interactive) {
+        m_sizeHint = QSize(m_sizeHint.height(), m_sizeHint.width());
         if (!parentWidget() || (m_formWindow && LayoutInfo::layoutType(m_formWindow->core(), parentWidget()) == LayoutInfo::NoLayout))
             resize(height(), width());
     }
@@ -178,3 +177,4 @@ void Spacer::setOrientation(Qt::Orientation o)
     update();
     updateGeometry();
 }
+

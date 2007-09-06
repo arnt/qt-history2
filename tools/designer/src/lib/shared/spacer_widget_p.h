@@ -57,7 +57,7 @@ public:
     Qt::Orientation orientation() const;
 
     void setOrientation(Qt::Orientation o);
-    void setInteraciveMode(bool b) { interactive = b; };
+    void setInteractiveMode(bool b) { m_interactive = b; };
 
 protected:
     void paintEvent(QPaintEvent *e);
@@ -66,9 +66,9 @@ protected:
 
 private:
     QDesignerFormWindowInterface *m_formWindow;
-    Qt::Orientation orient;
-    bool interactive;
-    QSize sh;
+    Qt::Orientation m_orientation;
+    bool m_interactive;
+    QSize m_sizeHint;
 };
 
 #endif // SPACER_WIDGET_H
