@@ -1,4 +1,4 @@
+load(qttest_p4)
 SOURCES += tst_cli.cpp
 CONFIG += qtestlib
-include(../../src/common.pri)
 QT -= gui

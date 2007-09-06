@@ -262,7 +262,7 @@ SUBDIRS += bic \
            qtcpserver \
            qtcpsocket \
            qtemporaryfile \
-	   qtessellator \
+           qtessellator \
            qtextblock \
            qtextbrowser \
            qtextcodec \
@@ -300,8 +300,8 @@ SUBDIRS += bic \
            qurl \
            quuid \
            qvariant \
-	   qvarlengtharray \
-	   qvector \
+           qvarlengtharray \
+           qvector \
            qwaitcondition \
            qwidget \
            qwidgetaction \
@@ -320,7 +320,11 @@ SUBDIRS += bic \
            qxmlstream \
            selftests \
            symbols \
-           qrand
+           qrand \
+           qxmlquery \
+           qxmlname \
+           patternist \
+           qsourcelocation
 
 unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += \
            qdbusabstractadaptor \
