@@ -72,6 +72,7 @@ private slots:
 
     // task specific tests:
     void task161660_buttonSpacing();
+    void task177716_disableCommitButton();
 
     /*
         Things that could be added:
@@ -2158,6 +2159,38 @@ void tst_QWizard::task161660_buttonSpacing()
     QCOMPARE(spacing, wizard.style()->layoutSpacing(
                  QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal));
     QApplication::setStyle(origStyle);
+}
+
+class task177716_CommitPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    task177716_CommitPage()
+    {
+        setCommitPage(true);
+        QVBoxLayout *layout = new QVBoxLayout;
+        ledit = new QLineEdit(this);
+        registerField("foo*", ledit);
+        layout->addWidget(ledit);
+        setLayout(layout);
+    }
+    QLineEdit *ledit;
+};
+
+void tst_QWizard::task177716_disableCommitButton()
+{
+    QWizard wizard;
+    task177716_CommitPage *commitPage = new task177716_CommitPage;
+    wizard.addPage(commitPage);
+    // the following page must be there to prevent the first page from replacing the Commit button
+    // with the Finish button:
+    wizard.addPage(new QWizardPage);
+    wizard.show();
+    QVERIFY(!wizard.button(QWizard::CommitButton)->isEnabled());
+    commitPage->ledit->setText("some non-empty text");
+    QVERIFY(wizard.button(QWizard::CommitButton)->isEnabled());
+    commitPage->ledit->setText("");
+    QVERIFY(!wizard.button(QWizard::CommitButton)->isEnabled());
 }
 
 QTEST_MAIN(tst_QWizard)
