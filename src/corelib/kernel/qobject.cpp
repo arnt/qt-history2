@@ -2031,7 +2031,10 @@ void QObject::removeEventFilter(QObject *obj)
 {
     Q_D(QObject);
     QWriteLocker locker(QObjectPrivate::readWriteLock());
-    d->eventFilters.removeAll(obj);
+    for (int i = 0; i < d->eventFilters.count(); ++i) {
+        if (d->eventFilters.at(i) == obj)
+            d->eventFilters[i] = 0;
+    }
 }
 
 
@@ -2538,10 +2541,10 @@ bool QObject::connect(const QObject *sender, const char *signal,
     method.
 
     Equivalent to connect(\a sender, \a signal, \c this, \a method, \a type).
-    
+
     Every connection you make emits a signal, so duplicate connections emit
     two signals. You can break a connection using disconnect().
-    
+
     \sa disconnect()
 */
 
@@ -3598,7 +3601,7 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     user-defined type.  The other items are optional, but a \c WRITE
     function is common.  The attributes default to true except \c USER,
     which defaults to false.
-    
+
     For example:
 
     \code
