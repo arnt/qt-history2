@@ -321,7 +321,8 @@ QUuid::Version QUuid::version() const
 
     Returns true if this QUuid is of the same variant,
     and lexicographically before the \a other QUuid;
-    otherwise returns false.
+    otherwise returns false. If it is a different variant,
+    return is based on a comparison of those two variants.
 
     \sa variant()
 */
@@ -345,7 +346,8 @@ bool QUuid::operator<(const QUuid &other) const
 
     Returns true if this QUuid is of the same variant,
     and lexicographically after the \a other QUuid;
-    otherwise returns false.
+    otherwise returns false. If it is a different variant,
+    return is based on a comparison of those two variants.
 
     \sa variant()
 */
