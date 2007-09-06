@@ -130,7 +130,7 @@ public:
     inline QT3_SUPPORT bool convertToAbs() { return makeAbsolute(); }
 #if !defined(Q_NO_TYPESAFE_FLAGS)
     inline QT3_SUPPORT bool permission(PermissionSpec permissions) const
-    { return permission(QFile::Permissions((int)permissions)); }
+    { return permission(QFile::Permissions(static_cast<int>(permissions))); }
 #endif
 #endif
 
