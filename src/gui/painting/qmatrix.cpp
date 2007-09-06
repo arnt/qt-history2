@@ -77,7 +77,7 @@
 
     \table 100%
     \row
-    \o \inlineimage qmatrix-simpletransformation
+    \o \inlineimage qmatrix-simpletransformation.png
     \o
     \quotefromfile snippets/matrix/matrix.cpp
     \skipto SimpleTransformation::paintEvent
