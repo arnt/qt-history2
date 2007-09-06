@@ -24,9 +24,9 @@
 
     When building embedded applications on low-powered devices,
     \if defined(qtce)
-      \l{Qtopia Core}
-    \else
       \l{Qt/CE}
+    \else
+      \l{Qtopia Core}
     \endif
     provides a number of options that reduce the memory
     and/or CPU requirements by making various trade-offs. These
@@ -35,7 +35,11 @@
 
     But note that the most direct way of saving resources, is to avoid
     compiling in features that are not required. See the
-    \l{Fine-Tuning Features in Qt for Embeded Systems}{fine tuning features}
+    \if defined(qtce)
+      \l{Fine-Tuning Features in Qt/CE}{fine tuning features}
+    \else
+      \l{Fine-Tuning Features in Qtopia Core}{fine tuning features}
+    \endif
     documentation for details.
 
     \tableofcontents
@@ -154,12 +158,15 @@
     software for embedded devices, it might be useful to bypass the
     backing store, allowing the clients to manipulate the underlying
     hardware directly.
+    \if defined(qtce)
+    This is achieved by setting the Qt::WA_PaintOnScreen window attribute
+    for each widget.
+    \else
 
     There are two approaches to direct painting: The first approach is
     to set the Qt::WA_PaintOnScreen window attribute for each widget,
     the other is to use the QDirectPainter class to reserve a region
     of the framebuffer.
-    \if !defined(qtce)
       For more information, see the
       \l{Qtopia Core Architecture#Direct Painting}{direct painting}
       section of the \l{Qtopia Core Architecture}{architecture}
