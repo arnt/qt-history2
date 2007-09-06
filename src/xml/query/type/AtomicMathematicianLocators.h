@@ -131,10 +131,10 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @todo docs
      */
-    class TimeMathematicianLocator : public AtomicMathematicianLocator
+    class SchemaTimeMathematicianLocator : public AtomicMathematicianLocator
     {
         using AtomicMathematicianLocator::visit;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *, const qint16 op,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *, const qint16 op,
                                                    const SourceLocationReflection *const r) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const DayTimeDurationType *, const qint16 op,
                                                    const SourceLocationReflection *const r) const;
@@ -175,7 +175,7 @@ namespace Patternist
                                                    const SourceLocationReflection *const r) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const IntegerType *, const qint16 op,
                                                    const SourceLocationReflection *const r) const;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *, const qint16 op,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *, const qint16 op,
                                                    const SourceLocationReflection *const r) const;
     };
 

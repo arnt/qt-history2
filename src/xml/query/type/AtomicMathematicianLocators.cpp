@@ -108,7 +108,7 @@ implReportingMathVisit(DayTimeDuration,  DecimalType,   DurationNumericMathemati
 implReportingMathVisit(DayTimeDuration,  DoubleType,    DurationNumericMathematician,  DivMultiply)
 implReportingMathVisit(DayTimeDuration,  FloatType,     DurationNumericMathematician,  DivMultiply)
 implReportingMathVisit(DayTimeDuration,  IntegerType,   DurationNumericMathematician,  DivMultiply)
-implRevReportingMathVisit(DayTimeDuration,  TimeType,               DateTimeDurationMathematician,       AtomicMathematician::Add)
+implRevReportingMathVisit(DayTimeDuration,  SchemaTimeType,               DateTimeDurationMathematician,       AtomicMathematician::Add)
 
 implRevReportingMathVisit(YearMonthDuration, DateTimeType,          DateTimeDurationMathematician,       AtomicMathematician::Add)
 implRevReportingMathVisit(YearMonthDuration, DateType,              DateTimeDurationMathematician,       AtomicMathematician::Add)
@@ -123,9 +123,9 @@ implMathVisit(Date,              DateType,              AbstractDateTimeMathemat
 implReportingMathVisit(Date,     YearMonthDurationType, DateTimeDurationMathematician,       DTOps)
 implReportingMathVisit(Date,     DayTimeDurationType,   DateTimeDurationMathematician,       DTOps)
 
-implMathVisit(Time,              TimeType,              AbstractDateTimeMathematician,
+implMathVisit(SchemaTime,              SchemaTimeType,              AbstractDateTimeMathematician,
               AtomicMathematician::Substract)
-implReportingMathVisit(Time,     DayTimeDurationType,   DateTimeDurationMathematician,       DTOps)
+implReportingMathVisit(SchemaTime,     DayTimeDurationType,   DateTimeDurationMathematician,       DTOps)
 
 implMathVisit(DateTime,          DateTimeType,          AbstractDateTimeMathematician,
               AtomicMathematician::Substract)

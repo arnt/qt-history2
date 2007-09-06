@@ -44,7 +44,7 @@ implCasterVisit(IntegerType)
 implCasterVisit(NOTATIONType)
 implCasterVisit(QNameType)
 implCasterVisit(StringType)
-implCasterVisit(TimeType)
+implCasterVisit(SchemaTimeType)
 implCasterVisit(UntypedAtomicType)
 implCasterVisit(YearMonthDurationType)
 

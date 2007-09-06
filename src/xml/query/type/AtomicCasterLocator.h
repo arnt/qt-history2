@@ -71,7 +71,7 @@ namespace Patternist
                                                    const SourceLocationReflection *const reflection) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const StringType *,
                                                    const SourceLocationReflection *const reflection) const;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *,
                                                    const SourceLocationReflection *const reflection) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const UntypedAtomicType *,
                                                    const SourceLocationReflection *const reflection) const;

@@ -54,7 +54,7 @@ implCompVisit(IntegerType)
 implCompVisit(NOTATIONType)
 implCompVisit(QNameType)
 implCompVisit(StringType)
-implCompVisit(TimeType)
+implCompVisit(SchemaTimeType)
 implCompVisit(UntypedAtomicType)
 implCompVisit(YearMonthDurationType)
 #undef implCompVisit

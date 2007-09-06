@@ -76,7 +76,7 @@ namespace Patternist
                                                    const SourceLocationReflection *const r) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const StringType *,
                                                    const SourceLocationReflection *const r) const;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *,
                                                    const SourceLocationReflection *const r) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const UntypedAtomicType *,
                                                    const SourceLocationReflection *const r) const;
@@ -131,7 +131,7 @@ namespace Patternist
                                                    const SourceLocationReflection *const r) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const StringType *,
                                                    const SourceLocationReflection *const r) const;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *,
                                                    const SourceLocationReflection *const r) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const UntypedAtomicType *,
                                                    const SourceLocationReflection *const r) const;
@@ -448,13 +448,13 @@ namespace Patternist
     /**
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class ToTimeCasterLocator : public AtomicCasterLocator
+    class ToSchemaTimeCasterLocator : public AtomicCasterLocator
     {
     public:
         using AtomicCasterLocator::visit;
         virtual AtomicTypeVisitorResult::Ptr visit(const DateTimeType *,
                                                    const SourceLocationReflection *const r) const;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *,
                                                    const SourceLocationReflection *const r) const;
         virtual AtomicTypeVisitorResult::Ptr visit(const StringType *,
                                                    const SourceLocationReflection *const r) const;

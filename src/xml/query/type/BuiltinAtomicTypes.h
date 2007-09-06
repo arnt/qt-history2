@@ -147,10 +147,10 @@ namespace Patternist
      * @ingroup Patternist_types
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class TimeType : public BuiltinAtomicType
+    class SchemaTimeType : public BuiltinAtomicType
     {
     public:
-        typedef PlainSharedPtr<TimeType> Ptr;
+        typedef PlainSharedPtr<SchemaTimeType> Ptr;
 
         virtual AtomicTypeVisitorResult::Ptr accept(const AtomicTypeVisitor::Ptr &visitor,
                                                     const SourceLocationReflection *const reflection) const;
@@ -163,7 +163,7 @@ namespace Patternist
 
     protected:
         friend class BuiltinTypes;
-        TimeType();
+        SchemaTimeType();
     };
 
     /**

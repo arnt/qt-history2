@@ -48,7 +48,7 @@ impl(ToStringCasterLocator,             ToStringCaster<TypeString>,             
 impl(ToStringCasterLocator,             ToStringCaster<TypeString>,             IntegerType)
 impl(ToStringCasterLocator,             ToStringCaster<TypeString>,             NOTATIONType)
 impl(ToStringCasterLocator,             ToStringCaster<TypeString>,             QNameType)
-impl(ToStringCasterLocator,             ToStringCaster<TypeString>,             TimeType)
+impl(ToStringCasterLocator,             ToStringCaster<TypeString>,             SchemaTimeType)
 impl(ToStringCasterLocator,             ToStringCaster<TypeString>,             UntypedAtomicType)
 impl(ToStringCasterLocator,             ToStringCaster<TypeString>,             YearMonthDurationType)
 
@@ -74,7 +74,7 @@ impl(ToUntypedAtomicCasterLocator,      ToUntypedAtomicCaster,                  
 impl(ToUntypedAtomicCasterLocator,      ToUntypedAtomicCaster,                  NOTATIONType)
 impl(ToUntypedAtomicCasterLocator,      ToUntypedAtomicCaster,                  QNameType)
 impl(ToUntypedAtomicCasterLocator,      ToUntypedAtomicCaster,                  StringType)
-impl(ToUntypedAtomicCasterLocator,      ToUntypedAtomicCaster,                  TimeType)
+impl(ToUntypedAtomicCasterLocator,      ToUntypedAtomicCaster,                  SchemaTimeType)
 impl(ToUntypedAtomicCasterLocator,      ToUntypedAtomicCaster,                  YearMonthDurationType)
 
 /* xs:anyURI */
@@ -185,10 +185,10 @@ impl(ToDateTimeCasterLocator,           AbstractDateTimeToDateTimeCaster,       
 impl(ToDateTimeCasterLocator,           StringToDateTimeCaster,                 UntypedAtomicType)
 
 /* xs:time */
-implSelf(Time)
-impl(ToTimeCasterLocator,               StringToTimeCaster,                     StringType)
-impl(ToTimeCasterLocator,               AbstractDateTimeToTimeCaster,           DateTimeType)
-impl(ToTimeCasterLocator,               StringToTimeCaster,                     UntypedAtomicType)
+implSelf(SchemaTime)
+impl(ToSchemaTimeCasterLocator,         StringToTimeCaster,                     StringType)
+impl(ToSchemaTimeCasterLocator,         AbstractDateTimeToTimeCaster,           DateTimeType)
+impl(ToSchemaTimeCasterLocator,         StringToTimeCaster,                     UntypedAtomicType)
 
 /* xs:date */
 implSelf(Date)

@@ -36,7 +36,7 @@ HEADERS += $$PWD/AbstractDateTime.h              \
            $$PWD/ResourceLoader.h                \
            $$PWD/SequenceReceiver.h              \
            $$PWD/SortTuple.cpp                   \
-           $$PWD/Time.h                          \
+           $$PWD/SchemaTime.h                    \
            $$PWD/UntypedAtomic.h                 \
            $$PWD/ValidationError.h               \
            $$PWD/YearMonthDuration.h
@@ -76,7 +76,7 @@ SOURCES += $$PWD/AbstractDateTime.cpp        \
            $$PWD/ResourceLoader.cpp          \
            $$PWD/SequenceReceiver.cpp        \
            $$PWD/SortTuple.cpp               \
-           $$PWD/Time.cpp                    \
+           $$PWD/SchemaTime.cpp              \
            $$PWD/UntypedAtomic.cpp           \
            $$PWD/ValidationError.cpp         \
            $$PWD/YearMonthDuration.cpp

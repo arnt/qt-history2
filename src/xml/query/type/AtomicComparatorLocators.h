@@ -239,10 +239,10 @@ namespace Patternist
     /**
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class TimeComparatorLocator : public AtomicComparatorLocator
+    class SchemaTimeComparatorLocator : public AtomicComparatorLocator
     {
         using AtomicComparatorLocator::visit;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *,
                                                    const qint16 op,
                                                    const SourceLocationReflection *const) const;
     };

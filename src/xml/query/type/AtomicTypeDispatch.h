@@ -45,7 +45,7 @@ namespace Patternist
     class QNameType;
     class SourceLocationReflection;
     class StringType;
-    class TimeType;
+    class SchemaTimeType;
     class UntypedAtomicType;
     class YearMonthDurationType;
 
@@ -160,7 +160,7 @@ namespace Patternist
                                                    const SourceLocationReflection *const reflection) const = 0;
         virtual AtomicTypeVisitorResult::Ptr visit(const StringType *,
                                                    const SourceLocationReflection *const reflection) const = 0;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *,
                                                    const SourceLocationReflection *const reflection) const = 0;
         virtual AtomicTypeVisitorResult::Ptr visit(const UntypedAtomicType *,
                                                    const SourceLocationReflection *const reflection) const = 0;
@@ -223,7 +223,7 @@ namespace Patternist
                                                    const SourceLocationReflection *const reflection) const = 0;
         virtual AtomicTypeVisitorResult::Ptr visit(const StringType *, const qint16 param,
                                                    const SourceLocationReflection *const reflection) const = 0;
-        virtual AtomicTypeVisitorResult::Ptr visit(const TimeType *, const qint16 param,
+        virtual AtomicTypeVisitorResult::Ptr visit(const SchemaTimeType *, const qint16 param,
                                                    const SourceLocationReflection *const reflection) const = 0;
         virtual AtomicTypeVisitorResult::Ptr visit(const UntypedAtomicType *, const qint16 param,
                                                    const SourceLocationReflection *const reflection) const = 0;

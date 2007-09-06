@@ -48,7 +48,7 @@ implVisit(IntegerType)
 implVisit(NOTATIONType)
 implVisit(QNameType)
 implVisit(StringType)
-implVisit(TimeType)
+implVisit(SchemaTimeType)
 implVisit(UntypedAtomicType)
 implVisit(YearMonthDurationType)
 #undef implVisit

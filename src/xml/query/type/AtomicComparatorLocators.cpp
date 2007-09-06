@@ -148,7 +148,7 @@ addVisitor(DateTime,    DateTimeType,    AbstractDateTimeComparator,
 /* --------------------------------------------------------------- */
 
 /* -------------------------- xs:time ---------------------------- */
-addVisitor(Time,        TimeType,       AbstractDateTimeComparator,
+addVisitor(SchemaTime,        SchemaTimeType,       AbstractDateTimeComparator,
            AllCompOperators)
 /* --------------------------------------------------------------- */
 
