@@ -1913,7 +1913,19 @@ void QGraphicsItem::resetTransform()
 }
 
 /*!
-    Rotates the current item transformation \a angle degrees clockwise.
+    Rotates the current item transformation \a angle degrees clockwise around
+    its origin. To translate around an arbitrary point (x, y), you need to
+    combine translation and rotation with setTransform().
+
+    Example:
+
+    \code
+        // Rotate an item 45 degrees around (0, 0).
+        item->rotate(45);
+
+        // Rotate an item 45 degrees around (x, y).
+        item->setTransform(QTransform().translate(x, y).rotate(45).translate(-x, -y));
+    \endcode
 
     \sa setTransform(), transform(), scale(), shear(), translate()
 */
@@ -1923,7 +1935,19 @@ void QGraphicsItem::rotate(qreal angle)
 }
 
 /*!
-    Scales the current item transformation by (\a sx, \a sy).
+    Scales the current item transformation by (\a sx, \a sy) around its
+    origin. To scale from an arbitrary point (x, y), you need to combine
+    translation and scaling with setTransform().
+
+    Example:
+
+    \code
+        // Scale an item by 3x2 from its origin
+        item->scale(3, 2);
+
+        // Scale an item by 3x2 from (x, y)
+        item->setTransform(QTransform().translate(x, y).scale(3, 2).translate(-x, -y));
+    \endcode
 
     \sa setTransform(), transform(), rotate(), shear(), translate()
 */
