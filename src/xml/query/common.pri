@@ -4,8 +4,7 @@
 DEFINES += QT_CLEAN_NAMESPACE       \
            QT_NO_CAST_FROM_ASCII    \
            QT_NO_CAST_TO_ASCII      \
-           QT_NO_COMPAT             \
-           QT_NO_KEYWORDS
+           QT_NO_COMPAT
 
 INCLUDEPATH += $$PWD/acceltree      \
                $$PWD/data           \
@@ -36,12 +35,12 @@ QMAKE_CXXFLAGS += -ansi                 \
                   -Woverloaded-virtual  \
                   -Wpointer-arith       \
                   -Wredundant-decls     \
-                  -Wshadow              \
                   -Wsign-compare        \
                   -Wundef               \
                   -Wunused              \
                   -Wunused-macros       \
                   -pedantic             \
                   -Wno-long-long
+# -Wshadow              \ Qt sources can't handle this.
 # FIXME           -Wlong-long           \
 }
