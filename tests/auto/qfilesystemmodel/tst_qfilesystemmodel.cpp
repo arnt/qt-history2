@@ -522,21 +522,25 @@ void tst_QFileSystemModel::filters()
         QFile::Permissions originalPermissions = QFile::permissions(fileName1);
         QVERIFY(QFile::setPermissions(fileName1, QFile::WriteOwner));
         QVERIFY(QFile::setPermissions(fileName2, QFile::ReadOwner));
+#ifndef Q_OS_WIN
         QVERIFY(QFile::setPermissions(fileName3, QFile::ExeOwner));
-
+#endif
         model->setFilter((QDir::Files | QDir::Readable));
         TRY_COMPARE(model->rowCount(root), 1);
 
         model->setFilter((QDir::Files | QDir::Writable));
         TRY_COMPARE(model->rowCount(root), 1);
 
+#ifndef Q_OS_WIN
         model->setFilter((QDir::Files | QDir::Executable));
         TRY_COMPARE(model->rowCount(root), 1);
-
+#endif
         // reset permissions
         QVERIFY(QFile::setPermissions(fileName1, originalPermissions));
         QVERIFY(QFile::setPermissions(fileName2, originalPermissions));
+#ifndef Q_OS_WIN
         QVERIFY(QFile::setPermissions(fileName3, originalPermissions));
+#endif
     }
 }
 
