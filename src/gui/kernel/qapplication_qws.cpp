@@ -879,8 +879,10 @@ void QWSDisplay::Data::fillQueue()
             queue.append(e);
         }
         //debugQueue();
+#ifndef QT_NO_QWS_MULTIPROCESS
         if (bytesRead >= bytesAvailable)
             break;
+#endif
         e = readMore();
     }
 }
