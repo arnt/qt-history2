@@ -29,8 +29,9 @@ void BookDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         QSqlRelationalDelegate::paint(painter, opt, index);
     } else {
         const QAbstractItemModel *model = index.model();
-        QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
-                                  ? QPalette::Normal : QPalette::Disabled;
+        QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled) ?
+            (option.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive : QPalette::Disabled;
+
         if (option.state & QStyle::State_Selected)
             painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
 
@@ -69,18 +70,12 @@ bool BookDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
     if (index.column() != 5)
         return QSqlRelationalDelegate::editorEvent(event, model, option, index);
 
-    QMouseEvent *mouseEvent;
-    int stars;
-
-    switch (event->type()) {
-        case QEvent::MouseButtonPress:
-            mouseEvent = static_cast<QMouseEvent*>(event);
-            stars = qBound(0, int(0.7 + qreal(mouseEvent->pos().x()
-                              - option.rect.x()) / star.width()), 5);
-            model->setData(index, QVariant(stars));
-            break;
-        default:
-            break;
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        int stars = qBound(0, int(0.7 + qreal(mouseEvent->pos().x()
+            - option.rect.x()) / star.width()), 5);
+        model->setData(index, QVariant(stars));
+        return false; //so that the selection can change
     }
 
     return true;
