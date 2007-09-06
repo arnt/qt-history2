@@ -22,46 +22,8 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
 
-class QtFullToolBarManagerPrivate
-{
-    class QtFullToolBarManager *q_ptr;
-    Q_DECLARE_PUBLIC(QtFullToolBarManager)
 
-public:
-
-    QToolBar *toolBarWidgetAction(QAction *action) const;
-    void removeWidgetActions(const QMap<QToolBar *, QList<QAction *> > &actions);
-
-    enum {
-        VersionMarker = 0xff,
-        ToolBarMarker = 0xfe,
-        CustomToolBarMarker = 0xfd,
-    };
-
-    void saveState(QDataStream &stream) const;
-    bool restoreState(QDataStream &stream) const;
-    QToolBar *findDefaultToolBar(const QString &objectName) const;
-    QAction *findAction(const QString &actionName) const;
-
-    QToolBar *toolBarByName(const QString &toolBarName) const;
-
-    QtFullToolBarManagerPrivate();
-
-    QMap<QString, QList<QAction *> > categoryToActions;
-    QMap<QAction *, QString>         actionToCategory;
-
-    QSet<QAction *> allActions;
-    QMap<QAction *, QToolBar *> widgetActions;
-    QSet<QAction *> regularActions;
-    QMap<QAction *, QList<QToolBar *> > actionToToolBars;
-
-    QMap<QToolBar *, QList<QAction *> > toolBars;
-    QMap<QToolBar *, QList<QAction *> > toolBarsWithSeparators;
-    QMap<QToolBar *, QList<QAction *> > defaultToolBars;
-    QList<QToolBar *> customToolBars;
-
-    QMainWindow *theMainWindow;
-};
+class QtFullToolBarManagerPrivate;
 
 
 class QtFullToolBarManager : public QObject
@@ -133,6 +95,49 @@ private:
     Q_DECLARE_PRIVATE(QtFullToolBarManager)
     Q_DISABLE_COPY(QtFullToolBarManager)
 };
+
+class QtFullToolBarManagerPrivate
+{
+    class QtFullToolBarManager *q_ptr;
+    Q_DECLARE_PUBLIC(QtFullToolBarManager)
+
+public:
+
+    QToolBar *toolBarWidgetAction(QAction *action) const;
+    void removeWidgetActions(const QMap<QToolBar *, QList<QAction *> > &actions);
+
+    enum {
+        VersionMarker = 0xff,
+        ToolBarMarker = 0xfe,
+        CustomToolBarMarker = 0xfd,
+    };
+
+    void saveState(QDataStream &stream) const;
+    bool restoreState(QDataStream &stream) const;
+    QToolBar *findDefaultToolBar(const QString &objectName) const;
+    QAction *findAction(const QString &actionName) const;
+
+    QToolBar *toolBarByName(const QString &toolBarName) const;
+
+    QtFullToolBarManagerPrivate();
+
+    QMap<QString, QList<QAction *> > categoryToActions;
+    QMap<QAction *, QString>         actionToCategory;
+
+    QSet<QAction *> allActions;
+    QMap<QAction *, QToolBar *> widgetActions;
+    QSet<QAction *> regularActions;
+    QMap<QAction *, QList<QToolBar *> > actionToToolBars;
+
+    QMap<QToolBar *, QList<QAction *> > toolBars;
+    QMap<QToolBar *, QList<QAction *> > toolBarsWithSeparators;
+    QMap<QToolBar *, QList<QAction *> > defaultToolBars;
+    QList<QToolBar *> customToolBars;
+
+    QMainWindow *theMainWindow;
+};
+
+
 
 
 QtFullToolBarManagerPrivate::QtFullToolBarManagerPrivate()
