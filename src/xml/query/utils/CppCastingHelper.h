@@ -72,9 +72,14 @@ namespace Patternist
         template<typename TCastTarget>
         inline const TCastTarget *as() const
         {
+            /* Qt doesn't have a define for when it's building with no RTTI. It
+             * needs to be added, and then this assert being conditionally
+             * enabled. */
+            /*
             Q_ASSERT_X(dynamic_cast<const TCastTarget *>(static_cast<const TSubClass *>(this)),
                        Q_FUNC_INFO,
                        "The cast is invalid. This class does not inherit the cast target.");
+                       */
             return static_cast<const TCastTarget *>(static_cast<const TSubClass *>(this));
         }
 
@@ -93,6 +98,9 @@ namespace Patternist
         template<typename TCastTarget>
         inline TCastTarget *as()
         {
+            /* Qt doesn't have a define for when it's building with no RTTI. It
+             * needs to be added, and then this assert being conditionally
+             * enabled. */
             Q_ASSERT_X(dynamic_cast<TCastTarget *>(static_cast<TSubClass *>(this)),
                        Q_FUNC_INFO,
                        "The cast is invalid. This class does not inherit the cast target.");
