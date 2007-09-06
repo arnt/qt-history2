@@ -47,6 +47,10 @@
         CONFIG += qdbus
     \endcode
 
+    \note The source code for this module is located in the \c{tools/qdbus}
+    directory. When installing Qt from source, this module is built when Qt's
+    tools are built.
+
     See the \l {Introduction to D-Bus} page for detailed information on
     how to use this module.
 
