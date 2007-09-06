@@ -131,7 +131,9 @@ void tst_QWindowSurface::flushOutsidePaintEvent()
     surface->endPaint(rect);
     surface->flush(&w, rect, QPoint());
 
+#ifdef Q_WS_QWS
     VERIFY_COLOR(w.geometry(), Qt::black);
+#endif
 
     // the paintEvent() should overwrite the painted rectangle
     QApplication::processEvents();
