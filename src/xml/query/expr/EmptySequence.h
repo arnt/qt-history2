@@ -9,8 +9,7 @@
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-***************************************************************************
-*/
+****************************************************************************/
 
 #ifndef Patternist_EmptySequence_H
 #define Patternist_EmptySequence_H
