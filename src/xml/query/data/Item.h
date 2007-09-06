@@ -242,6 +242,11 @@ namespace Patternist
             return m_model;
         }
 
+        inline bool operator!() const
+        {
+            return !m_model;
+        }
+
         inline AdditionalData additionalData() const
         {
             return m_additionalData;
