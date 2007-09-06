@@ -56,6 +56,7 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QAbstractProxyModel)
     Q_DISABLE_COPY(QAbstractProxyModel)
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceModelDestroyed())
 };
 
 #endif // QT_NO_PROXYMODEL

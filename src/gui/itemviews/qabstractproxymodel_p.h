@@ -36,6 +36,7 @@ class QAbstractProxyModelPrivate : public QAbstractItemModelPrivate
 public:
     QAbstractProxyModelPrivate() : QAbstractItemModelPrivate(), model(0) {}
     QAbstractItemModel *model;
+    void _q_sourceModelDestroyed();
 };
 
 #endif // QT_NO_PROXYMODEL

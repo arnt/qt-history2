@@ -88,6 +88,7 @@ private slots:
     void filterOutParentAndFilterInChild();
 
     void sourceInsertRows();
+    void sourceModelDeletion();
 
 protected:
     void buildHierarchy(const QStringList &data, QAbstractItemModel *model);
@@ -2316,6 +2317,20 @@ void tst_QSortFilterProxyModel::sourceInsertRows()
 
     QVERIFY(true); // if you got here without asserting, it's all good
 }
+
+void tst_QSortFilterProxyModel::sourceModelDeletion()
+{
+
+    QSortFilterProxyModel proxyModel;
+    {
+        QStandardItemModel model;
+        proxyModel.setSourceModel(&model);
+        QCOMPARE(proxyModel.sourceModel(), &model);
+    }
+    QCOMPARE(proxyModel.sourceModel(), static_cast<QAbstractItemModel*>(0));
+
+}
+
 
 QTEST_MAIN(tst_QSortFilterProxyModel)
 #include "tst_qsortfilterproxymodel.moc"
