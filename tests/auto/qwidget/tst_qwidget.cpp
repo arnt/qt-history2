@@ -2037,7 +2037,7 @@ void tst_QWidget::raise()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(parent);
 #endif
-    QApplication::processEvents();
+    QTest::qWait(500);
 
     QList<QObject *> list1;
     list1 << child1 << child2 << child3 << child4;
@@ -2046,9 +2046,9 @@ void tst_QWidget::raise()
 
     foreach (UpdateWidget *child, allChildren) {
         int expectedPaintEvents = child == child4 ? 1 : 0;
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
         if (expectedPaintEvents == 1 && child->numPaintEvents == 2)
-            QEXPECT_FAIL(0, "Windows issues double repaints for Z-Order change", Continue);
+            QEXPECT_FAIL(0, "Windows and Carbon Compositor issues double repaints for Z-Order change", Continue);
 #endif
         QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         QCOMPARE(child->numZOrderChangeEvents, 0);
@@ -2057,15 +2057,11 @@ void tst_QWidget::raise()
 
     for (int i = 0; i < 5; ++i)
         child2->raise();
-    qApp->processEvents();
+    QTest::qWait(500);
 
     foreach (UpdateWidget *child, allChildren) {
         int expectedPaintEvents = child == child2 ? 1 : 0;
         int expectedZOrderChangeEvents = child == child2 ? 1 : 0;
-#ifdef Q_WS_MAC
-        if (expectedPaintEvents == 1)
-            QEXPECT_FAIL(0, "Carbon Compositor issues double repaints for Z-Order change", Continue);
-#endif
         QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         QCOMPARE(child->numZOrderChangeEvents, expectedZOrderChangeEvents);
         child->reset();
@@ -5194,9 +5190,12 @@ void tst_QWidget::moveWindowInShowEvent()
 void tst_QWidget::repaintWhenChildDeleted()
 {
     ColorWidget w(0, Qt::red);
-    w.setGeometry(50, 50, 100, 100);
+    QPoint startPoint = QApplication::desktop()->availableGeometry(&w).topLeft();
+    startPoint.rx() += 50;
+    startPoint.ry() += 50;
+    w.setGeometry(QRect(startPoint, QSize(100, 100)));
     w.show();
-    QApplication::processEvents();
+    QTest::qWait(1000);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&w);
 #endif
@@ -5207,7 +5206,7 @@ void tst_QWidget::repaintWhenChildDeleted()
         ColorWidget child(&w, Qt::blue);
         child.setGeometry(10, 10, 10, 10);
         child.show();
-        QApplication::processEvents();
+        QTest::qWait(1000);
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&w);
 #endif
@@ -5215,7 +5214,7 @@ void tst_QWidget::repaintWhenChildDeleted()
         VERIFY_COLOR(child.geometry().translated(tlwOffset), child.color);
     }
 
-    QApplication::processEvents();
+    QTest::qWait(1000);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&w);
 #endif
@@ -5226,7 +5225,10 @@ void tst_QWidget::repaintWhenChildDeleted()
 void tst_QWidget::hideOpaqueChildWhileHidden()
 {
     ColorWidget w(0, Qt::red);
-    w.setGeometry(50, 50, 100, 100);
+    QPoint startPoint = QApplication::desktop()->availableGeometry(&w).topLeft();
+    startPoint.rx() += 50;
+    startPoint.ry() += 50;
+    w.setGeometry(QRect(startPoint, QSize(100, 100)));
 
     ColorWidget child(&w, Qt::blue);
     child.setGeometry(10, 10, 80, 80);
@@ -5235,7 +5237,7 @@ void tst_QWidget::hideOpaqueChildWhileHidden()
     child2.setGeometry(10, 10, 60, 60);
 
     w.show();
-    QTest::qWait(100);
+    QTest::qWait(1000);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&w);
 #endif
@@ -5244,7 +5246,7 @@ void tst_QWidget::hideOpaqueChildWhileHidden()
 
     child.hide();
     child2.hide();
-    QTest::qWait(100);
+    QTest::qWait(1000);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&w);
 #endif
@@ -5252,7 +5254,7 @@ void tst_QWidget::hideOpaqueChildWhileHidden()
                  w.color);
 
     child.show();
-    QTest::qWait(100);
+    QTest::qWait(1000);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&w);
 #endif
