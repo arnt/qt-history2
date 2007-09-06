@@ -303,6 +303,11 @@ bool QLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
 }
 
 /*!
+    \fn void setAlignment(Qt::Alignment alignment)
+    \reimp
+*/
+
+/*!
     \fn bool QLayout::isTopLevel() const
 
     Returns true if this layout is a top-level layout, i.e. not a
