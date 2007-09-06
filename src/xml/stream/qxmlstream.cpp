@@ -1159,9 +1159,9 @@ inline int QXmlStreamReaderPrivate::fastScanName(int *prefix)
 
 enum NameChar { NameBeginning, NameNotBeginning, NotName };
 
-static const char Begi = (char)NameBeginning;
-static const char NtBg = (char)NameNotBeginning;
-static const char NotN = (char)NotName;
+static const char Begi = static_cast<char>(NameBeginning);
+static const char NtBg = static_cast<char>(NameNotBeginning);
+static const char NotN = static_cast<char>(NotName);
 
 static const char nameCharTable[128] =
 {
@@ -1195,7 +1195,7 @@ static inline NameChar fastDetermineNameChar(QChar ch)
 {
     ushort uc = ch.unicode();
     if (!(uc & ~0x7f)) // uc < 128
-        return (NameChar)nameCharTable[uc];
+        return static_cast<NameChar>(nameCharTable[uc]);
 
     QChar::Category cat = ch.category();
     // ### some these categories might be slightly wrong
