@@ -12,6 +12,7 @@
 #include <qstandarditemmodel.h>
 #include <qcolumnview.h>
 #include "../../../src/gui/itemviews/qcolumnviewgrip_p.h"
+#include "../../../src/gui/dialogs/qfilesystemmodel_p.h"
 #include <qdirmodel.h>
 #include <qstringlistmodel.h>
 #include <qdebug.h>
@@ -31,6 +32,17 @@
             QTest::qWait(step); \
         } \
         QVERIFY(expr); \
+    } while(0)
+
+// Will try to wait for the condition while allowing event processing
+// for a maximum of 5 seconds.
+#define TRY_COMPARE(expr, expected) \
+    do { \
+        const int step = 50; \
+        for (int i = 0; i < 5000 && ((expr) != (expected)); i+=step) { \
+            QTest::qWait(step); \
+        } \
+        QCOMPARE(expr, expected); \
     } while(0)
 
 #define ANIMATION_DELAY 300
@@ -79,23 +91,42 @@ private slots:
     void changeSameColumn();
     void parentCurrentIndex_data();
     void parentCurrentIndex();
+    void pullRug_data();
+    void pullRug();
+
 protected slots:
     void setPreviewWidget();
 };
 
-class DirModel : public QDirModel
+class TreeModel : public QStandardItemModel
 {
 public:
+    TreeModel()
+    {
+        QStandardItem *parentItem = invisibleRootItem();
+        for (int i = 0; i < 10; ++i) {
+            QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
+            parentItem->appendRow(item);
+            QStandardItem *item2 = new QStandardItem(QString("item %0").arg(i));
+            parentItem->appendRow(item2);
+            item2->appendRow(new QStandardItem(QString("item %0").arg(i)));
+            parentItem = item;
+        }
+    }
+
     Qt::ItemFlags flags(const QModelIndex &index) const
     {
         if (index.row() % 2 == 0) {
-            Qt::ItemFlags f = QDirModel::flags(index);
+            Qt::ItemFlags f = QStandardItemModel::flags(index);
             f ^= Qt::ItemIsEnabled;
             return f;
         }
-        return QDirModel::flags(index);
+        return QStandardItemModel::flags(index);
     }
 
+    inline QModelIndex firstLevel() { return index(0, 0, QModelIndex()); }
+    inline QModelIndex secondLevel() { return index(0, 0, firstLevel()); }
+    inline QModelIndex thirdLevel() { return index(0, 0, secondLevel()); }
 };
 
 class ColumnViewPrivate : public QColumnViewPrivate
@@ -173,17 +204,19 @@ void tst_QColumnView::rootIndex()
     // no model
     view.setRootIndex(QModelIndex());
 
-    DirModel model;
+    TreeModel model;
     view.setModel(&model);
 
-    QModelIndex drive = model.index(0, 0);
+    // A top level index
+    QModelIndex drive = model.firstLevel();
     QVERIFY(view.visualRect(drive).isValid());
     view.setRootIndex(QModelIndex());
     QCOMPARE(view.HorizontalOffset(), 0);
     QCOMPARE(view.rootIndex(), QModelIndex());
     QVERIFY(view.visualRect(drive).isValid());
 
-    QModelIndex home = model.index(QDir::homePath());
+    // A item under the rootIndex exists
+    QModelIndex home = model.thirdLevel();
     QModelIndex homeFile = model.index(0, 0, home);
     int i = 0;
     while (i < model.rowCount(home) - 1 && !model.hasChildren(homeFile))
@@ -196,7 +229,7 @@ void tst_QColumnView::rootIndex()
     if (homeFile.isValid())
         QVERIFY(view.visualRect(homeFile).isValid());
 
-    // set root when there already is one
+    // set root when there already is one and everything should still be ok
     view.setRootIndex(home);
     view.setCurrentIndex(homeFile);
     view.scrollTo(model.index(0,0, homeFile));
@@ -208,7 +241,7 @@ void tst_QColumnView::rootIndex()
         QVERIFY(view.visualRect(homeFile).isValid());
 
     //
-    homeFile = model.index(QDir::currentPath());
+    homeFile = model.thirdLevel();
     home = homeFile.parent();
     view.setRootIndex(home);
     view.setCurrentIndex(homeFile);
@@ -218,11 +251,10 @@ void tst_QColumnView::rootIndex()
     while (i < model.rowCount(homeFile) - 1 && !model.hasChildren(two))
         two = model.index(++i, 0, homeFile);
     qApp->processEvents();
-    QTest::qWait(200);
+    QTest::qWait(ANIMATION_DELAY);
     view.setCurrentIndex(two);
     view.scrollTo(two);
-    qApp->processEvents();
-    QTest::qWait(200);
+    QTest::qWait(ANIMATION_DELAY);
     qApp->processEvents();
     QVERIFY(two.isValid());
     QVERIFY(view.HorizontalOffset() != 0);
@@ -234,7 +266,7 @@ void tst_QColumnView::rootIndex()
 void tst_QColumnView::grips()
 {
     QColumnView view;
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     QCOMPARE(view.resizeGripsVisible(), true);
 
@@ -270,7 +302,7 @@ void tst_QColumnView::isIndexHidden()
     ColumnView view;
     QModelIndex idx;
     QCOMPARE(view.IsIndexHidden(idx), false);
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     QCOMPARE(view.IsIndexHidden(idx), false);
 }
@@ -279,7 +311,7 @@ void tst_QColumnView::indexAt()
 {
     QColumnView view;
     QCOMPARE(view.indexAt(QPoint(0,0)), QModelIndex());
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
 
     QModelIndex home = model.index(QDir::homePath());
@@ -335,11 +367,11 @@ void tst_QColumnView::scrollContentsBy()
     view.ScrollContentsBy(-1, -1);
     view.ScrollContentsBy(0, 0);
 
-    DirModel model;
+    TreeModel model;
     view.setModel(&model);
     view.ScrollContentsBy(0, 0);
 
-    QModelIndex home = model.index(QDir::currentPath()).parent();
+    QModelIndex home = model.thirdLevel();
     view.setCurrentIndex(home);
     QTest::qWait(ANIMATION_DELAY);
     view.ScrollContentsBy(0, 0);
@@ -348,13 +380,15 @@ void tst_QColumnView::scrollContentsBy()
 void tst_QColumnView::scrollTo_data()
 {
     QTest::addColumn<bool>("reverse");
-    QTest::newRow("normal") << false;
-    QTest::newRow("reverse") << true;
+    QTest::addColumn<bool>("giveFocus");
+    QTest::newRow("normal") << false << true;
+    QTest::newRow("reverse") << true << false;
 }
 
 void tst_QColumnView::scrollTo()
 {
     QFETCH(bool, reverse);
+    QFETCH(bool, giveFocus);
     if (reverse)
         qApp->setLayoutDirection(Qt::RightToLeft);
     ColumnView view;
@@ -363,11 +397,14 @@ void tst_QColumnView::scrollTo()
     view.scrollTo(QModelIndex(), QAbstractItemView::EnsureVisible);
     QCOMPARE(view.HorizontalOffset(), 0);
 
-    DirModel model;
+    TreeModel model;
     view.setModel(&model);
     view.scrollTo(QModelIndex(), QAbstractItemView::EnsureVisible);
 
-    QModelIndex home = model.index(QDir::currentPath()).parent();
+    QModelIndex home;
+    home = model.index(0, 0, home);
+    home = model.index(0, 0, home);
+    home = model.index(0, 0, home);
     view.scrollTo(home, QAbstractItemView::EnsureVisible);
     QModelIndex homeFile = model.index(0, 0, home);
     view.setRootIndex(home);
@@ -376,12 +413,16 @@ void tst_QColumnView::scrollTo()
     view.scrollTo(index, QAbstractItemView::EnsureVisible);
     QCOMPARE(view.HorizontalOffset(), 0);
 
-    view.clearFocus();
-    QCOMPARE(view.hasFocus(), false);
+    if (giveFocus)
+        view.setFocus(Qt::OtherFocusReason);
+    else
+        view.clearFocus();
+    qApp->processEvents();
+    QCOMPARE(view.hasFocus(), giveFocus);
     // scroll to the right
     int level = 0;
     int last = view.HorizontalOffset();
-    while(model.hasChildren(index) && level < 8) {
+    while(model.hasChildren(index) && level < 5) {
         view.setCurrentIndex(index);
         QTest::qWait(ANIMATION_DELAY);
         view.scrollTo(index, QAbstractItemView::EnsureVisible);
@@ -389,13 +430,16 @@ void tst_QColumnView::scrollTo()
         index = model.index(0, 0, index);
         level++;
         if (level >= 2) {
-            QVERIFY(view.HorizontalOffset() < 0);
-            QVERIFY(last > view.HorizontalOffset());
+            if (!reverse) {
+                TRY_VERIFY(view.HorizontalOffset() < 0);
+                TRY_VERIFY(last > view.HorizontalOffset());
+            } else {
+                TRY_VERIFY(view.HorizontalOffset() > 0);
+                TRY_VERIFY(last < view.HorizontalOffset());
+            }
         }
         last = view.HorizontalOffset();
     }
-    // It shouldn't automatically steal focus
-    QCOMPARE(view.hasFocus(), false);
 
     // scroll to the left
     int start = level;
@@ -404,18 +448,23 @@ void tst_QColumnView::scrollTo()
         QTest::qWait(ANIMATION_DELAY);
         view.scrollTo(index, QAbstractItemView::EnsureVisible);
         index = index.parent();
-	if (start != level)
-	    if (!reverse)
-                QVERIFY(last < view.HorizontalOffset());
-	    else
-	        QVERIFY(last > view.HorizontalOffset());
+        if (start != level) {
+            if (!reverse)
+                TRY_VERIFY(last < view.HorizontalOffset());
+            else
+                TRY_VERIFY(last > view.HorizontalOffset());
+        }
         level--;
         last = view.HorizontalOffset();
     }
+    // It shouldn't automatically steal focus if it doesn't have it
+    TRY_COMPARE(view.hasFocus(), giveFocus);
 
     // Try scrolling to something that is above the root index
-    home = model.index(QDir::homePath());
-    QModelIndex temp = model.index(QDir::tempPath());
+    home = model.index(0, 0, QModelIndex());
+    QModelIndex temp = model.index(1, 0, home);
+    home = model.index(0, 0, home);
+    home = model.index(0, 0, home);
     view.setRootIndex(home);
     view.scrollTo(model.index(0, 0, home));
     QTest::qWait(ANIMATION_DELAY);
@@ -442,7 +491,7 @@ void tst_QColumnView::moveCursor()
     // don't do anything
     QCOMPARE(view.MoveCursor(ColumnView::MoveEnd, Qt::NoModifier), QModelIndex());
 
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     QModelIndex home = model.index(QDir::homePath());
     QModelIndex ci = view.currentIndex();
@@ -488,7 +537,7 @@ void tst_QColumnView::selectAll()
     ColumnView view;
     view.selectAll();
 
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     view.selectAll();
     QVERIFY(view.selectionModel()->selectedIndexes().count() >= 0);
@@ -516,7 +565,7 @@ void tst_QColumnView::clicked()
 {
     ColumnView view;
 
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     view.resize(800,300);
     view.show();
@@ -558,7 +607,7 @@ void tst_QColumnView::clicked()
 void tst_QColumnView::selectedColumns()
 {
     ColumnView view;
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     view.resize(800,300);
     view.show();
@@ -589,7 +638,7 @@ void tst_QColumnView::setSelection()
 void tst_QColumnView::setSelectionModel()
 {
     ColumnView view;
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     view.show();
 
@@ -617,7 +666,7 @@ void tst_QColumnView::visualRegionForSelection()
     QCOMPARE(QRegion(), view.visualRegionForSelection(emptyItemSelection));
 
     // a region that isn't empty
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
 
     QModelIndex home = model.index(QDir::homePath());
@@ -659,9 +708,9 @@ void tst_QColumnView::moveGrip()
     if (reverse)
         qApp->setLayoutDirection(Qt::RightToLeft);
     ColumnView view;
-    DirModel model;
+    TreeModel model;
     view.setModel(&model);
-    QModelIndex home = model.index(QDir::homePath());
+    QModelIndex home = model.thirdLevel();
     view.setCurrentIndex(home);
     view.resize(640, 200);
     view.show();
@@ -728,7 +777,7 @@ void tst_QColumnView::preview()
 {
     QColumnView view;
     QCOMPARE(view.previewWidget(), (QWidget*)0);
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     QCOMPARE(view.previewWidget(), (QWidget*)0);
     QModelIndex home = model.index(QDir::homePath());
@@ -789,7 +838,7 @@ void tst_QColumnView::sizes()
     view.setColumnWidths(newSizes);
     QCOMPARE(view.columnWidths(), visibleSizes);
 
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     QModelIndex home = model.index(QDir::homePath());
     view.setCurrentIndex(home);
@@ -797,6 +846,7 @@ void tst_QColumnView::sizes()
     QList<int> postSizes = view.columnWidths().mid(0, newSizes.count());
     QCOMPARE(postSizes, newSizes.mid(0, postSizes.count()));
 
+    QVERIFY(view.columnWidths().count() > 1);
     QList<int> smallerSizes;
     smallerSizes << 6;
     view.setColumnWidths(smallerSizes);
@@ -812,7 +862,7 @@ void tst_QColumnView::rowDelegate()
     QItemDelegate *d = new QItemDelegate;
     view.setItemDelegateForRow(3, d);
 
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     for (int i = 0; i < view.createdColumns.count(); ++i) {
         QAbstractItemView *column = view.createdColumns.at(i);
@@ -824,7 +874,7 @@ void tst_QColumnView::rowDelegate()
 void tst_QColumnView::resize()
 {
     ColumnView view;
-    DirModel model;
+    QDirModel model;
     view.setModel(&model);
     view.resize(200, 200);
 
@@ -844,7 +894,7 @@ void tst_QColumnView::resize()
 void tst_QColumnView::changeSameColumn()
 {
     ColumnView view;
-    DirModel model;
+    QFileSystemModel model;
     view.setModel(&model);
     QModelIndex second;
 
@@ -890,16 +940,7 @@ void tst_QColumnView::parentCurrentIndex()
     QFETCH(int, secondRow);
 
     ColumnView view;
-    QStandardItemModel model;
-    QStandardItem *parentItem = model.invisibleRootItem();
-    for (int i = 0; i < 4; ++i) {
-        QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
-        parentItem->appendRow(item);
-        QStandardItem *item2 = new QStandardItem(QString("item %0").arg(i));
-        parentItem->appendRow(item2);
-        item2->appendRow(new QStandardItem(QString("item %0").arg(i)));
-        parentItem = item;
-    }
+    TreeModel model;
     view.setModel(&model);
     view.show();
 
@@ -925,11 +966,35 @@ void tst_QColumnView::parentCurrentIndex()
     QVERIFY(second.isValid());
     QVERIFY(third.isValid());
     view.setCurrentIndex(third);
-    QTest::qWait(ANIMATION_DELAY * 2);
-    QCOMPARE(view.createdColumns[0]->currentIndex(), first);
-    QCOMPARE(view.createdColumns[1]->currentIndex(), second);
-    QCOMPARE(view.createdColumns[2]->currentIndex(), third);
+    QTest::qWait(ANIMATION_DELAY);
+    TRY_COMPARE(view.createdColumns[0]->currentIndex(), first);
+    TRY_COMPARE(view.createdColumns[1]->currentIndex(), second);
+    TRY_COMPARE(view.createdColumns[2]->currentIndex(), third);
 }
+
+void tst_QColumnView::pullRug_data()
+{
+    QTest::addColumn<bool>("removeModel");
+    QTest::newRow("model") << true;
+    QTest::newRow("index") << false;
+}
+
+void tst_QColumnView::pullRug()
+{
+    QFETCH(bool, removeModel);
+    ColumnView view;
+    TreeModel model;
+    view.setModel(&model);
+    QModelIndex home = model.thirdLevel();
+    view.setCurrentIndex(home);
+    if (removeModel)
+        view.setModel(0);
+    else
+        view.setCurrentIndex(QModelIndex());
+    QTest::qWait(ANIMATION_DELAY);
+    // don't crash
+}
+
 
 QTEST_MAIN(tst_QColumnView)
 #include "tst_qcolumnview.moc"
