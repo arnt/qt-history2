@@ -328,7 +328,7 @@ QFontEngineWin::~QFontEngineWin()
 HGDIOBJ QFontEngineWin::selectDesignFont(QFixed *overhang) const
 {
     LOGFONT f = logfont;
-    f.lfHeight = unitsPerEm;
+    f.lfHeight = -unitsPerEm;
     HFONT designFont;
     QT_WA({
         designFont = CreateFontIndirectW(&f);
@@ -943,7 +943,7 @@ void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, in
                                      QPainterPath *path, QTextItem::RenderFlags)
 {
     LOGFONT lf = logfont;
-    lf.lfHeight = unitsPerEm;
+    lf.lfHeight = -unitsPerEm;
     lf.lfWidth = 0;
     HFONT hf;
     QT_WA({
@@ -1009,7 +1009,7 @@ QFontEngine::Properties QFontEngineWin::properties() const
 {
 
     LOGFONT lf = logfont;
-    lf.lfHeight = unitsPerEm;
+    lf.lfHeight = -unitsPerEm;
     HFONT hf;
     QT_WA({
         hf = CreateFontIndirectW(&lf);
@@ -1042,7 +1042,7 @@ QFontEngine::Properties QFontEngineWin::properties() const
 void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
     LOGFONT lf = logfont;
-    lf.lfHeight = unitsPerEm;
+    lf.lfHeight = -unitsPerEm;
     int flags = synthesized();
     if(flags & SynthesizedItalic)
         lf.lfItalic = false;
