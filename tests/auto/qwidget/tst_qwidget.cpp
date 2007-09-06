@@ -4824,6 +4824,9 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             << qMakePair(&widget, QEvent::Move)
             << qMakePair(&widget, QEvent::Resize)
             << qMakePair(&widget, QEvent::Show)
+#ifdef Q_WS_MAC
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+#endif
             << qMakePair(&widget, QEvent::ShowToParent);
         QCOMPARE(spy.eventList(), expected);
         spy.clear();
@@ -4833,7 +4836,11 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             EventRecorder::EventList()
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-#if defined(Q_WS_X11)
+#ifdef Q_WS_MAC
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+#elif defined(Q_WS_X11)
             << qMakePair(&widget, QEvent::UpdateRequest)
 #endif
             ;
@@ -4912,6 +4919,9 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             << qMakePair(&widget, QEvent::Move)
             << qMakePair(&widget, QEvent::Resize)
             << qMakePair(&widget, QEvent::Show)
+#ifdef Q_WS_MAC
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+#endif
             << qMakePair(&widget, QEvent::ShowToParent);
         QCOMPARE(spy.eventList(), expected);
         spy.clear();
@@ -4925,7 +4935,12 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
             << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
-#if defined(Q_WS_X11)
+#ifdef Q_WS_MAC
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+#elif defined(Q_WS_X11)
             << qMakePair(&widget, QEvent::UpdateRequest)
 #endif
             ;
@@ -5004,6 +5019,9 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             << qMakePair(&widget, QEvent::Move)
             << qMakePair(&widget, QEvent::Resize)
             << qMakePair(&widget, QEvent::Show)
+#ifdef Q_WS_MAC
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+#endif
             << qMakePair(&widget, QEvent::ShowToParent);
         QCOMPARE(spy.eventList(), expected);
         spy.clear();
@@ -5017,7 +5035,12 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
             << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
-#if defined(Q_WS_X11)
+#ifdef Q_WS_MAC
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+            << qMakePair(&widget, QEvent::MacGLWindowChange)
+#elif defined(Q_WS_X11)
             << qMakePair(&widget, QEvent::UpdateRequest)
 #endif
             ;
