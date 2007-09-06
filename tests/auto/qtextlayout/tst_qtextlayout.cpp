@@ -538,6 +538,9 @@ void tst_QTextLayout::charStopForSurrogatePairs()
 
 void tst_QTextLayout::tabStops()
 {
+#if defined(Q_WS_MAC)
+    QSKIP("QTestFontEngine on the mac does not support logclusters at the moment", SkipAll);
+#endif
     QString txt("Hello there\tworld");
     QTextLayout layout(txt, testFont);
     layout.beginLayout();
