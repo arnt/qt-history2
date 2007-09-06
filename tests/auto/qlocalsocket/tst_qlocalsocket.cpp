@@ -331,7 +331,7 @@ public:
         do {
             socket.connectToName("qlocalsocket_threadtest");
             if (socket.error() != QLocalSocket::NotFoundError
-                || socket.error() != QLocalSocket::ConnectionRefusedError)
+                && socket.error() != QLocalSocket::ConnectionRefusedError)
                 break;
             QTest::qWait(10);
             ++tries;
