@@ -75,7 +75,8 @@ public:
         FullViewportUpdate,
         MinimalViewportUpdate,
         SmartViewportUpdate,
-        NoViewportUpdate
+        NoViewportUpdate,
+        BoundingRectViewportUpdate
     };
 
     enum OptimizationFlag {

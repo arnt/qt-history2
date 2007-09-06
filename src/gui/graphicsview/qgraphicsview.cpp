@@ -136,7 +136,8 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
     fastest when QGraphicsView spends more time figuring out what to draw than
     it would spend drawing (e.g., when very many small items are repeatedly
     updated). This is the preferred update mode for viewports that do not
-    support partial updates, such as QGLWidget.
+    support partial updates, such as QGLWidget, and for viewports that need to
+    disable scroll optimization.
 
     \value MinimalViewportUpdate QGraphicsView will determine the minimal
     viewport region that requires a redraw, minimizing the time spent drawing
@@ -148,6 +149,12 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
 
     \value SmartViewportUpdate QGraphicsView will attempt to find an optimal
     update mode by analyzing the areas that require a redraw.
+
+    \value BoundingRectViewportUpdate The bounding rectangle of all changes in
+    the viewport will be redrawn. This mode has the advantage that
+    QGraphicsView searches only one region for changes, minimizing time spent
+    determining what needs redrawing. The disadvantage is that areas that have
+    not changed also need to be redrawn.
 
     \value NoViewportUpdate QGraphicsView will never update its viewport when
     the scene changes; the user is expected to control all updates. This mode
@@ -2172,7 +2179,9 @@ void QGraphicsView::updateScene(const QList<QRectF> &rects)
     QRect viewportRect = viewport()->rect();
 
     bool fullUpdate = !d->accelerateScrolling || d->viewportUpdateMode == QGraphicsView::FullViewportUpdate;
-    bool smartUpdate = d->viewportUpdateMode == QGraphicsView::SmartViewportUpdate && rects.size() >= QGRAPHICSVIEW_REGION_RECT_THRESHOLD;
+    bool rectUpdate = d->viewportUpdateMode == QGraphicsView::BoundingRectViewportUpdate
+                      || (d->viewportUpdateMode == QGraphicsView::SmartViewportUpdate
+                          && rects.size() >= QGRAPHICSVIEW_REGION_RECT_THRESHOLD);
 
     QRegion updateRegion;
     QRect sumRect;
@@ -2184,8 +2193,8 @@ void QGraphicsView::updateScene(const QList<QRectF> &rects)
         if (!(d->optimizationFlags & DontAdjustForAntialiasing))
             mappedRect.adjust(-2, -2, 2, 2);
         if (viewportRect.contains(mappedRect) || viewportRect.intersects(mappedRect)) {
-            if (!smartUpdate) {
-                // Add the exposed rect to the update region. In smart update
+            if (!rectUpdate) {
+                // Add the exposed rect to the update region. In rect update
                 // mode, we only count the bounding rect of items.
                 updateRegion += mappedRect;
             } else {
@@ -2202,7 +2211,7 @@ void QGraphicsView::updateScene(const QList<QRectF> &rects)
 
     if (fullUpdate)
         viewport()->update();
-    else if (smartUpdate)
+    else if (rectUpdate)
         viewport()->update(sumRect);
     else
         viewport()->update(updateRegion);
@@ -2878,6 +2887,8 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     QRegion exposedRegion = event->region();
     if (!d->accelerateScrolling)
         exposedRegion = viewport()->rect();
+    if (d->viewportUpdateMode == BoundingRectViewportUpdate)
+        exposedRegion = event->rect();
     QVector<QRect> clipRects = exposedRegion.rects();
 
     // Set up the painter

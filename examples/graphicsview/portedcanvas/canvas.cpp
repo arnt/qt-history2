@@ -168,6 +168,7 @@ FigureEditor::FigureEditor(
     setObjectName(name);
     setWindowFlags(f);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    setViewportUpdateMode(BoundingRectViewportUpdate);
 }
 
 void FigureEditor::clear()
