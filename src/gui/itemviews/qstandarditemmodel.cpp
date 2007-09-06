@@ -2810,7 +2810,7 @@ void QStandardItemModel::sort(int column, Qt::SortOrder order)
 
 /*!
   \fn QObject *QStandardItemModel::parent() const
-  \reimp
+  \internal
 */
 
 #include "moc_qstandarditemmodel.cpp"

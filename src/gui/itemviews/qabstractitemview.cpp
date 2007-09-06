@@ -432,7 +432,7 @@ void QAbstractItemViewPrivate::init()
 
 /*!
     \fn void QAbstractItemView::update()
-    \reimp
+    \internal
 */
 
 /*!

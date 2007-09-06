@@ -1108,7 +1108,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 
 /*!
   \fn QObject *QDirModel::parent() const
-  \reimp
+  \internal
 */
 
 /*

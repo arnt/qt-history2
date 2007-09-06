@@ -452,7 +452,7 @@ void QProxyModel::disconnectFromModel(const QAbstractItemModel *model) const
 
 /*!
   \fn QObject *QProxyModel::parent() const
-  \reimp
+  \internal
 */
 
 void QProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &tl,const QModelIndex &br)

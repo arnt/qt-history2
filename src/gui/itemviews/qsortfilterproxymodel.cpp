@@ -2231,7 +2231,7 @@ QItemSelection QSortFilterProxyModel::mapSelectionFromSource(const QItemSelectio
 
 /*!
   \fn QObject *QSortFilterProxyModel::parent() const
-  \reimp
+  \internal
 */
 
 #include "moc_qsortfilterproxymodel.cpp"
