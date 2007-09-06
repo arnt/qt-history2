@@ -23,7 +23,7 @@ QT_MODULE(Xml)
 
 class QXmlItemIteratorPrivate;
 
-class Q_DECL_EXPORT QXmlItemIterator
+class Q_XML_EXPORT QXmlItemIterator
 {
 public:
     QXmlItemIterator();

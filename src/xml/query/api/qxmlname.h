@@ -25,7 +25,7 @@ class QXmlNamePrivate;
 class QXmlQuery;
 static inline uint qHash(const QXmlName &name);
 
-class Q_DECL_EXPORT QXmlName
+class Q_XML_EXPORT QXmlName
 {
     enum Constants
     {

@@ -25,7 +25,7 @@ QT_BEGIN_HEADER
 QT_MODULE(Xml)
 
 class QAbstractMessageHandlerPrivate;
-class Q_DECL_EXPORT QAbstractMessageHandler : public QSharedData
+class Q_XML_EXPORT QAbstractMessageHandler : public QSharedData
 {
 public:
     typedef QExplicitlySharedDataPointer<QAbstractMessageHandler> Ptr;

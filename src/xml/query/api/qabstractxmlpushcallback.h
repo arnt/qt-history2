@@ -24,7 +24,7 @@ QT_MODULE(Xml)
 class QAbstractXmlPushCallbackPrivate;
 class QXmlName;
 
-class Q_DECL_EXPORT QAbstractXmlPushCallback
+class Q_XML_EXPORT QAbstractXmlPushCallback
 {
 public:
     QAbstractXmlPushCallback();

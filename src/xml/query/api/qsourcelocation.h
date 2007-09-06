@@ -22,7 +22,7 @@ QT_MODULE(Xml)
 
 class QSourceLocationPrivate;
 
-class Q_DECL_EXPORT QSourceLocation
+class Q_XML_EXPORT QSourceLocation
 {
 public:
     QSourceLocation();

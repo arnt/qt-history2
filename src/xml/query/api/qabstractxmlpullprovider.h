@@ -26,7 +26,7 @@ class QString;
 class QVariant;
 template<typename Key, typename Value> class QHash;
 
-class Q_DECL_EXPORT QAbstractXmlPullProvider
+class Q_XML_EXPORT QAbstractXmlPullProvider
 {
 public:
     QAbstractXmlPullProvider();

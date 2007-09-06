@@ -32,7 +32,7 @@ class QXmlItemIterator;
 class QXmlName;
 class QXmlQueryPrivate;
 
-class Q_DECL_EXPORT QXmlQuery
+class Q_XML_EXPORT QXmlQuery
 {
 public:
     QXmlQuery();

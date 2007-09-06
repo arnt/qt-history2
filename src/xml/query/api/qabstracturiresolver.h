@@ -23,7 +23,7 @@ QT_MODULE(Xml)
 class QUrl;
 class QAbstractUriResolverPrivate;
 
-class Q_DECL_EXPORT QAbstractUriResolver : public QSharedData
+class Q_XML_EXPORT QAbstractUriResolver : public QSharedData
 {
 public:
     typedef QExplicitlySharedDataPointer<QAbstractUriResolver> Ptr;

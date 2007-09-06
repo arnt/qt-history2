@@ -23,7 +23,7 @@ QT_MODULE(Xml)
 class QSerializationSettingsPrivate;
 class QTextCodec;
 
-class Q_DECL_EXPORT QSerializationSettings
+class Q_XML_EXPORT QSerializationSettings
 {
 public:
     QSerializationSettings();
