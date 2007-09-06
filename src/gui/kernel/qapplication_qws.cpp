@@ -427,11 +427,6 @@ QWSEvent* QWSDisplay::Data::dequeue()
 #ifdef QAPPLICATION_EXTRA_DEBUG
         mouse_event_count = 0;
 #endif
-#if 0
-    } else {
-        r = region_event;
-        region_event = 0;
-#endif
     }
     return r;
 }
@@ -450,14 +445,6 @@ bool QWSDisplay::Data::directServerConnection()
 #endif
 }
 
-#if 0
-void QWSDisplay::Data::offsetPendingExpose(int, const QPoint &);
-void QWSDisplay::Data::translateExpose(QWSRegionModifiedEvent *re, const QPoint &p)
-{
-    for (int i = 0; i < re->simpleData.nrectangles; i++)
-        re->rectangles[i].translate(p.x(), p.y());
-}
-#endif
 void QWSDisplay::Data::create(int n)
 {
     QWSCreateCommand cmd(n);
@@ -853,38 +840,6 @@ void QWSDisplay::Data::fillQueue()
             clientLock->unlock(QWSLock::RegionEvent);
             queue.append(e);
 #endif
-#if 0
-        } else if (e->type == QWSEvent::RegionModified) {
-            QWSRegionModifiedEvent *re = static_cast<QWSRegionModifiedEvent *>(e);
-            if (re->simpleData.is_ack) {
-                region_ack = re;
-                region_offset = QPoint();
-                region_offset_window = 0;
-            } else {
-                if (region_offset_window == re->window() && !region_offset.isNull()) {
-//                    qDebug("Rgn Adjust a %d, %d", region_offset.x(), region_offset.y());
-                    translateExpose(re, region_offset);
-                }
-                if (!region_event || re->window() == region_event->window()) {
-                    if (region_event) {
-                        QRegion r1;
-                        r1.setRects(re->rectangles, re->simpleData.nrectangles);
-                        QRegion r2;
-                        r2.setRects(region_event->rectangles,
-                                region_event->simpleData.nrectangles);
-                        QRegion ur(r1 + r2);
-                        region_event->setData(reinterpret_cast<const char *>(ur.rects().constData()),
-                                ur.rects().count() * sizeof(QRect), true);
-                        region_event->simpleData.nrectangles = ur.rects().count();
-                        delete e;
-                    } else {
-                        region_event = re;
-                    }
-                } else {
-                    queue.append(e);
-                }
-            }
-#endif // 0 (RegionModified)
 #ifndef QT_NO_QWS_PROPERTIES
         } else if (e->type == QWSEvent::PropertyReply) {
             QWSPropertyReplyEvent *pe = static_cast<QWSPropertyReplyEvent*>(e);
@@ -920,31 +875,6 @@ void QWSDisplay::Data::fillQueue()
         e = readMore();
     }
 }
-#if 0
-void QWSDisplay::Data::offsetPendingExpose(int window, const QPoint &offset)
-{
-    if (offset.isNull())
-        return;
-
-    region_offset = offset;
-    region_offset_window = window;
-    for (int i = 0; i < queue.size(); ++i) {
-        QWSEvent *e = queue.at(i);
-        if (e->type == QWSEvent::RegionModified) {
-            QWSRegionModifiedEvent *re = static_cast<QWSRegionModifiedEvent *>(e);
-            if (!re->simpleData.is_ack && region_offset_window == re->window()) {
-//                qDebug("Rgn Adjust b %d, %d", region_offset.x(), region_offset.y());
-                translateExpose(re, region_offset);
-            }
-        }
-    }
-
-    if (region_event && region_offset_window == region_event->window()) {
-//        qDebug("Rgn Adjust c %d, %d", region_offset.x(), region_offset.y());
-        translateExpose(region_event, region_offset);
-    }
-}
-#endif
 
 static int qws_connection_timeout = 5;
 
@@ -3095,11 +3025,6 @@ static bool qt_try_modal(QWidget *widget, QWSEvent *event)
         case QWSEvent::Key:
             block_event         = true;
             break;
-#if 0
-    case QWSEvent::RegionModified:
-            paint_event = true;
-            break;
-#endif
     }
 
     if (top->parentWidget() == 0 && (block_event || paint_event))

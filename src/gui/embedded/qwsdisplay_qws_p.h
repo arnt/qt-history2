@@ -57,10 +57,6 @@ public:
 #ifndef QT_NO_COP
     void waitForQCopResponse();
 #endif
-#if 0
-    void offsetPendingExpose(int, const QPoint &);
-    void translateExpose(QWSRegionModifiedEvent *re, const QPoint &p);
-#endif
     void init();
     void reinit( const QString& newAppName );
     void create(int n = 1);
@@ -112,8 +108,6 @@ private:
     QWSMouseEvent* mouse_event;
     int mouse_state;
     int mouse_winid;
-//    QWSRegionModifiedEvent *region_event;
-//    QWSRegionModifiedEvent *region_ack;
     QPoint region_offset;
     int region_offset_window;
 #ifndef QT_NO_COP
