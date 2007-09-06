@@ -377,6 +377,7 @@ void tst_QPrinter::testNonExistentPrinter()
     printer.pageSize();
     printer.orientation();
     printer.fullPage();
+    printer.setNumCopies(1);
     printer.printerName();
 
     // nor metrics
