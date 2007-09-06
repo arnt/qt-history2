@@ -88,7 +88,7 @@ void QToolBoxHelper::changeOrder()
     if (!fw)
         return;
 
-    qdesigner_internal::OrderDialog dlg(fw, m_toolbox);
+    qdesigner_internal::OrderDialog dlg(fw, fw);
 
     QList<QWidget*> wList;
     const int count = m_toolbox->count();

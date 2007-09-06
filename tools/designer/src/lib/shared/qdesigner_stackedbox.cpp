@@ -178,7 +178,7 @@ void QStackedWidgetEventFilter::changeOrder()
     if (!fw)
         return;
 
-    qdesigner_internal::OrderDialog dlg(fw, stackedWidget());
+    qdesigner_internal::OrderDialog dlg(fw, fw);
 
     QList<QWidget*> wList;
     for(int i=0; i<stackedWidget()->count(); ++i)
