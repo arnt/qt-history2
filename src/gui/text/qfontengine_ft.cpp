@@ -755,7 +755,8 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
                         uint red = src[x];
                         uint green = src[x+1];
                         uint blue = src[x+2];
-                        uint res = (red << 16) + (green << 8) + blue;
+                        uint alpha = green;
+                        uint res = (alpha << 24) + (red << 16) + (green << 8) + blue;
                         *dd = res;
                         ++dd;
                     }
@@ -769,7 +770,8 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
                         uint blue = src[x];
                         uint green = src[x+1];
                         uint red = src[x+2];
-                        uint res = (red << 16) + (green << 8) + blue;
+                        uint alpha = green;
+                        uint res = (alpha << 24) + (red << 16) + (green << 8) + blue;
                         *dd = res;
                         ++dd;
                     }
@@ -793,7 +795,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
                         uint high = (red*subpixel_filter[0][0] + green*subpixel_filter[0][1] + blue*subpixel_filter[0][2]) >> 8;
                         uint mid = (red*subpixel_filter[1][0] + green*subpixel_filter[1][1] + blue*subpixel_filter[1][2]) >> 8;
                         uint low = (red*subpixel_filter[2][0] + green*subpixel_filter[2][1] + blue*subpixel_filter[2][2]) >> 8;
-                        uint res = (high << 16) + (mid << 8) + low;
+                        uint res = (mid << 24) + (high << 16) + (mid << 8) + low;
                         dst[x] = res;
                     }
                     dst += info.width;
@@ -808,7 +810,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
                         uint high = (red*subpixel_filter[0][0] + green*subpixel_filter[0][1] + blue*subpixel_filter[0][2]) >> 8;
                         uint mid = (red*subpixel_filter[1][0] + green*subpixel_filter[1][1] + blue*subpixel_filter[1][2]) >> 8;
                         uint low = (red*subpixel_filter[2][0] + green*subpixel_filter[2][1] + blue*subpixel_filter[2][2]) >> 8;
-                        uint res = (high << 16) + (mid << 8) + low;
+                        uint res = (mid << 24) + (high << 16) + (mid << 8) + low;
                         dst[x] = res;
                     }
                     dst += info.width;
