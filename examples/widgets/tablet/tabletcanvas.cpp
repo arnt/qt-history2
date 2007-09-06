@@ -53,11 +53,11 @@ void TabletCanvas::tabletEvent(QTabletEvent *event)
 
     switch (event->type()) {
         case QEvent::TabletPress:
-            if (deviceDown)
+            if (!deviceDown)
                 deviceDown = true;
             break;
         case QEvent::TabletRelease:
-            if (!deviceDown)
+            if (deviceDown)
                 deviceDown = false;
             break;
         case QEvent::TabletMove:
