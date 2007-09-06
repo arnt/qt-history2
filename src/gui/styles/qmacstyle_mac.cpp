@@ -4062,7 +4062,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
         break;
     case SE_LabelLayoutItem:
         rect = opt->rect;
-        setLayoutItemMargins(+1, -1, 0, -1, &rect, opt->direction);
+        setLayoutItemMargins(+1, 0 /* SHOULD be -1, done for alignment */, 0, 0 /* SHOULD be -1, done for alignment */, &rect, opt->direction);
         break;
     case SE_ProgressBarLayoutItem: {
         rect = opt->rect;
@@ -4092,7 +4092,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
     case SE_RadioButtonLayoutItem:
         rect = opt->rect;
         if (controlSize == QAquaSizeLarge) {
-            setLayoutItemMargins(+2, +3, -9, -3, &rect, opt->direction);
+            setLayoutItemMargins(+2, +3, -9, -4 /* SHOULD be 3, done for alignment */, &rect, opt->direction);
         } else if (controlSize == QAquaSizeSmall) {
             rect.adjust(0, +6, 0 /* fix */, -5);
         } else {
