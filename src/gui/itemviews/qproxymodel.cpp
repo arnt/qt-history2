@@ -450,6 +450,11 @@ void QProxyModel::disconnectFromModel(const QAbstractItemModel *model) const
     disconnect(model, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged())); // signal to signal
 }
 
+/*!
+  \fn QObject *QProxyModel::parent() const
+  \reimp
+*/
+
 void QProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &tl,const QModelIndex &br)
 {
     Q_Q(QProxyModel);

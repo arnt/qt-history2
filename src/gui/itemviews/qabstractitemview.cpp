@@ -431,6 +431,11 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
+    \fn void QAbstractItemView::update()
+    \reimp
+*/
+
+/*!
     Constructs an abstract item view with the given \a parent.
 */
 QAbstractItemView::QAbstractItemView(QWidget *parent)

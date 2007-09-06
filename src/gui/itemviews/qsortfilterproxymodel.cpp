@@ -2229,6 +2229,11 @@ QItemSelection QSortFilterProxyModel::mapSelectionFromSource(const QItemSelectio
     return QAbstractProxyModel::mapSelectionFromSource(sourceSelection);
 }
 
+/*!
+  \fn QObject *QSortFilterProxyModel::parent() const
+  \reimp
+*/
+
 #include "moc_qsortfilterproxymodel.cpp"
 
 #endif // QT_NO_SORTFILTERPROXYMODEL
