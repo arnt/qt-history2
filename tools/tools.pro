@@ -1,7 +1,7 @@
 TEMPLATE        = subdirs
 
 no-png {
-    message("Tools not available without PNG support")
+    message("Some graphics-related tools are unavailable without PNG support")
 } else {
      contains(QT_CONFIG, qdbus):SUBDIRS += qdbus
      SUBDIRS		+= assistant/lib \
@@ -18,6 +18,9 @@ no-png {
      unix:!mac:!embedded:contains(QT_CONFIG, qt3support):SUBDIRS += qtconfig
      win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += activeqt
 }
+
+# Patternist use member templates
+!win32-msvc: SUBDIRS += patternist
 
 CONFIG+=ordered
 QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"

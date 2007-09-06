@@ -18,3 +18,6 @@ win32-borland {
 include(dom/dom.pri)
 include(sax/sax.pri)
 include(stream/stream.pri)
+
+# Patternist use member templates
+!win32-msvc: include(query/query.pri)
