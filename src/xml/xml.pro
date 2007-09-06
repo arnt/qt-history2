@@ -20,4 +20,4 @@ include(sax/sax.pri)
 include(stream/stream.pri)
 
 # Patternist use member templates
-!win32-msvc: include(query/query.pri)
+!win32-msvc:!hpux-acc*:!hpuxi-acc*:include(query/query.pri)
