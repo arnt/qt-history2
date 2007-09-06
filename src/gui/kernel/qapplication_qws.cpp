@@ -786,7 +786,14 @@ void QWSDisplay::Data::fillQueue()
 {
     QWSServer::processEventQueue();
     QWSEvent *e = readMore();
+#ifndef QT_NO_QWS_MULTIPROCESS
+    int bytesAvailable = csocket ? csocket->bytesAvailable() : 0;
+    int bytesRead = 0;
+#endif
     while (e) {
+#ifndef QT_NO_QWS_MULTIPROCESS
+        bytesRead += 2* sizeof(int) + e->simpleLen + e->rawLen;
+#endif
         if (e->type == QWSEvent::Connected) {
             connected_event = static_cast<QWSConnectedEvent *>(e);
             return;
@@ -872,6 +879,8 @@ void QWSDisplay::Data::fillQueue()
             queue.append(e);
         }
         //debugQueue();
+        if (bytesRead >= bytesAvailable)
+            break;
         e = readMore();
     }
 }
