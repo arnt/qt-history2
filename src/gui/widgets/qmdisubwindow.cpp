@@ -2783,6 +2783,9 @@ bool QMdiSubWindow::event(QEvent *event)
     case QEvent::PaletteChange:
         d->titleBarPalette = d->desktopPalette();
         break;
+    case QEvent::FontChange:
+        d->font = font();
+        break;
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip:
         showToolTip(static_cast<QHelpEvent *>(event), this, d->titleBarOptions(),
