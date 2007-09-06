@@ -48,7 +48,7 @@ QString LocalNameTest::displayName(const NamePool::Ptr &np) const
     QString displayOther(m_primaryType->displayName(np));
 
     return displayOther.insert(displayOther.size() - 1,
-                               QLatin1String("*:") + m_ncName);
+                               QString::fromLatin1("*:") + np->stringForLocalName(m_ncName));
 }
 
 ItemType::InstanceOf LocalNameTest::instanceOf() const
