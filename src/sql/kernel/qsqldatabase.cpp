@@ -1387,7 +1387,7 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     The host name (or service name) is needed when constructing
     the QTDSDriver for creating new connections for internal
     queries. This is to prevent the simultaneous usage of several
-    QSqlQuery/\l{QSqlCursor} objects from blocking each other.
+    QSqlQuery objects from blocking each other.
 
     \warning If you add a database with the same name as an
     existing database, the new database will replace the old one.

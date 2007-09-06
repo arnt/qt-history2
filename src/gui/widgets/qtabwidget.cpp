@@ -289,16 +289,17 @@ QTabWidget::~QTabWidget()
 }
 
 /*!
-    Adds another tab and page to the tab view.
+    \fn int QTabWidget::addTab(QWidget *page, const QString &label)
 
-    The new page is \a child; the tab's label is \a label.
+    Adds a tab with the given \a page and \a label to the tab widget,
+    and returns the index of the tab in the tab bar.
 
     If the tab's \a label contains an ampersand, the letter following
     the ampersand is used as a shortcut for the tab, e.g. if the
     label is "Bro\&wse" then Alt+W becomes a shortcut which will
     move the focus to this tab.
 
-    If you call addTab() after show(), the layout system will try
+    \note If you call addTab() after show(), the layout system will try
     to adjust to the changes in it's widgets hierarchy and may cause
     flicker. To prevent this, you can set the QWidget::updatesEnabled
     property to false prior to changes; remember to set the property
@@ -314,9 +315,11 @@ int QTabWidget::addTab(QWidget *child, const QString &label)
 
 
 /*!
+    \fn int QTabWidget::addTab(QWidget *page, const QIcon &icon, const QString &label)
     \overload
 
-    Adds another tab and page to the tab view.
+    Adds a tab with the given \a page, \a icon, and \a label to the tab
+    widget, and returns the index of the tab in the tab bar.
 
     This function is the same as addTab(), but with an additional \a
     icon.
@@ -328,15 +331,14 @@ int QTabWidget::addTab(QWidget *child, const QIcon& icon, const QString &label)
 
 
 /*!
-    \fn int QTabWidget::insertTab(int index, QWidget *widget, const QString &label)
+    \fn int QTabWidget::insertTab(int index, QWidget *page, const QString &label)
 
-    Inserts another tab and page to the tab view.
+    Inserts a tab with the given \a label and \a page into the tab
+    widget at the specified \a index, and returns the index of the
+    inserted tab in the tab bar.
 
-    The given \a widget is the new page, and the tab's label is
-    specified by \a label. Note the difference between the widget name
-    and the tab label: The name is internal to the program and
-    invariant, whereas the label is shown on-screen and may vary
-    according to language and other factors.
+    The label is displayed in the tab and may vary in appearance depending
+    on the configuration of the tab widget.
 
     If the tab's \a label contains an ampersand, the letter following
     the ampersand is used as a shortcut for the tab, e.g. if the
@@ -351,7 +353,7 @@ int QTabWidget::addTab(QWidget *child, const QIcon& icon, const QString &label)
     less than or equal to the current index will increment the current
     index, but keep the current page.
 
-    If you call insertTab() after show(), the layout system will try
+    \note If you call insertTab() after show(), the layout system will try
     to adjust to the changes in it's widgets hierarchy and may cause
     flicker. To prevent this, you can set the QWidget::updatesEnabled
     property to false prior to changes; remember to set the property
@@ -367,10 +369,12 @@ int QTabWidget::insertTab(int index, QWidget *w, const QString &label)
 
 
 /*!
-    \fn int QTabWidget::insertTab(int index, QWidget *widget, const QIcon& icon, const QString &label)
+    \fn int QTabWidget::insertTab(int index, QWidget *page, const QIcon& icon, const QString &label)
     \overload
 
-    Inserts another tab and page to the tab view.
+    Inserts a tab with the given \a label, \a page, and \a icon into
+    the tab widget at the specified \a index, and returns the index of the
+    inserted tab in the tab bar.
 
     This function is the same as insertTab(), but with an additional
     \a icon.
@@ -523,8 +527,10 @@ QWidget * QTabWidget::cornerWidget(Qt::Corner corner) const
 }
 
 /*!
-   Removes the page at position \a index from this stack of
-   widgets. Does not delete the page widget.
+   Removes the tab at position \a index from this stack of widgets.
+   The page widget itself is not deleted.
+
+   \sa addTab(), insertTab()
 */
 void QTabWidget::removeTab(int index)
 {

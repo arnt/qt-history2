@@ -865,7 +865,7 @@ QSize QWorkspaceTitleBar::sizeHint() const
     larger than the visible workspace area, set the scrollBarsEnabled
     property to true.
 
-    \sa QDockWindow, {MDI Example}
+    \sa QDockWidget, {MDI Example}
 */
 
 
