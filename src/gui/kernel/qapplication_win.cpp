@@ -1207,9 +1207,9 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
     long res = 0;
     if (!qApp)                                // unstable app state
-        goto do_default;
+        RETURN(QWinInputContext::DefWindowProc(hwnd,message,wParam,lParam))
 
-    QScopedLoopLevelCounter loopLevelCounter(qApp->d_func()->threadData);
+    QScopedLoopLevelCounter loopLevelCounter(QThreadData::get2(qApp->thread()));
 
 #if 0
     // make sure we update widgets also when the user resizes
