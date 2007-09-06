@@ -1188,15 +1188,15 @@ void tst_QScriptEngine::numberParsing_data()
     QTest::addColumn<QString>("string");
     QTest::addColumn<qsreal>("expect");
 
-    QTest::newRow("") << QString("0") << qsreal(0);
-    QTest::newRow("") << QString("00") << qsreal(00);
-    QTest::newRow("") << QString("0x0") << qsreal(0x0);
-    QTest::newRow("") << QString("100") << qsreal(100);
-    QTest::newRow("") << QString("0x100") << qsreal(0x100);
-    QTest::newRow("") << QString("0100") << qsreal(0100);
-    QTest::newRow("") << QString("4294967296") << qsreal(Q_UINT64_C(4294967296));
-    QTest::newRow("") << QString("0x100000000") << qsreal(Q_UINT64_C(0x100000000));
-    QTest::newRow("") << QString("040000000000") << qsreal(Q_UINT64_C(040000000000));
+    QTest::newRow("decimal 0") << QString("0") << qsreal(0);
+    QTest::newRow("octal 0") << QString("00") << qsreal(00);
+    QTest::newRow("hex 0") << QString("0x0") << qsreal(0x0);
+    QTest::newRow("decimal 100") << QString("100") << qsreal(100);
+    QTest::newRow("hex 100") << QString("0x100") << qsreal(0x100);
+    QTest::newRow("octal 100") << QString("0100") << qsreal(0100);
+    QTest::newRow("decimal 4G") << QString("4294967296") << qsreal(Q_UINT64_C(4294967296));
+    QTest::newRow("hex 4G") << QString("0x100000000") << qsreal(Q_UINT64_C(0x100000000));
+    QTest::newRow("octal 4G") << QString("040000000000") << qsreal(Q_UINT64_C(040000000000));
 }
 
 void tst_QScriptEngine::numberParsing()
