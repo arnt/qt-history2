@@ -32,9 +32,7 @@ namespace qdesigner_internal
 {
     QDESIGNER_SHARED_EXPORT void designerWarning(const QString &message)
     {
-        QString prefixedMessage = QLatin1String("Designer: ");
-        prefixedMessage += message;
-        qWarning(prefixedMessage.toUtf8().constData());
+        qWarning("Designer: %s", qPrintable(message));
     }
 
     // ------------- DesignerMetaEnum

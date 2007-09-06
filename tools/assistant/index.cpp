@@ -171,7 +171,7 @@ void Index::parseDocument( const QString &filename, int docNum )
 {
     QFile file( filename );
     if ( !file.open(QFile::ReadOnly) ) {
-        qWarning( (QLatin1String("can not open file ") + filename).toAscii().constData() );
+        qWarning( "can not open file %s", qPrintable(filename) );
         return;
     }
 
@@ -343,7 +343,7 @@ QString Index::getDocumentTitle( const QString &fullFileName )
 
     QFile file( fileName );
     if ( !file.open( QFile::ReadOnly ) ) {
-        qWarning( (QLatin1String("cannot open file ") + fileName).toAscii().constData() );
+        qWarning( "cannot open file %s", qPrintable(fileName) );
         return fileName;
     }
     QTextStream s( &file );
@@ -473,7 +473,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
     QString fName = url.toLocalFile();
     QFile file( fName );
     if ( !file.open( QFile::ReadOnly ) ) {
-        qWarning( (QLatin1String("cannot open file ") + fName).toAscii().constData() );
+        qWarning( "cannot open file %s", qPrintable(fName) );
         return false;
     }
 

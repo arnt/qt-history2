@@ -376,9 +376,8 @@ int QPdfEnginePrivate::addConstantAlphaObject(int alpha)
         object = addXrefEntry(-1);
         QByteArray alphaDef;
         QPdf::ByteStream s(&alphaDef);
-        s << "<< /ca " << (alpha/qreal(255.)) << ">>\n";
-        xprintf(alphaDef.constData());
-        xprintf("endobj\n");
+        s << "<< /ca " << (alpha/qreal(255.)) << ">>";
+        xprintf("%s\nendobj\n", alphaDef.constData());
     }
     currentPage->graphicStates.append(object);
     return object;
