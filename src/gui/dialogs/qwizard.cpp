@@ -1325,6 +1325,7 @@ void QWizardPrivate::_q_updateButtonStates()
                          && !q->page(history.at(history.count() - 2))->isCommitPage()
                          && (!canFinish || !(opts & QWizard::DisabledBackButtonOnLastPage)));
     btn.next->setEnabled(canContinue && complete);
+    btn.commit->setEnabled(canContinue && complete);
     btn.finish->setEnabled(canFinish && complete);
 
     const bool backButtonVisible = buttonLayoutContains(QWizard::BackButton)
