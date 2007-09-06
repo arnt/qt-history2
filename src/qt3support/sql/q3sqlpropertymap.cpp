@@ -121,7 +121,7 @@ The default property mappings used by Qt widgets are:
         \l QDial,
         \l QLabel,
         \l QLineEdit,
-        \l QMultiLineEdit,
+        \l Q3MultiLineEdit,
         \l QPushButton,
         \l QTextEdit,
      \i text

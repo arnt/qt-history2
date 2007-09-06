@@ -75,7 +75,7 @@ public:
     Q3WidgetStack provides a signal, aboutToShow(), which is emitted
     just before a managed widget is shown.
 
-    \sa QTabDialog QTabBar Q3Frame
+    \sa Q3TabDialog QTabWidget QTabBar Q3Frame
 */
 
 

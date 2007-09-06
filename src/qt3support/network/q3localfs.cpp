@@ -49,7 +49,7 @@
     If you really need to use Q3LocalFs directly, don't forget
     to set its QUrlOperator with setUrl().
 
-    \sa QNetworkProtocol, QUrlOperator
+    \sa Q3NetworkProtocol, Q3UrlOperator
 */
 
 /*!
