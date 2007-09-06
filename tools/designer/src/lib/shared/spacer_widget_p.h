@@ -47,8 +47,6 @@ public:
 
     Spacer(QWidget *parent = 0);
 
-    QSize minimumSize() const;
-
     QSize sizeHint() const;
     void setSizeHint(const QSize &s);
 

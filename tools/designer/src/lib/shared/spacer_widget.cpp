@@ -15,20 +15,27 @@
 #include "layoutinfo_p.h"
 
 #include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QLayout>
 #include <QtGui/QPainter>
+#include <QtGui/qevent.h>
 #include <QtCore/qdebug.h>
 
 using namespace qdesigner_internal;
 
 Spacer::Spacer(QWidget *parent)
     : QWidget(parent),
-      orient(Qt::Vertical), interactive(true), sh(20, 40)
+      orient(Qt::Vertical), interactive(true), sh(0, 0)
 {
     setAttribute(Qt::WA_MouseNoMask);
     m_formWindow = QDesignerFormWindowInterface::findFormWindow(this);
-
+    // Ensure we are visible and selectable by rubber band
+    // on the form
+    setMinimumSize(1, 1);
     setSizeType(QSizePolicy::Expanding);
 }
 
@@ -75,6 +82,12 @@ void Spacer::paintEvent(QPaintEvent *)
 void Spacer::resizeEvent(QResizeEvent* e)
 {
     QWidget::resizeEvent(e);
+    // When resized by widget handle dragging after a reset (QSize(0, 0)):
+    // Mark the property as changed (geometry and sizeHint are in sync except for 'changed').
+    if (e->oldSize().isNull() && m_formWindow)
+        if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), this))
+            sheet->setChanged(sheet->indexOf(QLatin1String("sizeHint")), true);
+
     updateMask();
 
     if (!interactive)
@@ -126,17 +139,6 @@ Qt::Alignment Spacer::alignment() const
     return Qt::AlignVCenter;
 }
 
-QSize Spacer::minimumSize() const
-{
-    QSize s = QSize(20,20);
-    if (sizeType() == QSizePolicy::Expanding)
-        if (orient == Qt::Vertical)
-            s.rheight() = 0;
-        else
-            s.rwidth() = 0;
-    return s;
-}
-
 QSize Spacer::sizeHint() const
 {
     return sh;
@@ -176,4 +178,3 @@ void Spacer::setOrientation(Qt::Orientation o)
     update();
     updateGeometry();
 }
-

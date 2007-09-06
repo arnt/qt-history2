@@ -424,10 +424,8 @@ void WidgetFactory::initialize(QObject *object) const
     sheet->setChanged(sheet->indexOf(m_strings.m_objectName), true);
     sheet->setChanged(sheet->indexOf(m_strings.m_geometry), true);
 
-    if (qobject_cast<Spacer*>(object)) {
+    if (qobject_cast<Spacer*>(object))
         sheet->setChanged(sheet->indexOf(m_strings.m_spacerName), true);
-        sheet->setChanged(sheet->indexOf(m_strings.m_sizeHint), true);
-    }
 
     const int o = sheet->indexOf(m_strings.m_orientation);
     if (o != -1 && object->inherits("QSplitter"))

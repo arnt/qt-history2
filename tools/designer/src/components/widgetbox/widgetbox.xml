@@ -71,13 +71,11 @@
             <property name="objectName">
                 <string notr="true">horizontalSpacer</string>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
+            <property name="sizeHint" >
+                <size>
                     <width>40</width>
                     <height>20</height>
-                </rect>
+                </size>
             </property>
         </widget>
 
@@ -88,13 +86,11 @@
             <property name="objectName">
                 <string notr="true">verticalSpacer</string>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
+            <property name="sizeHint" >
+                <size>
                     <width>20</width>
                     <height>40</height>
-                </rect>
+                </size>
             </property>
         </widget>
     </category>
