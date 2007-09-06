@@ -3771,8 +3771,6 @@ QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode(bool deep)
  *
  **************************************************************/
 
-#define IMPL ((QDomDocumentFragmentPrivate*)impl)
-
 /*!
     \class QDomDocumentFragment
     \reentrant
@@ -3841,8 +3839,6 @@ QDomDocumentFragment& QDomDocumentFragment::operator= (const QDomDocumentFragmen
 
     \sa isDocumentFragment() QDomNode::toDocumentFragment()
 */
-
-#undef IMPL
 
 /**************************************************************
  *
@@ -5307,8 +5303,6 @@ void QDomCommentPrivate::save(QTextStream& s, int depth, int indent) const
  *
  **************************************************************/
 
-#define IMPL ((QDomCommentPrivate*)impl)
-
 /*!
     \class QDomComment
     \reentrant
@@ -5374,8 +5368,6 @@ QDomComment& QDomComment::operator= (const QDomComment& x)
     Returns \c CommentNode.
 */
 
-#undef IMPL
-
 /**************************************************************
  *
  * QDomCDATASectionPrivate
@@ -5414,8 +5406,6 @@ void QDomCDATASectionPrivate::save(QTextStream& s, int, int) const
  * QDomCDATASection
  *
  **************************************************************/
-
-#define IMPL ((QDomCDATASectionPrivate*)impl)
 
 /*!
     \class QDomCDATASection
@@ -5485,8 +5475,6 @@ QDomCDATASection& QDomCDATASection::operator= (const QDomCDATASection& x)
 
     Returns \c CDATASection.
 */
-
-#undef IMPL
 
 /**************************************************************
  *
@@ -5881,8 +5869,6 @@ void QDomEntityReferencePrivate::save(QTextStream& s, int, int) const
  *
  **************************************************************/
 
-#define IMPL ((QDomEntityReferencePrivate*)impl)
-
 /*!
     \class QDomEntityReference
     \reentrant
@@ -5963,8 +5949,6 @@ QDomEntityReference& QDomEntityReference::operator= (const QDomEntityReference& 
     Returns \c EntityReference.
 */
 
-#undef IMPL
-
 /**************************************************************
  *
  * QDomProcessingInstructionPrivate
@@ -6003,8 +5987,6 @@ void QDomProcessingInstructionPrivate::save(QTextStream& s, int, int) const
  * QDomProcessingInstruction
  *
  **************************************************************/
-
-#define IMPL ((QDomProcessingInstructionPrivate*)impl)
 
 /*!
     \class QDomProcessingInstruction
@@ -6119,8 +6101,6 @@ void QDomProcessingInstruction::setData(const QString& d)
         return;
     impl->setNodeValue(d);
 }
-
-#undef IMPL
 
 /**************************************************************
  *
