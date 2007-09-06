@@ -5237,10 +5237,6 @@ ushort QString::toUShort(bool *ok, int base) const
     \skipto QLocale::setDefault(QLocale::C);
     \printuntil d =
 
-    \warning If the string contains trailing whitespace this function
-    will fail, and set \c{*}\a{ok} to false if \a ok is not 0. Leading
-    whitespace is ignored.
-
     \sa number() QLocale::setDefault() QLocale::toDouble() trimmed()
 */
 
