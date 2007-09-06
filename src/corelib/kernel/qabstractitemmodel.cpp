@@ -1031,6 +1031,11 @@ void QAbstractItemModelPrivate::reset()
 */
 
 /*!
+    \fn QObject *QAbstractItemModel::parent() const
+    \reimp
+*/
+
+/*!
     \fn QModelIndex QAbstractItemModel::parent(const QModelIndex &index) const = 0
 
     Returns the parent of the model item with the given \a index, or QModelIndex()
