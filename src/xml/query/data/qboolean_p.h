@@ -14,7 +14,7 @@
 #ifndef Patternist_Boolean_H
 #define Patternist_Boolean_H
 
-#include "Item.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

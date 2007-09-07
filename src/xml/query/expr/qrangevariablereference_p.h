@@ -14,7 +14,7 @@
 #ifndef Patternist_RangeVariableReference_H
 #define Patternist_RangeVariableReference_H
 
-#include "VariableReference.h"
+#include "qvariablereference_p.h"
 
 QT_BEGIN_HEADER 
 

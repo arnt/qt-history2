@@ -14,8 +14,8 @@
 #ifndef Patternist_ReturnOrderBy_H
 #define Patternist_ReturnOrderBy_H
 
-#include "OrderBy.h"
-#include "UnlimitedContainer.h"
+#include "qorderby_p.h"
+#include "qunlimitedcontainer_p.h"
 
 QT_BEGIN_HEADER 
 

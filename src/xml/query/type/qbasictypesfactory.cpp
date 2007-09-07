@@ -13,10 +13,10 @@
 
 #include <QtDebug>
 
-#include "BuiltinTypes.h"
-#include "CommonNamespaces.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonnamespaces_p.h"
 
-#include "BasicTypesFactory.h"
+#include "qbasictypesfactory_p.h"
 
 using namespace Patternist;
 

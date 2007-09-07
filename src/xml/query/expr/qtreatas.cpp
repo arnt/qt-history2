@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "TypeChecker.h"
+#include "qcommonsequencetypes_p.h"
+#include "qtypechecker_p.h"
 
-#include "TreatAs.h"
+#include "qtreatas_p.h"
 
 using namespace Patternist;
 

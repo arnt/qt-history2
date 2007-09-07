@@ -21,10 +21,10 @@ template<typename T> class QVector;
 #include <QUrl>
 #include <QVariant>
 
-#include "ItemType.h"
-#include "ListIterator.h"
-#include "SingletonIterator.h"
-#include "PlainSharedPtr.h"
+#include "qitemtype_p.h"
+#include "qlistiterator_p.h"
+#include "qsingletoniterator_p.h"
+#include "qplainsharedptr_p.h"
 
 /**
  * @file
@@ -308,7 +308,7 @@ namespace Patternist
      * For types that does not distinguish the value space and lexical space, such as <tt>xs:string</tt>,
      * only the fromValue() function exist, and fromLexical() is omitted.
      *
-     * @include Example-AtomicValue-Boolean.cpp
+     * @include Example-AtomicValue-qboolean.cpp
      *
      * This example demonstrates different ways of creating AtomicValue instances for <tt>xs:boolean</tt>.
      *

@@ -14,7 +14,7 @@
 #ifndef Patternist_Aggregator_H
 #define Patternist_Aggregator_H
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 QT_BEGIN_HEADER 
 

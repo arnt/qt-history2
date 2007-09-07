@@ -14,10 +14,10 @@
 #include <QIODevice>
 #include <QTextCodec>
 
-#include "PatternistLocale.h"
-#include "Item.h"
+#include "qpatternistlocale_p.h"
+#include "qitem_p.h"
 
-#include "Serializer.h"
+#include "qserializer_p.h"
 
 using namespace Patternist;
 

@@ -11,21 +11,21 @@
 **
 ****************************************************************************/
 
-#include "AbstractFloat.h"
-#include "ArithmeticExpression.h"
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "Decimal.h"
-#include "GenericSequenceType.h"
-#include "Integer.h"
-#include "ListIterator.h"
-#include "OptimizerBlocks.h"
-#include "SequenceFNs.h"
-#include "UntypedAtomicConverter.h"
+#include "qabstractfloat_p.h"
+#include "qarithmeticexpression_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qdecimal_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qinteger_p.h"
+#include "qlistiterator_p.h"
+#include "qoptimizerblocks_p.h"
+#include "qsequencefns_p.h"
+#include "quntypedatomicconverter_p.h"
 
-#include "AggregateFNs.h"
+#include "qaggregatefns_p.h"
 
 using namespace Patternist;
 

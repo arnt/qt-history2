@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include "AnyURI.h"
-#include "Date.h"
-#include "DateTime.h"
-#include "DayTimeDuration.h"
-#include "Integer.h"
-#include "Literal.h"
-#include "AtomicString.h"
-#include "SchemaTime.h"
+#include "qanyuri_p.h"
+#include "qdate_p.h"
+#include "qdatetime_p.h"
+#include "qdaytimeduration_p.h"
+#include "qinteger_p.h"
+#include "qliteral_p.h"
+#include "qatomicstring_p.h"
+#include "qschematime_p.h"
 
-#include "ContextFNs.h"
+#include "qcontextfns_p.h"
 
 using namespace Patternist;
 

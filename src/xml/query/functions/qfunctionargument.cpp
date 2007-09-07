@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "FunctionArgument.h"
+#include "qfunctionargument_p.h"
 
 using namespace Patternist;
 

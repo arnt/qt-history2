@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "NamespaceResolver.h"
+#include "qnamespaceresolver_p.h"
 
 using namespace Patternist;
 

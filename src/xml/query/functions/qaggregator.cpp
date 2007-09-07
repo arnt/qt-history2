@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "GenericSequenceType.h"
+#include "qbuiltintypes_p.h"
+#include "qgenericsequencetype_p.h"
 
-#include "Aggregator.h"
+#include "qaggregator_p.h"
 
 using namespace Patternist;
 

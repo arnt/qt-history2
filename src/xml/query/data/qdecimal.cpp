@@ -13,12 +13,12 @@
 
 #include <cmath>
 
-#include "AbstractFloat.h"
-#include "AtomicType.h"
-#include "BuiltinTypes.h"
-#include "ValidationError.h"
+#include "qabstractfloat_p.h"
+#include "qatomictype_p.h"
+#include "qbuiltintypes_p.h"
+#include "qvalidationerror_p.h"
 
-#include "Decimal.h"
+#include "qdecimal_p.h"
 
 using namespace Patternist;
 

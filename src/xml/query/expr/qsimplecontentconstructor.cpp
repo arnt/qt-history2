@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "ListIterator.h"
-#include "AtomicString.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qlistiterator_p.h"
+#include "qatomicstring_p.h"
 
-#include "SimpleContentConstructor.h"
+#include "qsimplecontentconstructor_p.h"
 
 using namespace Patternist;
 

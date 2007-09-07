@@ -15,16 +15,16 @@
 
 #include <qnumeric.h>
 
-#include "AbstractDateTime.h"
-#include "AbstractDuration.h"
-#include "AbstractFloat.h"
-#include "DayTimeDuration.h"
-#include "Debug.h"
-#include "Decimal.h"
-#include "Integer.h"
-#include "PatternistLocale.h"
+#include "qabstractdatetime_p.h"
+#include "qabstractduration_p.h"
+#include "qabstractfloat_p.h"
+#include "qdaytimeduration_p.h"
+#include "qdebug_p.h"
+#include "qdecimal_p.h"
+#include "qinteger_p.h"
+#include "qpatternistlocale_p.h"
 
-#include "AtomicMathematicians.h"
+#include "qatomicmathematicians_p.h"
 
 using namespace Patternist;
 

@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "Item.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qitem_p.h"
 
-#include "EBVType.h"
+#include "qebvtype_p.h"
 
 using namespace Patternist;
 

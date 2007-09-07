@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "Item.h"
-#include "ValidationError.h"
+#include "qitem_p.h"
+#include "qvalidationerror_p.h"
 
-#include "AnyURI.h"
+#include "qanyuri_p.h"
 
 using namespace Patternist;
 

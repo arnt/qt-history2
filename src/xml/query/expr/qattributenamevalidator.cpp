@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonNamespaces.h"
-#include "CommonSequenceTypes.h"
-#include "PatternistLocale.h"
-#include "QNameValue.h"
-#include "AtomicString.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonnamespaces_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qpatternistlocale_p.h"
+#include "qqnamevalue_p.h"
+#include "qatomicstring_p.h"
 
-#include "AttributeNameValidator.h"
+#include "qattributenamevalidator_p.h"
 
 using namespace Patternist;
 

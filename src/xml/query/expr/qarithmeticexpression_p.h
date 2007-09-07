@@ -14,8 +14,8 @@
 #ifndef Patternist_ArithmeticExpression_H
 #define Patternist_ArithmeticExpression_H
 
-#include "AtomicMathematician.h"
-#include "PairContainer.h"
+#include "qatomicmathematician_p.h"
+#include "qpaircontainer_p.h"
 
 QT_BEGIN_HEADER 
 

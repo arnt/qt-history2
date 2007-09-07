@@ -17,8 +17,8 @@
 #include <QString>
 #include <QUrl>
 
-#include "Primitives.h"
-#include "QName.h"
+#include "qprimitives_p.h"
+#include "qqname_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -1,3 +1,3 @@
-SOURCES += $$PWD/QObjectNodeModel.cpp
-HEADERS += $$PWD/QObjectNodeModel.h \
-           $$PWD/QObjectPropertyToAttributeIterator.h
+SOURCES += $$PWD/qqobjectnodemodel.cpp
+HEADERS += $$PWD/qqobjectnodemodel_p.h \
+           $$PWD/qqobjectpropertytoattributeiterator_p.h

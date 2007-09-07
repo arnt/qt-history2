@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "SchemaComponent.h"
+#include "qschemacomponent_p.h"
 
 using namespace Patternist;
 

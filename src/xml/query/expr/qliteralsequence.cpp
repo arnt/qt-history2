@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "GenericSequenceType.h"
-#include "ListIterator.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qlistiterator_p.h"
 
-#include "LiteralSequence.h"
+#include "qliteralsequence_p.h"
 
 using namespace Patternist;
 

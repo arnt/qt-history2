@@ -14,8 +14,8 @@
 #ifndef Patternist_EvaluationCache_H
 #define Patternist_EvaluationCache_H
 
-#include "SingleContainer.h"
-#include "VariableDeclaration.h"
+#include "qsinglecontainer_p.h"
+#include "qvariabledeclaration_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include "CommonNamespaces.h"
+#include "qcommonnamespaces_p.h"
 
-#include "CommonSequenceTypes.h"
-#include "FunctionFactory.h"
-#include "GeneralComparison.h"
-#include "Literal.h"
-#include "Numeric.h"
-#include "ValueComparison.h"
+#include "qcommonsequencetypes_p.h"
+#include "qfunctionfactory_p.h"
+#include "qgeneralcomparison_p.h"
+#include "qliteral_p.h"
+#include "qnumeric_p.h"
+#include "qvaluecomparison_p.h"
 
-#include "OptimizerBlocks.h"
+#include "qoptimizerblocks_p.h"
 
 using namespace Patternist;
 

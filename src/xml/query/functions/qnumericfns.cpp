@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "CommonValues.h"
-#include "GenericSequenceType.h"
-#include "Numeric.h"
+#include "qcommonvalues_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qnumeric_p.h"
 
-#include "NumericFNs.h"
+#include "qnumericfns_p.h"
 
 using namespace Patternist;
 

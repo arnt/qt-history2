@@ -14,10 +14,10 @@
 #ifndef Patternist_XPathHelper_H
 #define Patternist_XPathHelper_H
 
-#include "CommonNamespaces.h"
-#include "Item.h"
-#include "PatternistLocale.h"
-#include "ReportContext.h"
+#include "qcommonnamespaces_p.h"
+#include "qitem_p.h"
+#include "qpatternistlocale_p.h"
+#include "qreportcontext_p.h"
 
 QT_BEGIN_HEADER 
 

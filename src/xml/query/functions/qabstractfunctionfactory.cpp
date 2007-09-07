@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "PatternistLocale.h"
+#include "qpatternistlocale_p.h"
 
-#include "AbstractFunctionFactory.h"
+#include "qabstractfunctionfactory_p.h"
 
 using namespace Patternist;
 

@@ -14,7 +14,7 @@
 #ifndef Patternist_SequenceGeneratingFNs_H
 #define Patternist_SequenceGeneratingFNs_H
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 /**
  * @file

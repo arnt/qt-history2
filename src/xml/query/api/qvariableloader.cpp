@@ -14,13 +14,13 @@
 #include <QVariant>
 #include <QStringList>
 
-#include "CommonSequenceTypes.h"
-#include "Integer.h"
-#include "Item.h"
-#include "ListIterator.h"
-#include "SequenceType.h"
-#include "AtomicString.h"
-#include "VariableLoader_p.h"
+#include "qatomicstring_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qinteger_p.h"
+#include "qitem_p.h"
+#include "qlistiterator_p.h"
+#include "qsequencetype_p.h"
+#include "qvariableloader_p.h"
 
 class VariantListIterator : public Patternist::ListIteratorPlatform<QVariant, Patternist::Item, VariantListIterator>
 {

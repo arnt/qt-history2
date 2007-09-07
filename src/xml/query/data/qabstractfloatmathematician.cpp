@@ -13,8 +13,8 @@
 
 /*
  * @file
- * @short This file is included by AtomicMathematicians.h
- * if you need some includes, put them in AbstractFloatMathematician.h, outside of the namespace.
+ * @short This file is included by qatomicmathematicians_p.h
+ * if you need some includes, put them in qabstractfloatmathematician_p.h, outside of the namespace.
  */
 
 template <const bool isDouble>

@@ -14,7 +14,7 @@
 #ifndef Patternist_AtomicTypeVisitorResultLocator_H
 #define Patternist_AtomicTypeVisitorResultLocator_H
 
-#include "AtomicTypeDispatch.h"
+#include "qatomictypedispatch_p.h"
 
 QT_BEGIN_HEADER 
 

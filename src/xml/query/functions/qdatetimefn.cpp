@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "AtomicComparator.h"
-#include "CommonValues.h"
-#include "DateTime.h"
-#include "DayTimeDuration.h"
-#include "Decimal.h"
-#include "Integer.h"
-#include "PatternistLocale.h"
+#include "qatomiccomparator_p.h"
+#include "qcommonvalues_p.h"
+#include "qdatetime_p.h"
+#include "qdaytimeduration_p.h"
+#include "qdecimal_p.h"
+#include "qinteger_p.h"
+#include "qpatternistlocale_p.h"
 
-#include "DateTimeFN.h"
+#include "qdatetimefn_p.h"
 
 using namespace Patternist;
 

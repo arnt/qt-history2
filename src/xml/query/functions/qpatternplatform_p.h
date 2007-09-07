@@ -17,7 +17,7 @@
 #include <QFlags>
 #include <QRegExp>
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 QT_BEGIN_HEADER 
 

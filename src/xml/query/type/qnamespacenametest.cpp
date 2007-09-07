@@ -13,11 +13,11 @@
 
 #include <QHash>
 
-#include "BuiltinTypes.h"
-#include "Item.h"
-#include "Item.h"
+#include "qbuiltintypes_p.h"
+#include "qitem_p.h"
+#include "qitem_p.h"
 
-#include "NamespaceNameTest.h"
+#include "qnamespacenametest_p.h"
 
 using namespace Patternist;
 

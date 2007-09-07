@@ -32,17 +32,17 @@
 #include "qsourcelocation.h"
 #include "qxmlname.h"
 
-#include "AccelTreeBuilder.h"
-#include "AccelTreeResourceLoader.h"
-#include "CommonSequenceTypes.h"
+#include "qacceltreebuilder_p.h"
+#include "qacceltreeresourceloader_p.h"
+#include "qcommonsequencetypes_p.h"
 #include "ColoringMessageHandler.h"
-#include "Exception.h"
-#include "ExpressionFactory.h"
-#include "GenericDynamicContext.h"
-#include "GenericStaticContext.h"
-#include "NamePool.h"
-#include "QObjectNodeModel.h"
-#include "VariableLoader_p.h"
+#include "qexception_p.h"
+#include "qexpressionfactory_p.h"
+#include "qgenericdynamiccontext_p.h"
+#include "qgenericstaticcontext_p.h"
+#include "qnamepool_p.h"
+#include "qqobjectnodemodel_p.h"
+#include "qvariableloader_p.h"
 
 QT_BEGIN_HEADER
 

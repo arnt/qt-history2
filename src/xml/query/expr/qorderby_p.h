@@ -14,8 +14,8 @@
 #ifndef Patternist_OrderBy_H
 #define Patternist_OrderBy_H
 
-#include "AtomicComparator.h"
-#include "SingleContainer.h"
+#include "qatomiccomparator_p.h"
+#include "qsinglecontainer_p.h"
 
 QT_BEGIN_HEADER 
 

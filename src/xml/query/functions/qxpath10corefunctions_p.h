@@ -14,7 +14,7 @@
 #ifndef Patternist_XPath10CoreFunctions_H
 #define Patternist_XPath10CoreFunctions_H
 
-#include "AbstractFunctionFactory.h"
+#include "qabstractfunctionfactory_p.h"
 
 QT_BEGIN_HEADER 
 

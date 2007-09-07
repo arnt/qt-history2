@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-#include "AtomicType.h"
-#include "BuiltinTypes.h"
-#include "CastAs.h"
-#include "CommonNamespaces.h"
-#include "CommonSequenceTypes.h"
-#include "FunctionArgument.h"
-#include "FunctionCall.h"
-#include "GenericSequenceType.h"
-#include "SchemaType.h"
-#include "SchemaTypeFactory.h"
+#include "qatomictype_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcastas_p.h"
+#include "qcommonnamespaces_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qfunctionargument_p.h"
+#include "qfunctioncall_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qschematype_p.h"
+#include "qschematypefactory_p.h"
 
-#include "ConstructorFunctionsFactory.h"
+#include "qconstructorfunctionsfactory_p.h"
 
 using namespace Patternist;
 

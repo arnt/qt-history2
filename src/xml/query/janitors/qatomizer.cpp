@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "AtomicType.h"
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "GenericSequenceType.h"
-#include "ListIterator.h"
-#include "SequenceMappingIterator.h"
+#include "qatomictype_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qlistiterator_p.h"
+#include "qsequencemappingiterator_p.h"
 
-#include "Atomizer.h"
+#include "qatomizer_p.h"
 
 using namespace Patternist;
 

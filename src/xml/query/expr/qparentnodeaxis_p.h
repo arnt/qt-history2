@@ -14,7 +14,7 @@
 #ifndef Patternist_ParentNodeAxis_H
 #define Patternist_ParentNodeAxis_H
 
-#include "EmptyContainer.h"
+#include "qemptycontainer_p.h"
 
 QT_BEGIN_HEADER 
 

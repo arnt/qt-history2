@@ -14,7 +14,7 @@
 #ifndef Patternist_TraceFN_H
 #define Patternist_TraceFN_H
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 QT_BEGIN_HEADER 
 

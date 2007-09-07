@@ -11,21 +11,21 @@
 **
 ****************************************************************************/
 
-#include "Item.h"
-#include "BuiltinTypes.h"
-#include "CardinalityVerifier.h"
-#include "CommonSequenceTypes.h"
-#include "EmptySequence.h"
-#include "GenericSequenceType.h"
-#include "Literal.h"
-#include "PatternistLocale.h"
-#include "NamespaceResolver.h"
-#include "QNameConstructor.h"
-#include "QNameValue.h"
-#include "AtomicString.h"
-#include "ValidationError.h"
+#include "qitem_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcardinalityverifier_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qemptysequence_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qliteral_p.h"
+#include "qpatternistlocale_p.h"
+#include "qnamespaceresolver_p.h"
+#include "qqnameconstructor_p.h"
+#include "qqnamevalue_p.h"
+#include "qatomicstring_p.h"
+#include "qvalidationerror_p.h"
 
-#include "CastAs.h"
+#include "qcastas_p.h"
 
 using namespace Patternist;
 

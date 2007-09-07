@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "GenericSequenceType.h"
-#include "ListIterator.h"
-#include "SequenceMappingIterator.h"
+#include "qcommonsequencetypes_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qlistiterator_p.h"
+#include "qsequencemappingiterator_p.h"
 
-#include "Path.h"
+#include "qpath_p.h"
 
 using namespace Patternist;
 

@@ -14,7 +14,7 @@
 #ifndef Patternist_NumericFNs_H
 #define Patternist_NumericFNs_H
 
-#include "Aggregator.h"
+#include "qaggregator_p.h"
 
 /**
  * @file

@@ -14,9 +14,9 @@
 #ifndef Patternist_SortTuple_H
 #define Patternist_SortTuple_H
 
-#include "Item.h"
-#include "Item.h"
-#include "ItemType.h"
+#include "qitem_p.h"
+#include "qitem_p.h"
+#include "qitemtype_p.h"
 
 QT_BEGIN_HEADER 
 

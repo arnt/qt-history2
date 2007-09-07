@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "ItemMappingIterator.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
 
-#include "TraceFN.h"
+#include "qtracefn_p.h"
 
 using namespace Patternist;
 

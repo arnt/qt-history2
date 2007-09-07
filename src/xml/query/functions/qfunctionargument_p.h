@@ -17,8 +17,8 @@
 #include <QList>
 #include <QSharedData>
 
-#include "QName.h"
-#include "SequenceType.h"
+#include "qqname_p.h"
+#include "qsequencetype_p.h"
 
 QT_BEGIN_HEADER 
 

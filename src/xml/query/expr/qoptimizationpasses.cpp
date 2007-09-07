@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "OptimizerBlocks.h"
+#include "qcommonsequencetypes_p.h"
+#include "qoptimizerblocks_p.h"
 
-#include "OptimizationPasses.h"
+#include "qoptimizationpasses_p.h"
 
 using namespace Patternist;
 

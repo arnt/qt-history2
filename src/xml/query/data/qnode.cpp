@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "Debug.h"
-#include "ListIterator.h"
-#include "NamespaceResolver.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
+#include "qlistiterator_p.h"
+#include "qnamespaceresolver_p.h"
 
-#include "Item.h"
+#include "qitem_p.h"
 
 /**
  * @file
- * @short Contains the implementation for Node. The definition is in Item.h.
+ * @short Contains the implementation for Node. The definition is in qitem_p.h.
  */
 
 using namespace Patternist;

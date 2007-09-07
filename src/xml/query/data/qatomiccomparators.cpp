@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "AbstractDuration.h"
-#include "AbstractDateTime.h"
-#include "AbstractFloat.h"
-#include "Base64Binary.h"
-#include "Boolean.h"
-#include "DynamicContext.h"
-#include "QNameValue.h"
+#include "qabstractduration_p.h"
+#include "qabstractdatetime_p.h"
+#include "qabstractfloat_p.h"
+#include "qbase64binary_p.h"
+#include "qboolean_p.h"
+#include "qdynamiccontext_p.h"
+#include "qqnamevalue_p.h"
 
-#include "AtomicComparators.h"
+#include "qatomiccomparators_p.h"
 
 using namespace Patternist;
 

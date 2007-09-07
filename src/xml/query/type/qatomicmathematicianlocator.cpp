@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "AtomicMathematicianLocator.h"
+#include "qatomicmathematicianlocator_p.h"
 
 using namespace Patternist;
 

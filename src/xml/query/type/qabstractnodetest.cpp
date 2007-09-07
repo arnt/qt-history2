@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "AbstractNodeTest.h"
+#include "qabstractnodetest_p.h"
 
 using namespace Patternist;
 

@@ -16,9 +16,9 @@
 
 #include <QSharedData>
 
-#include "ReportContext.h"
-#include "ItemType.h"
-#include "SchemaType.h"
+#include "qreportcontext_p.h"
+#include "qitemtype_p.h"
+#include "qschematype_p.h"
 
 QT_BEGIN_HEADER 
 

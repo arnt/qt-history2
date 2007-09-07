@@ -23,7 +23,7 @@
 #ifndef Patternist_PushBridge_p_h
 #define Patternist_PushBridge_p_h
 
-#include "SequenceReceiver.h"
+#include "qsequencereceiver_p.h"
 
 class QAbstractXmlPushCallback;
 

@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "GenericSequenceType.h"
-#include "MultiItemType.h"
-#include "TypeChecker.h"
+#include "qbuiltintypes_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qmultiitemtype_p.h"
+#include "qtypechecker_p.h"
 
-#include "Validate.h"
+#include "qvalidate_p.h"
 
 using namespace Patternist;
 

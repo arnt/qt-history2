@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "AtomicComparatorLocator.h"
+#include "qatomiccomparatorlocator_p.h"
 
 using namespace Patternist;
 

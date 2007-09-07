@@ -13,10 +13,10 @@
 
 #include <QUrl>
 
-#include "NamespaceResolver.h"
-#include "ListIterator.h"
+#include "qnamespaceresolver_p.h"
+#include "qlistiterator_p.h"
 
-#include "Item.h"
+#include "qitem_p.h"
 
 using namespace Patternist;
 
@@ -26,7 +26,7 @@ NodeModel::~NodeModel()
 
 /**
  * @file
- * @short Contains the implementation of NodeModel. The definition is in Item.h.
+ * @short Contains the implementation of NodeModel. The definition is in qitem_p.h.
  */
 
 QName::NamespaceCode NodeModel::namespaceForPrefix(const Node ni,

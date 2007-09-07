@@ -13,13 +13,13 @@
 
 #include <QtAlgorithms>
 
-#include "CommonSequenceTypes.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
-#include "NodeBuilder.h"
-#include "SortTuple.h"
+#include "qcommonsequencetypes_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
+#include "qnodebuilder_p.h"
+#include "qsorttuple_p.h"
 
-#include "OrderBy.h"
+#include "qorderby_p.h"
 
 using namespace Patternist;
 

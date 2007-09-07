@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "DayTimeDuration.h"
-#include "Debug.h"
-#include "ListIterator.h"
+#include "qdaytimeduration_p.h"
+#include "qdebug_p.h"
+#include "qlistiterator_p.h"
 
-#include "Focus.h"
+#include "qfocus_p.h"
 
 using namespace Patternist;
 

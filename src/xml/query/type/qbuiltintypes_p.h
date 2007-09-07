@@ -14,13 +14,13 @@
 #ifndef Patternist_BuiltinTypes_H
 #define Patternist_BuiltinTypes_H
 
-#include "AnyNodeType.h"
-#include "AnySimpleType.h"
-#include "AnyType.h"
-#include "BuiltinAtomicType.h"
-#include "ItemType.h"
-#include "NumericType.h"
-#include "Untyped.h"
+#include "qanynodetype_p.h"
+#include "qanysimpletype_p.h"
+#include "qanytype_p.h"
+#include "qbuiltinatomictype_p.h"
+#include "qitemtype_p.h"
+#include "qnumerictype_p.h"
+#include "quntyped_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -11,17 +11,17 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "GenericSequenceType.h"
-#include "Integer.h"
-#include "ListIterator.h"
-#include "Literal.h"
-#include "RangeIterator.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qinteger_p.h"
+#include "qlistiterator_p.h"
+#include "qliteral_p.h"
+#include "qrangeiterator_p.h"
 
-#include "RangeExpression.h"
+#include "qrangeexpression_p.h"
 
 using namespace Patternist;
 

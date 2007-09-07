@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "ListIterator.h"
-#include "BuiltinTypes.h"
+#include "qlistiterator_p.h"
+#include "qbuiltintypes_p.h"
 
-#include "Item.h"
+#include "qitem_p.h"
 
 using namespace Patternist;
 

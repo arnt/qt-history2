@@ -14,8 +14,8 @@
 #ifndef Patternist_NoneType_H
 #define Patternist_NoneType_H
 
-#include "AtomicType.h"
-#include "SequenceType.h"
+#include "qatomictype_p.h"
+#include "qsequencetype_p.h"
 
 QT_BEGIN_HEADER 
 

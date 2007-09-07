@@ -13,11 +13,11 @@
 
 #include <QByteArray>
 
-#include "QueryTransformParser.h"
+#include "qquerytransformparser_p.h"
 
-#include "XQueryTokenizer.h"
+#include "qxquerytokenizer_p.h"
 
-#include "TokenLookup.cpp"
+#include "qtokenlookup.cpp"
 
 using namespace Patternist;
 

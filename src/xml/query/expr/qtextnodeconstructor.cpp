@@ -13,10 +13,10 @@
 
 #include <QUrl>
 
-#include "CommonSequenceTypes.h"
-#include "NodeBuilder.h"
+#include "qcommonsequencetypes_p.h"
+#include "qnodebuilder_p.h"
 
-#include "TextNodeConstructor.h"
+#include "qtextnodeconstructor_p.h"
 
 using namespace Patternist;
 

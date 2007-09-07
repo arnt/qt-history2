@@ -14,9 +14,9 @@
 #ifndef Patternist_CommonValues_H
 #define Patternist_CommonValues_H
 
-#include "DayTimeDuration.h"
-#include "YearMonthDuration.h"
-#include "EmptyIterator.h"
+#include "qdaytimeduration_p.h"
+#include "qyearmonthduration_p.h"
+#include "qemptyiterator_p.h"
 
 QT_BEGIN_HEADER 
 

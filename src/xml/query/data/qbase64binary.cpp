@@ -14,10 +14,10 @@
 #include <QByteArray>
 #include <QtGlobal>
 
-#include "BuiltinTypes.h"
-#include "ValidationError.h"
+#include "qbuiltintypes_p.h"
+#include "qvalidationerror_p.h"
 
-#include "Base64Binary.h"
+#include "qbase64binary_p.h"
 
 using namespace Patternist;
 

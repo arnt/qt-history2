@@ -13,8 +13,8 @@
 
 /**
  * @file
- * @short This file is included by ComparisonPlatform.h.
- * If you need includes in this file, put them in ComparisonPlatform.h, outside of the namespace.
+ * @short This file is included by qcomparisonplatform_p.h.
+ * If you need includes in this file, put them in qcomparisonplatform_p.h, outside of the namespace.
  */
 
 template <typename TSubClass, const bool issueError,

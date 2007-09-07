@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "PatternistLocale.h"
+#include "qpatternistlocale_p.h"
 
-#include "Cardinality.h"
+#include "qcardinality_p.h"
 
 using namespace Patternist;
 

@@ -19,13 +19,13 @@ template<typename T> class QVector;
 #include <QFlags>
 #include <QSharedData>
 
-#include "CppCastingHelper.h"
-#include "DynamicContext.h"
-#include "ExpressionDispatch.h"
-#include "Item.h"
-#include "SequenceType.h"
-#include "SourceLocationReflection.h"
-#include "StaticContext.h"
+#include "qcppcastinghelper_p.h"
+#include "qdynamiccontext_p.h"
+#include "qexpressiondispatch_p.h"
+#include "qitem_p.h"
+#include "qsequencetype_p.h"
+#include "qsourcelocationreflection_p.h"
+#include "qstaticcontext_p.h"
 
 QT_BEGIN_HEADER 
 

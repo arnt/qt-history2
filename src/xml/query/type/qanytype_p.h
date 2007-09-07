@@ -14,7 +14,7 @@
 #ifndef Patternist_AnyType_H
 #define Patternist_AnyType_H
 
-#include "SchemaType.h"
+#include "qschematype_p.h"
 
 QT_BEGIN_HEADER 
 

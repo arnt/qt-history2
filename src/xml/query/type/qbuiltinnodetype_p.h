@@ -14,9 +14,9 @@
 #ifndef Patternist_BuiltinNodeType_H
 #define Patternist_BuiltinNodeType_H
 
-#include "Item.h"
-#include "AnyNodeType.h"
-#include "BuiltinTypes.h"
+#include "qitem_p.h"
+#include "qanynodetype_p.h"
+#include "qbuiltintypes_p.h"
 
 QT_BEGIN_HEADER 
 
@@ -57,7 +57,7 @@ namespace Patternist
         BuiltinNodeType();
     };
 
-#include "BuiltinNodeType.cpp"
+#include "qbuiltinnodetype.cpp"
 }
 
 QT_END_HEADER 

@@ -14,7 +14,7 @@
 #ifndef Patternist_RangeExpression_H
 #define Patternist_RangeExpression_H
 
-#include "PairContainer.h"
+#include "qpaircontainer_p.h"
 
 QT_BEGIN_HEADER 
 

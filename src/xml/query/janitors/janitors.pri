@@ -1,9 +1,9 @@
-HEADERS += $$PWD/Atomizer.h              \
-           $$PWD/CardinalityVerifier.h   \
-           $$PWD/ItemVerifier.h          \
-           $$PWD/UntypedAtomicConverter.h
+HEADERS += $$PWD/qatomizer_p.h              \
+           $$PWD/qcardinalityverifier_p.h   \
+           $$PWD/qitemverifier_p.h          \
+           $$PWD/quntypedatomicconverter_p.h
 
-SOURCES += $$PWD/Atomizer.cpp                \
-           $$PWD/CardinalityVerifier.cpp     \
-           $$PWD/ItemVerifier.cpp            \
-           $$PWD/UntypedAtomicConverter.cpp
+SOURCES += $$PWD/qatomizer.cpp                \
+           $$PWD/qcardinalityverifier.cpp     \
+           $$PWD/qitemverifier.cpp            \
+           $$PWD/quntypedatomicconverter.cpp

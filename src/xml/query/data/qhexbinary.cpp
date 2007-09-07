@@ -13,13 +13,13 @@
 
 #include <QtGlobal>
 
-#include "Base64Binary.h"
-#include "BuiltinTypes.h"
-#include "Debug.h"
-#include "PatternistLocale.h"
-#include "ValidationError.h"
+#include "qbase64binary_p.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
+#include "qpatternistlocale_p.h"
+#include "qvalidationerror_p.h"
 
-#include "HexBinary.h"
+#include "qhexbinary_p.h"
 
 using namespace Patternist;
 

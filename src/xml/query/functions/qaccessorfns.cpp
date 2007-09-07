@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include "AnyURI.h"
-#include "Boolean.h"
-#include "BuiltinTypes.h"
-#include "CommonValues.h"
-#include "Literal.h"
-#include "Item.h"
-#include "QNameValue.h"
-#include "AtomicString.h"
+#include "qanyuri_p.h"
+#include "qboolean_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qliteral_p.h"
+#include "qitem_p.h"
+#include "qqnamevalue_p.h"
+#include "qatomicstring_p.h"
 
-#include "AccessorFNs.h"
+#include "qaccessorfns_p.h"
 
 using namespace Patternist;
 

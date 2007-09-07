@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "CommonNamespaces.h"
+#include "qcommonnamespaces_p.h"
 
-#include "StaticContext.h"
+#include "qstaticcontext_p.h"
 
 using namespace Patternist;
 

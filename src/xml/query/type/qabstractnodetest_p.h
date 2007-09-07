@@ -14,7 +14,7 @@
 #ifndef Patternist_AbstractNodeTest_H
 #define Patternist_AbstractNodeTest_H
 
-#include "AnyNodeType.h"
+#include "qanynodetype_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "NodeBuilder.h"
-#include "OutputValidator.h"
-#include "QNameValue.h"
+#include "qcommonsequencetypes_p.h"
+#include "qnodebuilder_p.h"
+#include "qoutputvalidator_p.h"
+#include "qqnamevalue_p.h"
 
-#include "ElementConstructor.h"
+#include "qelementconstructor_p.h"
 
 using namespace Patternist;
 

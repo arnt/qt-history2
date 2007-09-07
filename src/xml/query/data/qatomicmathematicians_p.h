@@ -14,8 +14,8 @@
 #ifndef Patternist_AtomicMathematicians_H
 #define Patternist_AtomicMathematicians_H
 
-#include "AtomicMathematician.h"
-#include "SourceLocationReflection.h"
+#include "qatomicmathematician_p.h"
+#include "qsourcelocationreflection_p.h"
 
 /**
  * @file

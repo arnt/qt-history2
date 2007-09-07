@@ -22,9 +22,9 @@ class QString;
 #include "qabstracturiresolver.h"
 #include "qsourcelocation.h"
 
-#include "NamePool.h"
-#include "PlainSharedPtr.h"
-#include "QName.h"
+#include "qnamepool_p.h"
+#include "qplainsharedptr_p.h"
+#include "qqname_p.h"
 
 QT_BEGIN_HEADER 
 

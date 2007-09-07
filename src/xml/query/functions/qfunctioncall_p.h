@@ -14,9 +14,9 @@
 #ifndef Patternist_FunctionCall_H
 #define Patternist_FunctionCall_H
 
-#include "UnlimitedContainer.h"
-#include "FunctionSignature.h"
-#include "XPathHelper.h"
+#include "qunlimitedcontainer_p.h"
+#include "qfunctionsignature_p.h"
+#include "qxpathhelper_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -14,7 +14,7 @@
 #ifndef Patternist_TruthPredicate_H
 #define Patternist_TruthPredicate_H
 
-#include "GenericPredicate.h"
+#include "qgenericpredicate_p.h"
 
 QT_BEGIN_HEADER 
 

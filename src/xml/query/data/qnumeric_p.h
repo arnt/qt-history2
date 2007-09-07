@@ -14,8 +14,8 @@
 #ifndef Patternist_Numeric_H
 #define Patternist_Numeric_H
 
-#include "Item.h"
-#include "Primitives.h"
+#include "qitem_p.h"
+#include "qprimitives_p.h"
 
 QT_BEGIN_HEADER 
 

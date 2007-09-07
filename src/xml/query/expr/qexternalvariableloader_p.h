@@ -14,9 +14,9 @@
 #ifndef Patternist_ExternalVariableLoader_H
 #define Patternist_ExternalVariableLoader_H
 
-#include "Item.h"
-#include "SequenceType.h"
-#include "QName.h"
+#include "qitem_p.h"
+#include "qsequencetype_p.h"
+#include "qqname_p.h"
 
 QT_BEGIN_HEADER 
 

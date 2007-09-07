@@ -20,14 +20,14 @@
 #include <QStringList>
 #include <QtGlobal>
 
-#include "ExpressionFactory.h"
-#include "UserFunction.h"
-#include "UserFunctionCallsite.h"
-#include "VariableDeclaration.h"
-#include "FunctionSignature.h"
-#include "Tokenizer.h"
-#include "BuiltinTypes.h"
-#include "Debug.h"
+#include "qexpressionfactory_p.h"
+#include "quserfunction_p.h"
+#include "quserfunctioncallsite_p.h"
+#include "qvariabledeclaration_p.h"
+#include "qfunctionsignature_p.h"
+#include "qtokenizer_p.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
 
 QT_BEGIN_HEADER 
 

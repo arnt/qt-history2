@@ -14,8 +14,8 @@
 #ifndef Patternist_ConstructorFunctionsFactory_H
 #define Patternist_ConstructorFunctionsFactory_H
 
-#include "AbstractFunctionFactory.h"
-#include "SchemaTypeFactory.h"
+#include "qabstractfunctionfactory_p.h"
+#include "qschematypefactory_p.h"
 
 QT_BEGIN_HEADER 
 

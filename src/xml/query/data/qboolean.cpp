@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "AtomicType.h"
-#include "BuiltinTypes.h"
-#include "CommonValues.h"
-#include "DynamicContext.h"
-#include "PatternistLocale.h"
-#include "ValidationError.h"
+#include "qatomictype_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdynamiccontext_p.h"
+#include "qpatternistlocale_p.h"
+#include "qvalidationerror_p.h"
 
-#include "Boolean.h"
+#include "qboolean_p.h"
 
 using namespace Patternist;
 

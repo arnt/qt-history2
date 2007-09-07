@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "EmptySequence.h"
-#include "GenericSequenceType.h"
-#include "Literal.h"
-#include "PatternistLocale.h"
-#include "Numeric.h"
-#include "UntypedAtomicConverter.h"
+#include "qboolean_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qemptysequence_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qliteral_p.h"
+#include "qpatternistlocale_p.h"
+#include "qnumeric_p.h"
+#include "quntypedatomicconverter_p.h"
 
-#include "ArithmeticExpression.h"
+#include "qarithmeticexpression_p.h"
 
 using namespace Patternist;
 

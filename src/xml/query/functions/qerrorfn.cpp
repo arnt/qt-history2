@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "PatternistLocale.h"
-#include "QNameValue.h"
-#include "AtomicString.h"
+#include "qcommonsequencetypes_p.h"
+#include "qpatternistlocale_p.h"
+#include "qqnamevalue_p.h"
+#include "qatomicstring_p.h"
 
-#include "ErrorFN.h"
+#include "qerrorfn_p.h"
 
 using namespace Patternist;
 

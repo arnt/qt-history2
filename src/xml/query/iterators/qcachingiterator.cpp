@@ -13,9 +13,9 @@
 
 #include <QtDebug>
 
-#include "ListIterator.h"
+#include "qlistiterator_p.h"
 
-#include "CachingIterator.h"
+#include "qcachingiterator_p.h"
 
 using namespace Patternist;
 

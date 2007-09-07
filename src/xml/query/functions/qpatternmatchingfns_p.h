@@ -14,7 +14,7 @@
 #ifndef Patternist_PatternMatchingFNs_H
 #define Patternist_PatternMatchingFNs_H
 
-#include "PatternPlatform.h"
+#include "qpatternplatform_p.h"
 
 /**
  * @file

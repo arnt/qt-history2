@@ -14,7 +14,7 @@
 #ifndef Patternist_EmptyIterator_H
 #define Patternist_EmptyIterator_H
 
-#include "Iterator.h"
+#include "qiterator_p.h"
 
 QT_BEGIN_HEADER 
 

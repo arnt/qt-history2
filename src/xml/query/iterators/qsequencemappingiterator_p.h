@@ -14,9 +14,9 @@
 #ifndef Patternist_SequenceMappingIterator_H
 #define Patternist_SequenceMappingIterator_H
 
-#include "Iterator.h"
-#include "DynamicContext.h"
-#include "Debug.h"
+#include "qiterator_p.h"
+#include "qdynamiccontext_p.h"
+#include "qdebug_p.h"
 
 QT_BEGIN_HEADER 
 

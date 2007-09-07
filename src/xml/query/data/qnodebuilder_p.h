@@ -14,8 +14,8 @@
 #ifndef Patternist_NodeBuilder_H
 #define Patternist_NodeBuilder_H
 
-#include "Item.h"
-#include "SequenceReceiver.h"
+#include "qitem_p.h"
+#include "qsequencereceiver_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -14,7 +14,7 @@
 #ifndef Patternist_YearMonthDuration_H
 #define Patternist_YearMonthDuration_H
 
-#include "AbstractDuration.h"
+#include "qabstractduration_p.h"
 
 QT_BEGIN_HEADER 
 

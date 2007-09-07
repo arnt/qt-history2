@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "Debug.h"
-#include "ListIterator.h"
-#include "XPathHelper.h"
+#include "qdebug_p.h"
+#include "qlistiterator_p.h"
+#include "qxpathhelper_p.h"
 
-#include "SubsequenceIterator.h"
+#include "qsubsequenceiterator_p.h"
 
 using namespace Patternist;
 

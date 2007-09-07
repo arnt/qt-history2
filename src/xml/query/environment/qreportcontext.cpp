@@ -15,12 +15,12 @@
 
 #include "qabstractmessagehandler.h"
 
-#include "CommonNamespaces.h"
-#include "Debug.h"
-#include "Exception.h"
-#include "Expression.h"
+#include "qcommonnamespaces_p.h"
+#include "qdebug_p.h"
+#include "qexception_p.h"
+#include "qexpression_p.h"
 
-#include "ReportContext.h"
+#include "qreportcontext_p.h"
 
 using namespace Patternist;
 

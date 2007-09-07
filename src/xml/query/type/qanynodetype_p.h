@@ -14,8 +14,8 @@
 #ifndef Patternist_AnyNodeType_H
 #define Patternist_AnyNodeType_H
 
-#include "AtomicType.h"
-#include "Item.h"
+#include "qatomictype_p.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

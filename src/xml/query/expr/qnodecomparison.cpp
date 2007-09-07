@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "EmptySequence.h"
-#include "Integer.h"
-#include "Numeric.h"
-#include "RangeIterator.h"
+#include "qcommonsequencetypes_p.h"
+#include "qemptysequence_p.h"
+#include "qinteger_p.h"
+#include "qnumeric_p.h"
+#include "qrangeiterator_p.h"
 
-#include "NodeComparison.h"
+#include "qnodecomparison_p.h"
 
 using namespace Patternist;
 

@@ -18,10 +18,10 @@
 #include <QHash>
 #include <QSharedData>
 
-#include "Expression.h"
-#include "FunctionSignature.h"
-#include "Primitives.h"
-#include "QName.h"
+#include "qexpression_p.h"
+#include "qfunctionsignature_p.h"
+#include "qprimitives_p.h"
+#include "qqname_p.h"
 
 QT_BEGIN_HEADER 
 

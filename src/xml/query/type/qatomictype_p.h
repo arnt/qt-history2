@@ -14,12 +14,12 @@
 #ifndef Patternist_AtomicType_H
 #define Patternist_AtomicType_H
 
-#include "AnySimpleType.h"
-#include "AtomicCasterLocator.h"
-#include "AtomicComparatorLocator.h"
-#include "AtomicMathematicianLocator.h"
-#include "AtomicTypeDispatch.h"
-#include "ItemType.h"
+#include "qanysimpletype_p.h"
+#include "qatomiccasterlocator_p.h"
+#include "qatomiccomparatorlocator_p.h"
+#include "qatomicmathematicianlocator_p.h"
+#include "qatomictypedispatch_p.h"
+#include "qitemtype_p.h"
 
 QT_BEGIN_HEADER 
 

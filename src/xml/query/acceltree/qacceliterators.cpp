@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "AccelIterators.h"
+#include "qacceliterators_p.h"
 
 using namespace Patternist;
 

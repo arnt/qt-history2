@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "PatternistLocale.h"
-#include "NodeBuilder.h"
-#include "QNameValue.h"
+#include "qcommonsequencetypes_p.h"
+#include "qpatternistlocale_p.h"
+#include "qnodebuilder_p.h"
+#include "qqnamevalue_p.h"
 
-#include "ProcessingInstructionConstructor.h"
+#include "qprocessinginstructionconstructor_p.h"
 
 using namespace Patternist;
 

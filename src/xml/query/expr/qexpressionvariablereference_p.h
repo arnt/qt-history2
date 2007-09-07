@@ -14,8 +14,8 @@
 #ifndef Patternist_ExpressionVariableReference_H
 #define Patternist_ExpressionVariableReference_H
 
-#include "VariableDeclaration.h"
-#include "VariableReference.h"
+#include "qvariabledeclaration_p.h"
+#include "qvariablereference_p.h"
 
 QT_BEGIN_HEADER 
 

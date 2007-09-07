@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
+#include "qbuiltintypes_p.h"
 
-#include "Untyped.h"
+#include "quntyped_p.h"
 
 using namespace Patternist;
 

@@ -14,8 +14,8 @@
 #ifndef Patternist_PairContainer_H
 #define Patternist_PairContainer_H
 
-#include "Expression.h"
-#include "AtomicType.h"
+#include "qexpression_p.h"
+#include "qatomictype_p.h"
 
 QT_BEGIN_HEADER 
 

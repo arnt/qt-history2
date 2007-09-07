@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
+#include "qbuiltintypes_p.h"
 
-#include "GMonth.h"
+#include "qgmonth_p.h"
 
 using namespace Patternist;
 

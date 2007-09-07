@@ -14,7 +14,7 @@
 #ifndef Patternist_BuiltinAtomicType_H
 #define Patternist_BuiltinAtomicType_H
 
-#include "AtomicType.h"
+#include "qatomictype_p.h"
 
 QT_BEGIN_HEADER 
 

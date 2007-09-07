@@ -14,9 +14,9 @@
 #ifndef Patternist_AbstractFloatCasters_H
 #define Patternist_AbstractFloatCasters_H
 
-#include "AbstractFloat.h"
-#include "AtomicCaster.h"
-#include "Numeric.h"
+#include "qabstractfloat_p.h"
+#include "qatomiccaster_p.h"
+#include "qnumeric_p.h"
 
 /**
  * @file
@@ -73,7 +73,7 @@ namespace Patternist
                                        const PlainSharedPtr<DynamicContext> &context) const;
     };
 
-#include "AbstractFloatCasters.cpp"
+#include "qabstractfloatcasters.cpp"
 
    /* * no doxygen
     * @short Casts a @c numeric value, such as @c xs:integer or @c xs:float, to @c xs:double.

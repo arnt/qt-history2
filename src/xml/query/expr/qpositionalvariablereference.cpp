@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "Integer.h"
-#include "ListIterator.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qinteger_p.h"
+#include "qlistiterator_p.h"
 
-#include "PositionalVariableReference.h"
+#include "qpositionalvariablereference_p.h"
 
 using namespace Patternist;
 

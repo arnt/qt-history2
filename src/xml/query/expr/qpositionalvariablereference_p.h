@@ -14,7 +14,7 @@
 #ifndef Patternist_PositionVariableReference_H
 #define Patternist_PositionVariableReference_H
 
-#include "VariableReference.h"
+#include "qvariablereference_p.h"
 
 QT_BEGIN_HEADER 
 

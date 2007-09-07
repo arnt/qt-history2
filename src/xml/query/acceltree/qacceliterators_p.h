@@ -14,10 +14,10 @@
 #ifndef Patternist_AccelIterators_H
 #define Patternist_AccelIterators_H
 
-#include "AccelTree.h"
-#include "Item.h"
-#include "ListIterator.h"
-#include "Item.h"
+#include "qacceltree_p.h"
+#include "qitem_p.h"
+#include "qlistiterator_p.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

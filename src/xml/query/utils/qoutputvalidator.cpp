@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "Debug.h"
-#include "PatternistLocale.h"
+#include "qdebug_p.h"
+#include "qpatternistlocale_p.h"
 
-#include "OutputValidator.h"
+#include "qoutputvalidator_p.h"
 
 using namespace Patternist;
 

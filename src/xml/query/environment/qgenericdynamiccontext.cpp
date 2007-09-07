@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonValues.h"
-#include "Debug.h"
-#include "Focus.h"
-#include "ListIterator.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qfocus_p.h"
+#include "qlistiterator_p.h"
 
-#include "GenericDynamicContext.h"
+#include "qgenericdynamiccontext_p.h"
 
 using namespace Patternist;
 

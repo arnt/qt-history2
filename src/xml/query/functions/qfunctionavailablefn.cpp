@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "Integer.h"
-#include "QNameConstructor.h"
+#include "qboolean_p.h"
+#include "qinteger_p.h"
+#include "qqnameconstructor_p.h"
 
-#include "FunctionAvailableFN.h"
+#include "qfunctionavailablefn_p.h"
 
 using namespace Patternist;
 

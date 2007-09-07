@@ -14,7 +14,7 @@
 #include <QString>
 #include <QtDebug>
 
-#include "CompressedWhitespace.h"
+#include "qcompressedwhitespace_p.h"
 
 using namespace Patternist;
 

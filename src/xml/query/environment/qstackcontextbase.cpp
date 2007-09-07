@@ -13,8 +13,8 @@
 
 /**
  * @file
- * @short This file is included by StackContextBase.h.
- * If you need includes in this file, put them in StackContextBase.h, outside of the namespace.
+ * @short This file is included by qstackcontextbase_p.h.
+ * If you need includes in this file, put them in qstackcontextbase_p.h, outside of the namespace.
  */
 
 template<typename TSuperClass>

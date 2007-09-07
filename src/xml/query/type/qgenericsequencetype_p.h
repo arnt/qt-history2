@@ -14,7 +14,7 @@
 #ifndef Patternist_GenericSequenceType_H
 #define Patternist_GenericSequenceType_H
 
-#include "SequenceType.h"
+#include "qsequencetype_p.h"
 
 QT_BEGIN_HEADER 
 

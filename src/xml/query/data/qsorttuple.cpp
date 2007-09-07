@@ -13,9 +13,9 @@
 
 #include <QString>
 
-#include "ListIterator.h"
+#include "qlistiterator_p.h"
 
-#include "SortTuple.h"
+#include "qsorttuple_p.h"
 
 using namespace Patternist;
 

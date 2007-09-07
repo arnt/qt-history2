@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-#include "AnyURI.h"
-#include "BuiltinTypes.h"
-#include "CommonValues.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
-#include "NodeNamespaceResolver.h"
-#include "QNameConstructor.h"
-#include "QNameValue.h"
-#include "AtomicString.h"
-#include "XPathHelper.h"
+#include "qanyuri_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
+#include "qnodenamespaceresolver_p.h"
+#include "qqnameconstructor_p.h"
+#include "qqnamevalue_p.h"
+#include "qatomicstring_p.h"
+#include "qxpathhelper_p.h"
 
-#include "QNameFNs.h"
+#include "qqnamefns_p.h"
 
 using namespace Patternist;
 

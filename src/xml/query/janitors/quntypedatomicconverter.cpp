@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "Item.h"
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "GenericSequenceType.h"
-#include "ItemMappingIterator.h"
-#include "ListIterator.h"
+#include "qitem_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qlistiterator_p.h"
 
-#include "UntypedAtomicConverter.h"
+#include "quntypedatomicconverter_p.h"
 
 using namespace Patternist;
 

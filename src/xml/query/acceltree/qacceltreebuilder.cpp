@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "CompressedWhitespace.h"
-#include "ListIterator.h"
+#include "qcompressedwhitespace_p.h"
+#include "qlistiterator_p.h"
 
-#include "AccelTreeBuilder.h"
+#include "qacceltreebuilder_p.h"
 
 using namespace Patternist;
 

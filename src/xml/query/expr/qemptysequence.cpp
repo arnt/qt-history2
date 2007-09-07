@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonValues.h"
-#include "CommonSequenceTypes.h"
-#include "EmptySequenceType.h"
-#include "ListIterator.h"
+#include "qcommonvalues_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qemptysequencetype_p.h"
+#include "qlistiterator_p.h"
 
-#include "EmptySequence.h"
+#include "qemptysequence_p.h"
 
 using namespace Patternist;
 

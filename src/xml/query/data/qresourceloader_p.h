@@ -17,9 +17,9 @@
 class QUrl;
 #include <QSharedData>
 
-#include "Item.h"
-#include "Item.h"
-#include "SequenceType.h"
+#include "qitem_p.h"
+#include "qitem_p.h"
+#include "qsequencetype_p.h"
 
 QT_BEGIN_HEADER 
 

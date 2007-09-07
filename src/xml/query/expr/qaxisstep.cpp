@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "ItemMappingIterator.h"
-#include "GenericSequenceType.h"
-#include "ListIterator.h"
-#include "ParentNodeAxis.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qlistiterator_p.h"
+#include "qparentnodeaxis_p.h"
 
-#include "AxisStep.h"
+#include "qaxisstep_p.h"
 
 using namespace Patternist;
 

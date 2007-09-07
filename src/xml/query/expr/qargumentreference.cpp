@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "Debug.h"
-#include "ListIterator.h"
+#include "qdebug_p.h"
+#include "qlistiterator_p.h"
 
-#include "ArgumentReference.h"
+#include "qargumentreference_p.h"
 
 using namespace Patternist;
 

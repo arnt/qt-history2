@@ -14,8 +14,8 @@
 #ifndef Patternist_DelegatingDynamicContext_H
 #define Patternist_DelegatingDynamicContext_H
 
-#include "DynamicContext.h"
-#include "Expression.h"
+#include "qdynamiccontext_p.h"
+#include "qexpression_p.h"
 
 QT_BEGIN_HEADER 
 

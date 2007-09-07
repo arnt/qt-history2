@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "AtomicType.h"
-#include "BuiltinTypes.h"
-#include "Item.h"
-#include "SchemaType.h"
+#include "qatomictype_p.h"
+#include "qbuiltintypes_p.h"
+#include "qitem_p.h"
+#include "qschematype_p.h"
 
-#include "NumericType.h"
+#include "qnumerictype_p.h"
 
 using namespace Patternist;
 

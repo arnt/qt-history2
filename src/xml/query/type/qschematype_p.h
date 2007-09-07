@@ -14,10 +14,10 @@
 #ifndef Patternist_SchemaType_H
 #define Patternist_SchemaType_H
 
-#include "NamePool.h"
-#include "SchemaComponent.h"
-#include "PlainSharedPtr.h"
-#include "QName.h"
+#include "qnamepool_p.h"
+#include "qschemacomponent_p.h"
+#include "qplainsharedptr_p.h"
+#include "qqname_p.h"
 
 template<typename N, typename M> class QHash;
 

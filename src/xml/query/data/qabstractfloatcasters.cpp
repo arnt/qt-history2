@@ -12,8 +12,8 @@
 ****************************************************************************/
 
 /*
- * NOTE: This file is included by AbstractFloatCasters.h
- * if you need some includes, put them in AbstractFloatCasters.h (outside of the namespace)
+ * NOTE: This file is included by qabstractfloatcasters_p.h
+ * if you need some includes, put them in qabstractfloatcasters_p.h (outside of the namespace)
  */
 
 template <const bool isDouble>

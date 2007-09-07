@@ -14,8 +14,8 @@
 #ifndef Patternist_AtomicMathematicianLocators_H
 #define Patternist_AtomicMathematicianLocators_H
 
-#include "AtomicMathematician.h"
-#include "AtomicMathematicianLocator.h"
+#include "qatomicmathematician_p.h"
+#include "qatomicmathematicianlocator_p.h"
 
 /**
  * @file

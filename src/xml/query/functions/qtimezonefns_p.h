@@ -14,8 +14,8 @@
 #ifndef Patternist_TimezoneFNs_H
 #define Patternist_TimezoneFNs_H
 
-#include "AtomicComparator.h"
-#include "FunctionCall.h"
+#include "qatomiccomparator_p.h"
+#include "qfunctioncall_p.h"
 
 /**
  * @file

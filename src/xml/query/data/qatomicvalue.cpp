@@ -13,22 +13,22 @@
 
 #include <QVariant>
 
-#include "AtomicString.h"
-#include "AtomicType.h"
-#include "BuiltinTypes.h"
-#include "DynamicContext.h"
-#include "GenericSequenceType.h"
-#include "HexBinary.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
-#include "QObjectNodeModel.h"
-#include "ValidationError.h"
+#include "qatomicstring_p.h"
+#include "qatomictype_p.h"
+#include "qbuiltintypes_p.h"
+#include "qdynamiccontext_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qhexbinary_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
+#include "qqobjectnodemodel_p.h"
+#include "qvalidationerror_p.h"
 
-#include "Item.h"
+#include "qitem_p.h"
 
 /**
  * @file
- * @short Contains the implementation for AtomicValue. The defintion is in Item.h.
+ * @short Contains the implementation for AtomicValue. The defintion is in qitem_p.h.
  */
 
 using namespace Patternist;

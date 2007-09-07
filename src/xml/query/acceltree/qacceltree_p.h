@@ -18,8 +18,8 @@
 #include <QUrl>
 #include <QVector>
 
-#include "Item.h"
-#include "NamePool.h"
+#include "qitem_p.h"
+#include "qnamepool_p.h"
 
 QT_BEGIN_HEADER 
 

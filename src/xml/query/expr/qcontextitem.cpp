@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "GenericSequenceType.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qgenericsequencetype_p.h"
 
-#include "ContextItem.h"
+#include "qcontextitem_p.h"
 
 using namespace Patternist;
 

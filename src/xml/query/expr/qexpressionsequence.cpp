@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "CardinalityVerifier.h"
-#include "CommonSequenceTypes.h"
-#include "EmptySequence.h"
-#include "ListIterator.h"
-#include "SequenceMappingIterator.h"
+#include "qcardinalityverifier_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qemptysequence_p.h"
+#include "qlistiterator_p.h"
+#include "qsequencemappingiterator_p.h"
 
-#include "ExpressionSequence.h"
+#include "qexpressionsequence_p.h"
 
 using namespace Patternist;
 

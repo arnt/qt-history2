@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "ListIterator.h"
+#include "qlistiterator_p.h"
 
-#include "InsertionIterator.h"
+#include "qinsertioniterator_p.h"
 
 using namespace Patternist;
 

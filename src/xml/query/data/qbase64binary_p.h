@@ -14,7 +14,7 @@
 #ifndef Patternist_Base64Binary_H
 #define Patternist_Base64Binary_H
 
-#include "Item.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -16,7 +16,7 @@
 
 #include <QHash>
 
-#include "NamespaceResolver.h"
+#include "qnamespaceresolver_p.h"
 
 QT_BEGIN_HEADER 
 

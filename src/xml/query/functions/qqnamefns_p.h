@@ -14,7 +14,7 @@
 #ifndef Patternist_QNameFNs_H
 #define Patternist_QNameFNs_H
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 /**
  * @file

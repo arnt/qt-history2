@@ -17,9 +17,9 @@
 #include <QDateTime>
 #include <QVector>
 
-#include "DayTimeDuration.h"
-#include "StackContextBase.h"
-#include "Expression.h"
+#include "qdaytimeduration_p.h"
+#include "qstackcontextbase_p.h"
+#include "qexpression_p.h"
 
 QT_BEGIN_HEADER 
 

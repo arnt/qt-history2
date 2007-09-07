@@ -14,10 +14,10 @@
 #ifndef Patternist_SequenceFNs_H
 #define Patternist_SequenceFNs_H
 
-#include "AtomicComparator.h"
-#include "ComparisonPlatform.h"
-#include "Literal.h"
-#include "FunctionCall.h"
+#include "qatomiccomparator_p.h"
+#include "qcomparisonplatform_p.h"
+#include "qliteral_p.h"
+#include "qfunctioncall_p.h"
 
 /**
  * @file

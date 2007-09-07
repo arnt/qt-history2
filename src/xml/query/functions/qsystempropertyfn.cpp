@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "ExternalEnvironment.h"
-#include "AtomicString.h"
-#include "QNameConstructor.h"
+#include "qexternalenvironment_p.h"
+#include "qatomicstring_p.h"
+#include "qqnameconstructor_p.h"
 
-#include "SystemPropertyFN.h"
+#include "qsystempropertyfn_p.h"
 
 using namespace Patternist;
 

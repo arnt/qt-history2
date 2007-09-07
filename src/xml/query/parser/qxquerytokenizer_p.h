@@ -18,7 +18,7 @@
 #include <QString>
 #include <QUrl>
 
-#include "Tokenizer.h"
+#include "qtokenizer_p.h"
 
 QT_BEGIN_HEADER 
 

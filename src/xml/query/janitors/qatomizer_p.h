@@ -14,8 +14,8 @@
 #ifndef Patternist_Atomizer_H
 #define Patternist_Atomizer_H
 
-#include "Item.h"
-#include "SingleContainer.h"
+#include "qitem_p.h"
+#include "qsinglecontainer_p.h"
 
 QT_BEGIN_HEADER 
 

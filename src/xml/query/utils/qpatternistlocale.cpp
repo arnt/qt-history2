@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "PatternistLocale.h"
+#include "qpatternistlocale_p.h"
 
 namespace Patternist
 {

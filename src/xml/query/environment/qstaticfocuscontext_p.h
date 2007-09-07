@@ -16,9 +16,9 @@
 
 #include <QUrl>
 
-#include "StaticContext.h"
-#include "FunctionFactory.h"
-#include "SchemaTypeFactory.h"
+#include "qstaticcontext_p.h"
+#include "qfunctionfactory_p.h"
+#include "qschematypefactory_p.h"
 
 QT_BEGIN_HEADER 
 

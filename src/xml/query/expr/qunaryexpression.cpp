@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "ArithmeticExpression.h"
-#include "CommonValues.h"
-#include "Literal.h"
+#include "qarithmeticexpression_p.h"
+#include "qcommonvalues_p.h"
+#include "qliteral_p.h"
 
-#include "UnaryExpression.h"
+#include "qunaryexpression_p.h"
 
 using namespace Patternist;
 

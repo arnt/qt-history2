@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "Item.h"
-#include "Boolean.h"
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "EmptySequence.h"
-#include "OptimizationPasses.h"
+#include "qitem_p.h"
+#include "qboolean_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qemptysequence_p.h"
+#include "qoptimizationpasses_p.h"
 
-#include "ValueComparison.h"
+#include "qvaluecomparison_p.h"
 
 using namespace Patternist;
 

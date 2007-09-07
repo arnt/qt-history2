@@ -1,4 +1,4 @@
-SOURCES += $$PWD/DocumentProjector.cpp
+SOURCES += $$PWD/qdocumentprojector.cpp
 
-HEADERS += $$PWD/DocumentProjector.h   \
-           $$PWD/ProjectedExpression.h
+HEADERS += $$PWD/qdocumentprojector_p.h   \
+           $$PWD/qprojectedexpression_p.h

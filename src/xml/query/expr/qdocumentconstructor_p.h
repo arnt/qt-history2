@@ -16,7 +16,7 @@
 
 #include <QUrl>
 
-#include "SingleContainer.h"
+#include "qsinglecontainer_p.h"
 
 QT_BEGIN_HEADER 
 

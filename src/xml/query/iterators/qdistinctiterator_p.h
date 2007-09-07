@@ -16,11 +16,11 @@
 
 #include <QList>
 
-#include "Expression.h"
-#include "Item.h"
-#include "AtomicComparator.h"
-#include "ComparisonPlatform.h"
-#include "SourceLocationReflection.h"
+#include "qexpression_p.h"
+#include "qitem_p.h"
+#include "qatomiccomparator_p.h"
+#include "qcomparisonplatform_p.h"
+#include "qsourcelocationreflection_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "Debug.h"
+#include "qdebug_p.h"
 
-#include "UserFunction.h"
+#include "quserfunction_p.h"
 
 using namespace Patternist;
 

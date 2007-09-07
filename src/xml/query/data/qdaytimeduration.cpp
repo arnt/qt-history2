@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "AbstractDateTime.h"
-#include "BuiltinTypes.h"
-#include "CommonValues.h"
+#include "qabstractdatetime_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonvalues_p.h"
 
-#include "DayTimeDuration.h"
+#include "qdaytimeduration_p.h"
 
 using namespace Patternist;
 

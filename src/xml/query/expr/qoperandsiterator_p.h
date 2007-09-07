@@ -17,7 +17,7 @@
 #include <QPair>
 #include <QStack>
 
-#include "Expression.h"
+#include "qexpression_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -12,13 +12,13 @@
 ****************************************************************************/
 
 /* Patternist */
-#include "BasicTypesFactory.h"
-#include "FunctionFactoryCollection.h"
-#include "GenericNamespaceResolver.h"
-#include "CommonNamespaces.h"
-#include "GenericDynamicContext.h"
+#include "qbasictypesfactory_p.h"
+#include "qfunctionfactorycollection_p.h"
+#include "qgenericnamespaceresolver_p.h"
+#include "qcommonnamespaces_p.h"
+#include "qgenericdynamiccontext_p.h"
 
-#include "StaticFocusContext.h"
+#include "qstaticfocuscontext_p.h"
 
 using namespace Patternist;
 

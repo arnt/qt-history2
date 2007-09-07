@@ -13,10 +13,10 @@
 
 #include <QtGlobal>
 
-#include "Expression.h"
-#include "StaticContext.h"
+#include "qexpression_p.h"
+#include "qstaticcontext_p.h"
 
-#include "ParserContext.h"
+#include "qparsercontext_p.h"
 
 using namespace Patternist;
 

@@ -14,7 +14,7 @@
 #ifndef Patternist_ForClause_H
 #define Patternist_ForClause_H
 
-#include "PairContainer.h"
+#include "qpaircontainer_p.h"
 
 QT_BEGIN_HEADER 
 

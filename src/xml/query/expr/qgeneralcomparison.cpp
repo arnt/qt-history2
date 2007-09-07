@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-#include "Item.h"
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "ListIterator.h"
-#include "Literal.h"
-#include "OptimizationPasses.h"
-#include "UntypedAtomicConverter.h"
-#include "ValueComparison.h"
+#include "qitem_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qlistiterator_p.h"
+#include "qliteral_p.h"
+#include "qoptimizationpasses_p.h"
+#include "quntypedatomicconverter_p.h"
+#include "qvaluecomparison_p.h"
 
-#include "GeneralComparison.h"
+#include "qgeneralcomparison_p.h"
 
 using namespace Patternist;
 

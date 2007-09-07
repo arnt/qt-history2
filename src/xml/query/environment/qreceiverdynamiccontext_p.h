@@ -14,7 +14,7 @@
 #ifndef Patternist_ReceiverDynamicContext_H
 #define Patternist_ReceiverDynamicContext_H
 
-#include "DelegatingDynamicContext.h"
+#include "qdelegatingdynamiccontext_p.h"
 
 QT_BEGIN_HEADER 
 

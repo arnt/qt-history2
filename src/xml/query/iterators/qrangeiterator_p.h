@@ -14,7 +14,7 @@
 #ifndef Patternist_RangeIterator_H
 #define Patternist_RangeIterator_H
 
-#include "Item.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 
@@ -67,7 +67,7 @@ namespace Patternist
          * between each integer is 1 with polarity as specified in @p direction.
          *
          * Hopefully this example code demonstrates the behavior:
-         * @include Example-RangeIterator-RangeIterator.cpp
+         * @include Example-RangeIterator-qrangeiterator.cpp
          *
          * @note @p start must be smaller than @p end, not larger
          * or equal. This is not checked.

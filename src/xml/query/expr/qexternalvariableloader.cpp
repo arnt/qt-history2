@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "CommonValues.h"
-#include "DynamicContext.h"
-#include "ListIterator.h"
+#include "qboolean_p.h"
+#include "qcommonvalues_p.h"
+#include "qdynamiccontext_p.h"
+#include "qlistiterator_p.h"
 
-#include "ExternalVariableLoader.h"
+#include "qexternalvariableloader_p.h"
 
 using namespace Patternist;
 

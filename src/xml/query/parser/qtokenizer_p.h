@@ -18,15 +18,15 @@
 #include <QSharedData>
 #include <QString>
 
-#include "AtomicComparator.h"
-#include "AtomicMathematician.h"
-#include "CombineNodes.h"
-#include "FunctionArgument.h"
-#include "ItemType.h"
-#include "Item.h"
-#include "OrderBy.h"
-#include "QueryTransformParser.h"
-#include "Validate.h"
+#include "qatomiccomparator_p.h"
+#include "qatomicmathematician_p.h"
+#include "qcombinenodes_p.h"
+#include "qfunctionargument_p.h"
+#include "qitemtype_p.h"
+#include "qitem_p.h"
+#include "qorderby_p.h"
+#include "qquerytransformparser_p.h"
+#include "qvalidate_p.h"
 
 /**
  * @file
@@ -123,7 +123,7 @@ namespace Patternist
  */
 #define YYSTYPE Patternist::TokenValue
 
-#include "QueryTransformParser.h" /* This inclusion must be after TokenValue. */
+#include "qquerytransformparser_p.h" /* This inclusion must be after TokenValue. */
 
 namespace Patternist
 {

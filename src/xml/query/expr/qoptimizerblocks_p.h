@@ -14,9 +14,9 @@
 #ifndef Patternist_OptimizerBlocks_H
 #define Patternist_OptimizerBlocks_H
 
-#include "AtomicComparator.h"
-#include "Expression.h"
-#include "OptimizerFramework.h"
+#include "qatomiccomparator_p.h"
+#include "qexpression_p.h"
+#include "qoptimizerframework_p.h"
 
 QT_BEGIN_HEADER 
 

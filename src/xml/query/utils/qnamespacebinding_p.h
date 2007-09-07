@@ -16,7 +16,7 @@
 
 template<typename T> class QVector;
 
-#include "QName.h"
+#include "qqname_p.h"
 
 QT_BEGIN_HEADER 
 

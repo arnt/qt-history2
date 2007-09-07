@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "Item.h"
-#include "Item.h"
-#include "ListIterator.h"
+#include "qitem_p.h"
+#include "qitem_p.h"
+#include "qlistiterator_p.h"
 
-#include "SequenceReceiver.h"
+#include "qsequencereceiver_p.h"
 
 using namespace Patternist;
 

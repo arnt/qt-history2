@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
+#include "qbuiltintypes_p.h"
 
-#include "NoneType.h"
+#include "qnonetype_p.h"
 
 using namespace Patternist;
 

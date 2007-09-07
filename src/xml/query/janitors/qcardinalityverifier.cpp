@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "GenericSequenceType.h"
-#include "InsertionIterator.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qinsertioniterator_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
 
-#include "CardinalityVerifier.h"
+#include "qcardinalityverifier_p.h"
 
 using namespace Patternist;
 

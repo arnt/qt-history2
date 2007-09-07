@@ -14,7 +14,7 @@
 #ifndef Patternist_ExpressionSequence_H
 #define Patternist_ExpressionSequence_H
 
-#include "UnlimitedContainer.h"
+#include "qunlimitedcontainer_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -14,13 +14,13 @@
 #ifndef Patternist_ComparisonPlatform_H
 #define Patternist_ComparisonPlatform_H
 
-#include "AtomicComparators.h"
-#include "Item.h"
-#include "DynamicContext.h"
-#include "BuiltinTypes.h"
-#include "ItemType.h"
-#include "Debug.h"
-#include "PatternistLocale.h"
+#include "qatomiccomparators_p.h"
+#include "qitem_p.h"
+#include "qdynamiccontext_p.h"
+#include "qbuiltintypes_p.h"
+#include "qitemtype_p.h"
+#include "qdebug_p.h"
+#include "qpatternistlocale_p.h"
 
 QT_BEGIN_HEADER 
 
@@ -133,7 +133,7 @@ namespace Patternist
         AtomicComparator::Ptr m_comparator;
     };
 
-#include "ComparisonPlatform.cpp"
+#include "qcomparisonplatform.cpp"
 
 }
 

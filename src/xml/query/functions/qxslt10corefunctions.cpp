@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonNamespaces.h"
-#include "CommonSequenceTypes.h"
-#include "FunctionAvailableFN.h"
-#include "SystemPropertyFN.h"
+#include "qcommonnamespaces_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qfunctionavailablefn_p.h"
+#include "qsystempropertyfn_p.h"
 
-#include "XSLT10CoreFunctions.h"
+#include "qxslt10corefunctions_p.h"
 
 using namespace Patternist;
 

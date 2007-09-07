@@ -14,14 +14,14 @@
 #include <QCoreApplication>
 
 /* Patternist */
-#include "BasicTypesFactory.h"
-#include "CommonNamespaces.h"
-#include "GenericDynamicContext.h"
-#include "FunctionFactoryCollection.h"
-#include "GenericNamespaceResolver.h"
-#include "ListIterator.h"
+#include "qbasictypesfactory_p.h"
+#include "qcommonnamespaces_p.h"
+#include "qgenericdynamiccontext_p.h"
+#include "qfunctionfactorycollection_p.h"
+#include "qgenericnamespaceresolver_p.h"
+#include "qlistiterator_p.h"
 
-#include "GenericStaticContext.h"
+#include "qgenericstaticcontext_p.h"
 
 using namespace Patternist;
 

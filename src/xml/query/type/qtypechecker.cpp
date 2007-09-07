@@ -11,17 +11,17 @@
 **
 ****************************************************************************/
 
-#include "AtomicType.h"
-#include "Atomizer.h"
-#include "BuiltinTypes.h"
-#include "CardinalityVerifier.h"
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "ItemVerifier.h"
-#include "PatternistLocale.h"
-#include "UntypedAtomicConverter.h"
+#include "qatomictype_p.h"
+#include "qatomizer_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcardinalityverifier_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qitemverifier_p.h"
+#include "qpatternistlocale_p.h"
+#include "quntypedatomicconverter_p.h"
 
-#include "TypeChecker.h"
+#include "qtypechecker_p.h"
 
 using namespace Patternist;
 

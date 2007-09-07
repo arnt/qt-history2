@@ -1,5 +1,5 @@
 /* C++ code produced by gperf version 3.0.3 */
-/* Command-line: /home/fenglich/src/gperf-3.0.3/src/gperf --output-file=../src/parser/TokenLookup.cpp TokenLookup.gperf  */
+/* Command-line: /home/fenglich/src/gperf-3.0.3/src/gperf --output-file=../src/parser/qtokenlookup.cpp TokenLookup.gperf  */
 /* Computed positions: -k'1,3,$' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \

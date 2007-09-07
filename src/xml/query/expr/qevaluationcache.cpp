@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "CachingIterator.h"
-#include "CommonSequenceTypes.h"
-#include "OperandsIterator.h"
-#include "ListIterator.h"
-#include "NodeBuilder.h"
+#include "qcachingiterator_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qoperandsiterator_p.h"
+#include "qlistiterator_p.h"
+#include "qnodebuilder_p.h"
 
-#include "EvaluationCache.h"
+#include "qevaluationcache_p.h"
 
 using namespace Patternist;
 

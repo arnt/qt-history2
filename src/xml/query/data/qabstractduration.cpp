@@ -13,11 +13,11 @@
 
 #include <QStringList>
 
-#include "BuiltinTypes.h"
-#include "PatternistLocale.h"
-#include "ValidationError.h"
+#include "qbuiltintypes_p.h"
+#include "qpatternistlocale_p.h"
+#include "qvalidationerror_p.h"
 
-#include "AbstractDuration.h"
+#include "qabstractduration_p.h"
 
 using namespace Patternist;
 

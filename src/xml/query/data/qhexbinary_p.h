@@ -14,7 +14,7 @@
 #ifndef Patternist_HexBinary_H
 #define Patternist_HexBinary_H
 
-#include "Base64Binary.h"
+#include "qbase64binary_p.h"
 
 QT_BEGIN_HEADER 
 

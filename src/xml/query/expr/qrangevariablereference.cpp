@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "Debug.h"
-#include "GenericSequenceType.h"
+#include "qboolean_p.h"
+#include "qdebug_p.h"
+#include "qgenericsequencetype_p.h"
 
-#include "RangeVariableReference.h"
+#include "qrangevariablereference_p.h"
 
 using namespace Patternist;
 

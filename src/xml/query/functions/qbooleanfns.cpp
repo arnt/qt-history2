@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "OptimizationPasses.h"
+#include "qoptimizationpasses_p.h"
 
-#include "BooleanFNs.h"
+#include "qbooleanfns_p.h"
 
 using namespace Patternist;
 

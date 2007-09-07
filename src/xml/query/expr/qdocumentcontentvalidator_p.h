@@ -14,9 +14,9 @@
 #ifndef Patternist_DocumentContentValidator_H
 #define Patternist_DocumentContentValidator_H
 
-#include "DynamicContext.h"
-#include "Expression.h"
-#include "SequenceReceiver.h"
+#include "qdynamiccontext_p.h"
+#include "qexpression_p.h"
+#include "qsequencereceiver_p.h"
 
 QT_BEGIN_HEADER 
 

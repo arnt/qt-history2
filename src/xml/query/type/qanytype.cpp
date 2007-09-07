@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "AtomicType.h"
+#include "qatomictype_p.h"
 
-#include "AnyType.h"
+#include "qanytype_p.h"
 
 using namespace Patternist;
 

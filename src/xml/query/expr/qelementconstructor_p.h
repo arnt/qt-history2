@@ -16,7 +16,7 @@
 
 #include <QUrl>
 
-#include "PairContainer.h"
+#include "qpaircontainer_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -14,16 +14,16 @@
 #include <QByteArray>
 #include <QtDebug>
 
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "Expression.h"
-#include "OptimizationPasses.h"
-#include "ParserContext.h"
-#include "QueryTransformParser.h"
-#include "Tokenizer.h"
-#include "XQueryTokenizer.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qexpression_p.h"
+#include "qoptimizationpasses_p.h"
+#include "qparsercontext_p.h"
+#include "qquerytransformparser_p.h"
+#include "qtokenizer_p.h"
+#include "qxquerytokenizer_p.h"
 
-#include "ExpressionFactory.h"
+#include "qexpressionfactory_p.h"
 
 using namespace Patternist;
 

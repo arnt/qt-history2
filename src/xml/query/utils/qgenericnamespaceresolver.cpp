@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "NamePool.h"
+#include "qnamepool_p.h"
 
-#include "GenericNamespaceResolver.h"
+#include "qgenericnamespaceresolver_p.h"
 
 using namespace Patternist;
 

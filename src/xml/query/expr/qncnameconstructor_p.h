@@ -14,9 +14,9 @@
 #ifndef Patternist_NCNameConstructor_H
 #define Patternist_NCNameConstructor_H
 
-#include "SingleContainer.h"
-#include "PatternistLocale.h"
-#include "XPathHelper.h"
+#include "qsinglecontainer_p.h"
+#include "qpatternistlocale_p.h"
+#include "qxpathhelper_p.h"
 
 QT_BEGIN_HEADER 
 

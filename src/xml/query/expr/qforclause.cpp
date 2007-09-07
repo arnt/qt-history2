@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "EmptySequence.h"
-#include "GenericSequenceType.h"
-#include "ItemMappingIterator.h"
-#include "ListIterator.h"
-#include "OptimizationPasses.h"
-#include "SequenceMappingIterator.h"
+#include "qcommonsequencetypes_p.h"
+#include "qemptysequence_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qlistiterator_p.h"
+#include "qoptimizationpasses_p.h"
+#include "qsequencemappingiterator_p.h"
 
-#include "ForClause.h"
+#include "qforclause_p.h"
 
 using namespace Patternist;
 

@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonValues.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonvalues_p.h"
 
-#include "YearMonthDuration.h"
+#include "qyearmonthduration_p.h"
 
 using namespace Patternist;
 

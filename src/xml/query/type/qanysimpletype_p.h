@@ -14,7 +14,7 @@
 #ifndef Patternist_AnySimpleType_H
 #define Patternist_AnySimpleType_H
 
-#include "AnyType.h"
+#include "qanytype_p.h"
 
 QT_BEGIN_HEADER 
 

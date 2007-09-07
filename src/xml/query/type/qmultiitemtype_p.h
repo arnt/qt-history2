@@ -16,7 +16,7 @@
 
 #include <QList>
 
-#include "ItemType.h"
+#include "qitemtype_p.h"
 
 QT_BEGIN_HEADER 
 

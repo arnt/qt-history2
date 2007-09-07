@@ -16,7 +16,7 @@
 
 template<typename T> class QList;
 
-#include "EmptyContainer.h"
+#include "qemptycontainer_p.h"
 
 QT_BEGIN_HEADER 
 

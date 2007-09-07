@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "CommonNamespaces.h"
-#include "Debug.h"
-#include "NamePool.h"
+#include "qcommonnamespaces_p.h"
+#include "qdebug_p.h"
+#include "qnamepool_p.h"
 
-#include "ExternalEnvironment.h"
+#include "qexternalenvironment_p.h"
 
 using namespace Patternist;
 

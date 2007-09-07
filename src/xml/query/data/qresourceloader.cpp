@@ -14,9 +14,9 @@
 #include <QUrl>
 #include <QtDebug>
 
-#include "ListIterator.h"
+#include "qlistiterator_p.h"
 
-#include "ResourceLoader.h"
+#include "qresourceloader_p.h"
 
 using namespace Patternist;
 

@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "XPathHelper.h"
+#include "qcommonsequencetypes_p.h"
+#include "qxpathhelper_p.h"
 
-#include "CollationChecker.h"
+#include "qcollationchecker_p.h"
 
 using namespace Patternist;
 

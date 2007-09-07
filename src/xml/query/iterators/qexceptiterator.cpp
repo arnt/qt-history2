@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "ListIterator.h"
-#include "Item.h"
+#include "qlistiterator_p.h"
+#include "qitem_p.h"
 
-#include "ExceptIterator.h"
+#include "qexceptiterator_p.h"
 
 using namespace Patternist;
 

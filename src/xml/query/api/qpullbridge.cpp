@@ -13,12 +13,12 @@
 
 #include <QVariant>
 
-#include "ListIterator.h"
-#include "Item.h"
+#include "qlistiterator_p.h"
+#include "qitem_p.h"
 #include "qxmlname.h"
 #include "qxmlquery_p.h"
 
-#include "PullBridge_p.h"
+#include "qpullbridge_p.h"
 
 /*!
   \brief Bridges a Patternist::SequenceIterator to QAbstractXmlPullProvider.

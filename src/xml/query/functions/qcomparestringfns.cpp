@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "CommonNamespaces.h"
+#include "qcommonnamespaces_p.h"
 
-#include "Boolean.h"
-#include "CommonValues.h"
-#include "Integer.h"
-#include "AtomicString.h"
+#include "qboolean_p.h"
+#include "qcommonvalues_p.h"
+#include "qinteger_p.h"
+#include "qatomicstring_p.h"
 
-#include "CompareStringFNs.h"
+#include "qcomparestringfns_p.h"
 
 using namespace Patternist;
 

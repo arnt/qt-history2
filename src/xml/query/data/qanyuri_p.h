@@ -16,10 +16,10 @@
 
 #include <QUrl>
 
-#include "AtomicString.h"
-#include "BuiltinTypes.h"
-#include "PatternistLocale.h"
-#include "ReportContext.h"
+#include "qatomicstring_p.h"
+#include "qbuiltintypes_p.h"
+#include "qpatternistlocale_p.h"
+#include "qreportcontext_p.h"
 
 QT_BEGIN_HEADER 
 

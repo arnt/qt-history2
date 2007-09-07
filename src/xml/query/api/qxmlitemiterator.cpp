@@ -13,7 +13,7 @@
 
 #include <QVariant>
 
-#include "CommonValues.h"
+#include "qcommonvalues_p.h"
 
 #include "qxmlitemiterator_p.h"
 #include "qxmlitemiterator.h"

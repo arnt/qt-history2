@@ -11,27 +11,27 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonNamespaces.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "PatternistLocale.h"
-#include "QName.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonnamespaces_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qpatternistlocale_p.h"
+#include "qqname_p.h"
 
 /* Functions */
-#include "AccessorFNs.h"
-#include "AggregateFNs.h"
-#include "BooleanFNs.h"
-#include "CompareStringFNs.h"
-#include "ContextFNs.h"
-#include "NodeFNs.h"
-#include "NumericFNs.h"
-#include "SequenceFNs.h"
-#include "SequenceGeneratingFNs.h"
-#include "StringValueFNs.h"
-#include "SubStringFNs.h"
+#include "qaccessorfns_p.h"
+#include "qaggregatefns_p.h"
+#include "qbooleanfns_p.h"
+#include "qcomparestringfns_p.h"
+#include "qcontextfns_p.h"
+#include "qnodefns_p.h"
+#include "qnumericfns_p.h"
+#include "qsequencefns_p.h"
+#include "qsequencegeneratingfns_p.h"
+#include "qstringvaluefns_p.h"
+#include "qsubstringfns_p.h"
 
-#include "XPath10CoreFunctions.h"
+#include "qxpath10corefunctions_p.h"
 
 using namespace Patternist;
 

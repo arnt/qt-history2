@@ -14,8 +14,8 @@
 #ifndef Patternist_AtomicComparators_H
 #define Patternist_AtomicComparators_H
 
-#include "AtomicComparator.h"
-#include "Primitives.h"
+#include "qatomiccomparator_p.h"
+#include "qprimitives_p.h"
 
 /**
  * @file

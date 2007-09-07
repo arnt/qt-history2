@@ -14,8 +14,8 @@
 #ifndef Patternist_NodeFNs_H
 #define Patternist_NodeFNs_H
 
-#include "FunctionCall.h"
-#include "CastingPlatform.h"
+#include "qfunctioncall_p.h"
+#include "qcastingplatform_p.h"
 
 /**
  * @file

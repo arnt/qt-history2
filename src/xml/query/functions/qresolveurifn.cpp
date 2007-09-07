@@ -13,12 +13,12 @@
 
 #include <QUrl>
 
-#include "AnyURI.h"
-#include "Literal.h"
-#include "PatternistLocale.h"
-#include "AtomicString.h"
+#include "qanyuri_p.h"
+#include "qliteral_p.h"
+#include "qpatternistlocale_p.h"
+#include "qatomicstring_p.h"
 
-#include "ResolveURIFN.h"
+#include "qresolveurifn_p.h"
 
 using namespace Patternist;
 

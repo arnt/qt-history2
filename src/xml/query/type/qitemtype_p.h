@@ -16,8 +16,8 @@
 
 #include <QSharedData>
 
-#include "NamePool.h"
-#include "PlainSharedPtr.h"
+#include "qnamepool_p.h"
+#include "qplainsharedptr_p.h"
 
 template<typename T> class QList;
 

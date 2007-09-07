@@ -15,9 +15,9 @@
 #define Patternist_QObjectNodeModel_H
 
 class QObject;
-#include "NamePool.h"
-#include "Item.h"
-#include "DynamicContext.h"
+#include "qnamepool_p.h"
+#include "qitem_p.h"
+#include "qdynamiccontext_p.h"
 
 QT_BEGIN_HEADER 
 

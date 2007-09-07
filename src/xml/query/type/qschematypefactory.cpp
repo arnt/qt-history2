@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "SchemaTypeFactory.h"
+#include "qschematypefactory_p.h"
 
 using namespace Patternist;
 

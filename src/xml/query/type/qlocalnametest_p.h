@@ -14,7 +14,7 @@
 #ifndef Patternist_LocalNameTest_H
 #define Patternist_LocalNameTest_H
 
-#include "AbstractNodeTest.h"
+#include "qabstractnodetest_p.h"
 
 template<typename Key, typename Value> class QHash;
 

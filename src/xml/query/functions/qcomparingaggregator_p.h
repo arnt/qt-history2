@@ -15,19 +15,19 @@
 #define Patternist_ComparingAggregator_H
 
 /**
- * @file ComparingAggregator.h
+ * @file qcomparingaggregator_p.h
  * @short Contains the implementations for the functions <tt>fn:max()</tt>, MaxFN,
  * and <tt>fn:min()</tt>, MinFN, and the class ComparingAggregator.
  */
 
-#include "AbstractFloat.h"
-#include "Decimal.h"
-#include "CastingPlatform.h"
-#include "ComparisonPlatform.h"
-#include "Literal.h"
-#include "Aggregator.h"
-#include "UntypedAtomicConverter.h"
-#include "PatternistLocale.h"
+#include "qabstractfloat_p.h"
+#include "qdecimal_p.h"
+#include "qcastingplatform_p.h"
+#include "qcomparisonplatform_p.h"
+#include "qliteral_p.h"
+#include "qaggregator_p.h"
+#include "quntypedatomicconverter_p.h"
+#include "qpatternistlocale_p.h"
 
 QT_BEGIN_HEADER 
 
@@ -82,7 +82,7 @@ namespace Patternist
         using CastingPlatform<ComparingAggregator<oper, result>, true>::cast;
     };
 
-#include "ComparingAggregator.cpp"
+#include "qcomparingaggregator.cpp"
 
     /**
      * @short An instantiation of ComparingAggregator suitable for <tt>fn:max()</tt>.

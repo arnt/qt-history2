@@ -11,17 +11,17 @@
 **
 ****************************************************************************/
 
-#include "AtomicType.h"
-#include "Item.h"
-#include "Boolean.h"
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "ListIterator.h"
-#include "Literal.h"
+#include "qatomictype_p.h"
+#include "qitem_p.h"
+#include "qboolean_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qlistiterator_p.h"
+#include "qliteral_p.h"
 
-#include "CastableAs.h"
+#include "qcastableas_p.h"
 
 using namespace Patternist;
 

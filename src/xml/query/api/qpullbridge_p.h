@@ -27,8 +27,8 @@
 #include <QPair>
 #include <QStack>
 
-#include "Item.h"
-#include "Iterator.h"
+#include "qitem_p.h"
+#include "qiterator_p.h"
 #include "qabstractxmlpullprovider.h"
 
 QT_BEGIN_HEADER

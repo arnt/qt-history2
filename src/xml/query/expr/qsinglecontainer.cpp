@@ -13,9 +13,9 @@
 
 #include <QList>
 
-#include "Debug.h"
+#include "qdebug_p.h"
 
-#include "SingleContainer.h"
+#include "qsinglecontainer_p.h"
 
 using namespace Patternist;
 

@@ -1,28 +1,28 @@
-HEADERS += $$PWD/CommonNamespaces.h         \
-       $$PWD/CppCastingHelper.h             \
-       $$PWD/Debug.h                        \
-       $$PWD/Docs.h                         \
-       $$PWD/Exception.h                    \
-       $$PWD/GenericNamespaceResolver.h     \
-       $$PWD/PatternistLocale.h             \
-       $$PWD/NamePool.h                     \
-       $$PWD/NamespaceBinding.h             \
-       $$PWD/NamespaceResolver.h            \
-       $$PWD/OutputValidator.h              \
-       $$PWD/PlainSharedPtr.h               \
-       $$PWD/QName.h                        \
-       $$PWD/Serializer.h                   \
-       $$PWD/QName.h                        \
-       $$PWD/XPathHelper.h                  \
-       $$PWD/DelegatingNamespaceResolver.h  \
-       $$PWD/NodeNamespaceResolver.h
+HEADERS += $$PWD/qcommonnamespaces_p.h         \
+       $$PWD/qcppcastinghelper_p.h             \
+       $$PWD/qdebug_p.h                        \
+       $$PWD/qdocs_p.h                         \
+       $$PWD/qexception_p.h                    \
+       $$PWD/qgenericnamespaceresolver_p.h     \
+       $$PWD/qpatternistlocale_p.h             \
+       $$PWD/qnamepool_p.h                     \
+       $$PWD/qnamespacebinding_p.h             \
+       $$PWD/qnamespaceresolver_p.h            \
+       $$PWD/qoutputvalidator_p.h              \
+       $$PWD/qplainsharedptr_p.h               \
+       $$PWD/qqname_p.h                        \
+       $$PWD/qserializer_p.h                   \
+       $$PWD/qqname_p.h                        \
+       $$PWD/qxpathhelper_p.h                  \
+       $$PWD/qdelegatingnamespaceresolver_p.h  \
+       $$PWD/qnodenamespaceresolver_p.h
 
-SOURCES += $$PWD/GenericNamespaceResolver.cpp   \
-    $$PWD/PatternistLocale.cpp                  \
-    $$PWD/NamePool.cpp                          \
-    $$PWD/NamespaceResolver.cpp                 \
-    $$PWD/OutputValidator.cpp                   \
-    $$PWD/Serializer.cpp                        \
-    $$PWD/XPathHelper.cpp                       \
-    $$PWD/DelegatingNamespaceResolver.cpp       \
-    $$PWD/NodeNamespaceResolver.cpp
+SOURCES += $$PWD/qgenericnamespaceresolver.cpp   \
+    $$PWD/qpatternistlocale.cpp                  \
+    $$PWD/qnamepool.cpp                          \
+    $$PWD/qnamespaceresolver.cpp                 \
+    $$PWD/qoutputvalidator.cpp                   \
+    $$PWD/qserializer.cpp                        \
+    $$PWD/qxpathhelper.cpp                       \
+    $$PWD/qdelegatingnamespaceresolver.cpp       \
+    $$PWD/qnodenamespaceresolver.cpp

@@ -16,8 +16,8 @@
 
 #include <QHash>
 
-#include "NamespaceResolver.h"
-#include "Item.h"
+#include "qnamespaceresolver_p.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

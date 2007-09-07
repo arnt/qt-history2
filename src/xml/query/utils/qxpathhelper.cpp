@@ -13,10 +13,10 @@
 
 #include <QStringList>
 
-#include "CommonValues.h"
-#include "ListIterator.h"
+#include "qcommonvalues_p.h"
+#include "qlistiterator_p.h"
 
-#include "XPathHelper.h"
+#include "qxpathhelper_p.h"
 
 using namespace Patternist;
 

@@ -13,15 +13,15 @@
 
 #include <QStringList>
 
-#include "Boolean.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "ItemMappingIterator.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
-#include "AtomicString.h"
+#include "qboolean_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
+#include "qatomicstring_p.h"
 
-#include "PatternMatchingFNs.h"
+#include "qpatternmatchingfns_p.h"
 
 using namespace Patternist;
 

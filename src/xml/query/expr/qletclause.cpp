@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "CommonSequenceTypes.h"
-#include "DynamicContextStore.h"
-#include "Literal.h"
+#include "qboolean_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdynamiccontextstore_p.h"
+#include "qliteral_p.h"
 
-#include "LetClause.h"
+#include "qletclause_p.h"
 
 using namespace Patternist;
 

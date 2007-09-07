@@ -1,6 +1,6 @@
 HEADERS += $$PWD/qabstractxmlpullprovider.h                             \
-           $$PWD/PullBridge_p.h                                         \
-           $$PWD/PushBridge_p.h                                         \
+           $$PWD/qpullbridge_p.h                                        \
+           $$PWD/qpushbridge_p.h                                        \
            $$PWD/qabstractmessagehandler.h                              \
            $$PWD/qabstracturiresolver.h                                 \
            $$PWD/qabstractxmlpushcallback.h                             \
@@ -10,15 +10,15 @@ HEADERS += $$PWD/qabstractxmlpullprovider.h                             \
            $$PWD/qsourcelocation.h                                      \
            $$PWD/qxmlname.h                                             \
            $$PWD/qxmlquery_p.h                                          \
-           $$PWD/VariableLoader_p.h                                     \
+           $$PWD/qvariableloader_p.h                                    \
            $$PWD/../../../../tools/patternist/ColoringMessageHandler.h  \
            $$PWD/../../../../tools/patternist/ColorOutput.h             \
            $$PWD/qxmlquery.h
 
 SOURCES += $$PWD/qabstractxmlpullprovider.cpp                               \
-           $$PWD/PullBridge_p.cpp                                           \
-           $$PWD/PushBridge_p.cpp                                           \
-           $$PWD/VariableLoader_p.cpp                                       \
+           $$PWD/qpullbridge.cpp                                            \
+           $$PWD/qpushbridge.cpp                                            \
+           $$PWD/qvariableloader.cpp                                        \
            $$PWD/qabstractmessagehandler.cpp                                \
            $$PWD/qabstractxmlpushcallback.cpp                               \
            $$PWD/qxmlitemiterator.cpp                                       \

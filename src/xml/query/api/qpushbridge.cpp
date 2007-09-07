@@ -1,10 +1,10 @@
 
-#include "QName.h"
-#include "Item.h"
+#include "qqname_p.h"
+#include "qitem_p.h"
 #include "qabstractxmlpushcallback.h"
 #include "qxmlquery_p.h"
 
-#include "PushBridge_p.h"
+#include "qpushbridge_p.h"
 
 void PushBridge::startElement(const Patternist::QName name)
 {

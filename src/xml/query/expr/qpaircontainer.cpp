@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
+#include "qbuiltintypes_p.h"
 
-#include "PairContainer.h"
+#include "qpaircontainer_p.h"
 
 using namespace Patternist;
 

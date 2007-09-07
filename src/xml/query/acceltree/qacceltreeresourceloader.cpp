@@ -14,11 +14,11 @@
 #include <QFile>
 #include <QXmlStreamReader>
 
-#include "AccelTreeBuilder.h"
-#include "CommonSequenceTypes.h"
-#include "ListIterator.h"
+#include "qacceltreebuilder_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qlistiterator_p.h"
 
-#include "AccelTreeResourceLoader.h"
+#include "qacceltreeresourceloader_p.h"
 
 using namespace Patternist;
 

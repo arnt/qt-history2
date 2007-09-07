@@ -22,10 +22,10 @@
 #include <QtDebug>
 #include <QVector>
 
-#include "NamespaceBinding.h"
-#include "PlainSharedPtr.h"
-#include "Primitives.h"
-#include "QName.h"
+#include "qnamespacebinding_p.h"
+#include "qplainsharedptr_p.h"
+#include "qprimitives_p.h"
+#include "qqname_p.h"
 
 QT_BEGIN_HEADER 
 

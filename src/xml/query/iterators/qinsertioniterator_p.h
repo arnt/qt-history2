@@ -14,8 +14,8 @@
 #ifndef Patternist_InsertionIterator_H
 #define Patternist_InsertionIterator_H
 
-#include "Iterator.h"
-#include "Item.h"
+#include "qiterator_p.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

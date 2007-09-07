@@ -14,9 +14,9 @@
 #ifndef Patternist_AbstractFunctionFactory_H
 #define Patternist_AbstractFunctionFactory_H
 
-#include "CommonNamespaces.h"
-#include "FunctionFactory.h"
-#include "FunctionSignature.h"
+#include "qcommonnamespaces_p.h"
+#include "qfunctionfactory_p.h"
+#include "qfunctionsignature_p.h"
 
 QT_BEGIN_HEADER 
 

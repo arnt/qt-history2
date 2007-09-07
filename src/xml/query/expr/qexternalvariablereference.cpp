@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "ListIterator.h"
+#include "qlistiterator_p.h"
 
-#include "ExternalVariableReference.h"
+#include "qexternalvariablereference_p.h"
 
 using namespace Patternist;
 

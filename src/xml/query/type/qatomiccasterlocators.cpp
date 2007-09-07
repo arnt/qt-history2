@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "AbstractFloatCasters.h"
+#include "qabstractfloatcasters_p.h"
 
-#include "AtomicCasterLocators.h"
+#include "qatomiccasterlocators_p.h"
 
 using namespace Patternist;
 

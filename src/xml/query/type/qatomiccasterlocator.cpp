@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "AtomicCasterLocator.h"
+#include "qatomiccasterlocator_p.h"
 
 using namespace Patternist;
 

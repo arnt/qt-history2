@@ -14,7 +14,7 @@
 #ifndef Patternist_RemovalIterator_H
 #define Patternist_RemovalIterator_H
 
-#include "Item.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

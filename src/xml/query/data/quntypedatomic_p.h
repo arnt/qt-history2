@@ -14,7 +14,7 @@
 #ifndef Patternist_UntypedAtomic_H
 #define Patternist_UntypedAtomic_H
 
-#include "AtomicString.h"
+#include "qatomicstring_p.h"
 
 QT_BEGIN_HEADER 
 

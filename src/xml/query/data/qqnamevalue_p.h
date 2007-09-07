@@ -14,8 +14,8 @@
 #ifndef Patternist_QNameValue_H
 #define Patternist_QNameValue_H
 
-#include "Item.h"
-#include "QName.h"
+#include "qitem_p.h"
+#include "qqname_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -16,9 +16,9 @@
 
 #include <QFlags>
 
-#include "DynamicContext.h"
-#include "Item.h"
-#include "AtomicTypeDispatch.h"
+#include "qdynamiccontext_p.h"
+#include "qitem_p.h"
+#include "qatomictypedispatch_p.h"
 
 QT_BEGIN_HEADER 
 

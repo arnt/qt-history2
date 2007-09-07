@@ -14,7 +14,7 @@
 #ifndef Patternist_QuantifiedExpression_H
 #define Patternist_QuantifiedExpression_H
 
-#include "PairContainer.h"
+#include "qpaircontainer_p.h"
 
 QT_BEGIN_HEADER 
 

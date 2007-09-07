@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "ReceiverDynamicContext.h"
+#include "qreceiverdynamiccontext_p.h"
 
 using namespace Patternist;
 

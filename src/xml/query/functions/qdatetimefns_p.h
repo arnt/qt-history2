@@ -14,13 +14,13 @@
 #ifndef Patternist_DateTimeFNs_H
 #define Patternist_DateTimeFNs_H
 
-#include "AtomicComparator.h"
-#include "CommonValues.h"
-#include "DateTime.h"
-#include "DayTimeDuration.h"
-#include "Decimal.h"
-#include "Integer.h"
-#include "FunctionCall.h"
+#include "qatomiccomparator_p.h"
+#include "qcommonvalues_p.h"
+#include "qdatetime_p.h"
+#include "qdaytimeduration_p.h"
+#include "qdecimal_p.h"
+#include "qinteger_p.h"
+#include "qfunctioncall_p.h"
 
 /**
  * @file
@@ -254,7 +254,7 @@ namespace Patternist
         inline Item extract(const QDateTime &dt) const;
     };
 
-#include "DateTimeFNs.cpp"
+#include "qdatetimefns.cpp"
 }
 
 QT_END_HEADER 

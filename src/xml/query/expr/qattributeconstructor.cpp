@@ -13,11 +13,11 @@
 
 #include <QUrl>
 
-#include "CommonSequenceTypes.h"
-#include "NodeBuilder.h"
-#include "QNameValue.h"
+#include "qcommonsequencetypes_p.h"
+#include "qnodebuilder_p.h"
+#include "qqnamevalue_p.h"
 
-#include "AttributeConstructor.h"
+#include "qattributeconstructor_p.h"
 
 using namespace Patternist;
 

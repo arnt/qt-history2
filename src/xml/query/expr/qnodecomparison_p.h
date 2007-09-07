@@ -14,7 +14,7 @@
 #ifndef Patternist_NodeComparison_H
 #define Patternist_NodeComparison_H
 
-#include "PairContainer.h"
+#include "qpaircontainer_p.h"
 
 QT_BEGIN_HEADER 
 

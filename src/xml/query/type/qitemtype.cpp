@@ -13,9 +13,9 @@
 
 #include <QtGlobal>
 
-#include "CommonSequenceTypes.h"
+#include "qcommonsequencetypes_p.h"
 
-#include "ItemType.h"
+#include "qitemtype_p.h"
 
 using namespace Patternist;
 

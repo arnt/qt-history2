@@ -14,12 +14,12 @@
 #include <QCoreApplication>
 #include <QMetaProperty>
 
-#include "CommonValues.h"
-#include "ItemMappingIterator.h"
-#include "SequenceMappingIterator.h"
+#include "qcommonvalues_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qsequencemappingiterator_p.h"
 
-#include "QObjectNodeModel.h"
-#include "QObjectPropertyToAttributeIterator.h"
+#include "qqobjectnodemodel_p.h"
+#include "qqobjectpropertytoattributeiterator_p.h"
 
 using namespace Patternist;
 

@@ -14,7 +14,7 @@
 #ifndef Patternist_AccessorFNs_H
 #define Patternist_AccessorFNs_H
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 /**
  * @file

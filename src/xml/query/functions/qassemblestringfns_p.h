@@ -14,7 +14,7 @@
 #ifndef Patternist_AssembleStringFNs_H
 #define Patternist_AssembleStringFNs_H
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 /**
  * @file

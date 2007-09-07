@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "GenericSequenceType.h"
-#include "ListIterator.h"
+#include "qcommonsequencetypes_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qlistiterator_p.h"
 
-#include "FirstItemPredicate.h"
+#include "qfirstitempredicate_p.h"
 
 using namespace Patternist;
 

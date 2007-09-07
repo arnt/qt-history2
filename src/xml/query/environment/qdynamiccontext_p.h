@@ -17,15 +17,15 @@
 class QDateTime;
 template<typename T> class QVector;
 
-#include "CacheCells.h"
-#include "ExternalVariableLoader.h"
-#include "Item.h"
-#include "NamePool.h"
-#include "NodeBuilder.h"
-#include "ListIterator.h"
-#include "Primitives.h"
-#include "ReportContext.h"
-#include "ResourceLoader.h"
+#include "qcachecells_p.h"
+#include "qexternalvariableloader_p.h"
+#include "qitem_p.h"
+#include "qnamepool_p.h"
+#include "qnodebuilder_p.h"
+#include "qlistiterator_p.h"
+#include "qprimitives_p.h"
+#include "qreportcontext_p.h"
+#include "qresourceloader_p.h"
 
 QT_BEGIN_HEADER 
 

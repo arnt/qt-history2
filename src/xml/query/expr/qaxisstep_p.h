@@ -14,8 +14,8 @@
 #ifndef Patternist_AxisStep_H
 #define Patternist_AxisStep_H
 
-#include "Item.h"
-#include "EmptyContainer.h"
+#include "qitem_p.h"
+#include "qemptycontainer_p.h"
 
 QT_BEGIN_HEADER 
 

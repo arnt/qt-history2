@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "SchemaType.h"
+#include "qschematype_p.h"
 
 using namespace Patternist;
 

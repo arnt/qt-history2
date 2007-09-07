@@ -13,7 +13,7 @@
 
 #include <QString>
 
-#include "GenericSequenceType.h"
+#include "qgenericsequencetype_p.h"
 
 using namespace Patternist;
 

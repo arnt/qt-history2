@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "Item.h"
+#include "qbuiltintypes_p.h"
+#include "qitem_p.h"
 
-#include "SchemaTime.h"
+#include "qschematime_p.h"
 
 using namespace Patternist;
 

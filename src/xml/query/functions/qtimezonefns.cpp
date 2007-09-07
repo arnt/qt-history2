@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include "AbstractDateTime.h"
-#include "ContextFNs.h"
-#include "Date.h"
-#include "DateTime.h"
-#include "DayTimeDuration.h"
-#include "Debug.h"
-#include "PatternistLocale.h"
-#include "SchemaTime.h"
+#include "qabstractdatetime_p.h"
+#include "qcontextfns_p.h"
+#include "qdate_p.h"
+#include "qdatetime_p.h"
+#include "qdaytimeduration_p.h"
+#include "qdebug_p.h"
+#include "qpatternistlocale_p.h"
+#include "qschematime_p.h"
 
-#include "TimezoneFNs.h"
+#include "qtimezonefns_p.h"
 
 using namespace Patternist;
 

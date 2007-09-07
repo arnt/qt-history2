@@ -1,22 +1,22 @@
-HEADERS += $$PWD/DelegatingDynamicContext.h   \
-           $$PWD/DynamicContext.h             \
-           $$PWD/ExternalEnvironment.h        \
-           $$PWD/Focus.h                      \
-           $$PWD/GenericStaticContext.h       \
-           $$PWD/GenericDynamicContext.h      \
-           $$PWD/ReceiverDynamicContext.h     \
-           $$PWD/ReportContext.h              \
-           $$PWD/StackContextBase.h           \
-           $$PWD/StaticContext.h              \
-           $$PWD/StaticFocusContext.h
+HEADERS += $$PWD/qdelegatingdynamiccontext_p.h   \
+           $$PWD/qdynamiccontext_p.h             \
+           $$PWD/qexternalenvironment_p.h        \
+           $$PWD/qfocus_p.h                      \
+           $$PWD/qgenericstaticcontext_p.h       \
+           $$PWD/qgenericdynamiccontext_p.h      \
+           $$PWD/qreceiverdynamiccontext_p.h     \
+           $$PWD/qreportcontext_p.h              \
+           $$PWD/qstackcontextbase_p.h           \
+           $$PWD/qstaticcontext_p.h              \
+           $$PWD/qstaticfocuscontext_p.h
 
-SOURCES += $$PWD/DelegatingDynamicContext.cpp \
-           $$PWD/DynamicContext.cpp           \
-           $$PWD/ExternalEnvironment.cpp      \
-           $$PWD/Focus.cpp                    \
-           $$PWD/GenericStaticContext.cpp     \
-           $$PWD/GenericDynamicContext.cpp    \
-           $$PWD/ReceiverDynamicContext.cpp   \
-           $$PWD/ReportContext.cpp            \
-           $$PWD/StaticContext.cpp            \
-           $$PWD/StaticFocusContext.cpp
+SOURCES += $$PWD/qdelegatingdynamiccontext.cpp \
+           $$PWD/qdynamiccontext.cpp           \
+           $$PWD/qexternalenvironment.cpp      \
+           $$PWD/qfocus.cpp                    \
+           $$PWD/qgenericstaticcontext.cpp     \
+           $$PWD/qgenericdynamiccontext.cpp    \
+           $$PWD/qreceiverdynamiccontext.cpp   \
+           $$PWD/qreportcontext.cpp            \
+           $$PWD/qstaticcontext.cpp            \
+           $$PWD/qstaticfocuscontext.cpp

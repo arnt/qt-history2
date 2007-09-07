@@ -13,12 +13,12 @@
 
 #include <QHash>
 
-#include "BuiltinTypes.h"
-#include "Item.h"
-#include "Item.h"
-#include "XPathHelper.h"
+#include "qbuiltintypes_p.h"
+#include "qitem_p.h"
+#include "qitem_p.h"
+#include "qxpathhelper_p.h"
 
-#include "LocalNameTest.h"
+#include "qlocalnametest_p.h"
 
 using namespace Patternist;
 

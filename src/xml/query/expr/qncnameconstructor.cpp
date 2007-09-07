@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "AtomicString.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qatomicstring_p.h"
 
-#include "NCNameConstructor.h"
+#include "qncnameconstructor_p.h"
 
 using namespace Patternist;
 

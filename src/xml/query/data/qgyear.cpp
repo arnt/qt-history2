@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "Debug.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
 
-#include "GYear.h"
+#include "qgyear_p.h"
 
 using namespace Patternist;
 

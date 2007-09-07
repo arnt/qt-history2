@@ -13,8 +13,8 @@
 
 /**
  * @file
- * @short This file is included by AbstractFloat.h.
- * If you need includes in this file, put them in AbstractFloat.h, outside of the namespace.
+ * @short This file is included by qabstractfloat_p.h.
+ * If you need includes in this file, put them in qabstractfloat_p.h, outside of the namespace.
  */
 
 template <const bool isDouble>

@@ -16,7 +16,7 @@
 
 #include <QSharedData>
 
-#include "PlainSharedPtr.h"
+#include "qplainsharedptr_p.h"
 
 QT_BEGIN_HEADER 
 

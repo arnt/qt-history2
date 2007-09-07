@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "Literal.h"
+#include "qboolean_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qliteral_p.h"
 
-#include "AndExpression.h"
+#include "qandexpression_p.h"
 
 using namespace Patternist;
 

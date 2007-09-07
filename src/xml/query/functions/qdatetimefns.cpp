@@ -13,8 +13,8 @@
 
 /**
  * @file
- * @short This file is included by DateTimeFNs.h.
- * If you need includes in this file, put them in DateTimeFNs.h, outside of the namespace.
+ * @short This file is included by qdatetimefns_p.h.
+ * If you need includes in this file, put them in qdatetimefns_p.h, outside of the namespace.
  */
 
 template<typename TSubClass>

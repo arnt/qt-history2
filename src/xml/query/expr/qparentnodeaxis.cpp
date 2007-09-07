@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
 
-#include "ParentNodeAxis.h"
+#include "qparentnodeaxis_p.h"
 
 using namespace Patternist;
 

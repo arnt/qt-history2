@@ -18,8 +18,8 @@ template<typename A, typename B> class QHash;
 
 #include <QSharedData>
 
-#include "PlainSharedPtr.h"
-#include "NamespaceBinding.h"
+#include "qplainsharedptr_p.h"
+#include "qnamespacebinding_p.h"
 
 QT_BEGIN_HEADER 
 

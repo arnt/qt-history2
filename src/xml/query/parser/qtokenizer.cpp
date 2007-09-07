@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "Tokenizer.h"
+#include "qtokenizer_p.h"
 
 using namespace Patternist;
 

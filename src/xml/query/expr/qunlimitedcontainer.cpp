@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "UnlimitedContainer.h"
+#include "qunlimitedcontainer_p.h"
 
 using namespace Patternist;
 

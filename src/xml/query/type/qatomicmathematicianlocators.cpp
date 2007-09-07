@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "AbstractFloatMathematician.h"
-#include "AtomicMathematicianLocators.h"
-#include "AtomicMathematicians.h"
+#include "qabstractfloatmathematician_p.h"
+#include "qatomicmathematicianlocators_p.h"
+#include "qatomicmathematicians_p.h"
 
 using namespace Patternist;
 

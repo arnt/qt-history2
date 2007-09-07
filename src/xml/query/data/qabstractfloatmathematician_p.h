@@ -14,12 +14,12 @@
 #ifndef Patternist_AbstractFloatMathematician_H
 #define Patternist_AbstractFloatMathematician_H
 
-#include "AbstractFloat.h"
-#include "AtomicMathematician.h"
-#include "Integer.h"
-#include "Numeric.h"
-#include "PatternistLocale.h"
-#include "SourceLocationReflection.h"
+#include "qabstractfloat_p.h"
+#include "qatomicmathematician_p.h"
+#include "qinteger_p.h"
+#include "qnumeric_p.h"
+#include "qpatternistlocale_p.h"
+#include "qsourcelocationreflection_p.h"
 
 /**
  * @file
@@ -52,7 +52,7 @@ namespace Patternist
                                     const PlainSharedPtr<DynamicContext> &context) const;
     };
 
-#include "AbstractFloatMathematician.cpp"
+#include "qabstractfloatmathematician.cpp"
 
     /**
      * An instantiation of AbstractFloatMathematician that handles @c xs:double.

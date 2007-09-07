@@ -17,10 +17,10 @@
 class QIODevice;
 #include <QHash>
 
-#include "AccelTree.h"
-#include "NamePool.h"
-#include "ResourceLoader.h"
-#include "SequenceReceiver.h"
+#include "qacceltree_p.h"
+#include "qnamepool_p.h"
+#include "qresourceloader_p.h"
+#include "qsequencereceiver_p.h"
 
 QT_BEGIN_HEADER 
 

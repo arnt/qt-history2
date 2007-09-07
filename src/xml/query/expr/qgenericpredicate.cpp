@@ -11,20 +11,20 @@
 **
 ****************************************************************************/
 
-#include "AbstractFloat.h"
-#include "Boolean.h"
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "EmptySequence.h"
-#include "FirstItemPredicate.h"
-#include "GenericSequenceType.h"
-#include "ItemMappingIterator.h"
-#include "ListIterator.h"
-#include "Literal.h"
-#include "PatternistLocale.h"
-#include "TruthPredicate.h"
+#include "qabstractfloat_p.h"
+#include "qboolean_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qemptysequence_p.h"
+#include "qfirstitempredicate_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qlistiterator_p.h"
+#include "qliteral_p.h"
+#include "qpatternistlocale_p.h"
+#include "qtruthpredicate_p.h"
 
-#include "GenericPredicate.h"
+#include "qgenericpredicate_p.h"
 
 using namespace Patternist;
 

@@ -16,7 +16,7 @@
 
 #include <QByteArray>
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 /**
  * @file

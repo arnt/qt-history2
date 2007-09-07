@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "ExceptIterator.h"
-#include "GenericSequenceType.h"
-#include "IntersectIterator.h"
-#include "ItemMappingIterator.h"
-#include "ListIterator.h"
-#include "UnionIterator.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qexceptiterator_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qintersectiterator_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qlistiterator_p.h"
+#include "qunioniterator_p.h"
 
-#include "CombineNodes.h"
+#include "qcombinenodes_p.h"
 
 using namespace Patternist;
 

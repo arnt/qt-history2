@@ -14,7 +14,7 @@
 #ifndef Patternist_ToCodepointsIterator_H
 #define Patternist_ToCodepointsIterator_H
 
-#include "Item.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -13,7 +13,7 @@
 
 #include <QList>
 
-#include "EmptyContainer.h"
+#include "qemptycontainer_p.h"
 
 using namespace Patternist;
 

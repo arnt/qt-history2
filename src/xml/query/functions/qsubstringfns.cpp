@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "CommonValues.h"
-#include "Literal.h"
-#include "AtomicString.h"
+#include "qboolean_p.h"
+#include "qcommonvalues_p.h"
+#include "qliteral_p.h"
+#include "qatomicstring_p.h"
 
-#include "SubStringFNs.h"
+#include "qsubstringfns_p.h"
 
 using namespace Patternist;
 

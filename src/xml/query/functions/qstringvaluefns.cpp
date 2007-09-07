@@ -15,16 +15,16 @@
 
 #include <QUrl>
 
-#include "AbstractFloat.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "Integer.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
-#include "Numeric.h"
-#include "AtomicString.h"
+#include "qabstractfloat_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qinteger_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
+#include "qnumeric_p.h"
+#include "qatomicstring_p.h"
 
-#include "StringValueFNs.h"
+#include "qstringvaluefns_p.h"
 
 using namespace Patternist;
 

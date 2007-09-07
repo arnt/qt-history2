@@ -14,16 +14,16 @@
 #ifndef Patternist_CastingPlatform_H
 #define Patternist_CastingPlatform_H
 
-#include "AtomicCaster.h"
-#include "QNameValue.h"
-#include "AtomicString.h"
-#include "ValidationError.h"
-#include "AtomicCasterLocator.h"
-#include "AtomicType.h"
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "SchemaTypeFactory.h"
-#include "PatternistLocale.h"
+#include "qatomiccaster_p.h"
+#include "qqnamevalue_p.h"
+#include "qatomicstring_p.h"
+#include "qvalidationerror_p.h"
+#include "qatomiccasterlocator_p.h"
+#include "qatomictype_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qschematypefactory_p.h"
+#include "qpatternistlocale_p.h"
 
 QT_BEGIN_HEADER 
 
@@ -146,7 +146,7 @@ namespace Patternist
         AtomicCaster::Ptr m_caster;
     };
 
-#include "CastingPlatform.cpp"
+#include "qcastingplatform.cpp"
 
 }
 

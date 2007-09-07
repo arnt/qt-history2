@@ -17,9 +17,9 @@
 template<typename T> class QStack;
 #include <QSharedData>
 
-#include "Expression.h"
-#include "PatternistLocale.h"
-#include "VariableReference.h"
+#include "qexpression_p.h"
+#include "qpatternistlocale_p.h"
+#include "qvariablereference_p.h"
 
 QT_BEGIN_HEADER 
 

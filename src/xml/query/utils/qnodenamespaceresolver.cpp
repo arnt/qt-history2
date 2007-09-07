@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "Item.h"
-#include "NamePool.h"
+#include "qitem_p.h"
+#include "qnamepool_p.h"
 
-#include "NodeNamespaceResolver.h"
+#include "qnodenamespaceresolver_p.h"
 
 using namespace Patternist;
 

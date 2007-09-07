@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "BasicTypesFactory.h"
-#include "ConstructorFunctionsFactory.h"
-#include "FunctionCall.h"
-#include "XPath10CoreFunctions.h"
-#include "XPath20CoreFunctions.h"
+#include "qbasictypesfactory_p.h"
+#include "qconstructorfunctionsfactory_p.h"
+#include "qfunctioncall_p.h"
+#include "qxpath10corefunctions_p.h"
+#include "qxpath20corefunctions_p.h"
 
-#include "FunctionFactoryCollection.h"
+#include "qfunctionfactorycollection_p.h"
 
 using namespace Patternist;
 

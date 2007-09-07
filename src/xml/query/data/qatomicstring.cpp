@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "Debug.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
 
-#include "AtomicString.h"
+#include "qatomicstring_p.h"
 
 using namespace Patternist;
 

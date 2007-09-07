@@ -11,9 +11,9 @@
  * **
  * ****************************************************************************/
 
-#include "PullBridge_p.h"
-#include "PushBridge_p.h"
-#include "Serializer.h"
+#include "qpullbridge_p.h"
+#include "qpushbridge_p.h"
+#include "qserializer_p.h"
 
 #include "qxmlitemiterator.h"
 #include "qxmlitemiterator_p.h"

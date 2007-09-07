@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "QName.h"
+#include "qqname_p.h"
 
-#include "FunctionSignature.h"
+#include "qfunctionsignature_p.h"
 
 using namespace Patternist;
 

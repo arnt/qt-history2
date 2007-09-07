@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "DocumentProjector.h"
+#include "qdocumentprojector_p.h"
 
 using namespace Patternist;
 

@@ -14,7 +14,7 @@
 #ifndef Patternist_CommentConstructor_H
 #define Patternist_CommentConstructor_H
 
-#include "SingleContainer.h"
+#include "qsinglecontainer_p.h"
 
 QT_BEGIN_HEADER 
 

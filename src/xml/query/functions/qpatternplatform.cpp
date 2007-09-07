@@ -13,10 +13,10 @@
 
 #include <QHash>
 
-#include "Debug.h"
-#include "PatternistLocale.h"
+#include "qdebug_p.h"
+#include "qpatternistlocale_p.h"
 
-#include "PatternPlatform.h"
+#include "qpatternplatform_p.h"
 
 using namespace Patternist;
 

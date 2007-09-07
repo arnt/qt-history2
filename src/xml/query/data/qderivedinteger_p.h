@@ -14,11 +14,11 @@
 #ifndef Patternist_DerivedInteger_H
 #define Patternist_DerivedInteger_H
 
-#include "BuiltinTypes.h"
-#include "Debug.h"
-#include "Integer.h"
-#include "PatternistLocale.h"
-#include "ValidationError.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
+#include "qinteger_p.h"
+#include "qpatternistlocale_p.h"
+#include "qvalidationerror_p.h"
 
 QT_BEGIN_HEADER 
 

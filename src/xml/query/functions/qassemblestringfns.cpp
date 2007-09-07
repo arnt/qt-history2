@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "CommonValues.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
-#include "Numeric.h"
-#include "AtomicString.h"
-#include "ToCodepointsIterator.h"
+#include "qcommonvalues_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
+#include "qnumeric_p.h"
+#include "qatomicstring_p.h"
+#include "qtocodepointsiterator_p.h"
 
-#include "AssembleStringFNs.h"
+#include "qassemblestringfns_p.h"
 
 using namespace Patternist;
 

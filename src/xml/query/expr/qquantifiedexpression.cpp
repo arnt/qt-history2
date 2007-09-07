@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "GenericSequenceType.h"
-#include "ItemMappingIterator.h"
-#include "ListIterator.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qitemmappingiterator_p.h"
+#include "qlistiterator_p.h"
 
-#include "QuantifiedExpression.h"
+#include "qquantifiedexpression_p.h"
 
 using namespace Patternist;
 

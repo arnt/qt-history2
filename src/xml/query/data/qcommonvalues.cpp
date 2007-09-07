@@ -13,16 +13,16 @@
 
 #include <limits>
 
-#include "AbstractFloat.h"
-#include "AnyURI.h"
-#include "Boolean.h"
-#include "Decimal.h"
-#include "Integer.h"
-#include "ListIterator.h"
-#include "AtomicString.h"
-#include "UntypedAtomic.h"
+#include "qabstractfloat_p.h"
+#include "qanyuri_p.h"
+#include "qboolean_p.h"
+#include "qdecimal_p.h"
+#include "qinteger_p.h"
+#include "qlistiterator_p.h"
+#include "qatomicstring_p.h"
+#include "quntypedatomic_p.h"
 
-#include "CommonValues.h"
+#include "qcommonvalues_p.h"
 
 using namespace Patternist;
 

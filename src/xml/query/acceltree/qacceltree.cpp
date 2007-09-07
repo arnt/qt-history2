@@ -13,13 +13,13 @@
 
 #include <QtDebug>
 
-#include "AccelIterators.h"
-#include "AccelTree.h"
-#include "AtomicString.h"
-#include "CommonValues.h"
-#include "CompressedWhitespace.h"
-#include "SequenceReceiver.h"
-#include "UntypedAtomic.h"
+#include "qacceliterators_p.h"
+#include "qacceltree_p.h"
+#include "qatomicstring_p.h"
+#include "qcommonvalues_p.h"
+#include "qcompressedwhitespace_p.h"
+#include "qsequencereceiver_p.h"
+#include "quntypedatomic_p.h"
 
 using namespace Patternist;
 

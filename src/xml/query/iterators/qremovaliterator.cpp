@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "ListIterator.h"
+#include "qlistiterator_p.h"
 
-#include "RemovalIterator.h"
+#include "qremovaliterator_p.h"
 
 using namespace Patternist;
 

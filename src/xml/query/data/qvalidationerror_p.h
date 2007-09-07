@@ -14,8 +14,8 @@
 #ifndef Patternist_ValidationError_H
 #define Patternist_ValidationError_H
 
-#include "Item.h"
-#include "ReportContext.h"
+#include "qitem_p.h"
+#include "qreportcontext_p.h"
 
 QT_BEGIN_HEADER 
 

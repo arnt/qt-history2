@@ -14,9 +14,9 @@
 #ifndef Patternist_DeepEqualFN_H
 #define Patternist_DeepEqualFN_H
 
-#include "AtomicComparator.h"
-#include "ComparisonPlatform.h"
-#include "FunctionCall.h"
+#include "qatomiccomparator_p.h"
+#include "qcomparisonplatform_p.h"
+#include "qfunctioncall_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "SequenceType.h"
+#include "qsequencetype_p.h"
 
 using namespace Patternist;
 

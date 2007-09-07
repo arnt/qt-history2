@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "PatternistLocale.h"
-#include "NodeBuilder.h"
+#include "qcommonsequencetypes_p.h"
+#include "qpatternistlocale_p.h"
+#include "qnodebuilder_p.h"
 
-#include "CommentConstructor.h"
+#include "qcommentconstructor_p.h"
 
 using namespace Patternist;
 

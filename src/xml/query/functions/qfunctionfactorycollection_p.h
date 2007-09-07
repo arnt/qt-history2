@@ -15,7 +15,7 @@
 #ifndef Patternist_FunctionFactoryCollection_H
 #define Patternist_FunctionFactoryCollection_H
 
-#include "FunctionFactory.h"
+#include "qfunctionfactory_p.h"
 
 QT_BEGIN_HEADER 
 

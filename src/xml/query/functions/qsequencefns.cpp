@@ -11,20 +11,20 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "DistinctIterator.h"
-#include "EmptySequence.h"
-#include "GenericSequenceType.h"
-#include "IndexOfIterator.h"
-#include "InsertionIterator.h"
-#include "Integer.h"
-#include "ListIterator.h"
-#include "RemovalIterator.h"
-#include "SubsequenceIterator.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdistinctiterator_p.h"
+#include "qemptysequence_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qindexofiterator_p.h"
+#include "qinsertioniterator_p.h"
+#include "qinteger_p.h"
+#include "qlistiterator_p.h"
+#include "qremovaliterator_p.h"
+#include "qsubsequenceiterator_p.h"
 
-#include "SequenceFNs.h"
+#include "qsequencefns_p.h"
 
 using namespace Patternist;
 

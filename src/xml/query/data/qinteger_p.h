@@ -14,7 +14,7 @@
 #ifndef Patternist_Integer_H
 #define Patternist_Integer_H
 
-#include "Numeric.h"
+#include "qnumeric_p.h"
 
 QT_BEGIN_HEADER 
 

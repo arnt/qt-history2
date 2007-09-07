@@ -11,17 +11,17 @@
 **
 ****************************************************************************/
 
-#include "AbstractFloat.h"
-#include "AnyURI.h"
-#include "Boolean.h"
-#include "BuiltinTypes.h"
-#include "CommonNamespaces.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "Literal.h"
-#include "AtomicString.h"
+#include "qabstractfloat_p.h"
+#include "qanyuri_p.h"
+#include "qboolean_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonnamespaces_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qliteral_p.h"
+#include "qatomicstring_p.h"
 
-#include "NodeFNs.h"
+#include "qnodefns_p.h"
 
 using namespace Patternist;
 

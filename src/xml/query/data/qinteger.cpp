@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
-#include "Item.h"
-#include "ValidationError.h"
+#include "qbuiltintypes_p.h"
+#include "qitem_p.h"
+#include "qvalidationerror_p.h"
 
-#include "Integer.h"
+#include "qinteger_p.h"
 
 using namespace Patternist;
 

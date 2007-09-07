@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
+#include "qbuiltintypes_p.h"
 
-#include "GDay.h"
+#include "qgday_p.h"
 
 using namespace Patternist;
 

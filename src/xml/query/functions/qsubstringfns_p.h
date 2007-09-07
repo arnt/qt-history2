@@ -14,7 +14,7 @@
 #ifndef Patternist_SubStringFNs_H
 #define Patternist_SubStringFNs_H
 
-#include "ComparesCaseAware.h"
+#include "qcomparescaseaware_p.h"
 
 /**
  * @file

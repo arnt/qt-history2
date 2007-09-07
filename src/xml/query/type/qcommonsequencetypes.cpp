@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "EBVType.h"
-#include "GenericSequenceType.h"
-#include "NoneType.h"
+#include "qebvtype_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qnonetype_p.h"
 
-#include "CommonSequenceTypes.h"
+#include "qcommonsequencetypes_p.h"
 
 /* To avoid the static initialization fiasco, we put the builtin types in this compilation unit, since
  * the sequence types depends on them. */
-#include "BuiltinTypes.cpp"
+#include "qbuiltintypes.cpp"
 
 using namespace Patternist;
 

@@ -14,8 +14,8 @@
 #ifndef Patternist_CommonSequenceTypes_H
 #define Patternist_CommonSequenceTypes_H
 
-#include "EmptySequenceType.h"
-#include "NoneType.h"
+#include "qemptysequencetype_p.h"
+#include "qnonetype_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -14,7 +14,7 @@
 #ifndef Patternist_EmptySequence_H
 #define Patternist_EmptySequence_H
 
-#include "EmptyContainer.h"
+#include "qemptycontainer_p.h"
 
 QT_BEGIN_HEADER 
 

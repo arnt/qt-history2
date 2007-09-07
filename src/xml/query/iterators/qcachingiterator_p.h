@@ -17,8 +17,8 @@
 #include <QList>
 #include <QVector>
 
-#include "DynamicContext.h"
-#include "Item.h"
+#include "qdynamiccontext_p.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

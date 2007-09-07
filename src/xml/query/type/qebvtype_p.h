@@ -14,8 +14,8 @@
 #ifndef Patternist_EBVType_H
 #define Patternist_EBVType_H
 
-#include "AtomicType.h"
-#include "SequenceType.h"
+#include "qatomictype_p.h"
+#include "qsequencetype_p.h"
 
 QT_BEGIN_HEADER 
 

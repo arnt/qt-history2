@@ -13,15 +13,15 @@
 
 #include <QtDebug>
 
-#include "ContextItem.h"
-#include "CommonSequenceTypes.h"
-#include "EmptySequence.h"
-#include "FunctionSignature.h"
-#include "GenericSequenceType.h"
-#include "CollationChecker.h"
-#include "CommonNamespaces.h"
+#include "qcontextitem_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qemptysequence_p.h"
+#include "qfunctionsignature_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qcollationchecker_p.h"
+#include "qcommonnamespaces_p.h"
 
-#include "FunctionCall.h"
+#include "qfunctioncall_p.h"
 
 using namespace Patternist;
 

@@ -17,7 +17,7 @@
 #include <QtGlobal>
 #include <QList>
 
-#include "Iterator.h"
+#include "qiterator_p.h"
 
 QT_BEGIN_HEADER 
 

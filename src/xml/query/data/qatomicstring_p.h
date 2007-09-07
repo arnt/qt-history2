@@ -16,7 +16,7 @@
 
 #include <QUrl>
 
-#include "Item.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

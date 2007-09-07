@@ -16,10 +16,10 @@
 
 #include <QRegExp>
 
-#include "BuiltinTypes.h"
-#include "Debug.h"
-#include "ValidationError.h"
-#include "XPathHelper.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
+#include "qvalidationerror_p.h"
+#include "qxpathhelper_p.h"
 
 QT_BEGIN_HEADER 
 

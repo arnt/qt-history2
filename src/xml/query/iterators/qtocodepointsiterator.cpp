@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "Debug.h"
-#include "Integer.h"
-#include "ListIterator.h"
+#include "qdebug_p.h"
+#include "qinteger_p.h"
+#include "qlistiterator_p.h"
 
-#include "ToCodepointsIterator.h"
+#include "qtocodepointsiterator_p.h"
 
 using namespace Patternist;
 

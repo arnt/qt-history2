@@ -16,9 +16,9 @@
 
 #include <QSet>
 
-#include "DynamicContext.h"
-#include "SequenceReceiver.h"
-#include "SourceLocationReflection.h"
+#include "qdynamiccontext_p.h"
+#include "qsequencereceiver_p.h"
+#include "qsourcelocationreflection_p.h"
 
 QT_BEGIN_HEADER 
 

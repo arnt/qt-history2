@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "GenericSequenceType.h"
-#include "ListIterator.h"
-#include "OptimizationPasses.h"
+#include "qcommonsequencetypes_p.h"
+#include "qgenericsequencetype_p.h"
+#include "qlistiterator_p.h"
+#include "qoptimizationpasses_p.h"
 
-#include "IfThenClause.h"
+#include "qifthenclause_p.h"
 
 using namespace Patternist;
 

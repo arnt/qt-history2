@@ -14,8 +14,8 @@
 #ifndef Patternist_DocumentProjector_H
 #define Patternist_DocumentProjector_H
 
-#include "ProjectedExpression.h"
-#include "SequenceReceiver.h"
+#include "qprojectedexpression_p.h"
+#include "qsequencereceiver_p.h"
 
 QT_BEGIN_HEADER 
 

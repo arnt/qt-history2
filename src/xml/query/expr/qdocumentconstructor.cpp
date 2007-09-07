@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "DocumentContentValidator.h"
-#include "NodeBuilder.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdocumentcontentvalidator_p.h"
+#include "qnodebuilder_p.h"
 
-#include "DocumentConstructor.h"
+#include "qdocumentconstructor_p.h"
 
 using namespace Patternist;
 

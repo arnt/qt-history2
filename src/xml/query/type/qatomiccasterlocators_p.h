@@ -14,9 +14,9 @@
 #ifndef Patternist_AtomicCasterLocators_H
 #define Patternist_AtomicCasterLocators_H
 
-#include "AtomicCasterLocator.h"
-#include "AtomicCasters.h"
-//#include "DerivedInteger.h"
+#include "qatomiccasterlocator_p.h"
+#include "qatomiccasters_p.h"
+//#include "qderivedinteger_p.h"
 
 /**
  * @file

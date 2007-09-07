@@ -13,7 +13,7 @@
 
 #include "qsourcelocation.h"
 
-#include "SourceLocationReflection.h"
+#include "qsourcelocationreflection_p.h"
 
 using namespace Patternist;
 

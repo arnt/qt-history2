@@ -13,13 +13,13 @@
 
 #include <cmath>
 
-#include "Boolean.h"
-#include "BuiltinTypes.h"
-#include "CommonValues.h"
-#include "Decimal.h"
-#include "Integer.h"
+#include "qboolean_p.h"
+#include "qbuiltintypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdecimal_p.h"
+#include "qinteger_p.h"
 
-#include "Numeric.h"
+#include "qnumeric_p.h"
 
 using namespace Patternist;
 

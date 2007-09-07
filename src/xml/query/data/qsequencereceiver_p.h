@@ -16,8 +16,8 @@
 
 #include <QSharedData>
 
-#include "NamespaceBinding.h"
-#include "Item.h"
+#include "qnamespacebinding_p.h"
+#include "qitem_p.h"
 
 QT_BEGIN_HEADER 
 

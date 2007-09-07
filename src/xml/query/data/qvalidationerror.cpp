@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "Debug.h"
+#include "qdebug_p.h"
 
-#include "ValidationError.h"
+#include "qvalidationerror_p.h"
 
 using namespace Patternist;
 

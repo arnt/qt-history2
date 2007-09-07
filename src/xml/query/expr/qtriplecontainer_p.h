@@ -14,7 +14,7 @@
 #ifndef Patternist_TripleContainer_H
 #define Patternist_TripleContainer_H
 
-#include "Expression.h"
+#include "qexpression_p.h"
 
 QT_BEGIN_HEADER 
 

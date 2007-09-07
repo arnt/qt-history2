@@ -13,7 +13,7 @@
 
 /**
  * @file
- * @short This file is included by CastingPlatform.h.
+ * @short This file is included by qcastingplatform_p.h.
  * If you need includes in this file, put them in CasttingPlatform.h, outside of the namespace.
  */
 

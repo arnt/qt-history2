@@ -14,7 +14,7 @@
 #ifndef Patternist_DateTime_H
 #define Patternist_DateTime_H
 
-#include "AbstractDateTime.h"
+#include "qabstractdatetime_p.h"
 
 QT_BEGIN_HEADER 
 

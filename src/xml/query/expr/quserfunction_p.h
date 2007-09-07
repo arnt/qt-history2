@@ -18,9 +18,9 @@ template<typename T> class QList;
 
 #include <QSharedData>
 
-#include "Expression.h"
-#include "FunctionSignature.h"
-#include "VariableDeclaration.h"
+#include "qexpression_p.h"
+#include "qfunctionsignature_p.h"
+#include "qvariabledeclaration_p.h"
 
 QT_BEGIN_HEADER 
 

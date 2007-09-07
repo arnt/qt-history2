@@ -16,9 +16,9 @@
 
 #include <QVector>
 
-#include "DayTimeDuration.h"
-#include "DelegatingDynamicContext.h"
-#include "Expression.h"
+#include "qdaytimeduration_p.h"
+#include "qdelegatingdynamiccontext_p.h"
+#include "qexpression_p.h"
 
 QT_BEGIN_HEADER 
 
@@ -74,7 +74,7 @@ namespace Patternist
         ItemSequenceCacheCell::Vector   m_itemSequenceCacheCells;
     };
 
-    #include "StackContextBase.cpp"
+    #include "qstackcontextbase.cpp"
 
     /**
      * @short A DynamicContext that creates a new scope for variables.

@@ -24,9 +24,9 @@
 #ifndef Patternist_VariableLoader_p_h
 #define Patternist_VariableLoader_p_h
 
-#include "DynamicContext.h"
-#include "QObjectNodeModel.h"
-#include "ExternalVariableLoader.h"
+#include "qdynamiccontext_p.h"
+#include "qqobjectnodemodel_p.h"
+#include "qexternalvariableloader_p.h"
 
 QT_BEGIN_HEADER
 

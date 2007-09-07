@@ -14,7 +14,7 @@
 #ifndef Patternist_IfThenClause_H
 #define Patternist_IfThenClause_H
 
-#include "TripleContainer.h"
+#include "qtriplecontainer_p.h"
 
 QT_BEGIN_HEADER 
 

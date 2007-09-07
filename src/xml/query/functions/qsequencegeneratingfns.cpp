@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "AnyURI.h"
-#include "Boolean.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "EmptySequence.h"
-#include "ListIterator.h"
-#include "PatternistLocale.h"
+#include "qanyuri_p.h"
+#include "qboolean_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qemptysequence_p.h"
+#include "qlistiterator_p.h"
+#include "qpatternistlocale_p.h"
 
-#include "SequenceGeneratingFNs.h"
+#include "qsequencegeneratingfns_p.h"
 
 using namespace Patternist;
 

@@ -14,9 +14,9 @@
 #ifndef Patternist_BuiltinAtomicTypes_H
 #define Patternist_BuiltinAtomicTypes_H
 
-#include "AtomicCasterLocators.h"
-#include "AtomicComparatorLocators.h"
-#include "BuiltinAtomicType.h"
+#include "qatomiccasterlocators_p.h"
+#include "qatomiccomparatorlocators_p.h"
+#include "qbuiltinatomictype_p.h"
 
 QT_BEGIN_HEADER 
 

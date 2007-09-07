@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
+#include "qcommonsequencetypes_p.h"
 
-#include "NamespaceConstructor.h"
+#include "qnamespaceconstructor_p.h"
 
 using namespace Patternist;
 

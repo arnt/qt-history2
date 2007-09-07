@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "Debug.h"
-#include "DynamicContextStore.h"
-#include "EvaluationCache.h"
-#include "ListIterator.h"
-#include "UserFunction.h"
+#include "qcommonsequencetypes_p.h"
+#include "qdebug_p.h"
+#include "qdynamiccontextstore_p.h"
+#include "qevaluationcache_p.h"
+#include "qlistiterator_p.h"
+#include "quserfunction_p.h"
 
-#include "UserFunctionCallsite.h"
+#include "quserfunctioncallsite_p.h"
 
 using namespace Patternist;
 

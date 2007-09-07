@@ -11,17 +11,17 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "CommonValues.h"
-#include "EmptySequence.h"
-#include "ListIterator.h"
-#include "Literal.h"
-#include "LiteralSequence.h"
-#include "OptimizerFramework.h"
-#include "StaticFocusContext.h"
-#include "TypeChecker.h"
+#include "qboolean_p.h"
+#include "qcommonvalues_p.h"
+#include "qemptysequence_p.h"
+#include "qlistiterator_p.h"
+#include "qliteral_p.h"
+#include "qliteralsequence_p.h"
+#include "qoptimizerframework_p.h"
+#include "qstaticfocuscontext_p.h"
+#include "qtypechecker_p.h"
 
-#include "Expression.h"
+#include "qexpression_p.h"
 
 using namespace Patternist;
 

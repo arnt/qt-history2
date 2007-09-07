@@ -14,7 +14,7 @@
 #ifndef Patternist_Decimal_H
 #define Patternist_Decimal_H
 
-#include "Numeric.h"
+#include "qnumeric_p.h"
 
 /**
  * Defined in QtCore's qlocale.cpp.

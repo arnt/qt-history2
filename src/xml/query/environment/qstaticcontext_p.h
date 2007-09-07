@@ -17,12 +17,12 @@
 class QUrl;
 template<typename Key, typename T> class QHash;
 
-#include "ExternalVariableLoader.h"
-#include "ItemType.h"
-#include "NamePool.h"
-#include "NamespaceResolver.h"
-#include "ReportContext.h"
-#include "ResourceLoader.h"
+#include "qexternalvariableloader_p.h"
+#include "qitemtype_p.h"
+#include "qnamepool_p.h"
+#include "qnamespaceresolver_p.h"
+#include "qreportcontext_p.h"
+#include "qresourceloader_p.h"
 
 QT_BEGIN_HEADER 
 

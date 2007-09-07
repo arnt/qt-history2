@@ -17,9 +17,9 @@
 #include <QSet>
 #include <QStack>
 
-#include "AccelTree.h"
-#include "NamePool.h"
-#include "NodeBuilder.h"
+#include "qacceltree_p.h"
+#include "qnamepool_p.h"
+#include "qnodebuilder_p.h"
 
 QT_BEGIN_HEADER 
 

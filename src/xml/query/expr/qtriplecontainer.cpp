@@ -13,7 +13,7 @@
 
 #include <QList>
 
-#include "TripleContainer.h"
+#include "qtriplecontainer_p.h"
 
 using namespace Patternist;
 

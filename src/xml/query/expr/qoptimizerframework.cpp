@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "OptimizerBlocks.h"
+#include "qoptimizerblocks_p.h"
 
 using namespace Patternist;
 

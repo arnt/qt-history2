@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "AtomicMathematicianLocators.h"
-#include "BuiltinTypes.h"
-#include "Debug.h"
+#include "qatomicmathematicianlocators_p.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
 
-#include "BuiltinAtomicTypes.h"
+#include "qbuiltinatomictypes_p.h"
 
 using namespace Patternist;
 

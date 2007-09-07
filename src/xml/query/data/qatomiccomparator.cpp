@@ -13,7 +13,7 @@
 
 #include <QString>
 
-#include "AtomicComparator.h"
+#include "qatomiccomparator_p.h"
 
 using namespace Patternist;
 

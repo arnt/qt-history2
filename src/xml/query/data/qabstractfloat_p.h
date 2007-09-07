@@ -18,11 +18,11 @@
 
 #include <qnumeric.h>
 
-#include "CommonValues.h"
-#include "Decimal.h"
-#include "Numeric.h"
-#include "ValidationError.h"
-#include "BuiltinTypes.h"
+#include "qcommonvalues_p.h"
+#include "qdecimal_p.h"
+#include "qnumeric_p.h"
+#include "qvalidationerror_p.h"
+#include "qbuiltintypes_p.h"
 
 QT_BEGIN_HEADER 
 
@@ -107,7 +107,7 @@ namespace Patternist
     template <const bool isDouble>
     Numeric::Ptr createFloat(const xsDouble num);
 
-#include "AbstractFloat.cpp"
+#include "qabstractfloat.cpp"
 
     /**
      * @short An instantiation of AbsbstractFloat suitable for @c xs:double.

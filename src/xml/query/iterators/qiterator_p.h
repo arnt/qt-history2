@@ -18,9 +18,9 @@ template<typename T> class QVector;
 #include <QList>
 #include <QSharedData>
 
-#include "Cardinality.h"
-#include "Primitives.h"
-#include "PlainSharedPtr.h"
+#include "qcardinality_p.h"
+#include "qprimitives_p.h"
+#include "qplainsharedptr_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -14,8 +14,8 @@
 #ifndef Patternist_ItemMappingIterator_H
 #define Patternist_ItemMappingIterator_H
 
-#include "Iterator.h"
-#include "DynamicContext.h"
+#include "qiterator_p.h"
+#include "qdynamiccontext_p.h"
 
 QT_BEGIN_HEADER 
 

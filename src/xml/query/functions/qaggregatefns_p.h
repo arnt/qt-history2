@@ -14,10 +14,10 @@
 #ifndef Patternist_AggregateFNs_H
 #define Patternist_AggregateFNs_H
 
-#include "Aggregator.h"
-#include "AtomicComparator.h"
-#include "AtomicMathematician.h"
-#include "ComparisonPlatform.h"
+#include "qaggregator_p.h"
+#include "qatomiccomparator_p.h"
+#include "qatomicmathematician_p.h"
+#include "qcomparisonplatform_p.h"
 
 /**
  * @file

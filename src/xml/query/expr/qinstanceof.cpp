@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "CommonSequenceTypes.h"
-#include "CommonValues.h"
-#include "Debug.h"
-#include "ListIterator.h"
-#include "Literal.h"
+#include "qboolean_p.h"
+#include "qcommonsequencetypes_p.h"
+#include "qcommonvalues_p.h"
+#include "qdebug_p.h"
+#include "qlistiterator_p.h"
+#include "qliteral_p.h"
 
-#include "InstanceOf.h"
+#include "qinstanceof_p.h"
 
 using namespace Patternist;
 

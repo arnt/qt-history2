@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "XPathHelper.h"
+#include "qxpathhelper_p.h"
 
-#include "NamePool.h"
+#include "qnamepool_p.h"
 
 using namespace Patternist;
 

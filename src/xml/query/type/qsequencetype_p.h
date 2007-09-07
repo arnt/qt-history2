@@ -18,8 +18,8 @@ template<typename T> class QList;
 
 #include <QSharedData>
 
-#include "Cardinality.h"
-#include "ItemType.h"
+#include "qcardinality_p.h"
+#include "qitemtype_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -13,10 +13,10 @@
 
 #include <QDateTime>
 
-#include "DayTimeDuration.h"
-#include "ListIterator.h"
+#include "qdaytimeduration_p.h"
+#include "qlistiterator_p.h"
 
-#include "DelegatingDynamicContext.h"
+#include "qdelegatingdynamiccontext_p.h"
 
 using namespace Patternist;
 

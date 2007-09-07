@@ -24,10 +24,10 @@
 #ifndef Patternist_QXmlItemIteratorPrivate_p_h
 #define Patternist_QXmlItemIteratorPrivate_p_h
 
-#include "Exception.h"
-#include "Expression.h"
-#include "Item.h"
-#include "Iterator.h"
+#include "qexception_p.h"
+#include "qexpression_p.h"
+#include "qitem_p.h"
+#include "qiterator_p.h"
 
 QT_BEGIN_HEADER
 

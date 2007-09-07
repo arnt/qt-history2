@@ -14,9 +14,9 @@
 #ifndef Patternist_UntypedAtomicConverter_H
 #define Patternist_UntypedAtomicConverter_H
 
-#include "Item.h"
-#include "SingleContainer.h"
-#include "CastingPlatform.h"
+#include "qitem_p.h"
+#include "qsinglecontainer_p.h"
+#include "qcastingplatform_p.h"
 
 QT_BEGIN_HEADER 
 

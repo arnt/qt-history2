@@ -14,7 +14,7 @@
 #ifndef Patternist_Validate_H
 #define Patternist_Validate_H
 
-#include "Expression.h"
+#include "qexpression_p.h"
 
 QT_BEGIN_HEADER 
 

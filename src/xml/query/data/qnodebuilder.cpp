@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "NodeBuilder.h"
+#include "qnodebuilder_p.h"
 
 using namespace Patternist;
 

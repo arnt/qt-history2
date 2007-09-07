@@ -15,8 +15,8 @@
 #define Patternist_UnlimitedContainer_H
 
 #include <QList>
-#include "Expression.h"
-#include "GenericSequenceType.h"
+#include "qexpression_p.h"
+#include "qgenericsequencetype_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -17,16 +17,16 @@
 #include <QString>
 #include <QUrl>
 
-#include "Cardinality.h"
-#include "NamePool.h"
-#include "Primitives.h"
+#include "qcardinality_p.h"
+#include "qnamepool_p.h"
+#include "qprimitives_p.h"
 
 /**
  * @file
  * @short Contains functions used for formatting arguments, such as keywords and paths,
  * in translated strings.
  *
- * This file was originally called PatternistLocale.h. However, it broke build on MS
+ * This file was originally called qpatternistlocale_p.h. However, it broke build on MS
  * Windows, because it override the locale.h system header.
  */
 

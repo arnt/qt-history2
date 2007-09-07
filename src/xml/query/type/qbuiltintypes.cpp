@@ -11,17 +11,17 @@
 **
 ****************************************************************************/
 
-#include "AnyItemType.h"
-#include "DerivedInteger.h"
+#include "qanyitemtype_p.h"
+#include "qderivedinteger_p.h"
 
-#include "BuiltinAtomicTypes.h"
-#include "BuiltinTypes.h"
-#include "BuiltinNodeType.h"
+#include "qbuiltinatomictypes_p.h"
+#include "qbuiltintypes_p.h"
+#include "qbuiltinnodetype_p.h"
 
 /* Included here to avoid the static initialization failure. */
-#include "AtomicCasterLocators.cpp"
-#include "AtomicComparatorLocators.cpp"
-#include "AtomicMathematicianLocators.cpp"
+#include "qatomiccasterlocators.cpp"
+#include "qatomiccomparatorlocators.cpp"
+#include "qatomicmathematicianlocators.cpp"
 
 using namespace Patternist;
 

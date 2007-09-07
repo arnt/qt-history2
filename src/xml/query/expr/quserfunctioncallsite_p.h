@@ -14,9 +14,9 @@
 #ifndef Patternist_UserFunctionCallsite_H
 #define Patternist_UserFunctionCallsite_H
 
-#include "UnlimitedContainer.h"
-#include "FunctionSignature.h"
-#include "VariableDeclaration.h"
+#include "qunlimitedcontainer_p.h"
+#include "qfunctionsignature_p.h"
+#include "qvariabledeclaration_p.h"
 
 QT_BEGIN_HEADER 
 

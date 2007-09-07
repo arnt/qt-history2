@@ -18,8 +18,8 @@ class QString;
 
 #include <QFlags>
 
-#include "Item.h"
-#include "AtomicTypeDispatch.h"
+#include "qitem_p.h"
+#include "qatomictypedispatch_p.h"
 
 QT_BEGIN_HEADER 
 

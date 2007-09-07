@@ -14,8 +14,8 @@
 #ifndef Patternist_FunctionAvailableFN_H
 #define Patternist_FunctionAvailableFN_H
 
-#include "FunctionCall.h"
-#include "FunctionFactory.h"
+#include "qfunctioncall_p.h"
+#include "qfunctionfactory_p.h"
 
 QT_BEGIN_HEADER 
 

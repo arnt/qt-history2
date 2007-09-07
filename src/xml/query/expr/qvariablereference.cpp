@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "VariableReference.h"
+#include "qvariablereference_p.h"
 
 using namespace Patternist;
 

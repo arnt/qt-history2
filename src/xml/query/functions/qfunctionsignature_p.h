@@ -19,10 +19,10 @@ template<typename T> class QList;
 
 #include <QSharedData>
 
-#include "Expression.h"
-#include "FunctionArgument.h"
-#include "PatternistLocale.h"
-#include "Primitives.h"
+#include "qexpression_p.h"
+#include "qfunctionargument_p.h"
+#include "qpatternistlocale_p.h"
+#include "qprimitives_p.h"
 
 QT_BEGIN_HEADER 
 

@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "Focus.h"
-#include "ListIterator.h"
-#include "ReceiverDynamicContext.h"
-#include "StackContextBase.h"
+#include "qfocus_p.h"
+#include "qlistiterator_p.h"
+#include "qreceiverdynamiccontext_p.h"
+#include "qstackcontextbase_p.h"
 
-#include "DynamicContext.h"
+#include "qdynamiccontext_p.h"
 
 using namespace Patternist;
 

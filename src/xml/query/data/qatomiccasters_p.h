@@ -14,12 +14,12 @@
 #ifndef Patternist_AtomicCasters_H
 #define Patternist_AtomicCasters_H
 
-#include "AtomicCaster.h"
-#include "Decimal.h"
-#include "DerivedInteger.h"
-#include "DerivedString.h"
-#include "Integer.h"
-#include "ValidationError.h"
+#include "qatomiccaster_p.h"
+#include "qdecimal_p.h"
+#include "qderivedinteger_p.h"
+#include "qderivedstring_p.h"
+#include "qinteger_p.h"
+#include "qvalidationerror_p.h"
 
 /**
  * @file

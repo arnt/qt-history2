@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "ValueComparison.h"
+#include "qvaluecomparison_p.h"
 
-#include "ComparesCaseAware.h"
+#include "qcomparescaseaware_p.h"
 
 using namespace Patternist;
 

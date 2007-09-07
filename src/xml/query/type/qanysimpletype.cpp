@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "BuiltinTypes.h"
+#include "qbuiltintypes_p.h"
 
-#include "AnySimpleType.h"
+#include "qanysimpletype_p.h"
 
 using namespace Patternist;
 

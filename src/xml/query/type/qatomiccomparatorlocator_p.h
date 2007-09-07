@@ -14,7 +14,7 @@
 #ifndef Patternist_AtomicComparatorLocator_H
 #define Patternist_AtomicComparatorLocator_H
 
-#include "AtomicTypeDispatch.h"
+#include "qatomictypedispatch_p.h"
 
 QT_BEGIN_HEADER 
 

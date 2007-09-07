@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "Boolean.h"
-#include "CommonValues.h"
-#include "Literal.h"
+#include "qboolean_p.h"
+#include "qcommonvalues_p.h"
+#include "qliteral_p.h"
 
-#include "OrExpression.h"
+#include "qorexpression_p.h"
 
 using namespace Patternist;
 

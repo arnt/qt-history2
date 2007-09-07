@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "AnyURI.h"
-#include "BuiltinTypes.h"
-#include "Debug.h"
-#include "XPathHelper.h"
+#include "qanyuri_p.h"
+#include "qbuiltintypes_p.h"
+#include "qdebug_p.h"
+#include "qxpathhelper_p.h"
 
-#include "QNameValue.h"
+#include "qqnamevalue_p.h"
 
 using namespace Patternist;
 

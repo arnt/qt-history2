@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "CommonSequenceTypes.h"
-#include "ListIterator.h"
-#include "SortTuple.h"
+#include "qcommonsequencetypes_p.h"
+#include "qlistiterator_p.h"
+#include "qsorttuple_p.h"
 
-#include "ReturnOrderBy.h"
+#include "qreturnorderby_p.h"
 
 using namespace Patternist;
 

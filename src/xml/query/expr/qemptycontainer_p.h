@@ -14,7 +14,7 @@
 #ifndef Patternist_EmptyContainer_H
 #define Patternist_EmptyContainer_H
 
-#include "Expression.h"
+#include "qexpression_p.h"
 
 QT_BEGIN_HEADER 
 

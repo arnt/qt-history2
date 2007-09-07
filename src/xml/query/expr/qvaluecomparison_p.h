@@ -14,9 +14,9 @@
 #ifndef Patternist_ValueComparison_H
 #define Patternist_ValueComparison_H
 
-#include "AtomicComparator.h"
-#include "PairContainer.h"
-#include "ComparisonPlatform.h"
+#include "qatomiccomparator_p.h"
+#include "qpaircontainer_p.h"
+#include "qcomparisonplatform_p.h"
 
 QT_BEGIN_HEADER 
 

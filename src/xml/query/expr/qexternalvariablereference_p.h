@@ -14,7 +14,7 @@
 #ifndef Patternist_ExternalVariableReference_H
 #define Patternist_ExternalVariableReference_H
 
-#include "EmptyContainer.h"
+#include "qemptycontainer_p.h"
 
 QT_BEGIN_HEADER 
 
