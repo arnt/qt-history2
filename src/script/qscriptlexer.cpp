@@ -691,6 +691,8 @@ int QScript::Lexer::lex()
         quint64 i;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
         sscanf_s(buffer8, "%llx", &i);
+#elif defined(Q_WS_WIN) && defined(Q_CC_MINGW)
+        sscanf(buffer8, "%I64x", &i);
 #else
         sscanf(buffer8, "%llx", &i);
 #endif
@@ -704,6 +706,8 @@ int QScript::Lexer::lex()
         quint64 ui;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
         sscanf_s(buffer8, "%llo", &ui);
+#elif defined(Q_WS_WIN) && defined(Q_CC_MINGW)
+        sscanf(buffer8, "%I64o", &ui);
 #else
         sscanf(buffer8, "%llo", &ui);
 #endif
