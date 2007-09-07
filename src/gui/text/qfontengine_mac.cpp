@@ -965,6 +965,7 @@ QFontEngine::FaceId QFontEngineMac::faceId() const
     if (ATSFontGetFileReference(FMGetATSFontRefFromFont(fontID), &ref) != noErr)
         return ret;
     ret.filename = QByteArray(128, 0);
+    ret.index = fontID;
     FSRefMakePath(&ref, (UInt8 *)ret.filename.data(), ret.filename.size());
 #else
     FSSpec spec;
@@ -974,6 +975,7 @@ QFontEngine::FaceId QFontEngineMac::faceId() const
     FSRef ref;
     FSpMakeFSRef(&spec, &ref);
     ret.filename = QByteArray(128, 0);
+    ret.index = fontID;
     FSRefMakePath(&ref, (UInt8 *)ret.filename.data(), ret.filename.size());
 #endif
     return ret;
