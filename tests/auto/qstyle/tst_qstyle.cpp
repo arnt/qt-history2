@@ -366,12 +366,14 @@ void tst_QStyle::testPainting(QStyle *style, const QString &platform)
     //Spin box
     fileName = "images/" + platform + "/spinbox.png";
     QDoubleSpinBox spinbox;
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
     spinbox.setStyle(style);
     spinbox.show();
     pixmap = QPixmap::grabWidget(&spinbox);
     spinbox.hide();
     comparePixmap(fileName, pixmap);
-
+    QLocale::setDefault(QLocale::system());
+    
     //Slider
     fileName = "images/" + platform + "/slider.png";
     QSlider slider;
