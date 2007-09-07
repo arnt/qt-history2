@@ -53,6 +53,7 @@
 #include <QPrintDialog>
 #include <QLibraryInfo>
 #include <QUiLoader>
+#include <QTranslator>
 
 #define pagecurl_mask_width 53
 #define pagecurl_mask_height 51
@@ -185,6 +186,9 @@ TrWindow::TrWindow()
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
+    // Create the ausiliary translator
+    altTranslatorModel = new MessageModel(this);
+
     // Set up the Scope dock window
     dwScope = new QDockWidget(this);
     dwScope->setObjectName(QLatin1String("ContextDockWidget"));
@@ -199,14 +203,15 @@ TrWindow::TrWindow()
     dwScope->setWidget(tv);
     addDockWidget(Qt::LeftDockWidgetArea, dwScope);
 
-    me = new MessageEditor(cmdl, this);
+    me = new MessageEditor(cmdl, altTranslatorModel, this);
     ptv = me->phraseView();
     pmdl = qobject_cast<PhraseModel *>(ptv->model());
 
     connect(tv->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
              this, SLOT(showNewCurrent(QModelIndex,QModelIndex)));
 
-    connect(cmdl, SIGNAL(languageChanged(QLocale::Language)), this, SLOT(updateLanguage(QLocale::Language)));
+    connect(cmdl, SIGNAL(languageChanged(QLocale::Language)),
+        this, SLOT(updateLanguage(QLocale::Language)));
 
     m_translatedlg = new TranslateDialog(this);
     m_batchTranslateDlg = new BatchTranslationDialog(cmdl, this);
@@ -293,6 +298,9 @@ void TrWindow::openFile( const QString& name )
         return;
     }
 
+    QString lang = QLocale::languageToString(cmdl->language());
+    me->setTranslationLabel(QString(tr("%1 translation")).arg(lang));
+
     MessageItem *m;
     for (MessageModel::iterator it = cmdl->begin() ; (m = it.current()) ; ++it) {
         updateDanger(m);
@@ -334,6 +342,42 @@ void TrWindow::open()
             tr("Qt translation source (*.ts)\nXLIFF localization file (*.xlf)\nAll files (*)"));
         openFile(newFilename);
     }
+}
+
+void TrWindow::openAltSource()
+{
+    QString newFilename = QFileDialog::getOpenFileName( this, QString(), filename,
+            tr("Qt alternative translation source (*.ts)\nXLIFF localization file (*.xlf)\nAll files (*)"));
+    openAltSource(newFilename);
+}
+
+void TrWindow::resetAltSource()
+{
+    altTranslatorModel->init();
+    altTranslatorModel->clearContextList();
+    altTranslatorModel->updateAll();
+    m_ui.actionResetAltSource->setEnabled(false);
+    showMessages(tv->currentIndex());
+}
+
+void TrWindow::openAltSource( const QString& name )
+{
+    if (name.isEmpty())
+        return;
+    statusBar()->showMessage(tr("Loading alternative translation..."));
+    qApp->processEvents();
+
+    if (!altTranslatorModel->load(name)) {
+        statusBar()->clearMessage();
+        QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot open '%1'.").arg(name));
+        return;
+    }
+    statusBar()->showMessage(tr("%n alternative translation(s) loaded.", 0,
+        altTranslatorModel->getMessageCount()), MessageMS);
+    m_ui.actionResetAltSource->setEnabled(true);
+    QString lang = QLocale::languageToString(altTranslatorModel->language());
+    me->setAltTextLabel(QString(tr("Existing %1 translation")).arg(lang));
+    showMessages(tv->currentIndex());
 }
 
 void TrWindow::save()
@@ -972,14 +1016,14 @@ void TrWindow::updateCaption()
     modified->setEnabled(cmdl->isModified());
 }
 
-void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old)
+void TrWindow::showMessages(const QModelIndex &index)
 {
-    if (current.isValid()) {
-        MessageItem *m = cmdl->messageItem(current);
-        ContextItem *c = cmdl->contextItem(current);
+    if (index.isValid()) {
+        MessageItem *m = cmdl->messageItem(index);
+        ContextItem *c = cmdl->contextItem(index);
         if (m && c) {
             QStringList translations  = cmdl->normalizedTranslations(*m);
-            me->showMessage(m->sourceText(), m->comment(), c->fullContext(),
+            me->showMessage(m->context(), m->sourceText(), m->comment(), c->fullContext(),
                 translations, m->message().type(), getPhrases(m->sourceText()));
             if (m->danger())
                 printDanger(m);
@@ -997,7 +1041,11 @@ void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old
         me->showNothing();
         m_ui.actionDoneAndNext->setEnabled(false);
     }
+}
 
+void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old)
+{
+    showMessages(current);
     m_ui.actionSelectAll->setEnabled(m_ui.actionDoneAndNext->isEnabled());
 
     Q_UNUSED(old);
@@ -1343,6 +1391,7 @@ void TrWindow::setupMenuBar()
     m_ui.actionCut->setIcon(QIcon(rsrcString + QLatin1String("/editcut.png")));
     m_ui.actionPaste->setIcon(QIcon(rsrcString + QLatin1String("/editpaste.png")));
     m_ui.actionOpen->setIcon(QIcon(rsrcString + QLatin1String("/fileopen.png")));
+    m_ui.actionOpenAltSource->setIcon(QIcon(rsrcString + QLatin1String("/fileopen.png")));
     m_ui.actionSave->setIcon(QIcon(rsrcString + QLatin1String("/filesave.png")));
     m_ui.actionNext->setIcon(QIcon(rsrcString + QLatin1String("/next.png")));
     m_ui.actionNextUnfinished->setIcon(QIcon(rsrcString + QLatin1String("/nextunfinished.png")));
@@ -1360,6 +1409,8 @@ void TrWindow::setupMenuBar()
 
     // File menu
     connect(m_ui.actionOpen, SIGNAL(triggered()), this, SLOT(open()));
+    connect(m_ui.actionOpenAltSource, SIGNAL(triggered()), this, SLOT(openAltSource()));
+    connect(m_ui.actionResetAltSource, SIGNAL(triggered()), this, SLOT(resetAltSource()));
     connect(m_ui.actionSave, SIGNAL(triggered()), this, SLOT(save()));
     connect(m_ui.actionSaveAs, SIGNAL(triggered()), this, SLOT(saveAs()));
     connect(m_ui.actionRelease, SIGNAL(triggered()), this, SLOT(release()));

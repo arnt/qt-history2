@@ -244,7 +244,7 @@ void TransEditor::calculateFieldHeight()
     int contentsHeight = qRound(field->document()->documentLayout()->documentSize().height());
     if (contentsHeight != field->height()) {
         int oldHeight = field->height();
-        if(contentsHeight < 30)
+        if (contentsHeight < 30)
             contentsHeight = 30;
 
         resize(width(), m_label->height() + 6 + 2 + contentsHeight);
@@ -424,7 +424,7 @@ void ShadowWidget::setWidget(QWidget *child)
 
 void ShadowWidget::resizeEvent(QResizeEvent *)
 {
-    if(childWgt) {
+    if (childWgt) {
         childWgt->move(wMargin, wMargin);
         childWgt->resize(width() - sWidth - wMargin, height() - sWidth -
             wMargin);
@@ -504,8 +504,29 @@ EditorPage::EditorPage(MessageEditor *parent, const char *name)
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
     srcText->setPalette( p );
 	srcText->setReadOnly(true);
+    srcText->setWhatsThis(tr("This area shows the source text.") );
     connect(srcText->document(), SIGNAL(contentsChanged()), SLOT(handleSourceChanges()));
     connect(srcText, SIGNAL(selectionChanged()),
+             SLOT(sourceSelectionChanged()));
+
+    altTextLbl = new QLabel(this);
+    altTextLbl->setText(tr("Alternative source text"));
+    altTextLbl->setFont(fnt);
+
+    altText = new SourceTextEdit(this);
+    altText->setFrameStyle(QFrame::NoFrame);
+    altText->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
+        QSizePolicy::Minimum));
+    altText->setAutoFormatting(QTextEdit::AutoNone);
+    altText->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    altText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    altText->setWhatsThis(tr("This area shows text from an auxillary translation.") );
+    p = altText->palette();
+    p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
+    altText->setPalette( p );
+    altText->setReadOnly(true);
+    connect(altText->document(), SIGNAL(contentsChanged()), SLOT(handleAltSourceChanges()));
+    connect(altText, SIGNAL(selectionChanged()),
              SLOT(sourceSelectionChanged()));
 
     cmtText = new QTextEdit(this);
@@ -523,6 +544,10 @@ EditorPage::EditorPage(MessageEditor *parent, const char *name)
 	cmtText->setReadOnly(true);
     connect(cmtText->document(), SIGNAL(contentsChanged()), SLOT(handleCommentChanges()));
 
+    cmtText->setWhatsThis(tr("This area shows a comment that"
+                        " may guide you, and the context in which the text"
+                        " occurs.") );
+
     m_pluralEditMode = false;
     addPluralForm(m_invariantForm);
 
@@ -538,8 +563,27 @@ EditorPage::EditorPage(MessageEditor *parent, const char *name)
     //setFocusProxy(transText);
 
     updateCommentField();
+    updateAltSourceField();
     layoutWidgets();
 
+}
+
+void EditorPage::showNothing()
+{
+    srcText->clear();
+    cmtText->clear();
+    altText->clear();
+    handleChanges();
+}
+
+void EditorPage::handleChanges()
+{
+    handleSourceChanges();
+    handleAltSourceChanges();
+    handleCommentChanges();
+    adjustTranslationFieldHeights();
+    updateCommentField();
+    updateAltSourceField();
 }
 
 void EditorPage::addPluralForm(const QString &label)
@@ -604,11 +648,26 @@ QStringList EditorPage::translations() const
 */
 void EditorPage::updateCommentField()
 {
-    if(cmtText->toPlainText().isEmpty())
+    if (cmtText->toPlainText().isEmpty())
         cmtText->hide();
     else
         cmtText->show();
 
+    layoutWidgets();
+}
+
+/*
+   Don't show the auxiliary translation field if there is no translation.
+*/
+void EditorPage::updateAltSourceField()
+{
+    if (altText->toPlainText().isEmpty()) {
+        altTextLbl->hide();
+        altText->hide();
+    } else {
+        altText->show();
+        altTextLbl->show();
+    }
     layoutWidgets();
 }
 
@@ -632,6 +691,16 @@ void EditorPage::layoutWidgets()
     srcText->resize(w - margin*2, srcText->height());
 
     int ypos = srcText->y() + srcText->height() + space;
+    if (altText->isVisible()) {
+        QFontMetrics altfm(altTextLbl->font());
+        altTextLbl->move(margin, ypos);
+        altTextLbl->resize(altfm.width(altTextLbl->text()), altTextLbl->height());
+
+        altText->move(margin, altTextLbl->y() + altTextLbl->height() + space);
+        altText->resize(w - margin*2, altText->height());
+
+        ypos = altText->y() + altText->height() + space;
+    }
     if (cmtText->isVisible()) {
         cmtText->move(margin, ypos);
         cmtText->resize(w - margin*2, cmtText->height());
@@ -657,6 +726,7 @@ void EditorPage::resizeEvent(QResizeEvent *)
 {
     adjustTranslationFieldHeights();
     handleSourceChanges();
+    handleAltSourceChanges();
     handleCommentChanges();
 
     layoutWidgets();
@@ -674,6 +744,11 @@ void EditorPage::adjustTranslationFieldHeights()
 void EditorPage::handleSourceChanges()
 {
     calculateFieldHeight(srcText);
+}
+
+void EditorPage::handleAltSourceChanges()
+{
+    calculateFieldHeight(altText);
 }
 
 void EditorPage::handleCommentChanges()
@@ -778,7 +853,7 @@ void EditorPage::calculateFieldHeight(QTextEdit *field)
 
     if (contentsHeight != field->height()) {
         int oldHeight = field->height();
-        if(contentsHeight < 30)
+        if (contentsHeight < 30)
             contentsHeight = 30;
         field->resize(field->width(), contentsHeight);
         emit pageHeightUpdated(height() + (field->height() - oldHeight));
@@ -807,9 +882,10 @@ void EditorPage::fontChange(const QFont &)
 
    Handle layout of dock windows and the editor page.
 */
-MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
-    : QScrollArea(parent->centralWidget()), m_contextModel(model)
+MessageEditor::MessageEditor(MessageModel *model, MessageModel *altTranslatorModel, QMainWindow *parent)
+    : QScrollArea(parent->centralWidget()), m_contextModel(model), m_altTranslatorModel(altTranslatorModel)
 {
+    altTranslator = m_altTranslatorModel->translator();
     cutAvail = false;
     copyAvail = false;
     doGuesses = true;
@@ -894,11 +970,6 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     // What's this
     this->setWhatsThis(tr("This whole panel allows you to view and edit "
                               "the translation of some source text.") );
-    editorPage->srcText->setWhatsThis(tr("This area shows the source text.") );
-    editorPage->cmtText->setWhatsThis(tr("This area shows a comment that"
-                        " may guide you, and the context in which the text"
-                        " occurs.") );
-
     showNothing();
 }
 
@@ -966,16 +1037,10 @@ QTreeView *MessageEditor::phraseView() const
 
 void MessageEditor::showNothing()
 {
-    editorPage->srcText->clear();
-
     setEditionEnabled(false);
     sourceText.clear();
-    editorPage->cmtText->clear();
     setTranslation(QString(), 0, false);
-    editorPage->handleSourceChanges();
-    editorPage->handleCommentChanges();
-    editorPage->adjustTranslationFieldHeights();
-    editorPage->updateCommentField();
+    editorPage->showNothing();
 }
 
 static CandidateList similarTextHeuristicCandidates( MessageModel::iterator it,
@@ -1024,7 +1089,8 @@ static CandidateList similarTextHeuristicCandidates( MessageModel::iterator it,
 }
 
 
-void MessageEditor::showMessage(const QString &text,
+void MessageEditor::showMessage(const QString &context,
+                                const QString &text,
                                 const QString &comment,
                                 const QString &fullContext,
                                 const QStringList &translations,
@@ -1038,6 +1104,11 @@ void MessageEditor::showMessage(const QString &text,
     sourceText = text;
 
     visualizeBackTabs(text, editorPage->srcText);
+
+    visualizeBackTabs(altTranslator->translate(context.simplified().toLatin1(),
+                                               text.simplified().toLatin1(),
+                                               comment.simplified().toLatin1()),
+                                               editorPage->altText);
 
     if (!fullContext.isEmpty() && !comment.isEmpty())
         visualizeBackTabs(fullContext.simplified() + QLatin1String("\n") +
@@ -1090,10 +1161,7 @@ void MessageEditor::showMessage(const QString &text,
         }
     }
     phrMdl->resort();
-    editorPage->handleSourceChanges();
-    editorPage->handleCommentChanges();
-    editorPage->adjustTranslationFieldHeights();
-    editorPage->updateCommentField();
+    editorPage->handleChanges();
 }
 
 void MessageEditor::setNumerusForms(const QString &invariantForm, const QStringList &numerusForms)
@@ -1117,6 +1185,7 @@ void MessageEditor::setNumerusForms(const QString &invariantForm, const QStringL
                                 " the translation of some source text.") );
     }
 }
+
 static void visualizeImages(const QString &text, QTextEdit *te)
 {
     te->clear();
@@ -1334,5 +1403,18 @@ void MessageEditor::toggleGuessing()
     doGuesses = !doGuesses;
     if (!doGuesses) {
         phrMdl->removePhrases();
+    }
+}
+
+void MessageEditor::setAltTextLabel(const QString &str)
+{
+    editorPage->altTextLbl->setText(str);
+}
+
+void MessageEditor::setTranslationLabel(const QString &str)
+{
+    for (int i = 0; i < editorPage->m_transTexts.count(); ++i) {
+        TransEditor* te = editorPage->m_transTexts[i];
+        te->label()->setText(str);
     }
 }

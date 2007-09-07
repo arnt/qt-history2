@@ -205,16 +205,21 @@ protected:
     void resizeEvent(QResizeEvent *);
     void layoutWidgets();
     void updateCommentField();
+    void updateAltSourceField();
     void calculateFieldHeight(QTextEdit *field);
     void fontChange(const QFont &);
 
 private:
     void addPluralForm(const QString &label);
     void adjustTranslationFieldHeights();
+    void handleChanges();
+    void showNothing();
 
     PageCurl *pageCurl;
     QLabel *srcTextLbl;
     SourceTextEdit *srcText;
+    QLabel *altTextLbl;
+    SourceTextEdit *altText;
     QTextEdit *cmtText;
     QStringList m_numerusForms;
     QString     m_invariantForm;
@@ -224,6 +229,7 @@ private:
 
 private slots:
     void handleSourceChanges();
+    void handleAltSourceChanges();
     void handleCommentChanges();
     void sourceSelectionChanged();
     void translationSelectionChanged();
@@ -239,18 +245,20 @@ class MessageEditor : public QScrollArea
 {
     Q_OBJECT
 public:
-    MessageEditor(MessageModel *model, QMainWindow *parent = 0);
+    MessageEditor(MessageModel *model, MessageModel *altTraslatorModel, QMainWindow *parent = 0);
     QTreeView *phraseView() const;
     inline QDockWidget *phraseDockWnd() const {return bottomDockWnd;}
 
     void showNothing();
-    void showMessage(const QString &text, const QString &comment,
+    void showMessage(const QString &context, const QString &text, const QString &comment,
         const QString &fullContext, const QStringList &translation,
         MetaTranslatorMessage::Type type,
         const QList<Phrase> &phrases);
     void setNumerusForms(const QString &invariantForm, const QStringList &numerusForms);
     bool eventFilter(QObject *, QEvent *);
     void setTranslation(const QString &translation, int numerus, bool emitt);
+    void setAltTextLabel(const QString &str);
+    void setTranslationLabel(const QString &str);
 signals:
     void translationChanged(const QStringList &translations);
     void finished(bool finished);
@@ -314,6 +322,8 @@ private:
     ShadowWidget *sw;
 
     MessageModel *m_contextModel;
+    MessageModel *m_altTranslatorModel;
+    QTranslator *altTranslator;
     QString sourceText;
 
     bool cutAvail;

@@ -59,6 +59,9 @@
     <addaction name="separator" />
     <addaction name="menuEditPhraseBook" />
     <addaction name="menuPrintPhraseBook" />
+    <addaction name="separator" />
+    <addaction name="actionOpenAltSource" />
+    <addaction name="actionResetAltSource" />
    </widget>
    <widget class="QMenu" name="menuValidation" >
     <property name="title" >
@@ -760,6 +763,19 @@
    <property name="menuRole" >
     <enum>QAction::NoRole</enum>
    </property>
+  </action>
+  <action name="actionOpenAltSource" >
+   <property name="text" >
+    <string>Open auxiliary source</string>
+   </property>
+  </action>
+  <action name="actionResetAltSource" >
+      <property name="enabled" >
+          <bool>false</bool>
+      </property>
+      <property name="text" >
+          <string>Disable auxiliary source</string>
+      </property>
   </action>
  </widget>
  <resources/>

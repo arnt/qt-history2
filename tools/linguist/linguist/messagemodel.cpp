@@ -172,6 +172,11 @@ bool ContextItem::compare(const MessageItem *left, const MessageItem *right)
 MessageModel::MessageModel(QObject *parent)
 : QAbstractItemModel(parent), sortColumn(-1)
 {
+    init();
+}
+
+void MessageModel::init()
+{
     m_srcWords = 0;
     m_srcChars = 0;
     m_srcCharsSpc = 0;

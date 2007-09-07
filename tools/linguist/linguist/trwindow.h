@@ -95,6 +95,8 @@ private slots:
     void closePhraseBook(QAction *action);
     void editPhraseBook(QAction *action);
     void printPhraseBook(QAction *action);
+    void openAltSource();
+    void resetAltSource();
     void manual();
     void revertSorting();
     void about();
@@ -105,6 +107,7 @@ private slots:
     bool maybeSave();
     void updateCaption();
     void showNewCurrent(const QModelIndex &current, const QModelIndex &old);
+    void showMessages(const QModelIndex &index);
     
     // To synchronize from the contextmodel to the MetaTranslator...
     // Operates on the selected item
@@ -154,6 +157,7 @@ private:
     bool openPhraseBook(const QString &name);
     bool phraseBooksContains(QString name);
     bool savePhraseBook(QString &name, const PhraseBook &pb);
+    void openAltSource(const QString &name);
     void updateProgress();
     void updatePhraseDict();
     PhraseBook getPhrases(const QString &source);
@@ -167,6 +171,7 @@ private:
     QAssistantClient *ac;
     MessagesTreeView *tv;
     MessageModel *cmdl;
+    MessageModel *altTranslatorModel;
     QTreeView *stv;
     QTreeView *ptv;
     PhraseModel *pmdl;
