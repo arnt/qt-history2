@@ -65,7 +65,6 @@ Server::Server(QWidget *parent)
 
 void Server::sendFortune()
 {
-    qDebug() << "sending fortune";
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
