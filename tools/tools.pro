@@ -20,7 +20,7 @@ no-png {
 }
 
 # Patternist use member templates
-!win32-msvc: SUBDIRS += patternist
+!linux-icc*:!win32-msvc: SUBDIRS += patternist
 
 CONFIG+=ordered
 QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"
