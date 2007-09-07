@@ -688,8 +688,12 @@ void QDockWidgetPrivate::endDrag(bool abort)
                     delete state->widgetItem;
                 layout->restore();
 #ifdef Q_WS_X11
-                setWindowState(true); // gets rid of the X11BypassWindowManager window flag
-                                      // and activates the resizer
+                // get rid of the X11BypassWindowManager window flag and activate the resizer
+                Qt::WindowFlags flags = q->windowFlags();
+                flags &= ~Qt::X11BypassWindowManagerHint;
+                q->setWindowFlags(flags);
+                resizer->setActive(QWidgetResizeHandler::Resize, true);
+                q->show();
 #else
                 QDockWidgetLayout *myLayout
                     = qobject_cast<QDockWidgetLayout*>(q->layout());
