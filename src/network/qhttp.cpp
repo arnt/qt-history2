@@ -2427,7 +2427,7 @@ void QHttpPrivate::_q_slotSendRequest()
             if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty())
                 socket->setProxy(proxy);
 #endif
-            sslSocket->connectToHostEncrypted(connectionHost, connectionPort);
+            sslSocket->connectToHostEncrypted(hostName, port);
         } else
 #endif
         {

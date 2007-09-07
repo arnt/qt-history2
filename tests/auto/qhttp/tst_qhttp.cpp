@@ -22,6 +22,9 @@
 #ifdef TEST_QNETWORK_PROXY
 # include <QNetworkProxy>
 #endif
+#ifndef QT_NO_OPENSSL
+# include <qsslsocket.h>
+#endif
 
 //TESTED_CLASS=
 //TESTED_FILES=network/qhttp.h network/qhttp.cpp
@@ -54,6 +57,7 @@ private slots:
     void proxy2();
     void proxy3();
     void postAuthNtlm();
+    void proxyAndSsl();
 
     void reconnect();
     void setSocket();
@@ -109,6 +113,8 @@ private:
     int headId;
 
     int reconnect_state_connect_count;
+
+    bool proxyAuthCalled;
 };
 
 //#define DUMP_SIGNALS
@@ -985,8 +991,9 @@ void tst_QHttp::caseInsensitiveKeys()
 
 void tst_QHttp::proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth)
 {
-    auth->setUser("Administrator");
-    auth->setPassword("--the-password-goes-here--"); // write the password here
+    proxyAuthCalled = true;
+    auth->setUser("foo");
+    auth->setPassword("bar");
 }
 
 void tst_QHttp::postAuthNtlm()
@@ -1007,14 +1014,46 @@ void tst_QHttp::postAuthNtlm()
     http.setProxy("10.3.3.250", 8080);
     http.post("/", postData);
 
+    proxyAuthCalled = false;
     connect(&http, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
             SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
 
     QObject::connect(&http, SIGNAL(done(bool)), &QTestEventLoop::instance(), SLOT(exitLoop()));
     QTestEventLoop::instance().enterLoop(3);
     QObject::disconnect(&http, SIGNAL(done(bool)), &QTestEventLoop::instance(), SLOT(exitLoop()));
+
+    QVERIFY(proxyAuthCalled);
     QVERIFY(!QTestEventLoop::instance().timeout());
 };
+
+void tst_QHttp::proxyAndSsl()
+{
+#ifdef QT_NO_OPENSSL
+    QSKIP("No OpenSSL support in this platform", SkipAll);
+#else
+    QFETCH_GLOBAL(bool, setProxy);
+    if (setProxy)
+        return;
+
+    QHostInfo info = QHostInfo::fromName(QHostInfo::localHostName());
+    QHttp http;
+
+    http.setHost("fluke.troll.no", QHttp::ConnectionModeHttps);
+    http.setProxy("fluke.troll.no", 3129);
+    http.get("/");
+
+    proxyAuthCalled = false;
+    connect(&http, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+            SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
+
+    QObject::connect(&http, SIGNAL(done(bool)), &QTestEventLoop::instance(), SLOT(exitLoop()));
+    QTestEventLoop::instance().enterLoop(3);
+    QObject::disconnect(&http, SIGNAL(done(bool)), &QTestEventLoop::instance(), SLOT(exitLoop()));
+
+    QVERIFY(proxyAuthCalled);
+    QVERIFY(!QTestEventLoop::instance().timeout());
+#endif
+}
 
 QTEST_MAIN(tst_QHttp)
 #include "tst_qhttp.moc"
