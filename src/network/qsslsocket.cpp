@@ -1538,7 +1538,9 @@ void QSslSocketPrivate::createPlainSocket(QIODevice::OpenMode openMode)
     q->connect(plainSocket, SIGNAL(bytesWritten(qint64)),
                q, SLOT(_q_bytesWrittenSlot(qint64)),
                Qt::DirectConnection);
-    
+    q->connect(plainSocket, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+               q, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
+
     readBuffer.clear();
     writeBuffer.clear();
     connectionEncrypted = false;
