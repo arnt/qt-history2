@@ -980,11 +980,8 @@ QCoreGraphicsPaintEngine::updateCompositionMode(QPainter::CompositionMode mode)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_5) {
-        CGBlendMode cg_mode = kCGBlendModeNormal;
+        int cg_mode = kCGBlendModeNormal;
         switch(mode) {
-        case QPainter::CompositionMode_SourceOver:
-            cg_mode = kCGBlendModeNormal;
-            break;
         case QPainter::CompositionMode_Multiply:
             cg_mode = kCGBlendModeMultiply;
             break;
@@ -1059,14 +1056,14 @@ QCoreGraphicsPaintEngine::updateCompositionMode(QPainter::CompositionMode mode)
             break;
         }
         if (cg_mode > -1) {
-            CGContextSetBlendMode(d_func()->hd, cg_mode);
+            CGContextSetBlendMode(d_func()->hd, CGBlendMode(cg_mode));
         }
     } else
 #endif
     // The standard porter duff ops.
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3
             && mode <= QPainter::CompositionMode_Xor) {
-        CGCompositeMode cg_mode = kCGCompositeModeCopy;
+        int cg_mode = kCGCompositeModeCopy;
         switch (mode) {
         case QPainter::CompositionMode_SourceOver:
             cg_mode = kCGCompositeModeSourceOver;
@@ -1109,7 +1106,7 @@ QCoreGraphicsPaintEngine::updateCompositionMode(QPainter::CompositionMode mode)
             break;
         }
         if (cg_mode > -1)
-            CGContextSetCompositeOperation(d_func()->hd, cg_mode);
+            CGContextSetCompositeOperation(d_func()->hd, CGCompositeMode(cg_mode));
     } else {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
         bool needPrivateAPI = false;
