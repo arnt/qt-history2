@@ -20,7 +20,8 @@ no-png {
 }
 
 # Patternist use member templates
-!linux-icc*:!win32-msvc: SUBDIRS += patternist
+# Patternist is currently disabled, to avoid build breakages.
+#!linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia): SUBDIRS += patternist
 
 CONFIG+=ordered
 QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"
