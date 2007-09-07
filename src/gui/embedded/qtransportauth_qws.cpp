@@ -1307,6 +1307,8 @@ bool QTransportAuth::authFromMessage( QTransportAuth::Data &d, const char *msg, 
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
         return false;
     }
+
+    bool isCached = d_func()->keyCache.contains( d.progId );
     const unsigned char *clientKey = d_func()->getClientKey( d.progId );
     if ( clientKey == NULL )
     {
@@ -1324,30 +1326,59 @@ bool QTransportAuth::authFromMessage( QTransportAuth::Data &d, const char *msg, 
     const unsigned char *auth_tok;
     unsigned char digest[QSXE_KEY_LEN];
     bool multi_tok = false;
-    if ( !d.trusted())
+
+    bool need_to_recheck=false;
+    do
     {
-        hmac_md5( AUTH_DATA(msg), authLen, clientKey, QSXE_KEY_LEN, digest );
-        auth_tok = digest;
-    }
-    else
-    {
-        auth_tok = clientKey;
-        multi_tok = true;  // 1 or more keys are in the clientKey
-    }
-    while( true )
-    {
-        if ( memcmp( auth_tok, magic, QSXE_MAGIC_BYTES ) == 0
-                && memcmp( auth_tok + QSXE_MAGIC_BYTES, magic, QSXE_MAGIC_BYTES ) == 0 )
-            break;
-        if ( memcmp( msg + QSXE_KEY_IDX, auth_tok, QSXE_KEY_LEN ) == 0 )
+        if ( !d.trusted())
         {
-            d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
-            return true;
+            hmac_md5( AUTH_DATA(msg), authLen, clientKey, QSXE_KEY_LEN, digest );
+            auth_tok = digest;
         }
-        if ( !multi_tok )
-            break;
-        auth_tok += QSXE_KEY_LEN;
-    }
+        else
+        {
+            auth_tok = clientKey;
+            multi_tok = true;  // 1 or more keys are in the clientKey
+        }
+        while( true )
+        {
+            if ( memcmp( auth_tok, magic, QSXE_MAGIC_BYTES ) == 0
+                    && memcmp( auth_tok + QSXE_MAGIC_BYTES, magic, QSXE_MAGIC_BYTES ) == 0 )
+                break;
+            if ( memcmp( msg + QSXE_KEY_IDX, auth_tok, QSXE_KEY_LEN ) == 0 )
+            {
+                d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
+                return true;
+            }
+            if ( !multi_tok )
+                break;
+            auth_tok += QSXE_KEY_LEN;
+        }
+        //the keys cached on d.progId may not contain the binary key because the cache entry was made
+        //before the binary had first started, must search for client key again.
+        if ( isCached )
+        {
+            d_func()->keyCache.remove(d.progId);
+            isCached = false;
+
+#ifdef QTRANSPORTAUTH_DEBUG
+            qDebug() << "QTransportAuth::authFromMessage(): key not found in set of keys cached"
+                     << "against prog Id =" << d.progId << ". Re-obtaining client key. ";
+#endif
+            clientKey = d_func()->getClientKey( d.progId );
+            if ( clientKey == NULL )
+            {
+                d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::NoSuchKey;
+                return false;
+            }
+            need_to_recheck = true;
+        }
+        else
+        {
+            need_to_recheck = false;
+        }
+    } while( need_to_recheck );
+
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::FailMatch;
     qWarning() << "QTransportAuth::authFromMessage():failed authentication";
     FAREnforcer::getInstance()->logAuthAttempt( QDateTime::currentDateTime() );
