@@ -407,6 +407,7 @@ void tst_QStyle::testMacStyle()
 #ifdef Q_WS_MAC
     QMacStyle mstyle;
     testAllFunctions(&mstyle);
+    testPainting(&mstyle, "mac");
 #endif
 }
 
