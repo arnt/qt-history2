@@ -1062,7 +1062,7 @@ QDate QDate::fromString(const QString &string, const QString &format)
 {
     QDate date;
 #ifndef QT_BOOTSTRAPPED
-    QDateTimeParser dt(QVariant::Date);
+    QDateTimeParser dt(QVariant::Date, QDateTimeParser::FromString);
     if (dt.parseFormat(format))
         dt.fromString(string, &date, 0);
 #else
@@ -1687,7 +1687,7 @@ QTime QTime::fromString(const QString &string, const QString &format)
 {
     QTime time;
 #ifndef QT_BOOTSTRAPPED
-    QDateTimeParser dt(QVariant::Time);
+    QDateTimeParser dt(QVariant::Time, QDateTimeParser::FromString);
     if (dt.parseFormat(format))
         dt.fromString(string, 0, &time);
 #else
@@ -2866,7 +2866,7 @@ QDateTime QDateTime::fromString(const QString &string, const QString &format)
     QTime time;
     QDate date;
 
-    QDateTimeParser dt(QVariant::DateTime);
+    QDateTimeParser dt(QVariant::DateTime, QDateTimeParser::FromString);
     if (dt.parseFormat(format) && dt.fromString(string, &date, &time))
         return QDateTime(date, time);
 #else
@@ -4308,7 +4308,8 @@ end:
   match. Starting from \a index; str should already by lowered
 */
 
-int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionIndex, QString *usedMonth, int *used) const
+int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionIndex,
+                               QString *usedMonth, int *used) const
 {
     int bestMatch = -1;
     int bestCount = 0;
@@ -4318,9 +4319,9 @@ int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionI
         QString(*nameFunction)(int) = sn.count == 3
                                       ? &QDate::shortMonthName
                                       : &QDate::longMonthName;
-
+        const int maxAttempts = (context == FromString && sn.count == 3) ? 2 : 1;
         for (int month=startMonth; month<=12; ++month) {
-            for (int attempt=0; attempt<(sn.count == 3 ? 2 : 1); ++attempt) {
+            for (int attempt=0; attempt<maxAttempts; ++attempt) {
                 QString str2;
                 if (attempt == 0) {
                     str2 = nameFunction(month).toLower();
@@ -4335,39 +4336,26 @@ int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionI
                     }
                     if (usedMonth)
                         *usedMonth = nameFunction(month);
+
                     return month;
                 }
 
                 const int limit = qMin(str1.size(), str2.size());
 
                 QDTPDEBUG << "limit is" << limit << str1 << str2;
-                bool found = true;
                 for (int i=0; i<limit; ++i) {
                     if (str1.at(i) != str2.at(i)) {
                         if (i > bestCount) {
                             bestCount = i;
                             bestMatch = month;
                         }
-                        found = false;
                         break;
                     }
-
-                }
-                if (found) {
-                    if (used) {
-                        *used = limit;
-                    }
-                    if (usedMonth) {
-                        *usedMonth = nameFunction(month);
-                    QDTPDEBUG << "used is set to" << limit << *usedMonth;
-                    }
-                    return month;
                 }
             }
         }
         if (usedMonth && bestMatch != -1)
             *usedMonth = nameFunction(bestMatch);
-
     }
     if (used) {
         QDTPDEBUG << "used is set to" << bestCount;

@@ -75,9 +75,13 @@ public:
 class Q_CORE_EXPORT QDateTimeParser
 {
 public:
-    QDateTimeParser(QVariant::Type t)
+    enum Context {
+        FromString,
+        DateTimeEdit
+    };
+    QDateTimeParser(QVariant::Type t, Context ctx)
         : currentSectionIndex(-1), display(0), cachedDay(-1), parserType(t),
-        fixday(false), allowEmpty(true), spec(Qt::LocalTime)
+        fixday(false), allowEmpty(true), spec(Qt::LocalTime), context(ctx)
     {
         first.type = FirstSection;
         first.pos = -1;
@@ -228,6 +232,7 @@ public:
     bool allowEmpty;
 
     Qt::TimeSpec spec; // spec if used by QDateTimeEdit
+    Context context;
 };
 
 Q_CORE_EXPORT bool operator==(const QDateTimeParser::SectionNode &s1, const QDateTimeParser::SectionNode &s2);

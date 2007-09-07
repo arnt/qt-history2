@@ -1565,7 +1565,7 @@ QDateEdit::QDateEdit(const QDate &date, QWidget *parent)
 
 
 QDateTimeEditPrivate::QDateTimeEditPrivate()
-    : QDateTimeParser(QVariant::DateTime)
+    : QDateTimeParser(QVariant::DateTime, QDateTimeParser::DateTimeEdit)
 {
     hasHadFocus = false;
     formatExplicitlySet = false;

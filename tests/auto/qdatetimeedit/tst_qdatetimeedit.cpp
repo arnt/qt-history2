@@ -196,6 +196,8 @@ private slots:
     void timeSpec_data();
     void timeSpec();
     void timeSpecBug();
+
+    void monthEdgeCase();
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -3005,6 +3007,25 @@ void tst_QDateTimeEdit::cachedDayTest()
     QCOMPARE(testWidget->date(), QDate(2007, 2, 28));
     QTest::keyClick(testWidget, Qt::Key_Up);
     QCOMPARE(testWidget->date(), QDate(2007, 3, 31));
+}
+
+class SystemLocale : public QSystemLocale
+{
+public:
+    QLocale fallbackLocale() const { return QLocale("fr_FR"); }
+};
+
+
+void tst_QDateTimeEdit::monthEdgeCase()
+{
+    SystemLocale sl;
+    EditorDateEdit edit;
+    edit.setDisplayFormat("MMM d");
+    edit.setDate(QDate(2000, 1, 1));
+    QCOMPARE(edit.text(), QString("janv. 1"));
+    edit.lineEdit()->setCursorPosition(5);
+    QTest::keyClick(edit.lineEdit(), Qt::Key_Backspace);
+    QCOMPARE(edit.text(), QString("janv 1"));
 }
 
 QTEST_MAIN(tst_QDateTimeEdit)
