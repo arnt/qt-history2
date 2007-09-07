@@ -103,14 +103,16 @@ class TreeModel : public QStandardItemModel
 public:
     TreeModel()
     {
-        QStandardItem *parentItem = invisibleRootItem();
-        for (int i = 0; i < 10; ++i) {
-            QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
-            parentItem->appendRow(item);
-            QStandardItem *item2 = new QStandardItem(QString("item %0").arg(i));
-            parentItem->appendRow(item2);
-            item2->appendRow(new QStandardItem(QString("item %0").arg(i)));
-            parentItem = item;
+        for (int j = 0; j < 10; ++j) {
+            QStandardItem *parentItem = invisibleRootItem();
+            for (int i = 0; i < 10; ++i) {
+                QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
+                parentItem->appendRow(item);
+                QStandardItem *item2 = new QStandardItem(QString("item %0").arg(i));
+                parentItem->appendRow(item2);
+                item2->appendRow(new QStandardItem(QString("item %0").arg(i)));
+                parentItem = item;
+            }
         }
     }
 
@@ -585,15 +587,16 @@ void tst_QColumnView::clicked()
     QSignalSpy spy(&view, SIGNAL(clicked(const QModelIndex &)));
 
     // find the column to click on that contains child
-    QRect rect = view.visualRect(home);
-    QVERIFY(!rect.isNull());
-    TRY_VERIFY(view.isVisible());
-    QPoint globalPoint = view.mapToGlobal(rect.center());
-    QVERIFY(!globalPoint.isNull());
-    QWidget *w = QApplication::widgetAt(globalPoint);
-    QVERIFY(QApplication::topLevelAt(globalPoint));
-    QVERIFY(w);
-    QPoint localPoint = w->mapFromGlobal(globalPoint);
+    QWidget *w = 0;
+    QPoint localPoint;
+    for (int i = 0; i < view.createdColumns.count(); ++i) {
+        QAbstractItemView *column = view.createdColumns.at(i);
+        if (column && !column->visualRect(home).isNull()) {
+            w = column;
+            localPoint = view.visualRect(home).center();
+            break;
+        }
+    }
 
     QTest::mouseClick(w, Qt::LeftButton, 0, localPoint);
     QCOMPARE(spy.count(), 1);
@@ -895,28 +898,18 @@ void tst_QColumnView::resize()
 void tst_QColumnView::changeSameColumn()
 {
     ColumnView view;
-    QDirModel model;
+    TreeModel model;
     view.setModel(&model);
     QModelIndex second;
 
-    QModelIndex home = model.index(QDir::homePath());
+    QModelIndex home = model.secondLevel();
+    //index(QDir::homePath());
     view.setCurrentIndex(home);
     for (int i = 0; i < model.rowCount(home.parent()); ++i) {
         QModelIndex idx = model.index(i, 0, home.parent());
         if (model.hasChildren(idx) && idx != home) {
             second = idx;
             break;
-        }
-    }
-    if (!second.isValid()) {
-        home = model.index(QDir::tempPath());
-        view.setCurrentIndex(home);
-        for (int i = 0; i < model.rowCount(home.parent()); ++i) {
-            QModelIndex idx = model.index(i, 0, home.parent());
-            if (model.hasChildren(idx) && idx != home) {
-                second = idx;
-                break;
-            }
         }
     }
     QVERIFY(second.isValid());
