@@ -55,7 +55,6 @@ public:
 
     void connectToName(const QString &name, OpenMode openMode = ReadWrite);
     QString peerName() const;
-    void disconnectSocket();
 
     void abort();
     virtual qint64 bytesAvailable() const;

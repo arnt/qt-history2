@@ -139,7 +139,7 @@ void QLocalSocketPrivate::init()
 /*!
     Attempts to make a connection to \a name.
 
-    The socket is opened in the given openMode and first enters ConnectingState.
+    The socket is opened in the given \a openMode and first enters ConnectingState.
     It then attempts to connect to the address or addresses returned by the lookup.
     Finally, if a connection is established, QLocalSocket enters ConnectedState
     and emits connected().
@@ -148,7 +148,7 @@ void QLocalSocketPrivate::init()
 
     See also state(), peerName(), and waitForConnected().
   */
-void QLocalSocket::connectToName(const QString &name, OpenMode newOpenMode)
+void QLocalSocket::connectToName(const QString &name, OpenMode openMode)
 {
     Q_D(QLocalSocket);
     if (state() == ConnectedState || state() == ConnectingState)
@@ -180,7 +180,7 @@ void QLocalSocket::connectToName(const QString &name, OpenMode newOpenMode)
         return;
     }
     d->connectingName = name;
-    d->connectingOpenMode = newOpenMode;
+    d->connectingOpenMode = openMode;
     d->_q_connectToSocket();
 }
 
@@ -243,10 +243,10 @@ void QLocalSocketPrivate::_q_connectToSocket()
 
 /*!
     Initializes QLocalSocket with the native socket descriptor
-    socketDescriptor. Returns true if socketDescriptor is accepted
+    \a socketDescriptor. Returns true if socketDescriptor is accepted
     as a valid socket descriptor; otherwise returns false. The socket is
-    opened in the mode specified by openMode, and enters the socket state
-    specified by socketState.
+    opened in the mode specified by \a openMode, and enters the socket state
+    specified by \a socketState.
 
     Note: It is not possible to initialize two local sockets with the same
     native socket descriptor.
@@ -468,7 +468,7 @@ qint64 QLocalSocket::readBufferSize() const
 }
 
 /*!
-    Sets the size of QLocalSocket's internal read buffer to be size bytes.
+    Sets the size of QLocalSocket's internal read buffer to be \a size bytes.
 
     If the buffer size is limited to a certain size, QLocalSocket won't
     buffer more than this size of data. Exceptionally, a buffer size of 0
@@ -489,7 +489,7 @@ void QLocalSocket::setReadBufferSize(qint64 size)
 }
 
 /*!
-    Waits until the socket is connected, up to msecs milliseconds. If the
+    Waits until the socket is connected, up to \a msecs milliseconds. If the
     connection has been established, this function returns true; otherwise
     it returns false. In the case where it returns false, you can call
     error() to determine the cause of the error.

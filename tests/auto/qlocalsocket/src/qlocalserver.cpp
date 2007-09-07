@@ -17,7 +17,7 @@
 
 /*!
     \class QLocalServer
-    \sense 4.4
+    \since 4.4
 
     \brief The QLocalServer class provides a local socket based server.
 
@@ -74,7 +74,8 @@ QLocalServer::~QLocalServer()
 
 /*!
     Stop listening for incoming connections.  Existing connections are not
-    effected, but any new connections will be refused.
+    effected, but any new connections will be refused.  Returns false if there
+    was errors while closing otherwise true.
 
     \sa isListening(), listen()
  */
@@ -94,7 +95,7 @@ bool QLocalServer::close()
     reported by error(). If no suitable string is available, an empty
     string is returned.
 
-    \sa error()
+    \sa serverError()
  */
 QString QLocalServer::errorString() const
 {
@@ -106,7 +107,7 @@ QString QLocalServer::errorString() const
     Returns true if the server has a pending connection; otherwise
     returns false.
 
-    \sa nextPendingConnect(), setMaxPendingConnections()
+    \sa nextPendingConnection(), setMaxPendingConnections()
  */
 bool QLocalServer::hasPendingConnections() const
 {
@@ -116,7 +117,7 @@ bool QLocalServer::hasPendingConnections() const
 
 /*!
     This virtual function is called by QLocalServer when a new connection
-    is available. The socket argument is the native socket descriptor for
+    is available. \a socketDescriptor is the native socket descriptor for
     the accepted connection.
 
     The base implementation creates a QLocalSocket, sets the socket descriptor
@@ -150,7 +151,7 @@ bool QLocalServer::isListening() const
 }
 
 /*!
-    Tells the server to listen for incoming connections on name.
+    Tells the server to listen for incoming connections on \a name.
     If the server is currently listening then it will first close().
 
     Return true on success otherwise false.
@@ -181,7 +182,7 @@ bool QLocalServer::listen(const QString &name)
     Returns the maximum number of pending accepted connections.
     The default is 30.
 
-    \sa setMaxPendingConnections(), hasPendingCOnnections()
+    \sa setMaxPendingConnections(), hasPendingConnections()
  */
 int QLocalServer::maxPendingConnections() const
 {
@@ -194,7 +195,7 @@ int QLocalServer::maxPendingConnections() const
 
     This signal is emitted every time a new connection is available.
 
-    \sa hasPendingConnections(), nextPendingConnections()
+    \sa hasPendingConnections(), nextPendingConnection()
 */
 
 /*!
@@ -230,14 +231,16 @@ QString QLocalServer::serverName() const
 }
 
 /*!
-  \enum QLocalServer::ServerError
+  \enum QLocalServer::LocalServerError
 
-  The ServerError enumeration represents the errors that can occur during server
+  The LocalServerError enumeration represents the errors that can occur during server
   establishment.  The most recent error can be retrieved through a call to
   \l QLocalServer::serverError().
 
   \value NoError No error has occurred.
-  \value KeyError Error with the local server key.
+  \value NameError The server name is invalid.
+  \value PermissionDeniedError The operation failed because the server did not have the required persmissions.
+  \value AddressInUseError The Server tried to bind to an address that is already in use.
   \value UnknownError An unknown error has occurred.
  */
 
