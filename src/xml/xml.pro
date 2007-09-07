@@ -19,5 +19,5 @@ include(dom/dom.pri)
 include(sax/sax.pri)
 include(stream/stream.pri)
 
-# Patternist use member templates
-!win32-msvc:!hpux-acc*:!hpuxi-acc*:include(query/query.pri)
+# Patternist use member templates, exceptions and rtti
+!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia):include(query/query.pri)
