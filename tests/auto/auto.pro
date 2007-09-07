@@ -320,11 +320,16 @@ SUBDIRS += bic \
            qxmlstream \
            selftests \
            symbols \
-           qrand \
-           qxmlquery \
-           qxmlname \
-           patternist \
+           qrand
+
+# Patternist use member templates and exceptions
+# Patternist is currently disabled, to avoid build breakages.
+#!linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia) {
+SUBDIRS += qxmlquery        \
+           qxmlname         \
+           patternist       \
            qsourcelocation
+}
 
 unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += \
            qdbusabstractadaptor \
