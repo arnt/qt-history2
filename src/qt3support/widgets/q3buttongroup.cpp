@@ -228,6 +228,7 @@ int Q3ButtonGroup::count() const
 
 void Q3ButtonGroup::remove(QAbstractButton *button)
 {
+    fixChildren();
     QMap<int, QAbstractButton*>::Iterator it = buttonIds.begin();
     while (it != buttonIds.end()) {
         if (it.value() == button) {

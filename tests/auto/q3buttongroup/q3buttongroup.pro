@@ -1,5 +1,3 @@
-load(qttest_p4)
-QT += qt3support
+TEMPLATE = subdirs
 
-# Input
-SOURCES += tst_q3buttongroup.cpp
+SUBDIRS = clickLock tst_q3buttongroup.pro

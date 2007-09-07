@@ -13,6 +13,7 @@
 #include <QRadioButton>
 #include <QPushButton>
 #include <QDebug>
+#include <QLayout>
 #include <QtTest/QtTest>
 
 class tst_q3buttongroup : public QObject
@@ -23,6 +24,7 @@ private slots:
     void nonExclusiveButtons();
     void buttonIds();
     void buttonId();
+    void clickLock();
 };
 
 /*
@@ -125,6 +127,21 @@ void tst_q3buttongroup::buttonId()
     int id = bg.insert(button, 1);
     QApplication::instance()->processEvents();
     QCOMPARE(id, bg.id(button));
+}
+
+void tst_q3buttongroup::clickLock()
+{
+    // Task 177677
+    QProcess process;
+    process.start(QLatin1String("clickLock/clickLock"));
+    if (!process.waitForStarted(10000)) {
+        QFAIL("Could not launch process.");
+    }
+
+    if (!process.waitForFinished(15000)) {
+        process.terminate();
+        QFAIL("Could not handle click events properly");
+    }
 }
 
 QTEST_MAIN(tst_q3buttongroup)
