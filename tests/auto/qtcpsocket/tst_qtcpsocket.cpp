@@ -20,6 +20,7 @@
 
 #include <QtTest/QtTest>
 
+#include <QAuthenticator>
 #include <QCoreApplication>
 #include <QEventLoop>
 #include <QFile>
@@ -142,6 +143,8 @@ private slots:
     void connectToMultiIP();
     void moveToThread0();
 
+    void httpProxyWithAuthentication();
+
 protected slots:
     void nonBlockingIMAP_hostFound();
     void nonBlockingIMAP_connected();
@@ -157,6 +160,7 @@ protected slots:
     void hostLookupSlot();
     void abortiveClose_abortSlot();
     void remoteCloseErrorSlot();
+    void proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth);
 
 private:
     QTcpSocket *newSocket() const;
@@ -1622,6 +1626,42 @@ void tst_QTcpSocket::connectToMultiIP()
     QCOMPARE(socket->error(), QAbstractSocket::SocketTimeoutError);
 
     delete socket;
+}
+
+static bool proxyAuthCalled;
+void tst_QTcpSocket::proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth)
+{
+    proxyAuthCalled = true;
+    auth->setUser("foo");
+    auth->setPassword("bar");
+}
+
+void tst_QTcpSocket::httpProxyWithAuthentication()
+{
+    QFETCH_GLOBAL(bool, setProxy);
+    if (setProxy)
+        return;
+
+    QTcpSocket *socket = newSocket();
+    socket->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, "fluke.troll.no", 3129));
+
+    proxyAuthCalled = false;
+    connect(socket, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+            SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
+    connect(socket, SIGNAL(connected()), &QTestEventLoop::instance(), SLOT(exitLoop()));
+
+#ifndef QT_NO_OPENSSL
+    QFETCH_GLOBAL(bool, ssl);
+    if (ssl) {
+        static_cast<QSslSocket *>(socket)->connectToHostEncrypted("fluke.troll.no", 443);
+    } else
+#endif
+        socket->connectToHost("fluke.troll.no", 80);
+
+    QTestEventLoop::instance().enterLoop(2);
+    delete socket;
+    QVERIFY(!QTestEventLoop::instance().timeout());
+    QVERIFY(proxyAuthCalled);
 }
 
 //----------------------------------------------------------------------------------
