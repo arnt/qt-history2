@@ -129,6 +129,9 @@ public:
     void mousePressEventHandler(QGraphicsSceneMouseEvent *mouseEvent);
 
     static void sortItems(QList<QGraphicsItem *> *itemList);
+
+    static void drawItemHelper(QGraphicsItem *item, QPainter *painter,
+                               const QStyleOptionGraphicsItem *option, QWidget *widget);
 };
 
 #endif // QT_NO_GRAPHICSVIEW

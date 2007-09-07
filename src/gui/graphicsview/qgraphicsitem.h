@@ -77,6 +77,12 @@ public:
         ItemSceneChange
     };
 
+    enum CacheMode {
+        NoCache,
+        ItemCoordinateCache,
+        DeviceCoordinateCache
+    };
+
     QGraphicsItem(QGraphicsItem *parent = 0
 #ifndef Q_QDOC
                   // obsolete argument
@@ -98,6 +104,9 @@ public:
     GraphicsItemFlags flags() const;
     void setFlag(GraphicsItemFlag flag, bool enabled = true);
     void setFlags(GraphicsItemFlags flags);
+
+    CacheMode cacheMode() const;
+    void setCacheMode(CacheMode mode, const QSize &cacheSize = QSize());
 
 #ifndef QT_NO_TOOLTIP
     QString toolTip() const;
@@ -190,6 +199,8 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0;
     void update(const QRectF &rect = QRectF());
     inline void update(qreal x, qreal y, qreal width, qreal height);
+    void invalidate(const QRectF &rect = QRectF());
+    inline void invalidate(qreal x, qreal y, qreal width, qreal height);
 
     // Coordinate mapping
     QPointF mapToItem(const QGraphicsItem *item, const QPointF &point) const;
@@ -310,6 +321,8 @@ inline void QGraphicsItem::ensureVisible(qreal ax, qreal ay, qreal w, qreal h, i
 { ensureVisible(QRectF(ax, ay, w, h), xmargin, ymargin); }
 inline void QGraphicsItem::update(qreal ax, qreal ay, qreal width, qreal height)
 { update(QRectF(ax, ay, width, height)); }
+inline void QGraphicsItem::invalidate(qreal ax, qreal ay, qreal width, qreal height)
+{ invalidate(QRectF(ax, ay, width, height)); }
 inline bool QGraphicsItem::isObscured(qreal ax, qreal ay, qreal w, qreal h) const
 { return isObscured(QRectF(ax, ay, w, h)); }
 inline QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, qreal ax, qreal ay) const

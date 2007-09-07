@@ -352,6 +352,41 @@
 */
 
 /*!
+    \enum QGraphicsItem::CacheMode
+
+    This enum describes QGraphicsItem's cache modes. Caching is used to speed
+    up rendering by allocating and rendering to an off-screen pixel buffer,
+    which can be reused when the item requires redrawing. For some paint
+    devices, the cache is stored directly in graphics memory, which makes
+    rendering very quick.
+
+    \value NoCache The default; all item caching is
+    disabled. QGraphicsItem::paint() is called every time the item needs
+    redrawing.
+
+    \value ItemCoordinateCache Caching is enabled for the item's logical
+    (local) coordinate system. QGraphicsItem creates an off-screen pixel
+    buffer with a configurable size / resolution that you can pass to
+    QGraphicsItem::setCacheMode(). Rendering quality will typically degrade,
+    depending on the resolution of the cache and the item transformation.  The
+    first time the item is redrawn, it will render itself into the cache, and
+    the cache is then reused for every subsequent expose. The cache is also
+    reused as the item is transformed.  You can call
+    QGraphicsItem::invalidate() to invalidate and redraw the cache; calling
+    update() will only redraw from the cache. To adjust the resolution of the
+    cache, you can call setCacheMode() again.
+
+    \value DeviceCoordinateCache Caching is enabled at the paint device level,
+    in device coordinates. This mode is for items that can move, but are not
+    rotated, scaled or sheared. If the item is transformed directly or
+    indirectly, the cache will be regenerated automatically. Unlike
+    ItemCoordinateCacheMode, DeviceCoordinateCache always renders at maximum
+    quality.
+
+    \sa QGraphicsItem::setCacheMode()
+*/
+
+/*!
     \enum QGraphicsItem::Extension
     \internal
 
@@ -377,6 +412,7 @@
 #include <QtGui/qbitmap.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpainterpath.h>
+#include <QtGui/qpixmapcache.h>
 #include <QtGui/qstyleoption.h>
 #include <QtGui/qevent.h>
 
@@ -946,6 +982,65 @@ void QGraphicsItem::setFlags(GraphicsItemFlags flags)
         }
         
         update();
+    }
+}
+
+/*!
+    Returns the cache mode for this item. The default mode is NoCache (i.e.,
+    cache is disabled and all painting is immediate).
+
+    \sa setCacheMode()
+*/
+QGraphicsItem::CacheMode QGraphicsItem::cacheMode() const
+{
+    return QGraphicsItem::CacheMode(d_ptr->cacheMode);
+}
+
+/*!
+    Sets the item's cache mode to \a mode.
+
+    The optional \a logicalCacheSize argument is used only by
+    ItemCoordinateCache mode, and describes the resolution of the cache
+    buffer; if \a logicalCacheSize is (100, 100), QGraphicsItem will fit the
+    item into 100x100 pixels in graphics memory, regardless of the logical
+    size of the item itself. By default QGraphicsItem uses the size of
+    boundingRect(). For all other cache modes than ItemCoordinateCache, \a
+    logicalCacheSize is ignored.
+
+    Caching can speed up rendering if your item spends a significant time
+    redrawing itself. In some cases the cache can also slow down rendering, in
+    particular when the item spends less time redrawing than QGraphicsItem
+    spends redrawing from the cache. When enabled, the item's paint() function
+    will be called only once for each call to invalidate(); for any subsequent
+    repaint requests, the Graphics View framework will redraw from the
+    cache. This approach works particularily well with QGLWidget, which stores
+    all the cache as OpenGL textures.
+
+    Be aware that QPixmapCache's cache limit may need to be changed to obtain
+    optimal performance.
+
+    You can read more about the different cache modes in the CacheMode
+    documentation.
+
+    \sa CacheMode, invalidate(), QPixmapCache::setCacheLimit()
+*/
+void QGraphicsItem::setCacheMode(CacheMode mode, const QSize &logicalCacheSize)
+{
+    CacheMode oldMode = QGraphicsItem::CacheMode(d_ptr->cacheMode);
+    if (oldMode == mode)
+        return;
+    d_ptr->cacheMode = mode;
+    if (mode == NoCache) {
+        QPixmapCache::remove(d_ptr->extra(QGraphicsItemPrivate::ExtraPixmapKey).toString());
+        d_ptr->unsetExtra(QGraphicsItemPrivate::ExtraPixmapKey);
+        d_ptr->unsetExtra(QGraphicsItemPrivate::ExtraInvalidateRect);
+        update();
+    } else {
+        QSize size = !logicalCacheSize.isEmpty() ? logicalCacheSize : boundingRect().size().toSize();
+        QString key = QString::fromLatin1("qgraphicsitemcache-%1-%2-%3")
+                      .arg(long(this)).arg(size.width()).arg(size.height());
+        d_ptr->setExtra(QGraphicsItemPrivate::ExtraPixmapKey, key);
+        invalidate();
     }
 }
 
@@ -2381,7 +2476,7 @@ QPainterPath QGraphicsItem::opaqueArea() const
     provides style options for the item, such as its state, exposed area and
     its level-of-detail hints. The \a widget argument is optional. If
     provided, it points to the widget that is being painted on; otherwise, it
-    is 0.
+    is 0. For cached painting, \a widget is always 0.
 
     \code
         void RoundRectItem::paint(QPainter *painter,
@@ -2397,6 +2492,8 @@ QPainterPath QGraphicsItem::opaqueArea() const
     initialized to QPalette::Window.
 
     All painting is done in local coordinates.
+
+    \sa setCacheMode()
 */
 
 /*!
@@ -2429,6 +2526,31 @@ void QGraphicsItem::update(const QRectF &rect)
 
     This convenience function is equivalent to calling update(QRectF(\a x, \a
     y, \a width, \a height)).
+*/
+
+/*!
+    Invalidates the cache and schedules a redraw of the area covered by \a
+    rect in this item. You can call this function if caching is enabled, to
+    force \a rect to be redrawn in the cache. If \l cacheMode is NoCache, this
+    function is equivalent to update().
+
+    \sa update(), CacheMode
+*/
+void QGraphicsItem::invalidate(const QRectF &rect)
+{
+    if (CacheMode(d_ptr->cacheMode) != NoCache) {
+        QRectF r = rect.isNull() ? boundingRect() : rect;
+        d_ptr->setExtra(QGraphicsItemPrivate::ExtraInvalidateRect,
+                        d_ptr->extra(QGraphicsItemPrivate::ExtraInvalidateRect).toRectF() | r);
+    }
+    update(rect);
+}
+
+/*! \fn void QGraphicsItem::invalidate(qreal x, qreal y, qreal width, qreal height)
+    \overload
+
+     This convenience function is equivalent to calling update(QRectF(\a x, \a y,
+     \a width, \a height));
 */
 
 /*!

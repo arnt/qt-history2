@@ -36,7 +36,9 @@ public:
     enum Extra {
         ExtraTransform,
         ExtraToolTip,
-        ExtraCursor
+        ExtraCursor,
+        ExtraPixmapKey,
+        ExtraInvalidateRect
     };
 
     enum AncestorFlag {
@@ -63,6 +65,7 @@ public:
         hasTransform = 0;
         hasCursor = 0;
         ancestorFlags = 0;
+        cacheMode = 0;
         flags = 0;
         pad = 0;
     }
@@ -150,7 +153,8 @@ public:
     quint32 hasTransform : 1;
     quint32 hasCursor : 1;
     quint32 ancestorFlags : 3;
-    quint32 flags : 11;
+    quint32 cacheMode : 2;
+    quint32 flags : 9;
     quint32 pad : 1;
 
     QGraphicsItem *q_ptr;

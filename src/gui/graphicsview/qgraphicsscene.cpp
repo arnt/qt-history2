@@ -200,6 +200,7 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
 #include <QtGui/qmatrix.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpaintengine.h>
+#include <QtGui/qpixmapcache.h>
 #include <QtGui/qpolygon.h>
 #include <QtGui/qstyleoption.h>
 #include <QtGui/qtooltip.h>
@@ -3198,6 +3199,117 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 }
 
 /*!
+    \internal
+
+    Draws items directly, or using cache.
+*/
+void QGraphicsScenePrivate::drawItemHelper(QGraphicsItem *item, QPainter *painter,
+                                           const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QGraphicsItemPrivate *itemd = item->d_ptr;
+    QGraphicsItem::CacheMode cacheMode = QGraphicsItem::CacheMode(itemd->cacheMode);
+
+    // Render directly, using no cache.
+    if (cacheMode == QGraphicsItem::NoCache) {
+        item->paint(painter, option, widget);
+        return;
+    }
+
+    QRectF brect = item->boundingRect();
+    QRect boundingRectInt = brect.toRect();
+
+    // Fetch the off-screen transparent buffer and exposed area info.
+    QPixmap pix;
+    QString pixmapKey = itemd->extra(QGraphicsItemPrivate::ExtraPixmapKey).toString();
+    QPixmapCache::find(pixmapKey, pix);
+
+    QRectF exposed = itemd->extra(QGraphicsItemPrivate::ExtraInvalidateRect).toRectF();
+
+    // Render using item coodinate cache mode.
+    if (cacheMode == QGraphicsItem::ItemCoordinateCache) {
+        // Recreate the pixmap if it's gone.
+        if (pix.isNull()) {
+            QStringList sl = pixmapKey.split(QLatin1Char('-'));
+            Q_ASSERT(sl.size() == 4);
+            pix = QPixmap(sl.at(2).toInt(), sl.at(3).toInt());
+            pix.fill(Qt::transparent);
+            exposed = brect;
+        }
+        
+        // Check for newly invalidated areas.
+        if (!exposed.isNull()) {
+            itemd->unsetExtra(QGraphicsItemPrivate::ExtraInvalidateRect);
+
+            QStyleOptionGraphicsItem cacheOption = *option;
+            cacheOption.exposedRect = exposed.toRect(); // <- truncation
+
+            QPainter pixmapPainter(&pix);
+            // Fit the item's bounding rect into the pixmap's coordinates.
+            pixmapPainter.scale(pix.width() / brect.width(),
+                                pix.height() / brect.height());
+            pixmapPainter.translate(-brect.topLeft());
+
+            // Re-render the invalidated areas of the pixmap. Important: don't
+            // fool the item into using the widget - pass 0 instead of \a
+            // widget.
+            item->paint(&pixmapPainter, &cacheOption, 0);
+            pixmapPainter.end();
+
+            // Reinsert this pixmap into the cache
+            QPixmapCache::insert(pixmapKey, pix);
+        }
+
+        // Redraw the exposed area using the transformed painter. Depending on
+        // the hardware, this may be a server-side operation, or an expensive
+        // qpixmap-image-transform-pixmap roundtrip.
+        painter->drawPixmap(brect, pix, QRectF(QPointF(), pix.size()));
+        return;
+    }
+
+    // Render using device coordinate cache mode.
+    if (cacheMode == QGraphicsItem::DeviceCoordinateCache) {
+        QTransform transform = painter->worldTransform();
+        QRect deviceRect = transform.mapRect(brect).toRect();
+
+        // Auto-adjust the pixmap size.
+        if (deviceRect.size() != pix.size()) {
+            pix = QPixmap(deviceRect.size());
+            pix.fill(Qt::transparent);
+            exposed = brect;
+        }
+
+        // Check for newly invalidated areas.
+        if (!exposed.isNull()) {
+            itemd->unsetExtra(QGraphicsItemPrivate::ExtraInvalidateRect);
+
+            // Construct the new styleoption, reset the exposed rect.
+            QStyleOptionGraphicsItem cacheOption = *option;
+            cacheOption.exposedRect = exposed.toRect(); // <- truncation
+
+            QPointF viewOrigo = transform.map(QPointF(0,  0));
+            QPointF offset = viewOrigo - deviceRect.topLeft();
+
+            // Transform the painter, and render the item in device coordinates.
+            QPainter pixmapPainter(&pix);
+            pixmapPainter.translate(offset);
+            pixmapPainter.setWorldTransform(transform, true);
+            pixmapPainter.translate(transform.inverted().map(QPointF(0, 0)));
+            item->paint(&pixmapPainter, &cacheOption, 0);
+            pixmapPainter.end();
+
+            // Reinsert this pixmap into the cache
+            QPixmapCache::insert(pixmapKey, pix);
+        }
+
+        // Redraw the exposed area using an untransformed painter. This
+        // effectively becomes a bitblit that does not transform the cache.
+        painter->setWorldTransform(QTransform());
+        painter->drawPixmap(deviceRect.topLeft(), pix);
+        return;
+    }
+}
+
+/*!
     Paints the given \a items using the provided \a painter, after the
     background has been drawn, and before the foreground has been
     drawn.  All painting is done in \e scene coordinates. Before
@@ -3261,7 +3373,7 @@ void QGraphicsScene::drawItems(QPainter *painter,
                      && (target = target->parentItem()));
         }
 
-        item->paint(painter, &options[i], widget);
+        d->drawItemHelper(item, painter, &options[i], widget);
 
         // Restore painter
         if (painterStateProtection)
