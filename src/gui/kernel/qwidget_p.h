@@ -51,10 +51,6 @@
 //#define Q_WIDGET_USE_DIRTYLIST
 #endif
 
-#ifndef Q_WS_MAC
-#define Q_WIDGET_CACHE_OPAQUEREGIONS
-#endif
-
 //#define Q_WIN_USE_QT_UPDATE_EVENT
 //#define Q_RATE_LIMIT_PAINTING
 //#define Q_FLATTEN_EXPOSE
@@ -256,7 +252,6 @@ public:
     bool hasBackground() const;
     bool paintOnScreen() const;
 
-#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
     QRegion getOpaqueRegion() const;
     QRegion getOpaqueChildren() const;
     void setDirtyOpaqueRegion();
@@ -267,7 +262,6 @@ public:
 
     QRegion opaqueChildren;
     bool dirtyOpaqueChildren;
-#endif
 
     enum CloseMode {
         CloseNoEvent,
