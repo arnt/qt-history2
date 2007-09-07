@@ -2476,8 +2476,6 @@ void QHttpPrivate::finishedWithError(const QString &detail, int errorCode)
 void QHttpPrivate::_q_slotClosed()
 {
     Q_Q(QHttp);
-    if (state == QHttp::Closing)
-        return;
 
     if (state == QHttp::Reading) {
         if (response.hasKey(QLatin1String("content-length"))) {
@@ -2491,7 +2489,8 @@ void QHttpPrivate::_q_slotClosed()
     }
 
     postDevice = 0;
-    setState(QHttp::Closing);
+    if (state != QHttp::Closing)
+        setState(QHttp::Closing);
     QMetaObject::invokeMethod(q, "_q_slotDoFinished", Qt::QueuedConnection);
 }
 
@@ -2917,12 +2916,6 @@ void QHttpPrivate::closeConn()
     } else {
         // Close now.
         socket->close();
-
-        // Did close succeed immediately ?
-        if (socket->state() == QTcpSocket::UnconnectedState) {
-            // Prepare to emit the requestFinished() signal.
-            QMetaObject::invokeMethod(q, "_q_slotDoFinished", Qt::QueuedConnection);
-        }
     }
 }
 
