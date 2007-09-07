@@ -2063,7 +2063,10 @@ void QTextEdit::scrollToAnchor(const QString &name)
     }
 
     QPointF p = d->control->anchorPosition(name);
-    d->vbar->setValue(qRound(p.y()));
+    const int newPosition = qRound(p.y());
+    if ( d->vbar->maximum() < newPosition )
+        d->_q_adjustScrollbars();
+    d->vbar->setValue(newPosition);
 }
 
 /*!
