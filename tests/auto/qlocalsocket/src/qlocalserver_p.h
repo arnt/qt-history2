@@ -78,7 +78,6 @@ public:
 #ifdef Q_OS_WIN
     void _q_openSocket(int socket);
     void _q_stoppedListening();
-    void _q_error();
 
     QLocalServerThread thread;
     bool waiting;

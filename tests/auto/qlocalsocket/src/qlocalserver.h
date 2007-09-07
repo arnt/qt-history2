@@ -64,7 +64,6 @@ private:
 #ifdef Q_OS_WIN
     Q_PRIVATE_SLOT(d_func(), void _q_openSocket(int handle))
     Q_PRIVATE_SLOT(d_func(), void _q_stoppedListening())
-    Q_PRIVATE_SLOT(d_func(), void _q_error())
 #else
     Q_PRIVATE_SLOT(d_func(), void _q_socketActivated())
 #endif
