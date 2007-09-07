@@ -65,6 +65,8 @@ private slots:
     void pctEncodedPath();
     void caseInsensitiveKeys();
 
+    void connectionClose();
+
 protected slots:
     void stateChanged( int );
     void responseHeaderReceived( const QHttpResponseHeader & );
@@ -1053,6 +1055,34 @@ void tst_QHttp::proxyAndSsl()
     QVERIFY(proxyAuthCalled);
     QVERIFY(!QTestEventLoop::instance().timeout());
 #endif
+}
+
+void tst_QHttp::connectionClose()
+{
+    // This test tries to connect to a client's server, so it is disabled.
+    // Every now and then, someone please run it to make sure it's not broken.
+    // Note: the servers might change too...
+    //
+    // This was added in response to bug 176822
+    QSKIP("This test is manual - read comments in the source code", SkipAll);
+
+    QFETCH_GLOBAL(bool, setProxy);
+    if (setProxy)
+        return;
+
+    QHttp http;
+    http.setHost("www.fon.com", QHttp::ConnectionModeHttps);
+    http.get("/login/gateway/processLogin");
+
+    // another possibility:
+    //http.setHost("nexus.passport.com", QHttp::ConnectionModeHttps, 443);
+    //http.get("/rdr/pprdr.asp");
+
+    QObject::connect(&http, SIGNAL(done(bool)), &QTestEventLoop::instance(), SLOT(exitLoop()));
+    QTestEventLoop::instance().enterLoop(900);
+    QObject::disconnect(&http, SIGNAL(done(bool)), &QTestEventLoop::instance(), SLOT(exitLoop()));
+
+    QVERIFY(!QTestEventLoop::instance().timeout());
 }
 
 QTEST_MAIN(tst_QHttp)
