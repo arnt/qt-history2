@@ -1,4 +1,0 @@
-StartDocument( )
-Comment( text=" Colon in entity name " )
-Invalid( )
-ERROR: Expected ' ', but got ':'.
