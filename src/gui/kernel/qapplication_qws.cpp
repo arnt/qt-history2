@@ -963,6 +963,8 @@ void QWSDisplay::Data::waitForRegionAck(int winId)
             }
             ++i;
         }
+        if (!ack) // already processed
+            return;
     }
 
     Q_ASSERT(ack);
