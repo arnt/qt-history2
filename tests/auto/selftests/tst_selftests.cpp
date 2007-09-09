@@ -132,7 +132,7 @@ void tst_Selftests::runSubTest()
             QEXPECT_FAIL("assert", "QTestLib prints out the absolute path.", Continue);
 
         /* On some platforms we compile without RTTI, and as a result we never throw an exception. */
-        if(expected.startsWith(QLatin1String("tst_Exception::throwException() Caught unhandled exce")) && expected != output)
+        if(expected.startsWith(QLatin1String("FAIL!  : tst_Exception::throwException() Caught unhandled exce")) && expected != output)
             QCOMPARE(output, QString::fromLatin1("tst_Exception::throwException()\n"));
         else
             QCOMPARE(output, expected);
