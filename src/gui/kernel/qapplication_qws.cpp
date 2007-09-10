@@ -880,7 +880,7 @@ void QWSDisplay::Data::fillQueue()
         }
         //debugQueue();
 #ifndef QT_NO_QWS_MULTIPROCESS
-        if (bytesRead >= bytesAvailable)
+        if (csocket && bytesRead >= bytesAvailable)
             break;
 #endif
         e = readMore();
