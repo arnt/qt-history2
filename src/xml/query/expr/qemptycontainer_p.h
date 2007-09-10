@@ -26,7 +26,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_expressions
      */
-    class EmptyContainer : public Expression
+    class Q_AUTOTEST_EXPORT EmptyContainer : public Expression
     {
     public:
         /**

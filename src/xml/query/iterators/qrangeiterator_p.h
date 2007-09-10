@@ -36,7 +36,7 @@ namespace Patternist
      * @ingroup Patternist_iterators
      * @todo Documentation is missing
      */
-    class RangeIterator : public Item::Iterator
+    class Q_AUTOTEST_EXPORT RangeIterator : public Item::Iterator
     {
     public:
 

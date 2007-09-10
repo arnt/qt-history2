@@ -39,7 +39,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_expressions
      */
-    class SourceLocationReflection
+    class Q_AUTOTEST_EXPORT SourceLocationReflection
     {
     public:
         inline SourceLocationReflection()

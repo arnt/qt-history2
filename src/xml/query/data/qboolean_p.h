@@ -26,7 +26,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_xdm
      */
-    class Boolean : public AtomicValue
+    class Q_AUTOTEST_EXPORT Boolean : public AtomicValue
     {
     public:
         typedef AtomicValue::Ptr Ptr;

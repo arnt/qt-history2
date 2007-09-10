@@ -33,7 +33,7 @@ namespace Patternist
      * @ingroup Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class XPathHelper
+    class Q_AUTOTEST_EXPORT XPathHelper
     {
     public:
         /**
