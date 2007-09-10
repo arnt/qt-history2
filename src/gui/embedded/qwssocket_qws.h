@@ -15,16 +15,13 @@
 #define QWSSOCKET_QWS_H
 
 #include <QtCore/qconfig.h>
+#include <QtGui/qwsutils_qws.h>
 
 #ifndef QT_NO_SXE
-#define QWS_SOCK_BASE QUnixSocket
-#define QWS_SOCK_SERVER_BASE QUnixSocketServer
 #include "qunixsocket_p.h"
 #include "qunixsocketserver_p.h"
 #include <QtCore/qmutex.h>
 #else
-#define QWS_SOCK_BASE QTcpSocket
-#define QWS_SOCK_SERVER_BASE QTcpServer
 #include <QtNetwork/qtcpsocket.h>
 #include <QtNetwork/qtcpserver.h>
 #endif

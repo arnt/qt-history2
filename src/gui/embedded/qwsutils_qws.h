@@ -14,7 +14,21 @@
 #ifndef QWSUTILS_QWS_H
 #define QWSUTILS_QWS_H
 
-#include <QtGui/qwssocket_qws.h>
+#include <QtCore/QIODevice>
+
+#ifndef QT_NO_SXE
+#define QWS_SOCK_BASE QUnixSocket
+#define QWS_SOCK_SERVER_BASE QUnixSocketServer
+class QUnixSocket;
+class QUnixSocketServer;
+#else
+#define QWS_SOCK_BASE QTcpSocket
+#define QWS_SOCK_SERVER_BASE QTcpServer
+class QTcpSocket;
+class QTcpServer;
+#endif
+class QWSSocket;
+class QWSServerSocket;
 
 QT_BEGIN_HEADER
 
