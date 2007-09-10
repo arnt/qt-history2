@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QXmlItemIterator_h
-#define QXmlItemIterator_h
+#ifndef QXMLITEMITERATOR_H
+#define QXMLITEMITERATOR_H
 
 class QVariant;
 #include <QtCore/QtGlobal>

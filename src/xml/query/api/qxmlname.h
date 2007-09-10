@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QXmlName_h
-#define QXmlName_h
+#ifndef QXMLNAME_H
+#define QXMLNAME_H
 
 #include <QtCore/QtGlobal>
 

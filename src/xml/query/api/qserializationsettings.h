@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QSerializationSettings_h
-#define QSerializationSettings_h
+#ifndef QSERIALIZATIONSETTINGS_H
+#define QSERIALIZATIONSETTINGS_H
 
 #include <QtCore/QtGlobal>
 

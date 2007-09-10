@@ -21,8 +21,8 @@
 //
 // We mean it.
 
-#ifndef Patternist_PullBridge_p_h
-#define Patternist_PullBridge_p_h
+#ifndef PATTERNIST_PULLBRIDGE_P_H
+#define PATTERNIST_PULLBRIDGE_P_H
 
 #include <QPair>
 #include <QStack>

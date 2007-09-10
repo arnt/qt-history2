@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QAbstractXmlPushCallback_h
-#define QAbstractXmlPushCallback_h
+#ifndef QABSTRACTXMLPUSHCALLBACK_H
+#define QABSTRACTXMLPUSHCALLBACK_H
 
 #include <QtCore/QtGlobal>
 #include <QtCore/QVariant>

@@ -21,8 +21,8 @@
 //
 // We mean it.
 
-#ifndef Patternist_VariableLoader_p_h
-#define Patternist_VariableLoader_p_h
+#ifndef PATTERNIST_VARIABLELOADER_P_H
+#define PATTERNIST_VARIABLELOADER_P_H
 
 #include "qdynamiccontext_p.h"
 #include "qqobjectnodemodel_p.h"

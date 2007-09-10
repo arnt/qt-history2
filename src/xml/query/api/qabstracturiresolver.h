@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QAbstractUriResolver_h
-#define QAbstractUriResolver_h
+#ifndef QABSTRACTURIRESOLVER_H
+#define QABSTRACTURIRESOLVER_H
 
 #include <QtCore/QSharedData>
 

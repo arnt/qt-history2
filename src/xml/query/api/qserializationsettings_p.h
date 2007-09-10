@@ -20,8 +20,8 @@
 //
 // We mean it.
 
-#ifndef QSerializationSettings_p_h
-#define QSerializationSettings_p_h
+#ifndef QSERIALIZATIONSETTINGS_P_H
+#define QSERIALIZATIONSETTINGS_P_H
 
 QT_BEGIN_HEADER
 

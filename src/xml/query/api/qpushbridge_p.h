@@ -20,8 +20,8 @@
 //
 // We mean it.
 
-#ifndef Patternist_PushBridge_p_h
-#define Patternist_PushBridge_p_h
+#ifndef PATTERNIST_PUSHBRIDGE_P_H
+#define PATTERNIST_PUSHBRIDGE_P_H
 
 #include "qsequencereceiver_p.h"
 

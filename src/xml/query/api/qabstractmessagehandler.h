@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QAbstractMessageHandler_h
-#define QAbstractMessageHandler_h
+#ifndef QABSTRACTMESSAGEHANDLER_H
+#define QABSTRACTMESSAGEHANDLER_H
 
 class QString;
 

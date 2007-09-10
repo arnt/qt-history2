@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QXmlQuery_h
-#define QXmlQuery_h
+#ifndef QXMLQUERY_H
+#define QXMLQUERY_H
 
 #include <QtCore/QUrl>
 

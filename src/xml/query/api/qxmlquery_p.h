@@ -20,8 +20,8 @@
 //
 // We mean it.
 
-#ifndef QXmlQuery_p_h
-#define QXmlQuery_p_h
+#ifndef QXMLQUERY_P_H
+#define QXMLQUERY_P_H
 
 #include <QDir>
 #include <QVariant>

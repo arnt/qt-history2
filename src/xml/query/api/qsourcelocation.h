@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QSourceLocation_h
-#define QSourceLocation_h
+#ifndef QSOURCELOCATION_H
+#define QSOURCELOCATION_H
 
 #include <QtCore/QUrl>
 

@@ -11,8 +11,8 @@
  * **
  * ****************************************************************************/
 
-#ifndef QAbstractXmlPullProvider_h
-#define QAbstractXmlPullProvider_h
+#ifndef QABSTRACTXMLPULLPROVIDER_H
+#define QABSTRACTXMLPULLPROVIDER_H
 
 #include <QtCore/QtGlobal>
 

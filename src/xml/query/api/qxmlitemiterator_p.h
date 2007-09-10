@@ -21,8 +21,8 @@
 //
 // We mean it.
 
-#ifndef Patternist_QXmlItemIteratorPrivate_p_h
-#define Patternist_QXmlItemIteratorPrivate_p_h
+#ifndef PATTERNIST_QXMLITEMITERATORPRIVATE_P_H
+#define PATTERNIST_QXMLITEMITERATORPRIVATE_P_H
 
 #include "qexception_p.h"
 #include "qexpression_p.h"
