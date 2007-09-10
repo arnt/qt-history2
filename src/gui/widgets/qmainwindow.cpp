@@ -1294,7 +1294,8 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 #ifndef QT_NO_MENU
 /*!
     Returns a popup menu containing checkable entries for the toolbars and
-    dock widgets present in the main window.
+    dock widgets present in the main window. If  there are no toolbars and
+    dock widgets present, this function returns a null pointer.
 
     By default, this function is called by the main window when the user
     activates a context menu, typically by right-clicking on a toolbar or a dock
