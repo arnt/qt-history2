@@ -5,12 +5,31 @@ The Qt version 4.3 series is binary compatible with the 4.2.x, 4.1.x and
 4.0.x series. Applications compiled for Qt 4.0, 4.1 or 4.2 will continue to
 run with Qt 4.3.
 
+This version adds Academic Free License 3.0, Artistic License 2.0, Zope 2.1 
+and EPL to the GPL Exception.
+
 ****************************************************************************
 *                           General                                        *
 ****************************************************************************
 
 General Improvements
 --------------------
+Q3Header
+    * [176202] Fixed lead when replacing icons using setLabel()
+
+QTreeView
+    * [171947] Fixed bug where an inactive QTreeView does not paint alternate color 
+      with inactive palette role.
+
+Style Sheets
+    * QMainWindow now respects background-image.
+    * [171858] QPushButton uses incorrect color used when text-align property is set
+    * Fixed various bugs in QMenu styling.
+    * [168286] Fixed bug where border-radius and background-clip do not clip the 
+      background.
+    * Fixed QComboBox styling bug where the popup would show an extra row when
+      a style sheet is used.
+    * [177168] Fixed memory leak where QStyleSheetStyle is never destroyed.
 
 Third party components
 ----------------------
