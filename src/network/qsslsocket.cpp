@@ -151,8 +151,9 @@
     information about ciphers and certificates, refer to QSslCipher and
     QSslCertificate.
     
-    This product includes software developed by the OpenSSL Project
-    for use in the OpenSSL Toolkit (http://www.openssl.org/).
+    This product uses software developed by the OpenSSL Project for use in the
+    OpenSSL Toolkit. You can download the necessary software from
+    http://www.openssl.org/.
 
     \sa QSslCertificate, QSslCipher, QSslError
 */
