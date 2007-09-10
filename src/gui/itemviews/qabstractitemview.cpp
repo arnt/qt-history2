@@ -1694,7 +1694,7 @@ bool QAbstractItemViewPrivate::droppingOnItself(QDropEvent *event, const QModelI
         && dropAction == Qt::MoveAction) {
         QModelIndexList selectedIndexes = q->selectedIndexes();
         QModelIndex child = index;
-        while (child != root) {
+        while (child.isValid() && child != root) {
             if (selectedIndexes.contains(child))
                 return true;
             child = child.parent();
