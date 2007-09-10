@@ -440,9 +440,11 @@ private Q_SLOTS:
     void errorHandler();
 
 private:
+#ifndef QT_NO_QWS_MULTIPROCESS
     friend class QWSWindow;
     void removeUnbufferedSurface();
     void addUnbufferedSurface();
+#endif
 
 private:
     int socketDescriptor;

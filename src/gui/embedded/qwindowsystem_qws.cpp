@@ -737,6 +737,7 @@ QWSClient::~QWSClient()
 #endif
 }
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 void QWSClient::removeUnbufferedSurface()
 {
     Q_D(QWSClient);
@@ -748,6 +749,7 @@ void QWSClient::addUnbufferedSurface()
     Q_D(QWSClient);
     ++d->numUnbufferedSurfaces;
 }
+#endif // QT_NO_QWS_MULTIPROCESS
 
 /*!
    \internal
