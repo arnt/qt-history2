@@ -5191,6 +5191,11 @@ void tst_QWidget::moveWindowInShowEvent()
 
 void tst_QWidget::repaintWhenChildDeleted()
 {
+#ifdef Q_WS_WIN
+    if (QSysInfo::WindowsVersion & QSysInfo::WV_VISTA) {
+        QTest::qWait(1000);
+    }
+#endif
     ColorWidget w(0, Qt::red);
     QPoint startPoint = QApplication::desktop()->availableGeometry(&w).topLeft();
     startPoint.rx() += 50;
