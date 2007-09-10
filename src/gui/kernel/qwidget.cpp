@@ -5617,7 +5617,7 @@ void QWidget::setVisible(bool visible)
         // invalidate layout similar to updateGeometry()
         if (!isWindow() && parentWidget()) {
             if (parentWidget()->d_func()->layout)
-                parentWidget()->d_func()->layout->update();
+                parentWidget()->d_func()->layout->invalidate();
             else if (parentWidget()->isVisible())
                 QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
         }
