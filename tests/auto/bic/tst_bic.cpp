@@ -113,6 +113,7 @@ void tst_Bic::sizesAndVTables_data()
     QString archFileName400;
     QString archFileName410;
     QString archFileName420;
+    QString archFileName430;
 
 #if defined Q_OS_LINUX && defined Q_WS_X11
 # if defined(__powerpc__) && !defined(__powerpc64__)
@@ -125,6 +126,7 @@ void tst_Bic::sizesAndVTables_data()
     archFileName400 = "data/%1.4.0.0.linux-gcc-ia32.txt";
     archFileName410 = "data/%1.4.1.0.linux-gcc-ia32.txt";
     archFileName420 = "data/%1.4.2.0.linux-gcc-ia32.txt";
+    archFileName430 = "data/%1.4.3.0.linux-gcc-ia32.txt";
 # endif
 #elif defined Q_OS_AIX
     if (sizeof(void*) == 4)
@@ -163,12 +165,19 @@ void tst_Bic::sizesAndVTables_data()
     bool isPatchRelease420 = true;
 #endif
 
+#if QT_VERSION >= 0x040400
+    bool isPatchRelease430 = false;
+#else
+    bool isPatchRelease430 = true;
+#endif
+
     QTest::addColumn<QString>("oldLib");
     QTest::addColumn<bool>("isPatchRelease");
 
     QTest::newRow("4.0") << archFileName400 << isPatchRelease400;
     QTest::newRow("4.1") << archFileName410 << isPatchRelease410;
     QTest::newRow("4.2") << archFileName420 << isPatchRelease420;
+    QTest::newRow("4.3") << archFileName430 << isPatchRelease430;
 #endif
 }
 
