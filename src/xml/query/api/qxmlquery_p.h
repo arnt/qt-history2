@@ -1,5 +1,6 @@
 /****************************************************************************
- * ** * ** Copyright (C) 2007-$THISYEAR$ $TROLLTECH$. All rights reserved.
+ * **
+ * ** Copyright (C) 2007-$THISYEAR$ $TROLLTECH$. All rights reserved.
  * **
  * ** This file is part of the $MODULE$ of the Qt Toolkit.
  * **
