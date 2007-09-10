@@ -635,11 +635,14 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
     if (state->compositionMode() == QPainter::CompositionMode_Destination)
         return;
 
+    if (d->current.pen.capStyle() == Qt::FlatCap)
+        CGContextSetLineCap(d->hd, kCGLineCapSquare);
+
     CGMutablePathRef path = CGPathCreateMutable();
     for(int i=0; i < pointCount; i++) {
         float x = points[i].x(), y = points[i].y();
         CGPathMoveToPoint(path, 0, x, y);
-        CGPathAddLineToPoint(path, 0, x, y);
+        CGPathAddLineToPoint(path, 0, x+0.001, y);
     }
 
     bool doRestore = false;
@@ -653,6 +656,8 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
     if (doRestore)
         CGContextRestoreGState(d->hd);
     CGPathRelease(path);
+    if (d->current.pen.capStyle() == Qt::FlatCap)
+        CGContextSetLineCap(d->hd, kCGLineCapButt);
 }
 
 void
@@ -1471,14 +1476,15 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         // to make sure that primitives painted at pixel borders
         // fills the right pixel. This is needed since the y xais
         // in the Quartz coordinate system is inverted compared to Qt.
-        if (!(q->state->renderHints() & QPainter::Antialiasing))
+        if (!(q->state->renderHints() & QPainter::Antialiasing)) {
             if (current.pen.style() == Qt::SolidLine)
                 CGContextTranslateCTM(hd, double(pixelSize.x()) * 0.25, double(pixelSize.y()) * 0.25);
             else if (current.pen.style() == Qt::DotLine && QSysInfo::MacintoshVersion == QSysInfo::MV_10_3)
                 ; // Do nothing.
             else
                 CGContextTranslateCTM(hd, 0, double(pixelSize.y()) * 0.1);
-
+        }
+        
         if (cosmeticPen != QCoreGraphicsPaintEnginePrivate::CosmeticNone) {
             // If antialiazing is enabled, use the cosmetic pen size directly.
             if (q->state->renderHints() & QPainter::Antialiasing)
