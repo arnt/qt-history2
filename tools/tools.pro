@@ -19,9 +19,8 @@ no-png {
      win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += activeqt
 }
 
-# Patternist use member templates
-# Patternist is currently disabled, to avoid build breakages.
-#!linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia): SUBDIRS += patternist
+# Patternist use member templates and exceptions.
+!linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia): SUBDIRS += patternist
 
 CONFIG+=ordered
 QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"
