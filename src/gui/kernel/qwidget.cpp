@@ -3092,7 +3092,7 @@ void QWidget::setMinimumSize(int minw, int minh)
             data->window_state = data->window_state | Qt::WindowMaximized;
     }
 
-    updateGeometry();
+    d->updateGeometry_helper(d->extra->minw == d->extra->maxw && d->extra->minh == d->extra->maxh);
 }
 
 bool QWidgetPrivate::setMaximumSize_helper(int &maxw, int &maxh)
@@ -3142,7 +3142,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
         setAttribute(Qt::WA_Resized, resized); //not a user resize
     }
 
-    updateGeometry();
+    d->updateGeometry_helper(d->extra->minw == d->extra->maxw && d->extra->minh == d->extra->maxh);
 }
 
 /*!
