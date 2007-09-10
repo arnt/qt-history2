@@ -106,6 +106,11 @@ void tst_QWindowSurface::getSetWindowSurface()
 
 void tst_QWindowSurface::flushOutsidePaintEvent()
 {
+#ifdef Q_WS_WIN
+    if (QSysInfo::WindowsVersion & QSysInfo::WV_VISTA) {
+        QTest::qWait(1000);
+    }
+#endif
     ColorWidget w(0, Qt::red);
     w.setGeometry(10, 10, 50, 50);
     w.show();
