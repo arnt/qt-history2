@@ -1513,6 +1513,8 @@ static int pseudoClass(QStyle::State state)
              ? PseudoClass_Enabled : PseudoClass_Disabled;
     if (state & QStyle::State_Active)
         pc |= PseudoClass_Active;
+    if (state & QStyle::State_Window)
+        pc |= PseudoClass_Window;
     if (state & QStyle::State_Sunken)
         pc |= PseudoClass_Pressed;
     if (state & QStyle::State_MouseOver)
@@ -2124,7 +2126,7 @@ static QWidget *embeddedWidget(QWidget *w)
 
 static int extendedPseudoClass(QWidget *w)
 {
-    int pc = 0;
+    int pc = w->isWindow() ? PseudoClass_Window : 0;
     if (QAbstractSlider *slider = qobject_cast<QAbstractSlider *>(w)) {
         pc |= ((slider->orientation() == Qt::Vertical) ? PseudoClass_Vertical : PseudoClass_Horizontal);
     } else
