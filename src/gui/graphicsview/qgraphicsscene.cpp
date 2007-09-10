@@ -2458,6 +2458,7 @@ void QGraphicsScene::invalidate(const QRectF &rect, SceneLayers layers)
 
 /*!
     \fn void QGraphicsScene::invalidate(qreal x, qreal y, qreal w, qreal h, SceneLayers layers)
+    \overload
     \since 4.3
 
     This convenience function is equivalent to calling invalidate(QRectF(\a x, \a
