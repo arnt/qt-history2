@@ -1603,6 +1603,19 @@ QString QCoreApplication::applicationFilePath()
 }
 
 /*!
+    Returns the current process ID for the application.
+*/
+qint64 QCoreApplication::applicationPid()
+{
+#if defined(Q_OS_WIN32)
+    return GetCurrentProcessId();
+#else
+    // UNIX
+    return getpid();
+#endif
+}
+
+/*!
     \obsolete
 
     Use arguments().size() instead.

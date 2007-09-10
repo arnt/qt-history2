@@ -19,6 +19,7 @@ private slots:
     void postEvent();
     void removePostedEvents();
     void deliverInDefinedOrder();
+    void applicationPid();
 };
 
 void tst_QCoreApplication::qAppName()
@@ -351,6 +352,11 @@ void tst_QCoreApplication::deliverInDefinedOrder()
     // run for 15 seconds
     QTimer::singleShot(15000, &app, SLOT(quit()));
     app.exec();
+}
+
+void tst_QCoreApplication::applicationPid()
+{
+    QVERIFY(QCoreApplication::applicationPid() > 0);
 }
 
 QTEST_APPLESS_MAIN(tst_QCoreApplication)

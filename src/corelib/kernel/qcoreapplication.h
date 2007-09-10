@@ -87,6 +87,7 @@ public:
 
     static QString applicationDirPath();
     static QString applicationFilePath();
+    static qint64 applicationPid();
 
 #ifndef QT_NO_LIBRARY
     static void setLibraryPaths(const QStringList &);
