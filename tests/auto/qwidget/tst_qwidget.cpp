@@ -197,6 +197,8 @@ private slots:
 #if defined(Q_WS_WIN) || defined(Q_WS_X11)
     void alienWidgets();
 #endif
+    void updateGeometry();
+    void updateGeometry_data();
 private:
     QWidget *testWidget;
 };
@@ -5321,6 +5323,109 @@ void tst_QWidget::alienWidgets()
     QVERIFY(msWindowsOwnDC.internalWinId());
 }
 #endif // Q_WS_WIN / Q_WS_X11
+
+class TestLayout : public QVBoxLayout
+{
+    Q_OBJECT
+public:
+    TestLayout(QWidget *w = 0) : QVBoxLayout(w)
+    {
+        invalidated = false;
+    }
+
+    void invalidate()
+    {
+        invalidated = true;
+    }
+
+    bool invalidated;
+
+};
+
+void tst_QWidget::updateGeometry_data()
+{
+    QTest::addColumn<QSize>("minSize");
+    QTest::addColumn<bool>("shouldInvalidate");
+    QTest::addColumn<QSize>("maxSize");
+    QTest::addColumn<bool>("shouldInvalidate2");
+    QTest::addColumn<int>("verticalSizePolicy");
+    QTest::addColumn<bool>("shouldInvalidate3");
+    QTest::addColumn<bool>("setVisible");
+    QTest::addColumn<bool>("shouldInvalidate4");
+
+    QTest::newRow("setMinimumSize") 
+        << QSize(100, 100) << true 
+        << QSize() << false 
+        << int(QSizePolicy::Preferred) << false
+        << true << false;
+    QTest::newRow("setMaximumSize") 
+        << QSize() << false 
+        << QSize(100, 100) << true 
+        << int(QSizePolicy::Preferred) << false
+        << true << false;
+    QTest::newRow("setMinimumSize, then maximumSize to a different size") 
+        << QSize(100, 100) << true 
+        << QSize(300, 300) << true 
+        << int(QSizePolicy::Preferred) << false
+        << true << false;
+    QTest::newRow("setMinimumSize, then maximumSize to the same size") 
+        << QSize(100, 100) << true 
+        << QSize(100, 100) << true 
+        << int(QSizePolicy::Preferred) << false
+        << true << false;
+    QTest::newRow("setMinimumSize, then maximumSize to the same size and then hide it") 
+        << QSize(100, 100) << true 
+        << QSize(100, 100) << true 
+        << int(QSizePolicy::Preferred) << false
+        << false << true;
+    QTest::newRow("Change sizePolicy") 
+        << QSize() << false 
+        << QSize() << false 
+        << int(QSizePolicy::Minimum) << true
+        << true << false;
+
+}
+
+void tst_QWidget::updateGeometry()
+{
+    QFETCH(QSize, minSize);
+    QFETCH(bool, shouldInvalidate);
+    QFETCH(QSize, maxSize);
+    QFETCH(bool, shouldInvalidate2);
+    QFETCH(int, verticalSizePolicy);
+    QFETCH(bool, shouldInvalidate3);
+    QFETCH(bool, setVisible);
+    QFETCH(bool, shouldInvalidate4);
+    QWidget parent;
+    parent.resize(200, 200);
+    TestLayout *lout = new TestLayout();
+    parent.setLayout(lout);
+    QWidget *child = new QWidget(&parent);
+    lout->addWidget(child);
+    parent.show();
+    QApplication::processEvents();
+
+    lout->invalidated = false;
+    if (minSize.isValid())
+        child->setMinimumSize(minSize);
+    QCOMPARE(lout->invalidated, shouldInvalidate);
+    
+    lout->invalidated = false;
+    if (maxSize.isValid())
+        child->setMaximumSize(maxSize);
+    QCOMPARE(lout->invalidated, shouldInvalidate2);
+    
+    lout->invalidated = false;
+    child->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, (QSizePolicy::Policy)verticalSizePolicy));
+    if (shouldInvalidate3)
+        QCOMPARE(lout->invalidated, true);
+
+    lout->invalidated = false;
+    if (!setVisible)
+        child->setVisible(false);
+    QCOMPARE(lout->invalidated, shouldInvalidate4);
+}
+
 
 QTEST_MAIN(tst_QWidget)
 #include "tst_qwidget.moc"
