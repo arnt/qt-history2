@@ -3271,10 +3271,6 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
 
     The default implementation does nothing.
 
-    \note Items only receive context menu events if the view they are
-    displayed in is configured to ignore context menu events; i.e., its
-    \l{QWidget::}{contextMenuPolicy} property is set to Qt::ContextMenuPolicy.
-
     \sa sceneEvent()
 */
 void QGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
