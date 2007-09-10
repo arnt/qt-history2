@@ -18,12 +18,20 @@ Third party components
 Build System
 ------------
 
+   * Updated compiler notes for version 10.0.026 of the Intel C++
+    Compiler for Linux. Precompiled header support has been fixed in
+    this version of the compiler, and the -no-pch workaround is no
+    longer needed. Note that there is still one outstanding bug in the
+    64-bit compiler that requires configuring and building with -debug.
+
 ****************************************************************************
 *                           Library                                        *
 ****************************************************************************
 
 General Improvements
 --------------------
+
+
 
 ****************************************************************************
 *                          Database Drivers                                *
@@ -39,6 +47,15 @@ General Improvements
 
 X11
 ---
+
+    * [169366] Fixed intermittent program hangs in the 64-bit PowerPC
+      implementation used on AIX.
+    * [176192] Fixed show() followed by move() before the event loop
+      is running to correctly place the window.
+    * [133870] Fixed crashes in the 64-bit PowerPC implementation used
+      on Linux.
+    * [177143] Fixed a bug where the last activated QShortcut would be
+      incorrectly repeated when opressing a key with no KeySym defined.
 
 Windows
 -------
