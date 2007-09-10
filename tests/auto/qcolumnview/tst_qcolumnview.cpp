@@ -581,25 +581,12 @@ void tst_QColumnView::clicked()
     QModelIndex parent = home.parent();
     QVERIFY(parent.isValid());
 
-    //child = child.sibling(child.row()-1, 0);
-
     qRegisterMetaType<QModelIndex>("QModelIndex");
-    QSignalSpy spy(&view, SIGNAL(clicked(const QModelIndex &)));
+    QSignalSpy clickedSpy(&view, SIGNAL(clicked(const QModelIndex &)));
 
-    // find the column to click on that contains child
-    QWidget *w = 0;
-    QPoint localPoint;
-    for (int i = 0; i < view.createdColumns.count(); ++i) {
-        QAbstractItemView *column = view.createdColumns.at(i);
-        if (column && !column->visualRect(home).isNull()) {
-            w = column;
-            localPoint = view.visualRect(home).center();
-            break;
-        }
-    }
-
-    QTest::mouseClick(w, Qt::LeftButton, 0, localPoint);
-    QCOMPARE(spy.count(), 1);
+    QPoint localPoint = view.visualRect(home).center();
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, localPoint);
+    QCOMPARE(clickedSpy.count(), 1);
     qApp->processEvents();
     for (int i = 0; i < view.createdColumns.count(); ++i) {
         QAbstractItemView *column = view.createdColumns.at(i);
