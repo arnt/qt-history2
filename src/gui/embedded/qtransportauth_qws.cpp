@@ -1051,6 +1051,11 @@ void QAuthDevice::recvReadyRead()
     while ( bufHasMessages )
     {
         unsigned char saveStatus = d->status;
+        if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::NoSuchKey )
+        {
+            QTransportAuth::getInstance()->authorizeRequest( *d, "NoSuchKey" );
+            break;
+        }
         if ( !QTransportAuth::getInstance()->authFromMessage( *d, msgQueue, msgQueue.size() ))
         {
             // not all arrived yet?  come back later
