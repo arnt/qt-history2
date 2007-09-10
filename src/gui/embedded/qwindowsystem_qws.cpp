@@ -399,9 +399,19 @@ QRegion QWSWindow::dirtyOnScreen() const
 
 void QWSWindow::createSurface(const QString &key, const QByteArray &data)
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
+    if (surface && !surface->isBuffered())
+        c->removeUnbufferedSurface();
+#endif
+
     delete surface;
     surface = qt_screen->createSurface(key);
     surface->setPermanentState(data);
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+    if (!surface->isBuffered())
+        c->addUnbufferedSurface();
+#endif
 }
 
 /*!
@@ -539,6 +549,12 @@ QWSWindow::~QWSWindow()
     while (!d->embedded.isEmpty())
         stopEmbed(d->embedded.first());
 #endif
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+    if (surface && !surface->isBuffered())
+        c->removeUnbufferedSurface();
+#endif
+
     delete surface;
     delete d;
 }
@@ -610,6 +626,7 @@ private:
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSLock *clientLock;
     bool shutdown;
+    int numUnbufferedSurfaces;
 #endif
     QSet<QByteArray> usedFonts;
     friend class QWSServerPrivate;
@@ -620,6 +637,7 @@ QWSClientPrivate::QWSClientPrivate()
 #ifndef QT_NO_QWS_MULTIPROCESS
     clientLock = 0;
     shutdown = false;
+    numUnbufferedSurfaces = 0;
 #endif
 }
 
@@ -719,6 +737,18 @@ QWSClient::~QWSClient()
 #endif
 }
 
+void QWSClient::removeUnbufferedSurface()
+{
+    Q_D(QWSClient);
+    --d->numUnbufferedSurfaces;
+}
+
+void QWSClient::addUnbufferedSurface()
+{
+    Q_D(QWSClient);
+    ++d->numUnbufferedSurfaces;
+}
+
 /*!
    \internal
 */
@@ -789,7 +819,7 @@ void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
 
     sendEvent(&event);
 #ifndef QT_NO_QWS_MULTIPROCESS
-    if (d->clientLock)
+    if (d->clientLock && d->numUnbufferedSurfaces > 0)
         csocket->waitForBytesWritten(); // ### must flush to prevent deadlock
 #endif
 }

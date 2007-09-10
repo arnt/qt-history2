@@ -438,6 +438,12 @@ Q_SIGNALS:
 private Q_SLOTS:
     void closeHandler();
     void errorHandler();
+
+private:
+    friend class QWSWindow;
+    void removeUnbufferedSurface();
+    void addUnbufferedSurface();
+
 private:
     int socketDescriptor;
 #ifndef QT_NO_QWS_MULTIPROCESS
