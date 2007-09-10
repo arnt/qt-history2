@@ -14,9 +14,11 @@
 #ifndef DOCUPARSER_H
 #define DOCUPARSER_H
 
-#include <QtXml>
 #include <QList>
 #include <QMap>
+#include <QXmlDefaultHandler>
+#include <QXmlAttributes>
+#include <QXmlParseException>
 
 class Profile;
 

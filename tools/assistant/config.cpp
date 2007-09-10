@@ -24,7 +24,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QSettings>
-#include <QtXml>
 #include <QList>
 
 static Config *static_configuration = 0;

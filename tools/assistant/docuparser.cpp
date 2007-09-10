@@ -19,7 +19,6 @@
 #include <QFileInfo>
 #include <QRegExp>
 #include <QString>
-#include <QtXml>
 #include <QDataStream>
 
 QDataStream &operator>>(QDataStream &s, ContentItem &ci)
