@@ -3267,9 +3267,17 @@ blue green yellow * /
            that has its tabs positioned at the left.
 
     \row
+        \o \c :maximized \target maximized-ps
+        \o The item is maximized. For example, a maximized QMdiSubWindow.
+
+    \row
         \o \c :middle \target middle-ps
         \o The item is in the middle (in a list). For example, a tab
            that is not in the beginning or the end in a QTabBar.
+
+    \row
+        \o \c :minimized \target minimized-ps
+        \o The item is minimized. For example, a minimized QMdiSubWindow.
 
     \row
         \o \c :movable \target movable-ps
@@ -3349,6 +3357,10 @@ blue green yellow * /
     \row
         \o \c :vertical \target vertical-ps
         \o The item has vertical orientation.
+
+    \row
+        \o \c :window \target window-ps
+        \o The widget is a window (i.e top level widget)
 
     \endtable
 
