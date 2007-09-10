@@ -551,8 +551,10 @@ QWSWindow::~QWSWindow()
 #endif
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-    if (surface && !surface->isBuffered())
-        c->removeUnbufferedSurface();
+    if (surface && !surface->isBuffered()) {
+        if (c && c->d_func()) // d_func() will be 0 if client is deleted
+            c->removeUnbufferedSurface();
+    }
 #endif
 
     delete surface;
