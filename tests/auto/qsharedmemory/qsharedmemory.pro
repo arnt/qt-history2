@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = lackey test qsystemlock
+!hpuxi-*:SUBDIRS = lackey test qsystemlock
