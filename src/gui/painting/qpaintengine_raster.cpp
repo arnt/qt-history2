@@ -3460,7 +3460,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                 int src_x = x + x_offset;
                 uchar pixel = src[src_x >> 3];
                 if (!pixel) {
-                    x += 7 - (x%8);
+                    x += 7 - (src_x%8);
                     continue;
                 }
                 if (pixel & (0x1 << (src_x & 7))) {
@@ -3487,7 +3487,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                 int src_x = x + x_offset;
                 uchar pixel = src[src_x >> 3];
                 if (!pixel) {
-                    x += 7 - (x%8);
+                    x += 7 - (src_x%8);
                     continue;
                 }
                 if (pixel & (0x80 >> (x & 7))) {
