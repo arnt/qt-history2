@@ -86,12 +86,13 @@ void tst_Selftests::runSubTest()
     const QByteArray out(proc.readAllStandardOutput());
     const QByteArray err(proc.readAllStandardError());
 
-#ifdef Q_OS_LINUX
-    QVERIFY2(err.isEmpty() || err.trimmed() == "Glib dispatcher checking for g_thread_init()", err.constData());
-#else
-    QVERIFY2(err.isEmpty(), err.constData());
+    /* Windows-MSVC decide to output an error message when exceptions are thrown,
+     * so let's not check stderr for those. */
+#if defined(Q_OS_WIN) && !defined(Q_CC_MINGW)
+    if(subdir != QLatin1String("exception"))
 #endif
-             
+    QVERIFY2(err.isEmpty(), err.constData());
+
 
     QList<QByteArray> res = splitLines(out);
     QList<QByteArray> exp = expectedResult(subdir);
