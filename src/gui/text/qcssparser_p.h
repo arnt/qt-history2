@@ -379,7 +379,7 @@ enum PseudoClass
     PseudoClass_Selected        = 0x00000200,
     PseudoClass_Horizontal      = 0x00000400,
     PseudoClass_Vertical        = 0x00000800,
-    PseudoClass_Open            = 0x00001000,
+    PseudoClass_Window          = 0x00001000,
     PseudoClass_Children        = 0x00002000,
     PseudoClass_Sibling         = 0x00004000,
     PseudoClass_Default         = 0x00008000,
@@ -387,6 +387,7 @@ enum PseudoClass
     PseudoClass_First           = 0x00010000,
     PseudoClass_Closed          = PseudoClass_First,
     PseudoClass_Last            = 0x00020000,
+    PseudoClass_Open            = PseudoClass_Last,
     PseudoClass_Middle          = 0x00040000,
     PseudoClass_OnlyOne         = 0x00080000,
     PseudoClass_PreviousSelected = 0x00100000,
@@ -404,7 +405,9 @@ enum PseudoClass
     PseudoClass_Closable         = PseudoClass_Open,
     PseudoClass_Movable          = PseudoClass_Children,
     PseudoClass_Floatable        = PseudoClass_Sibling,
-    NumPseudos = 40
+    PseudoClass_Minimized        = PseudoClass_Children,
+    PseudoClass_Maximized        = PseudoClass_Sibling,
+    NumPseudos = 43
 };
 
 struct Q_GUI_EXPORT Pseudo

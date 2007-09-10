@@ -263,7 +263,9 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "indeterminate" , PseudoClass_Indeterminate },
     { "last", PseudoClass_Last },
     { "left", PseudoClass_Left },
+    { "maximized", PseudoClass_Maximized },
     { "middle", PseudoClass_Middle },
+    { "minimized", PseudoClass_Minimized },
     { "movable", PseudoClass_Movable },
     { "next-selected", PseudoClass_NextSelected },
     { "no-frame", PseudoClass_Frameless },
@@ -280,6 +282,7 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "top", PseudoClass_Top },
     { "unchecked" , PseudoClass_Unchecked },
     { "vertical", PseudoClass_Vertical },
+    { "window", PseudoClass_Window }
 };
 
 static const QCssKnownValue origins[NumKnownOrigins - 1] = {
