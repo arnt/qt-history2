@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "profile.h"
-#include <QtXml>
 #include <QTextCodec>
 #include <QFileInfo>
 #include <QRegExp>
