@@ -43,7 +43,7 @@ QDebug operator<<(QDebug dbg, const QSqlError &s)
 /*!
     \enum QSqlError::ErrorType
 
-    This enum type describes the type of SQL error that occurred.
+    This enum type describes the context in which the error occurred, e.g., a connection error, a statement error, etc.
 
     \value NoError  No error occurred.
     \value ConnectionError  Connection error.
