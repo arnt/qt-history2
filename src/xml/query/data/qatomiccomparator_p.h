@@ -34,7 +34,7 @@ namespace Patternist
      * @ingroup Patternist_xdm
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class AtomicComparator : public AtomicTypeVisitorResult
+    class Q_AUTOTEST_EXPORT AtomicComparator : public AtomicTypeVisitorResult
     {
     public:
         AtomicComparator();

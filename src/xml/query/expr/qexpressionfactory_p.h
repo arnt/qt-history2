@@ -31,7 +31,7 @@ namespace Patternist
      * @ingroup Patternist_expressions
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class ExpressionFactory : public QSharedData
+    class Q_AUTOTEST_EXPORT ExpressionFactory : public QSharedData
     {
     public:
         typedef PlainSharedPtr<ExpressionFactory> Ptr;

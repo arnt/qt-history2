@@ -32,7 +32,7 @@ namespace Patternist
      *
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class Focus : public DelegatingDynamicContext
+    class Q_AUTOTEST_EXPORT Focus : public DelegatingDynamicContext
     {
     public:
         Focus(const DynamicContext::Ptr &prevContext);

@@ -29,7 +29,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_expressions
      */
-    class ArithmeticExpression : public PairContainer
+    class Q_AUTOTEST_EXPORT ArithmeticExpression : public PairContainer
     {
     public:
         ArithmeticExpression(const Expression::Ptr &operand1,

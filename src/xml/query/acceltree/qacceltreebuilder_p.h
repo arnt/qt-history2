@@ -31,7 +31,7 @@ namespace Patternist
      *
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class AccelTreeBuilder : public NodeBuilder
+    class Q_AUTOTEST_EXPORT AccelTreeBuilder : public NodeBuilder
     {
     public:
         typedef PlainSharedPtr<AccelTreeBuilder> Ptr;

@@ -28,7 +28,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_expressions
      */
-    class QuantifiedExpression : public PairContainer
+    class Q_AUTOTEST_EXPORT QuantifiedExpression : public PairContainer
     {
     public:
         enum Operator

@@ -32,7 +32,7 @@ namespace Patternist
      *
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class AccelTreeResourceLoader : public ResourceLoader
+    class Q_AUTOTEST_EXPORT AccelTreeResourceLoader : public ResourceLoader
     {
     public:
         AccelTreeResourceLoader(const NamePool::Ptr &np);

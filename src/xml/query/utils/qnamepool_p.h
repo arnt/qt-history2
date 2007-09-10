@@ -47,7 +47,7 @@ namespace Patternist
      * @todo Use QSubStrings, we can save very many heap allocations by that.
      * @todo Check limits
      */
-    class NamePool : public QSharedData
+    class Q_AUTOTEST_EXPORT NamePool : public QSharedData
     {
     public:
         typedef PlainSharedPtr<NamePool> Ptr;

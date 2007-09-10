@@ -30,7 +30,7 @@ namespace Patternist
      *
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class StaticFocusContext : public StaticContext
+    class Q_AUTOTEST_EXPORT StaticFocusContext : public StaticContext
     {
     public:
         StaticFocusContext(const ItemType::Ptr &contextItemType,

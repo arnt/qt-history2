@@ -29,7 +29,7 @@ namespace Patternist
      *
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class GenericStaticContext : public StaticContext
+    class Q_AUTOTEST_EXPORT GenericStaticContext : public StaticContext
     {
     public:
         typedef PlainSharedPtr<GenericStaticContext> Ptr;

@@ -47,7 +47,7 @@ namespace Patternist
      * @ingroup Patternist_xdm
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class ExternalVariableLoader : public QSharedData
+    class Q_AUTOTEST_EXPORT ExternalVariableLoader : public QSharedData
     {
     public:
         typedef PlainSharedPtr<ExternalVariableLoader> Ptr;

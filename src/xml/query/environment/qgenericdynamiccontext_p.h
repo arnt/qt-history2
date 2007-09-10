@@ -34,7 +34,7 @@ namespace Patternist
      *
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class GenericDynamicContext : public StackContextBase<DynamicContext>
+    class Q_AUTOTEST_EXPORT GenericDynamicContext : public StackContextBase<DynamicContext>
     {
     public:
         typedef PlainSharedPtr<GenericDynamicContext> Ptr;

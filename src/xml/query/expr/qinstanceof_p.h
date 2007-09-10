@@ -29,7 +29,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_expressions
      */
-    class InstanceOf : public SingleContainer
+    class Q_AUTOTEST_EXPORT InstanceOf : public SingleContainer
     {
     public:
 

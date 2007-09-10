@@ -1,15 +1,15 @@
 /****************************************************************************
- * **
- * ** Copyright (C) 2007-$THISYEAR$ $TROLLTECH$. All rights reserved.
- * **
- * ** This file is part of the $MODULE$ of the Qt Toolkit.
- * **
- * ** $TROLLTECH_DUAL_LICENSE$
- * **
- * ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- * ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- * **
- * ****************************************************************************/
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #ifndef Patternist_ReportContext_H
 #define Patternist_ReportContext_H
@@ -26,7 +26,7 @@ class QString;
 #include "qplainsharedptr_p.h"
 #include "qqname_p.h"
 
-QT_BEGIN_HEADER 
+QT_BEGIN_HEADER
 
 namespace Patternist
 {
@@ -59,7 +59,7 @@ namespace Patternist
      * @warning This file is auto-generated from extractErrorCodes.xsl. Any
      * modifications done to this file are lost.
      */
-    class ReportContext : public QSharedData
+    class Q_AUTOTEST_EXPORT ReportContext : public QSharedData
     {
     public:
         typedef QHash<const SourceLocationReflection *, QSourceLocation> LocationHash;
@@ -2410,7 +2410,7 @@ namespace Patternist
     };
 }
 
-QT_END_HEADER 
+QT_END_HEADER
 
 #endif
 // vim: et:ts=4:sw=4:sts=4

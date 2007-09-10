@@ -34,7 +34,7 @@ namespace Patternist
      * @ingroup Patternist_xdm
      * @todo Documentation is missing/incomplete
      */
-    class AtomicString : public AtomicValue
+    class Q_AUTOTEST_EXPORT AtomicString : public AtomicValue
     {
     public:
         friend class CommonValues;

@@ -28,7 +28,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_expressions
      */
-    class AxisStep : public EmptyContainer
+    class Q_AUTOTEST_EXPORT AxisStep : public EmptyContainer
     {
     public:
         typedef PlainSharedPtr<AxisStep> Ptr;

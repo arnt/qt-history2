@@ -27,7 +27,7 @@ namespace Patternist
      * @ingroup Patternist_types
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class CommonSequenceTypes
+    class Q_AUTOTEST_EXPORT CommonSequenceTypes
     {
     public:
         /**

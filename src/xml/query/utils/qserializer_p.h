@@ -38,8 +38,8 @@ namespace Patternist
      * and XQuery 1.0 Serialization</a>
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class Serializer : public SequenceReceiver
-                     , public DelegatingSourceLocationReflection
+    class Q_AUTOTEST_EXPORT Serializer : public SequenceReceiver
+                                       , public DelegatingSourceLocationReflection
     {
     public:
         typedef PlainSharedPtr<Serializer> Ptr;

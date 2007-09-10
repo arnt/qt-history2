@@ -30,8 +30,8 @@ namespace Patternist
      * @ingroup Patternist_functions
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class FunctionFactoryCollection: public FunctionFactory,
-                                     public FunctionFactory::List
+    class Q_AUTOTEST_EXPORT FunctionFactoryCollection: public FunctionFactory
+                                                     , public FunctionFactory::List
     {
     public:
 

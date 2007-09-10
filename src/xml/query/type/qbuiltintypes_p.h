@@ -33,7 +33,7 @@ namespace Patternist
      * @ingroup Patternist_types
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class BuiltinTypes
+    class Q_AUTOTEST_EXPORT BuiltinTypes
     {
     public:
         static const SchemaType::Ptr        xsAnyType;

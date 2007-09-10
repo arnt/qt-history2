@@ -29,7 +29,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_expressions
      */
-    class CombineNodes : public PairContainer
+    class Q_AUTOTEST_EXPORT CombineNodes : public PairContainer
     {
     public:
         enum Operator

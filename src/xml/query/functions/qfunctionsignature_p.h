@@ -49,7 +49,7 @@ namespace Patternist
      * @see <a href="http://en.wikipedia.org/wiki/Arity">Wikipedia, the free encyclopedia, Arity</a>
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class FunctionSignature : public QSharedData
+    class Q_AUTOTEST_EXPORT FunctionSignature : public QSharedData
     {
     public:
         enum

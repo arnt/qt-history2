@@ -30,7 +30,7 @@ namespace Patternist
      * @ingroup Patternist_xdm
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class AtomicMathematician : public AtomicTypeVisitorResult
+    class Q_AUTOTEST_EXPORT AtomicMathematician : public AtomicTypeVisitorResult
     {
     public:
         virtual ~AtomicMathematician();

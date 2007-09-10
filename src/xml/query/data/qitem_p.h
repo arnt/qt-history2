@@ -63,7 +63,7 @@ namespace Patternist
      * @ingroup Patternist_xdm
      * @author Frans Englich <fenglich@trolltech.com>
      */
-    class Node
+    class Q_AUTOTEST_EXPORT Node
     {
     public:
         typedef qint32 Data;

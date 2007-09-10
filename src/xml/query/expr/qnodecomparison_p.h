@@ -29,7 +29,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      * @ingroup Patternist_expressions
      */
-    class NodeComparison : public PairContainer
+    class Q_AUTOTEST_EXPORT NodeComparison : public PairContainer
     {
     public:
         NodeComparison(const Expression::Ptr &operand1,
