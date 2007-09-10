@@ -459,6 +459,14 @@ void QSizeGrip::hideEvent(QHideEvent *hideEvent)
     QWidget::hideEvent(hideEvent);
 }
 
+/*!
+    \reimp
+*/
+void QSizeGrip::setVisible(bool visible)
+{
+    QWidget::setVisible(visible);
+}
+
 /*! \reimp */
 bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 {
@@ -477,6 +485,14 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
     setVisible(!(tlw->windowState() & sizeGripNotVisibleState));
     setAttribute(Qt::WA_WState_ExplicitShowHide, false);
     return QWidget::eventFilter(o, e);
+}
+
+/*!
+    \reimp
+*/
+bool QSizeGrip::event(QEvent *event)
+{
+    return QWidget::event(event);
 }
 
 #ifdef Q_WS_WIN

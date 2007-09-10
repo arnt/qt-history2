@@ -30,6 +30,7 @@ public:
     ~QSizeGrip();
 
     QSize sizeHint() const;
+    void setVisible(bool);
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -40,6 +41,7 @@ protected:
     void showEvent(QShowEvent *showEvent);
     void hideEvent(QHideEvent *hideEvent);
     bool eventFilter(QObject *, QEvent *);
+    bool event(QEvent *);
 #ifdef Q_WS_WIN
     bool winEvent(MSG *m, long *result);
 #endif
