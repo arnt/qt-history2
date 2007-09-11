@@ -880,6 +880,11 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
     CGContextRelease(ctx);
 
     QImage indexed(im.width(), im.height(), QImage::Format_Indexed8);
+    QVector<QRgb> colors(256);
+    for (int i=0; i<256; ++i)
+        colors[i] = qRgba(0, 0, 0, i);
+    indexed.setColorTable(colors);
+
     for (int y=0; y<im.height(); ++y) {
         uint *src = (uint*) im.scanLine(y);
         uchar *dst = indexed.scanLine(y);
