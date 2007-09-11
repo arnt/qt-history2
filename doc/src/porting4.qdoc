@@ -4239,6 +4239,7 @@
     \o QWidget::setSizePolicy(QSizePolicy)
     \o QWidget::setUpdatesEnabled(bool enable)
     \o QWidget::setWState(uint)
+    \o QWidget::show()
     \o QWidget::showFullScreen()
     \o QWidget::showMaximized()
     \o QWidget::showMinimized()

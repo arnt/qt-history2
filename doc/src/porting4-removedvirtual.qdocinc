@@ -596,6 +596,7 @@
 \row \o void QWidget::setSizePolicy(QSizePolicy) \o Setter.
 \row \o void QWidget::setUpdatesEnabled(bool) \o Setter.
 \row \o void QWidget::setWFlags(WFlags) \o Setter.
+\row \o void QWidget::show() \o Reimplement QWidget::showEvent.
 \row \o void QWidget::showMaximized() \o Reimplement QWidget::changeEvent() and handle QEvent::WindowStateChange.
 \row \o void QWidget::showMinimized() \o Reimplement QWidget::changeEvent() and handle QEvent::WindowStateChange.
 \row \o void QWidget::showNormal() \o Reimplement QWidget::changeEvent() and handle QEvent::WindowStateChange.
