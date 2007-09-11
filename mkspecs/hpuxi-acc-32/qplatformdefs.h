@@ -17,6 +17,7 @@
 // Get Qt defines/settings
 
 #define _INCLUDE_LONGLONG
+#define _XOPEN_SOURCE_EXTENDED
 #include "qglobal.h"
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
@@ -48,6 +49,7 @@
 #ifndef QT_NO_IPV6IFNAME
 #include <net/if.h>
 #endif
+#include <arpa/inet.h>
 
 #ifdef QT_LARGEFILE_SUPPORT
 #define QT_STATBUF              struct stat64
@@ -116,7 +118,7 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#define QT_SOCKLEN_T		int
+#define QT_SOCKLEN_T		socklen_t
 
 
 #endif // QPLATFORMDEFS_H
