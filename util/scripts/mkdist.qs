@@ -64,6 +64,7 @@ var checkoutRemove = [ new RegExp("^LICENSE.TROLL"),
                        new RegExp("^tools/qembed"),
                        new RegExp("^tools/qev"),
                        new RegExp("^tools/designer/translations"),
+                       new RegExp("^tools/assistant/translations"),
                        new RegExp("^util") ];
 
 var platformRemove = new Array();
