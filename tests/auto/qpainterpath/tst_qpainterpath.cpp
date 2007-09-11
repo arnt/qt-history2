@@ -46,6 +46,9 @@ private slots:
     void testOnPath_data();
     void testOnPath();
 
+    void pointAtPercent_data();
+    void pointAtPercent();
+
     void closing();
 };
 
@@ -580,6 +583,53 @@ void tst_QPainterPath::testOnPath()
     angle = path.angleAtPercent(1);
     QVERIFY(SIGN(angle) == signEnd);
     QVERIFY(qAbs(angle-end) < diff);
+}
+
+void tst_QPainterPath::pointAtPercent_data()
+{
+    QTest::addColumn<QPainterPath>("path");
+    QTest::addColumn<qreal>("percent");
+    QTest::addColumn<QPointF>("point");
+
+    QPainterPath path;
+    path.lineTo(100, 0);
+
+    QTest::newRow("Case 1") << path << 0.2 << QPointF(20, 0);
+    QTest::newRow("Case 2") << path << 0.5 << QPointF(50, 0);
+    QTest::newRow("Case 3") << path << 0.0 << QPointF(0, 0);
+    QTest::newRow("Case 4") << path << 1.0 << QPointF(100, 0);
+
+    path = QPainterPath();
+    path.lineTo(0, 100);
+
+    QTest::newRow("Case 5") << path << 0.2 << QPointF(0, 20);
+    QTest::newRow("Case 6") << path << 0.5 << QPointF(0, 50);
+    QTest::newRow("Case 7") << path << 0.0 << QPointF(0, 0);
+    QTest::newRow("Case 8") << path << 1.0 << QPointF(0, 100);
+
+    path.lineTo(300, 100);
+
+    QTest::newRow("Case 9")  << path << 0.25 << QPointF(0, 100);
+    QTest::newRow("Case 10") << path << 0.5 << QPointF(100, 100);
+    QTest::newRow("Case 11") << path << 0.75 << QPointF(200, 100);
+
+    path = QPainterPath();
+    path.addEllipse(0, 0, 100, 100);
+
+    QTest::newRow("Case 12") << path << 0.0  << QPointF(100, 50);
+    QTest::newRow("Case 13") << path << 0.25 << QPointF(50, 100);
+    QTest::newRow("Case 14") << path << 0.5  << QPointF(0, 50);
+    QTest::newRow("Case 15") << path << 0.75 << QPointF(50, 0);
+    QTest::newRow("Case 16") << path << 1.0  << QPointF(100, 50);
+}
+
+void tst_QPainterPath::pointAtPercent()
+{
+    QFETCH(QPainterPath, path);
+    QFETCH(qreal, percent);
+    QFETCH(QPointF, point);
+
+    QCOMPARE(point, path.pointAtPercent(percent));
 }
 
 void tst_QPainterPath::setElementPositionAt()

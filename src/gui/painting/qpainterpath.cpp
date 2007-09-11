@@ -2682,8 +2682,9 @@ static inline QBezier bezierAtT(const QPainterPath &path, qreal t, qreal *starti
             curLen += llen;
             if (curLen/totalLength >= t) {
                 *bezierLength = llen;
-                return QBezier::fromPoints(path.elementAt(i-1), path.elementAt(i-1),
-                                           e, e);
+                QPointF a = path.elementAt(i-1);
+                QPointF delta = e - a;
+                return QBezier::fromPoints(a, a + delta / 3, a + 2 * delta / 3, e);
             }
             break;
         }
