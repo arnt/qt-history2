@@ -75,7 +75,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      */
     class NumberFN : public FunctionCall,
-                     protected CastingPlatform<NumberFN, false>
+                     public CastingPlatform<NumberFN, false>
     {
     public:
         virtual Item evaluateSingleton(const DynamicContext::Ptr &context) const;

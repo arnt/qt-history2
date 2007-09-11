@@ -37,7 +37,7 @@ namespace Patternist
      * @ingroup Patternist_expressions
      */
     class CastAs : public SingleContainer,
-                   protected CastingPlatform<CastAs, true /* issueError */>
+                   public CastingPlatform<CastAs, true /* issueError */>
     {
     public:
 

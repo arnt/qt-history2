@@ -35,9 +35,9 @@ namespace Patternist
      * @ingroup Patternist_expressions
      */
     class GeneralComparison : public PairContainer,
-                              protected ComparisonPlatform<GeneralComparison,
-                                                           true /* We want to report errors. */,
-                                                           AtomicComparator::AsGeneralComparison>
+                              public ComparisonPlatform<GeneralComparison,
+                                                        true /* We want to report errors. */,
+                                                        AtomicComparator::AsGeneralComparison>
     {
     public:
         GeneralComparison(const Expression::Ptr &op1,

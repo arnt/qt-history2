@@ -31,7 +31,7 @@ namespace Patternist
      * @ingroup Patternist_expressions
      */
     class CastableAs : public SingleContainer,
-                       protected CastingPlatform<CastableAs, false>
+                       public CastingPlatform<CastableAs, false>
     {
     public:
         CastableAs(const Expression::Ptr &operand,

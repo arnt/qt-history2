@@ -34,7 +34,7 @@ namespace Patternist
      * @ingroup Patternist_iterators
      */
     class IndexOfIterator : public Item::Iterator
-                          , protected ComparisonPlatform<IndexOfIterator, false>
+                          , public ComparisonPlatform<IndexOfIterator, false>
                           , public SourceLocationReflection
     {
     public:

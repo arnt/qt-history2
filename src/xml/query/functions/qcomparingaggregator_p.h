@@ -46,10 +46,10 @@ namespace Patternist
      */
     template <AtomicComparator::Operator oper, AtomicComparator::ComparisonResult result>
     class ComparingAggregator : public Aggregator,
-                                protected ComparisonPlatform<ComparingAggregator<oper, result>,
-                                                             true, AtomicComparator::AsValueComparison,
-                                                             ReportContext::FORG0006>,
-                                protected CastingPlatform<ComparingAggregator<oper, result>, true>
+                                public ComparisonPlatform<ComparingAggregator<oper, result>,
+                                                          true, AtomicComparator::AsValueComparison,
+                                                          ReportContext::FORG0006>,
+                                public CastingPlatform<ComparingAggregator<oper, result>, true>
     {
     public:
         virtual Item evaluateSingleton(const DynamicContext::Ptr &context) const;

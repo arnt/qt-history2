@@ -38,7 +38,7 @@ namespace Patternist
      * @ingroup Patternist_expressions
      */
     class UntypedAtomicConverter : public SingleContainer,
-                                   protected CastingPlatform<UntypedAtomicConverter, true>
+                                   public CastingPlatform<UntypedAtomicConverter, true>
     {
     public:
         UntypedAtomicConverter(const Expression::Ptr &operand,

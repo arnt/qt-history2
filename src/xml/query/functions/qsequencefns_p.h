@@ -61,7 +61,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      */
     class IndexOfFN : public FunctionCall,
-                      protected ComparisonPlatform<IndexOfFN, false>
+                      public ComparisonPlatform<IndexOfFN, false>
     {
     public:
         inline IndexOfFN() : ComparisonPlatform<IndexOfFN, false>()
@@ -145,7 +145,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      */
     class DistinctValuesFN : public FunctionCall,
-                             protected ComparisonPlatform<IndexOfFN, false>
+                             public ComparisonPlatform<IndexOfFN, false>
     {
     public:
         inline DistinctValuesFN() : ComparisonPlatform<IndexOfFN, false>()

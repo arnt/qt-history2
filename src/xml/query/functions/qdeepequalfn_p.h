@@ -29,7 +29,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      */
     class DeepEqualFN : public FunctionCall,
-                        protected ComparisonPlatform<DeepEqualFN, false>
+                        public ComparisonPlatform<DeepEqualFN, false>
     {
     public:
         inline DeepEqualFN() : ComparisonPlatform<DeepEqualFN, false>()

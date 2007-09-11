@@ -41,7 +41,7 @@ namespace Patternist
      * @ingroup Patternist_iterators
      */
     class DistinctIterator : public Item::Iterator
-                           , protected ComparisonPlatform<DistinctIterator, false> // TODO inherit private?
+                           , public ComparisonPlatform<DistinctIterator, false>
                            , public SourceLocationReflection
     {
     public:

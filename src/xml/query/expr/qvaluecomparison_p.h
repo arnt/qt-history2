@@ -35,7 +35,7 @@ namespace Patternist
      * @ingroup Patternist_expressions
      */
     class ValueComparison : public PairContainer,
-                            protected ComparisonPlatform<ValueComparison, true>
+                            public ComparisonPlatform<ValueComparison, true>
     {
     public:
         ValueComparison(const Expression::Ptr &op1,
