@@ -513,14 +513,16 @@ inline bool QScanConverter::clip(Q16Dot16 &xFP, int &iTop, int &iBottom, Q16Dot1
 
     // does line cross edge?
     if ((lastFP < edgeFP) ^ (xFP < edgeFP)) {
-        int iMiddle = Q16Dot16ToInt(IntToQ16Dot16(iTop) + Q16Dot16Multiply(invSlopeFP, edgeFP - xFP));
+        Q16Dot16 deltaY = Q16Dot16Multiply(invSlopeFP, edgeFP - xFP);
+        int iHeight = Q16Dot16ToInt(deltaY);
+        int iMiddle = iTop + iHeight;
 
         if ((xFP < edgeFP) ^ right) {
             Line line = { edgeFP, 0, iTop, iMiddle, winding };
             m_lines.add(line);
 
             if (iMiddle != iBottom) {
-                xFP += slopeFP * (iMiddle + 1 - iTop);
+                xFP = edgeFP + Q16Dot16Multiply(slopeFP, IntToQ16Dot16(iHeight + 1) - deltaY);
                 iTop = iMiddle + 1;
             } else
                 return true;
@@ -578,6 +580,8 @@ void QScanConverter::mergeLine(QT_FT_Vector a, QT_FT_Vector b)
 
             if (clip(xFP, iTop, iBottom, slopeFP, invSlopeFP, m_rightFP, winding))
                 return;
+
+            Q_ASSERT(xFP >= m_leftFP);
 
             Line line = { xFP, slopeFP, iTop, iBottom, winding };
             m_lines.add(line);
