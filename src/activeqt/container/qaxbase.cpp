@@ -1718,6 +1718,8 @@ private:
     QByteArray debugInfo;
 
     QUuid iid_propNotifySink;
+
+    friend QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *classInfo, const QMetaObject *parentObject);
 };
 
 QMetaObject *qax_readEnumInfo(ITypeLib *typeLib, const QMetaObject *parentObject)
@@ -1750,6 +1752,8 @@ QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const
 QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *classInfo, const QMetaObject *parentObject)
 {
     MetaObjectGenerator generator(typeLib, 0);
+    generator.addSignal("exception(int,QString,QString,QString)", "code,source,disc,help");
+    generator.addSignal("propertyChanged(QString)", "name");
 
     QString className;
     BSTR bstr;
