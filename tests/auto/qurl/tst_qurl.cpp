@@ -2233,7 +2233,10 @@ void tst_QUrl::queryItems()
     newItems += qMakePair(QString("1"), QString("a"));
     newItems += qMakePair(QString("3"), QString("c"));
     newItems += qMakePair(QString("4"), QString("a b"));
+    newItems += qMakePair(QString("5"), QString("&"));
     newItems += qMakePair(QString("foo bar"), QString("hello world"));
+    newItems += qMakePair(QString("foo+bar"), QString("hello+world"));
+    newItems += qMakePair(QString("tex"), QString("a + b = c"));
     url.setQueryItems(newItems);
     QVERIFY(url.hasQuery());
 
@@ -2261,9 +2264,11 @@ void tst_QUrl::queryItems()
     QVERIFY(!url.hasQueryItem("1"));
 
     QCOMPARE(url.queryItemValue("4").toLatin1().constData(), "a b");
+    QCOMPARE(url.queryItemValue("5").toLatin1().constData(), "&");
+    QCOMPARE(url.queryItemValue("tex").toLatin1().constData(), "a + b = c");
     QCOMPARE(url.queryItemValue("foo bar").toLatin1().constData(), "hello world");
     url.setUrl("http://www.google.com/search?q=a+b");
-    QCOMPARE(url.queryItemValue("q"), QString("a b"));
+    QCOMPARE(url.queryItemValue("q"), QString("a+b"));
 }
 
 void tst_QUrl::hasQuery_data()

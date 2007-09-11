@@ -4257,13 +4257,13 @@ QList<QPair<QString, QString> > QUrl::queryItems() const
             QList<QByteArray> keyValuePair = items.at(i).split(d->valueDelimiter);
             if (keyValuePair.size() == 1) {
                 itemMap += qMakePair(QString(QUrl::fromPercentEncoding(
-                                     keyValuePair.at(0))).replace(QLatin1Char('+'), QLatin1Char(' ')),
+                                     keyValuePair.at(0))),
                                      QString());
             } else if (keyValuePair.size() == 2) {
                 itemMap += qMakePair(QString(QUrl::fromPercentEncoding(
-                                     keyValuePair.at(0))).replace(QLatin1Char('+'), QLatin1Char(' ')),
+                                     keyValuePair.at(0))),
                                      QString(QUrl::fromPercentEncoding(
-                                     keyValuePair.at(1))).replace(QLatin1Char('+'), QLatin1Char(' ')));
+                                     keyValuePair.at(1))));
             }
         }
     }
