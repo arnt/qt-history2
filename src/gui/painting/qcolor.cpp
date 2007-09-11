@@ -1936,6 +1936,7 @@ QColor::operator QVariant() const
     Returns true if setNamedColor() is allowed to look up colors in
     the X11 color database. By default, this function returns false.
 
+    \note This function is only available on the X11 platform.    
     \sa setAllowX11ColorNames()
 */
 bool QColor::allowX11ColorNames()
@@ -1948,6 +1949,7 @@ bool QColor::allowX11ColorNames()
     if \a enabled. By default, setNamedColor() does \e not look up
     colors in the X11 color database.
 
+    \note This function is only available on the X11 platform.
     \sa setNamedColor(), allowX11ColorNames()
 */
 void QColor::setAllowX11ColorNames(bool enabled)
