@@ -65,7 +65,7 @@ namespace Patternist
                 return OutputType();
             }
 
-            m_current = static_cast<const Derived *const>(this)->inputToOutputItem(m_list.at(m_position));
+            m_current = static_cast<const Derived *>(this)->inputToOutputItem(m_list.at(m_position));
             ++m_position;
             return m_current;
         }
