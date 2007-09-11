@@ -30,7 +30,6 @@
 #include <QtDesigner/QDesignerLayoutDecorationExtension>
 
 #include <QtCore/QPointer>
-#include <QtCore/QVector>
 #include <QtCore/QVariant>
 #include <QtGui/QWidget>
 #include <QtGui/QLayout>
@@ -50,10 +49,6 @@ struct QDESIGNER_SHARED_EXPORT LayoutProperties
 
     enum Margins { LeftMargin, TopMargin, RightMargin, BottomMargin, MarginCount };
     enum Spacings { Spacing, HorizSpacing, VertSpacing, SpacingsCount };
-
-    // Property names
-    static const QVector<QString> &marginPropertyNames();
-    static const QVector<QString> &spacingProperyNames();
 
     enum PropertyMask {
         ObjectNameProperty  = 0x1,

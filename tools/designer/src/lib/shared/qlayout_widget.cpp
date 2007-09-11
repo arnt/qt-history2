@@ -177,30 +177,9 @@ int LayoutProperties::visibleProperties(const  QLayout *layout)
     rc |= isGridLike ? (HorizSpacingProperty|VertSpacingProperty) : SpacingProperty;
     return rc;
 }
-const QVector<QString> &LayoutProperties::marginPropertyNames()
-{
-    static QVector<QString> rc;
-    if (rc.empty()) {
-        rc.reserve(MarginCount);
-        rc.push_back(QLatin1String("leftMargin"));
-        rc.push_back(QLatin1String("topMargin"));
-        rc.push_back(QLatin1String("rightMargin"));
-        rc.push_back(QLatin1String("bottomMargin"));
-    }
-    return rc;
-}
 
-const QVector<QString> &LayoutProperties::spacingProperyNames()
-{
-    static QVector<QString> rc;
-    if (rc.empty()) {
-        rc.reserve(SpacingsCount);
-        rc.push_back(QLatin1String("spacing"));
-        rc.push_back(QLatin1String("horizontalSpacing"));
-        rc.push_back(QLatin1String("verticalSpacing"));
-    }
-    return rc;
-}
+static const char *marginPropertyNamesC[] = {"leftMargin", "topMargin", "rightMargin", "bottomMargin"};
+static const char *spacingPropertyNamesC[] = {"spacing", "horizontalSpacing", "verticalSpacing" };
 
 static bool intValueFromSheet(const QDesignerPropertySheetExtension *sheet, const QString &name, int *value, bool *changed)
 {
@@ -226,18 +205,16 @@ int LayoutProperties::fromPropertySheet(const QDesignerFormEditorInterface *core
         rc |= ObjectNameProperty;
     }
     // -- Margins
-    const QVector<QString> &marginNames = marginPropertyNames();
     const int marginFlags[MarginCount] = { LeftMarginProperty, TopMarginProperty, RightMarginProperty, BottomMarginProperty};
     for (int i = 0; i < MarginCount; i++)
         if (mask & marginFlags[i])
-            if (intValueFromSheet(sheet, marginNames[i], m_margins + i, m_marginsChanged + i))
+            if (intValueFromSheet(sheet, QLatin1String(marginPropertyNamesC[i]), m_margins + i, m_marginsChanged + i))
                 rc |= marginFlags[i];
 
-    const QVector<QString> &spacingNames = spacingProperyNames();
     const int spacingFlags[] = { SpacingProperty, HorizSpacingProperty, VertSpacingProperty};
     for (int i = 0; i < SpacingsCount; i++)
         if (mask & spacingFlags[i])
-            if (intValueFromSheet(sheet, spacingNames[i], m_spacings + i, m_spacingsChanged + i))
+            if (intValueFromSheet(sheet, QLatin1String(spacingPropertyNamesC[i]), m_spacings + i, m_spacingsChanged + i))
                 rc |= spacingFlags[i];
     // sizeConstraint
     if (mask & SizeConstraintProperty) {
@@ -281,18 +258,16 @@ int LayoutProperties::toPropertySheet(const QDesignerFormEditorInterface *core, 
         rc |= ObjectNameProperty;
     }
     // margins
-    const QVector<QString> &marginNames = marginPropertyNames();
     const int marginFlags[MarginCount] = { LeftMarginProperty, TopMarginProperty, RightMarginProperty, BottomMarginProperty};
     for (int i = 0; i < MarginCount; i++)
         if (mask & marginFlags[i])
-            if (intValueToSheet(sheet, marginNames[i], m_margins[i], m_marginsChanged[i], applyChanged))
+            if (intValueToSheet(sheet, QLatin1String(marginPropertyNamesC[i]), m_margins[i], m_marginsChanged[i], applyChanged))
                 rc |= marginFlags[i];
 
-    const QVector<QString> &spacingNames = spacingProperyNames();
     const int spacingFlags[] = { SpacingProperty, HorizSpacingProperty, VertSpacingProperty};
     for (int i = 0; i < SpacingsCount; i++)
         if (mask & spacingFlags[i])
-            if (intValueToSheet(sheet, spacingNames[i], m_spacings[i], m_spacingsChanged[i], applyChanged))
+            if (intValueToSheet(sheet, QLatin1String(spacingPropertyNamesC[i]), m_spacings[i], m_spacingsChanged[i], applyChanged))
                 rc |= spacingFlags[i];
     // sizeConstraint
     if (mask &  SizeConstraintProperty) {

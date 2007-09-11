@@ -286,7 +286,7 @@ void QDesignerWorkbench::initialize()
     m_fileMenu = m_globalMenuBar->addMenu(tr("&File"));
     foreach (QAction *action, m_actionManager->fileActions()->actions()) {
         m_fileMenu->addAction(action);
-        if (action->text() == QDesignerActions::tr("&Open Form...")) {
+        if (action == m_actionManager->openFormAction()) {
             QMenu *recentFilesMenu = m_fileMenu->addMenu(tr("&Recent Forms"));
             // Pop the "Recent Files" stuff in here.
             foreach(QAction *recentAction, m_actionManager->recentFilesActions()->actions())

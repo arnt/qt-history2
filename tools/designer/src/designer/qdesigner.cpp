@@ -56,7 +56,6 @@ QDesigner::QDesigner(int &argc, char **argv)
       m_client(0),
       m_workbench(0), m_suppressNewFormShow(false)
 {
-    qInstallMsgHandler (designerMessageHandler);
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String(designerApplicationName));
     QDesignerComponents::initializeResources();
@@ -183,6 +182,7 @@ void QDesigner::initialize()
     m_workbench = new QDesignerWorkbench();
 
     emit initialized();
+    qInstallMsgHandler(designerMessageHandler); // Warn when loading faulty forms
 
     m_suppressNewFormShow = m_workbench->readInBackup();
 

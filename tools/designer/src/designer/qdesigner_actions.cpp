@@ -155,13 +155,13 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_helpActions(0),
       m_styleActions(qdesigner_internal::PreviewManager::createStyleActionGroup(this)),
       m_editWidgetsAction(new QAction(tr("Edit Widgets"), this)),
-      m_newFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("filenew.png")), tr("&New Form..."), this)),
-      m_openFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("fileopen.png")), tr("&Open Form..."), this)),
-      m_saveFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("filesave.png")), tr("&Save Form"), this)),
-      m_saveFormAsAction(new QAction(tr("Save Form &As..."), this)),
-      m_saveAllFormsAction(new QAction(tr("Save A&ll Forms"), this)),
-      m_saveFormAsTemplateAction(new QAction(tr("Save Form As &Template..."), this)),
-      m_closeFormAction(new QAction(tr("&Close Form"), this)),
+      m_newFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("filenew.png")), tr("&New..."), this)),
+      m_openFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("fileopen.png")), tr("&Open..."), this)),
+      m_saveFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("filesave.png")), tr("&Save"), this)),
+      m_saveFormAsAction(new QAction(tr("Save &As..."), this)),
+      m_saveAllFormsAction(new QAction(tr("Save A&ll"), this)),
+      m_saveFormAsTemplateAction(new QAction(tr("Save As &Template..."), this)),
+      m_closeFormAction(new QAction(tr("&Close"), this)),
       m_savePreviewImageAction(new QAction(tr("Save &Image..."), this)),
       m_printPreviewAction(new QAction(tr("&Print..."), this)),
       m_quitAction(new QAction(tr("&Quit"), this)),
@@ -310,7 +310,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_editWidgetsAction->setCheckable(true);
     QList<QKeySequence> shortcuts;
     shortcuts.append(QKeySequence(Qt::Key_F3));
+#if QT_VERSION >= 0x040900 // "ESC" switching to edit mode: Activate once item delegates handle shortcut overrides for ESC.
     shortcuts.append(QKeySequence(Qt::Key_Escape));
+#endif
     m_editWidgetsAction->setShortcuts(shortcuts);
     m_editWidgetsAction->setIcon(QIcon(m_core->resourceLocation() + QLatin1String("/widgettool.png")));
     connect(m_editWidgetsAction, SIGNAL(triggered()), this, SLOT(editWidgetsSlot()));
@@ -547,7 +549,7 @@ bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
         dir += extension;
     }
 
-    const  QString saveFile = getSaveFileNameWithExtension(fw, tr("Save form as"), dir, tr("Designer UI files (*.%1);;All Files (*)").arg(extension), extension);
+    const  QString saveFile = getSaveFileNameWithExtension(fw, tr("Save Form As"), dir, tr("Designer UI files (*.%1);;All Files (*)").arg(extension), extension);
     if (saveFile.isEmpty())
         return false;
 
@@ -822,7 +824,7 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
             return false;
         } else if (box.clickedButton() == switchButton) {
             QString extension = getFileExtension(core());
-            const QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+            const QString fileName = QFileDialog::getSaveFileName(fw, tr("Save Form As"),
                                                                   QDir::current().absolutePath(),
                                                                   QLatin1String("*.") + extension);
             if (fileName.isEmpty()) {
@@ -963,11 +965,16 @@ void QDesignerActions::addRecentFile(const QString &fileName)
     updateRecentFileActions();
 }
 
+QAction *QDesignerActions::openFormAction() const
+{
+    return  m_openFormAction;
+}
+
 QAction *QDesignerActions::closeFormAction() const
 {
     return m_closeFormAction;
 }
- 
+
 QAction *QDesignerActions::minimizeAction() const
 {
     return m_minimizeAction;
@@ -1113,7 +1120,7 @@ void QDesignerActions::updateCloseAction()
     if (m_previewManager->previewCount()) {
         m_closeFormAction->setText(tr("&Close Preview"));
     } else {
-        m_closeFormAction->setText(tr("&Close Form"));
+        m_closeFormAction->setText(tr("&Close"));
     }
 }
 

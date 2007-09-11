@@ -60,6 +60,7 @@ public:
     QAction *preferencesAction() const;
     QActionGroup *styleActions() const;
     // file actions
+    QAction *openFormAction() const;
     QAction *closeFormAction() const;
     // window actions
     QAction *minimizeAction() const;
