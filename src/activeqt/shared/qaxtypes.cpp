@@ -447,18 +447,48 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
             default:
                 break;
             }
+            SAFEARRAY *array = 0;
+            bool is2D = false;
+            // If the first element in the array is a list the whole list is 
+            // treated as a 2D array. The colum count is taken from the 1st element.
+            if (count) {
+                QVariantList col = list.at(0).toList();
+                int maxColumns = col.count();
+                if (maxColumns) {
+                    is2D = true;
+                    SAFEARRAYBOUND rgsabound[2] = {0};
+                    rgsabound[0].cElements = count;
+                    rgsabound[1].cElements = maxColumns;
+                    array = SafeArrayCreate(VT_VARIANT, 2, rgsabound);
+                    LONG rgIndices[2];
+                    for (LONG i = 0; i < count; ++i) {
+                        rgIndices[0] = i;
+                        QVariantList columns = list.at(i).toList();
+                        int columnCount = qMin(maxColumns, columns.count());
+                        for (LONG j = 0;  j < columnCount; ++j) {
+                            QVariant elem = columns.at(j);
+                            VariantInit(&variant);
+                            QVariantToVARIANT(elem, variant, elem.typeName());
+                            rgIndices[1] = j;
+                            SafeArrayPutElement(array, rgIndices, pElement);
+                            clearVARIANT(&variant);
+                        }
+                    }
 
-            SAFEARRAY *array = SafeArrayCreateVector(vt, 0, count);
-            for (LONG index = 0; index < count; ++index) {
-                QVariant elem = list.at(index);
-                if (listType != QVariant::LastType)
-                    elem.convert(listType);
-                VariantInit(&variant);
-                QVariantToVARIANT(elem, variant, elem.typeName());
-                SafeArrayPutElement(array, &index, pElement);
-                clearVARIANT(&variant);
+                }
             }
-            
+            if (!is2D) {
+                array = SafeArrayCreateVector(vt, 0, count);
+                for (LONG index = 0; index < count; ++index) {
+                    QVariant elem = list.at(index);
+                    if (listType != QVariant::LastType)
+                        elem.convert(listType);
+                    VariantInit(&variant);
+                    QVariantToVARIANT(elem, variant, elem.typeName());
+                    SafeArrayPutElement(array, &index, pElement);
+                    clearVARIANT(&variant);
+                }
+            }
             if (out && arg.vt == (VT_ARRAY|vt|VT_BYREF)) {
                 if (*arg.pparray)
                     SafeArrayDestroy(*arg.pparray);
