@@ -1387,7 +1387,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             if ((d->model->flags(index) & Qt::ItemIsEnabled) == 0) {
                 opt.state &= ~QStyle::State_Enabled;
                 cg = QPalette::Disabled;
-            } else if (isActiveWindow()) {
+            } else if (opt.state & QStyle::State_Active) {
                 cg = QPalette::Active;
             } else {
                 cg = QPalette::Inactive;
