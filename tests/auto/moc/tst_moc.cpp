@@ -479,6 +479,9 @@ void tst_Moc::dontStripNamespaces()
 
 void tst_Moc::oldStyleCasts()
 {
+#ifdef MOC_CROSS_COMPILED
+    QSKIP("Not tested when cross-compiled", SkipAll);
+#endif
 #if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
     QVERIFY(!qgetenv("QTDIR").isNull());
 
@@ -508,6 +511,9 @@ void tst_Moc::oldStyleCasts()
 
 void tst_Moc::warnOnExtraSignalSlotQualifiaction()
 {
+#ifdef MOC_CROSS_COMPILED
+    QSKIP("Not tested when cross-compiled", SkipAll);
+#endif
 #if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
     QVERIFY(!qgetenv("QTDIR").isNull());
 
@@ -551,6 +557,9 @@ void tst_Moc::uLongLong()
 
 void tst_Moc::inputFileNameWithDotsButNoExtension()
 {
+#ifdef MOC_CROSS_COMPILED
+    QSKIP("Not tested when cross-compiled", SkipAll);
+#endif
 #if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
     QVERIFY(!qgetenv("QTDIR").isNull());
 
@@ -766,6 +775,9 @@ void tst_Moc::namespacedFlags()
 
 void tst_Moc::warnOnMultipleInheritance()
 {
+#ifdef MOC_CROSS_COMPILED
+    QSKIP("Not tested when cross-compiled", SkipAll);
+#endif
 #if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
     QVERIFY(!qgetenv("QTDIR").isNull());
 
@@ -785,6 +797,9 @@ void tst_Moc::warnOnMultipleInheritance()
 
 void tst_Moc::forgottenQInterface()
 {
+#ifdef MOC_CROSS_COMPILED
+    QSKIP("Not tested when cross-compiled", SkipAll);
+#endif
 #if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
     QVERIFY(!qgetenv("QTDIR").isNull());
 
@@ -863,6 +878,9 @@ void tst_Moc::escapesInStringLiterals()
 
 void tst_Moc::frameworkSearchPath()
 {
+#ifdef MOC_CROSS_COMPILED
+    QSKIP("Not tested when cross-compiled", SkipAll);
+#endif
 #if defined(Q_OS_UNIX)
     QVERIFY(!qgetenv("QTDIR").isNull());
 
