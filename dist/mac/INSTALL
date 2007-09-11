@@ -100,8 +100,8 @@ What follows is how to install Qt/Mac from the source package.
 
     You might also want to try the following links:
 
-        http://doc.trolltech.com/4.2/how-to-learn-qt.html
-        http://doc.trolltech.com/4.2/tutorial.html
+        http://doc.trolltech.com/%VERSION%/how-to-learn-qt.html
+        http://doc.trolltech.com/%VERSION%/tutorial.html
         http://www.trolltech.com/developer
 
     We hope you will enjoy using Qt. Good luck!
