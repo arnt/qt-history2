@@ -17,8 +17,11 @@
 #include <QRegExp>
 #include <QString>
 #include <QStack>
-#include <QtXml>
 #include <QTextCodec>
+#include <QXmlAttributes>
+#include <QXmlDefaultHandler>
+#include <QXmlLocator>
+#include <QXmlParseException>
 
 #include <ctype.h>
 #include <errno.h>

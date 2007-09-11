@@ -15,10 +15,14 @@
 
 #include <QApplication>
 #include <QFile>
+#include <QFileInfo>
 #include <QMessageBox>
 #include <QRegExp>
+#include <QTextCodec>
 #include <QTextStream>
-#include <QtXml>
+#include <QXmlAttributes>
+#include <QXmlDefaultHandler>
+#include <QXmlParseException>
 
 static QString protect(const QString & str)
 {

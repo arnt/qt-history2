@@ -12,9 +12,12 @@
 ****************************************************************************/
 
 #include "metatranslator.h"
+
 #include <QtCore/QString>
 #include <QtCore/QStack>
-#include <QtXml>
+#include <QtXml/QXmlAttributes>
+#include <QtXml/QXmlDefaultHandler>
+#include <QtXml/QXmlParseException>
 
 class XLIFFHandler : public QXmlDefaultHandler
 {

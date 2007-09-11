@@ -22,7 +22,6 @@
 #include <QMessageBox>
 #include <QTextCodec>
 #include <QTextStream>
-#include <QtXml>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 

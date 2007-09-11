@@ -18,7 +18,6 @@
 #include <QtCore/QString>
 #include <QtCore/QFile>
 #include <QtCore/QTextCodec>
-#include <QtXml>
 #include <QtGui/QApplication>
 #include <QtGui/QMessageBox>
 
