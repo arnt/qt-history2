@@ -3599,8 +3599,6 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         if [ $QT_EDITION = "QT_EDITION_OPENSOURCE" ]; then
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DQMAKE_OPENSOURCE_EDITION"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -DQMAKE_OPENSOURCE_EDITION"
-        else
-            echo "include Makefile.commercial" >>"$mkfile"
         fi
         if [ "$CFG_RELEASE_QMAKE" = "yes" ]; then
             setBootstrapVariable QMAKE_CFLAGS_RELEASE
