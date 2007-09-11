@@ -268,7 +268,7 @@ public:
     }
 };
 
-static QGlobalStatic<QPenPrivate> defaultPen;
+static QGlobalStatic<QPenPrivate> defaultPen = { Q_BASIC_ATOMIC_INITIALIZER(0), false };
 static QPenPrivate *defaultPenInstance()
 {
     if (!defaultPen.pointer && !defaultPen.destroyed) {
@@ -282,7 +282,7 @@ static QPenPrivate *defaultPenInstance()
     return defaultPen.pointer;
 }
 
-static QGlobalStatic<QPenPrivate> nullPen;
+static QGlobalStatic<QPenPrivate> nullPen = { Q_BASIC_ATOMIC_INITIALIZER(0), false };
 static QPenPrivate *nullPenInstance()
 {
     if (!nullPen.pointer && !nullPen.destroyed) {

@@ -245,7 +245,7 @@ struct QGradientBrushData : public QBrushData
     \sa Qt::BrushStyle, QPainter, QColor
 */
 
-static QGlobalStatic<QBrushData> defaultBrush;
+static QGlobalStatic<QBrushData> defaultBrush = { Q_BASIC_ATOMIC_INITIALIZER(0), false };
 static QBrushData *nullBrushInstance()
 {
     if (!defaultBrush.pointer && !defaultBrush.destroyed) {
