@@ -250,7 +250,7 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
         break;
         
     case QVariant::UInt:
-        if (out && arg.vt == (VT_UINT|VT_BYREF)) {
+        if (out && (arg.vt == (VT_UINT|VT_BYREF) || arg.vt == (VT_I4|VT_BYREF))) {
             *arg.puintVal = qvar.toUInt();
         } else {
             arg.vt = VT_UINT;
