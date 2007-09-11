@@ -2669,12 +2669,6 @@ void Configure::readLicense()
         licenseInfo["LICENSEE"] = "Open Source";
         dictionary["EDITION"] = "OpenSource";
         dictionary["QT_EDITION"] = "QT_EDITION_OPENSOURCE";
-        // Ensure that the right QMAKESPEC is used for the Open Source version
-        if (!dictionary["QMAKESPEC"].endsWith("-g++")) {
-            cout << "The Qt/Windows Open Source Edition only supports the MinGW compiler." << endl;
-            dictionary["DONE"] = "error";
-            return;
-        }
         cout << endl;
         if (!showLicense(dictionary["LICENSE FILE"])) {
             cout << "Configuration aborted since license was not accepted";
