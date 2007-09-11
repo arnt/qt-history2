@@ -10,23 +10,20 @@ SOURCES += project.cpp property.cpp main.cpp generators/makefile.cpp \
            generators/unix/unixmake2.cpp generators/unix/unixmake.cpp meta.cpp \
            option.cpp generators/win32/winmakefile.cpp generators/win32/mingw_make.cpp \
            generators/makefiledeps.cpp generators/metamakefile.cpp generators/mac/pbuilder_pbx.cpp \
-           generators/xmloutput.cpp
+           generators/xmloutput.cpp generators/win32/borland_bmake.cpp \
+           generators/win32/msvc_nmake.cpp generators/projectgenerator.cpp \
+           generators/win32/msvc_dsp.cpp generators/win32/msvc_vcproj.cpp \
+           generators/win32/msvc_objectmodel.cpp
 HEADERS += project.h property.h generators/makefile.h \
            generators/unix/unixmake.h meta.h option.h cachekeys.h \
            generators/win32/winmakefile.h generators/projectgenerator.h \
            generators/makefiledeps.h generators/metamakefile.h generators/mac/pbuilder_pbx.h \
-           generators/xmloutput.h
+           generators/xmloutput.h generators/win32/borland_bmake.h generators/win32/msvc_nmake.h \
+           generators/win32/msvc_dsp.h generators/win32/msvc_vcproj.h \
+           generators/win32/mingw_make.h generators/win32/msvc_objectmodel.h
+
 contains(QT_EDITION, OpenSource) {
    DEFINES += QMAKE_OPENSOURCE_EDITION
-} else {
-   SOURCES +=  generators/win32/borland_bmake.cpp generators/win32/msvc_nmake.cpp \
-               generators/projectgenerator.cpp \
-               generators/win32/msvc_dsp.cpp generators/win32/msvc_vcproj.cpp \
-	       generators/win32/msvc_objectmodel.cpp
-   HEADERS +=  generators/win32/borland_bmake.h generators/win32/msvc_nmake.h \
-               generators/win32/msvc_dsp.h generators/win32/msvc_vcproj.h \
-               nerators/win32/mingw_make.h \
-	       generators/win32/msvc_objectmodel.h
 }
 
 bootstrap { #Qt code
@@ -61,9 +58,9 @@ bootstrap { #Qt code
         qtextstream.cpp \
         qurl.cpp \
         quuid.cpp \
-	    qsettings.cpp \
-	    qlibraryinfo.cpp \
-	    qvariant.cpp \
+        qsettings.cpp \
+        qlibraryinfo.cpp \
+        qvariant.cpp \
         qvector.cpp \
         qvsnprintf.cpp 
 

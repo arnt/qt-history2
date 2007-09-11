@@ -391,12 +391,10 @@ SubdirsMetaMakefileGenerator::~SubdirsMetaMakefileGenerator()
 #include "mingw_make.h"
 #include "projectgenerator.h"
 #include "pbuilder_pbx.h"
-#ifndef QMAKE_OPENSOURCE_EDITION
-# include "msvc_nmake.h"
-# include "borland_bmake.h"
-# include "msvc_dsp.h"
-# include "msvc_vcproj.h"
-#endif
+#include "msvc_nmake.h"
+#include "borland_bmake.h"
+#include "msvc_dsp.h"
+#include "msvc_vcproj.h"
 
 MakefileGenerator *
 MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj, bool noIO)
@@ -418,7 +416,6 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj, bool noIO)
         mkfile = new MingwMakefileGenerator;
     } else if(gen == "PROJECTBUILDER" || gen == "XCODE") {
         mkfile = new ProjectBuilderMakefileGenerator;
-#ifndef QMAKE_OPENSOURCE_EDITION
     } else if(gen == "MSVC") {
         // Visual Studio =< v6.0
         if(proj->first("TEMPLATE").indexOf(QRegExp("^vc.*")) != -1)
@@ -433,7 +430,6 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj, bool noIO)
             mkfile = new NmakeMakefileGenerator;
     } else if(gen == "BMAKE") {
         mkfile = new BorlandMakefileGenerator;
-#endif
     } else {
         fprintf(stderr, "Unknown generator specified: %s\n", gen.toLatin1().constData());
     }
