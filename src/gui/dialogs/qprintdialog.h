@@ -69,6 +69,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_setLastPage(int))
     Q_PRIVATE_SLOT(d_func(), void _q_fileNameEditChanged(const QString &text))
 #endif // QTOPIA_PRINTDIALOG
+    friend Q_GUI_EXPORT void qt_printdialog_add_extension_tab(QPrintDialog *, QWidget *, const QString&, const QString&);
 };
 
 #endif // QT_NO_PRINTDIALOG

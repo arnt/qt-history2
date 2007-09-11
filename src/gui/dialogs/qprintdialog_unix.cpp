@@ -916,6 +916,35 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
     return best;
 }
 
+
+
+// ### remove for qt 5.0
+// This adds a backdoor that makes it possible to add extension tabs to the
+// standard QPrintDialog
+
+void Q_GUI_EXPORT qt_printdialog_add_extension_tab(QPrintDialog *dialog,
+                                                   QWidget *widget,
+                                                   const QString &title,
+                                                   const QString &firstTabTitle)
+{
+    Q_ASSERT(dialog && widget);
+    QTabWidget *tabs = qobject_cast<QTabWidget *>(dialog->d_func()->ui.generalWidget->parent()->parent());
+    if (!tabs) {
+        dialog->layout()->removeWidget(dialog->d_func()->ui.buttonBox);
+        tabs = new QTabWidget(dialog);
+        tabs->addTab(dialog->d_func()->ui.generalWidget, firstTabTitle);
+        QStyle *style = dialog->style();
+        QLayout *layout = dialog->d_func()->ui.generalWidget->layout();
+        layout->setContentsMargins(style->pixelMetric(QStyle::PM_LayoutLeftMargin),
+                                   style->pixelMetric(QStyle::PM_LayoutTopMargin),
+                                   style->pixelMetric(QStyle::PM_LayoutRightMargin),
+                                   style->pixelMetric(QStyle::PM_LayoutBottomMargin));
+        dialog->layout()->addWidget(tabs);
+        dialog->layout()->addWidget(dialog->d_func()->ui.buttonBox);
+    }
+    tabs->addTab(widget, title);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 QPrintDialogPrivate::QPrintDialogPrivate()
