@@ -1197,7 +1197,7 @@ QPointF QCoreGraphicsPaintEnginePrivate::devicePixelSize(CGContextRef context)
         const CGPoint convertedP1 = CGPointApplyAffineTransform(p1, invertedCurrentTransform);
         const CGPoint convertedP2 = CGPointApplyAffineTransform(p2, invertedCurrentTransform);
         // The order of the points is switched in this case.
-        return QPointF(convertedP1.x - convertedP2.x, convertedP1.y - convertedP2.y);
+        return QPointF(qAbs(convertedP1.x - convertedP2.x), qAbs(convertedP1.y - convertedP2.y));
     }
 }
 
@@ -1484,7 +1484,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
             else
                 CGContextTranslateCTM(hd, 0, double(pixelSize.y()) * 0.1);
         }
-        
+
         if (cosmeticPen != QCoreGraphicsPaintEnginePrivate::CosmeticNone) {
             // If antialiazing is enabled, use the cosmetic pen size directly.
             if (q->state->renderHints() & QPainter::Antialiasing)
