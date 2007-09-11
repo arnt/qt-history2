@@ -20,4 +20,4 @@ include(sax/sax.pri)
 include(stream/stream.pri)
 
 # Patternist use member templates and exceptions.
-!linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia): include(query/query.pri)
+!linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia):!contains(CONFIG, exceptions_off): include(query/query.pri)
