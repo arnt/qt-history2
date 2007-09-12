@@ -37,7 +37,7 @@ typedef void (*qt_sighandler_t)(int);
 
 class QWSSignalHandlerPrivate;
 
-class QWSSignalHandler
+class Q_GUI_EXPORT QWSSignalHandler
 {
 public:
     static QWSSignalHandler* instance();
