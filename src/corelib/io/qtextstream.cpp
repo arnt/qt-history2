@@ -2551,6 +2551,7 @@ QTextStream &dec(QTextStream &stream)
     Calls QTextStream::setIntegerBase(16) on \a stream and returns \a
     stream.
 
+    \note The hex modifier can only be used for writing to streams.
     \sa bin(), oct(), dec(), {QTextStream manipulators}
 */
 QTextStream &hex(QTextStream &stream)
