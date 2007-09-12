@@ -328,7 +328,7 @@ QFontEngineWin::~QFontEngineWin()
 HGDIOBJ QFontEngineWin::selectDesignFont(QFixed *overhang) const
 {
     LOGFONT f = logfont;
-    f.lfHeight = -unitsPerEm;
+    f.lfHeight = unitsPerEm;
     HFONT designFont;
     QT_WA({
         designFont = CreateFontIndirectW(&f);
@@ -943,6 +943,10 @@ void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, in
                                      QPainterPath *path, QTextItem::RenderFlags)
 {
     LOGFONT lf = logfont;
+    // The sign must be negative here to make sure we match against character height instead of
+    // hinted cell height. This ensures that we get linear matching, and we need this for
+    // paths since we later on apply a scaling transform to the glyph outline to get the
+    // font at the correct pixel size.
     lf.lfHeight = -unitsPerEm;
     lf.lfWidth = 0;
     HFONT hf;
@@ -1009,7 +1013,7 @@ QFontEngine::Properties QFontEngineWin::properties() const
 {
 
     LOGFONT lf = logfont;
-    lf.lfHeight = -unitsPerEm;
+    lf.lfHeight = unitsPerEm;
     HFONT hf;
     QT_WA({
         hf = CreateFontIndirectW(&lf);
@@ -1042,7 +1046,7 @@ QFontEngine::Properties QFontEngineWin::properties() const
 void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
     LOGFONT lf = logfont;
-    lf.lfHeight = -unitsPerEm;
+    lf.lfHeight = unitsPerEm;
     int flags = synthesized();
     if(flags & SynthesizedItalic)
         lf.lfItalic = false;
