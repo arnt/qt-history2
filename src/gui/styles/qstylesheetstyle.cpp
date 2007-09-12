@@ -279,7 +279,7 @@ struct QStyleSheetBorderData : public QSharedData
     { return bi; }
     bool hasBorderImage() const { return bi!=0; }
 
-    QStyleSheetBorderImageData *bi;
+    QSharedDataPointer<QStyleSheetBorderImageData> bi;
 };
 
 
@@ -809,7 +809,6 @@ void QRenderRule::fixupBorder(int nativeWidth)
         return;
 
     if (!bd->hasBorderImage() || bd->bi->pixmap.isNull()) {
-        delete bd->bi;
         bd->bi = 0;
         // ignore the color, border of edges that have none border-style
         QBrush color = pal ? pal->foreground : QBrush();
