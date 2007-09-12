@@ -186,6 +186,7 @@ private slots:
 
     void compatibilityChildInsertedEvents();
     void render();
+    void renderInvisible();
 
     void setContentsMargins();
 
@@ -5099,7 +5100,9 @@ void tst_QWidget::render()
     QTest::qWait(500);
 
     QImage sourceImage = QPixmap::grabWidget(&source).toImage();
+    qApp->processEvents();
     QImage targetImage = QPixmap::grabWidget(&target).toImage();
+    qApp->processEvents();
     QCOMPARE(sourceImage, targetImage);
 
     // Fill target.rect() will Qt::red and render
@@ -5123,8 +5126,167 @@ void tst_QWidget::render()
         child.resize(100, 100);
         window.show();
         QTest::qWait(100);
-        
+
         QCOMPARE(QPixmap::grabWidget(&child), QPixmap::grabWidget(&window));
+    }
+}
+
+//#define RENDER_DEBUG
+void tst_QWidget::renderInvisible()
+{
+    QCalendarWidget *calendar = new QCalendarWidget;
+    calendar->show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(calendar);
+#endif
+
+    // Create a dummy focus widget to get rid of focus rect in reference image.
+    QLineEdit dummyFocusWidget;
+    dummyFocusWidget.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&dummyFocusWidget);
+#endif
+    qApp->processEvents();
+
+    // Create normal reference image.
+    const QSize calendarSize = calendar->size();
+    QImage referenceImage(calendarSize, QImage::Format_ARGB32);
+    calendar->render(&referenceImage);
+    QVERIFY(!referenceImage.isNull());
+#ifdef RENDER_DEBUG
+    referenceImage.save("referenceImage.png");
+#endif
+
+    // Create resized reference image.
+    const QSize calendarSizeResized = calendar->size() + QSize(50, 50);
+    calendar->resize(calendarSizeResized);
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&dummyFocusWidget);
+#endif
+    qApp->processEvents();
+    QImage referenceImageResized(calendarSizeResized, QImage::Format_ARGB32);
+    calendar->render(&referenceImageResized);
+    QVERIFY(!referenceImageResized.isNull());
+#ifdef RENDER_DEBUG
+    referenceImageResized.save("referenceImageResized.png");
+#endif
+
+    // Explicitly hide the calendar.
+    calendar->hide();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(calendar);
+#endif
+    qApp->processEvents();
+
+    { // Make sure we get the same image when the calendar is explicitly hidden.
+    QImage testImage(calendarSizeResized, QImage::Format_ARGB32);
+    calendar->render(&testImage);
+    QCOMPARE(testImage, referenceImageResized);
+#ifdef RENDER_DEBUG
+    testImage.save("explicitlyHiddenCalendarResized.png");
+#endif
+    }
+
+    // Now that we have reference images we can delete the source and re-create
+    // the calendar and check that we get the same images from a calendar which has never
+    // been visible, laid out or created (Qt::WA_WState_Created).
+    delete calendar;
+    calendar = new QCalendarWidget;
+
+    { // Never been visible, created or laid out.
+    QImage testImage(calendarSize, QImage::Format_ARGB32);
+    calendar->render(&testImage);
+    QCOMPARE(testImage, referenceImage);
+#ifdef RENDER_DEBUG
+    testImage.save("neverBeenVisibleCreatedOrLaidOut.png");
+#endif
+    }
+
+    calendar->hide();
+    qApp->processEvents();
+
+    { // Calendar explicitly hidden.
+    QImage testImage(calendarSize, QImage::Format_ARGB32);
+    calendar->render(&testImage);
+    QCOMPARE(testImage, referenceImage);
+#ifdef RENDER_DEBUG
+    testImage.save("explicitlyHiddenCalendar.png");
+#endif
+    }
+
+    // Get navigation bar and explicitly hide it.
+    QWidget *navigationBar = qFindChild<QWidget *>(calendar, QLatin1String("qt_calendar_navigationbar"));
+    QVERIFY(navigationBar);
+    navigationBar->hide();
+
+    { // Check that the navigation bar isn't drawn when rendering the entire calendar.
+    QImage testImage(calendarSize, QImage::Format_ARGB32);
+    calendar->render(&testImage);
+    QVERIFY(testImage != referenceImage);
+#ifdef RENDER_DEBUG
+    testImage.save("calendarWithoutNavigationBar.png");
+#endif
+    }
+
+    { // Make sure the navigation bar renders correctly even though it's hidden.
+    QImage testImage(navigationBar->size(), QImage::Format_ARGB32);
+    navigationBar->render(&testImage);
+    QCOMPARE(testImage, referenceImage.copy(navigationBar->rect()));
+#ifdef RENDER_DEBUG
+    testImage.save("explicitlyHiddenNavigationBar.png");
+#endif
+    }
+
+    // Get next month button.
+    QWidget *nextMonthButton = qFindChild<QWidget *>(navigationBar, QLatin1String("qt_calendar_nextmonth"));
+    QVERIFY(nextMonthButton);
+
+    { // Render next month button.
+    // Fill test image with correct background color.
+    QImage testImage(nextMonthButton->size(), QImage::Format_ARGB32);
+    navigationBar->render(&testImage, QPoint(), QRegion(), QWidget::RenderFlags());
+#ifdef RENDER_DEBUG
+    testImage.save("nextMonthButtonBackground.png");
+#endif
+
+    // Set the button's background color to Qt::transparent; otherwise it will fill the
+    // background with QPalette::Window.
+    const QPalette originalPalette = nextMonthButton->palette();
+    QPalette palette = originalPalette;
+    palette.setColor(QPalette::Window, Qt::transparent);
+    nextMonthButton->setPalette(palette);
+
+    // Render the button on top of the background.
+    nextMonthButton->render(&testImage);
+    const QRect buttonRect(nextMonthButton->mapTo(calendar, QPoint()), nextMonthButton->size());
+    QCOMPARE(testImage, referenceImage.copy(buttonRect));
+#ifdef RENDER_DEBUG
+    testImage.save("nextMonthButton.png");
+#endif
+
+    // Restore palette.
+    nextMonthButton->setPalette(originalPalette);
+    }
+
+    // Navigation bar isn't explicitly hidden anymore.
+    navigationBar->show();
+    qApp->processEvents();
+    QVERIFY(!calendar->isVisible());
+
+    // Now, completely mess up the layout. This will trigger an update on the layout
+    // when the calendar is visible or shown, but it's not. QWidget::render must therefore
+    // make sure the layout is activated before rendering.
+    QVERIFY(!calendar->isVisible());
+    calendar->resize(calendarSizeResized);
+    qApp->processEvents();
+
+    { // Make sure we get an image equal to the resized reference image.
+    QImage testImage(calendarSizeResized, QImage::Format_ARGB32);
+    calendar->render(&testImage);
+    QCOMPARE(testImage, referenceImageResized);
+#ifdef RENDER_DEBUG
+    testImage.save("calendarResized.png");
+#endif
     }
 }
 
