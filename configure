@@ -2695,8 +2695,8 @@ Configure options:
                          library and subdirectory targets.  All other Makefiles
                          are created as wrappers, which will in turn run qmake.
 
-    -no-largefile....... Disables large file support.
- +  -largefile.......... Enables Qt to access files larger than 4 GB.
+    -no-largefile ...... Disables large file support.
+ +  -largefile ......... Enables Qt to access files larger than 4 GB.
 
 EOF
 if [ "$PLATFORM_QWS" = "yes" ]; then
@@ -2804,7 +2804,7 @@ Additional options:
                          install path as a runtime library path. Equivalent
                          to -R install_libpath
 
-    -continue........... Continue as far as possible if an error occurs.
+    -continue .......... Continue as far as possible if an error occurs.
 
     -verbose, -v ....... Print verbose information about each step of the
                          configure process.
@@ -2827,8 +2827,8 @@ Additional options:
  $PHN  -no-pch ............ Do not use precompiled header support.
  $PHY  -pch ............... Use precompiled header support.
 
- $DBN  -no-qdbus........... Do not compile the QtDBus module.
- $DBY  -qdbus.............. Compile the QtDBus module.
+ $DBN  -no-qdbus .......... Do not compile the QtDBus module.
+ $DBY  -qdbus ............. Compile the QtDBus module.
 
     -reduce-relocations ... Reduce relocations in the libraries through extra linker
                             optimizations (Qt/X11 / Qtopia/Core only;
@@ -2915,8 +2915,8 @@ Qt/X11 only:
     -system-nas-sound .. Use NAS libaudio from the operating system.
                          See http://radscan.com/nas.html
   
-    -no-opengl.......... Do not support OpenGL.
- +  -opengl............. Enable OpenGL support.
+    -no-opengl ......... Do not support OpenGL.
+ +  -opengl ............ Enable OpenGL support.
 
  $SMN  -no-sm ............. Do not support X Session Management.
  $SMY  -sm ................ Support X Session Management, links in -lSM -lICE.
@@ -2984,7 +2984,7 @@ Qt/Mac only:
     -arch <arch> ....... Build Qt for <arch>
                          Example values for <arch>: x86 ppc x86_64 ppc64
 
-    -sdk <sdk>.......... Build Qt using Apple provided SDK <sdk>. This option requires gcc 4.
+    -sdk <sdk> ......... Build Qt using Apple provided SDK <sdk>. This option requires gcc 4.
                          To use a different SDK with gcc 3.3, set the SDKROOT environment variable.
 
 EOF
@@ -3001,7 +3001,7 @@ Qtopia Core only:
     -feature-<feature> .. Compile in <feature>. The available features
                           are described in src/corelib/global/qfeatures.txt
 
-    -embedded <arch>..... This will enable the embedded build, you must have a
+    -embedded <arch> .... This will enable the embedded build, you must have a
                           proper license for this switch to work.
                           Example values for <arch>: arm mips x86 generic
 
@@ -3059,7 +3059,7 @@ Qtopia Core only:
     -no-mouse-<driver> ... Disable mouse <driver> entirely.
                            Possible values for <driver>: [ $CFG_MOUSE_AVAILABLE ]
 
-    -iwmmxt............. Compile using the iWMMXt instruction set
+    -iwmmxt ............ Compile using the iWMMXt instruction set
                          (available on some XScale CPUs).
 
 EOF
@@ -3078,8 +3078,8 @@ if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_X11" = "yes" ]; then
         GBN="+"
     fi
     cat << EOF
- $GBN  -no-glib............ Do not compile Glib support.
- $GBY  -glib............... Compile Glib support.
+ $GBN  -no-glib ........... Do not compile Glib support.
+ $GBY  -glib .............. Compile Glib support.
 
 EOF
 fi
