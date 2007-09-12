@@ -1295,15 +1295,25 @@ QVariant QTextEdit::loadResource(int type, const QUrl &name)
 void QTextEdit::resizeEvent(QResizeEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->lineWrap != FixedPixelWidth) {
-        if (e->oldSize().width() == e->size().width()
-            && e->oldSize().height() != e->size().height())
+
+    if (d->lineWrap == NoWrap) {
+        QTextDocument *doc = d->control->document();
+        QVariant alignmentProperty = doc->documentLayout()->property("contentHasAlignment");
+
+        if (!doc->pageSize().isNull()
+            && alignmentProperty.type() == QVariant::Bool
+            && !alignmentProperty.toBool()) {
+
             d->_q_adjustScrollbars();
-        else
-            d->relayoutDocument();
-    } else {
-        d->_q_adjustScrollbars();
+            return;
+        }
     }
+
+    if (d->lineWrap != FixedPixelWidth
+        && e->oldSize().width() != e->size().width())
+        d->relayoutDocument();
+    else
+        d->_q_adjustScrollbars();
 }
 
 void QTextEditPrivate::relayoutDocument()
@@ -1334,6 +1344,13 @@ void QTextEditPrivate::relayoutDocument()
     int width = viewport->width();
     if (lineWrap == QTextEdit::FixedPixelWidth)
         width = lineWrapColumnOrWidth;
+    else if (lineWrap == QTextEdit::NoWrap) {
+        QVariant alignmentProperty = doc->documentLayout()->property("contentHasAlignment");
+        if (alignmentProperty.type() == QVariant::Bool && !alignmentProperty.toBool()) {
+
+            width = 0;
+        }
+    }
 
     doc->setPageSize(QSize(width, -1));
     if (tlayout)

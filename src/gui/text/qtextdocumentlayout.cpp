@@ -370,6 +370,7 @@ public:
 
     int lastPageCount;
     qreal idealWidth;
+    bool contentHasAlignment;
 
     QFixed blockIndent(const QTextBlockFormat &blockFormat) const;
 
@@ -448,6 +449,7 @@ QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
     showLayoutProgress = true;
     insideDocumentChange = false;
     idealWidth = 0;
+    contentHasAlignment = false;
 }
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForYPosition(QFixed y) const
@@ -2140,6 +2142,11 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                 if (table)
                     align = table->format().alignment() & Qt::AlignHorizontal_Mask;
 
+                // detect whether we have any alignment in the document that disallows optimizations,
+                // such as not laying out the document again in a textedit with wrapping disabled.
+                if (inRootFrame && !(align & Qt::AlignLeft))
+                    contentHasAlignment = true;
+
                 cd->position = pos;
 
                 if (document->pageSize().height() > 0.0f)
@@ -2224,6 +2231,11 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             // layout and position child block
             layoutBlock(block, docPos, blockFormat, layoutStruct, layoutFrom, layoutTo, previousBlockFormatPtr);
 
+            // detect whether we have any alignment in the document that disallows optimizations,
+            // such as not laying out the document again in a textedit with wrapping disabled.
+            if (inRootFrame && !(block.layout()->textOption().alignment() & Qt::AlignLeft))
+                contentHasAlignment = true;
+
             // if the block right before a table is empty 'hide' it by
             // positioning it into the table border
             if (isEmptyBlockBeforeTable(block, blockFormat, it)) {
@@ -2295,6 +2307,11 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
     }
 
     if (inRootFrame) {
+        // we assume that any float is aligned in a way that disallows the optimizations that rely
+        // on unaligned content.
+        if (!fd->floats.isEmpty())
+            contentHasAlignment = true;
+
         if (it.atEnd()) {
             //qDebug() << "layout done!";
             currentLazyLayoutPosition = -1;
@@ -2643,6 +2660,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
         d->showLayoutProgress = true;
 
     if (fullLayout) {
+        d->contentHasAlignment = false;
         d->currentLazyLayoutPosition = 0;
         d->checkPoints.clear();
         d->layoutStep();
@@ -2985,6 +3003,12 @@ qreal QTextDocumentLayout::idealWidth() const
     Q_D(const QTextDocumentLayout);
     d->ensureLayoutFinished();
     return d->idealWidth;
+}
+
+bool QTextDocumentLayout::contentHasAlignment() const
+{
+    Q_D(const QTextDocumentLayout);
+    return d->contentHasAlignment;
 }
 
 qreal QTextDocumentLayoutPrivate::scaleToDevice(qreal value) const
