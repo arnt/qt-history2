@@ -4537,6 +4537,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
     \o Qt::AlignLeft
     \o Qt::AlignRight
     \o Qt::AlignHCenter
+    \o Qt::AlignJustify
     \o Qt::AlignTop
     \o Qt::AlignBottom
     \o Qt::AlignVCenter
@@ -4601,6 +4602,7 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
     \o Qt::AlignLeft
     \o Qt::AlignRight
     \o Qt::AlignHCenter
+    \o Qt::AlignJustify
     \o Qt::AlignTop
     \o Qt::AlignBottom
     \o Qt::AlignVCenter
@@ -6083,6 +6085,8 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
     if (option)
         engine.option = *option;
     engine.option.setTextDirection(layout_direction);
+    if (tf & Qt::AlignJustify)
+        engine.option.setAlignment(Qt::AlignJustify);
     if (tf & Qt::TextWrapAnywhere)
         engine.option.setWrapMode(QTextOption::WrapAnywhere);
     if (tf & Qt::TextJustificationForced)
