@@ -61,6 +61,7 @@ extern void qt_call_post_routines();
 
 #include "qapplication.h"
 
+//#define SUPPRESS_POPUP_FOCUS_CHANGE //(Workaround for Qtopia 4.3)
 //#define ALIEN_DEBUG
 
 int QApplicationPrivate::app_compile_version = 0x040000; //we don't know exactly, but it's at least 4.0.0
@@ -1864,6 +1865,11 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
             }
         }
 
+#ifdef SUPPRESS_POPUP_FOCUS_CHANGE // ### Workaround for Qtopia issue.
+        if (prev && reason == Qt::PopupFocusReason) {
+            return;
+        }
+#endif
         focus_widget = focus;
         if(focus_widget)
             focus_widget->d_func()->setFocus_sys();
