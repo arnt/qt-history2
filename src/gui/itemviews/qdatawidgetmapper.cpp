@@ -119,8 +119,11 @@ bool QDataWidgetMapperPrivate::commit(const WidgetMapper &m)
 
     if (m.property.isEmpty())
         delegate->setModelData(m.widget, model, m.currentIndex);
-    else
-        model->setData(m.currentIndex, m.widget->property(m.property), Qt::EditRole);
+    else {
+        // Create copy to avoid passing the widget mappers data
+        QModelIndex idx = m.currentIndex;
+        model->setData(idx, m.widget->property(m.property), Qt::EditRole);
+    }
 
     return true;
 }
