@@ -42,6 +42,7 @@ const tabSize = 4;
  */
 
 var checkoutRemove = [ new RegExp("^LICENSE.TROLL"),
+                       new RegExp("^.gitignore"),
                        new RegExp("^bin/syncqt.bat"),
                        new RegExp("^mkspecs/features/qttest_p4.prf"),
                        new RegExp("^pics"),
