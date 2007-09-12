@@ -1052,8 +1052,14 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
             }
         } else if (ekind == kEventControlVisibilityChanged) {
             handled_event = false;
-            if (widget)
+            if (widget) {
                 qt_event_request_window_change(widget);
+                if (!HIViewIsVisible(HIViewRef(widget->winId()))) {
+                    extern QPointer<QWidget> qt_button_down; //qapplication_mac.cpp
+                    if (widget == qt_button_down)
+                        qt_button_down = 0;
+                }
+            }
         }
         break; }
     case kEventClassMouse: {
