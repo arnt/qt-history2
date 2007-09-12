@@ -22,7 +22,7 @@ class QtAbstractPropertyManager;
 class QtProperty
 {
 public:
-    ~QtProperty();
+    virtual ~QtProperty();
 
     QList<QtProperty *> subProperties() const;
 
