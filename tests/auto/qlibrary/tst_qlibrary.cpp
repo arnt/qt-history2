@@ -84,9 +84,11 @@ public:
     virtual ~tst_QLibrary();
 
 enum QLibraryOperation {
-    Load,
-    Unload,
-    Resolve
+    Load = 1,
+    Unload = 2,
+    Resolve = 3,
+    OperationMask = 7,
+    DontSetFileName = 0x100
 };
 private slots:
     void load();
@@ -317,6 +319,7 @@ void tst_QLibrary::errorString_data()
     QString currDir = QDir::currentPath();
 
     QTest::newRow("bad load()") << (int)Load << QString("nosuchlib") << false << QString("QLibrary::load_sys: Cannot load nosuchlib \\(.*\\)");
+    QTest::newRow("call errorString() on QLibrary with no d-pointer (crashtest)") << (int)(Load | DontSetFileName) << QString() << false << QString("Unknown error");
     QTest::newRow("bad resolve") << (int)Resolve << currDir + "/mylib" << false << QString("QLibrary::resolve_sys: Symbol \"nosuchsymbol\" undefined in \\S+ \\(.*\\)");
     QTest::newRow("good resolve") << (int)Resolve << currDir + "/mylib" << true << QString("Unknown error");
 
@@ -338,10 +341,13 @@ void tst_QLibrary::errorString()
     QFETCH(bool, success);
     QFETCH(QString, errorString);
 
-    QLibrary lib(fileName);
+    QLibrary lib;
+    if (!(operation & DontSetFileName)) {
+        lib.setFileName(fileName);
+    }
 
     bool ok = false;
-    switch (operation) {
+    switch (operation & OperationMask) {
         case Load:
             ok = lib.load();
             break;

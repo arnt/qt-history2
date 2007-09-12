@@ -925,7 +925,7 @@ void *QLibrary::resolve(const QString &fileName, int verNum, const char *symbol)
 */
 QString QLibrary::errorString() const
 {
-    return d->errorString.isEmpty() ? tr("Unknown error") : d->errorString;
+    return (!d || d->errorString.isEmpty()) ? tr("Unknown error") : d->errorString;
 }
 
 /*!
