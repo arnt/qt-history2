@@ -1465,9 +1465,9 @@ bool QAbstractSocket::waitForConnected(int msecs)
     will timeout after \a msecs milliseconds; the default timeout is
     3000 milliseconds.
 
-    The function returns true if data is available for reading;
-    otherwise it returns false (if an error occurred or the
-    operation timed out).
+    The function returns true if the readyRead() signal is emitted and
+    there is data available for reading; otherwise it returns false
+    (if an error occurred or the operation timed out).
 
     \sa waitForBytesWritten() 
 */
