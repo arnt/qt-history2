@@ -4002,6 +4002,52 @@ void QWidget::render(QPaintDevice *target, const QPoint &targetOffset,
     if (paintRegion.isEmpty())
         return;
 
+    QWidget *topLevel = window();
+
+    if (!isVisible()) {
+        const bool topLevelWasCreated = topLevel->testAttribute(Qt::WA_WState_Created);
+        if (!topLevelWasCreated)
+            topLevel->d_func()->createWinId();
+        topLevel->ensurePolished();
+
+        // Invalidate the layout of hidden ancestors (incl. myself) and pretend
+        // they're not explicitly hidden.
+        QWidget *widget = this;
+        QWidgetList hiddenWidgets;
+        while (widget) {
+            if (widget->isHidden()) {
+                widget->setAttribute(Qt::WA_WState_Hidden, false);
+                hiddenWidgets.append(widget);
+                if (!widget->isWindow() && widget->parentWidget()->d_func()->layout)
+                    widget->d_func()->updateGeometry_helper(true);
+            }
+            widget = widget->parentWidget();
+        }
+
+        // Activate top-level layout.
+        if (topLevel->d_func()->layout)
+            topLevel->d_func()->layout->activate();
+
+        // Adjust size if necessary.
+        if (!topLevelWasCreated && !topLevel->testAttribute(Qt::WA_Resized)) {
+            topLevel->adjustSize();
+            topLevel->setAttribute(Qt::WA_Resized, false);
+        }
+
+        // Activate child layouts.
+        topLevel->d_func()->activateChildLayoutsRecursively();
+
+        // We're not cheating with WA_WState_Hidden anymore.
+        for (int i = 0; i < hiddenWidgets.size(); ++i) {
+            QWidget *widget = hiddenWidgets.at(i);
+            widget->setAttribute(Qt::WA_WState_Hidden);
+            if (!widget->isWindow() && widget->parentWidget()->d_func()->layout)
+                widget->parentWidget()->d_func()->layout->invalidate();
+        }
+    } else {
+        topLevel->d_func()->sendPendingMoveAndResizeEvents(true);
+    }
+
 #ifdef Q_WS_MAC
     // Set system clip.
     QPaintEngine *paintEngine = target->paintEngine();
@@ -5339,21 +5385,66 @@ void QWidgetPrivate::show_recursive()
     show_helper();
 }
 
-void QWidgetPrivate::show_helper()
+void QWidgetPrivate::sendPendingMoveAndResizeEvents(bool recursive)
 {
     Q_Q(QWidget);
-    data.in_show = true; // qws optimization
-    // make sure we receive pending move and resize events
     if (q->testAttribute(Qt::WA_PendingMoveEvent)) {
         QMoveEvent e(data.crect.topLeft(), data.crect.topLeft());
         QApplication::sendEvent(q, &e);
         q->setAttribute(Qt::WA_PendingMoveEvent, false);
     }
+
     if (q->testAttribute(Qt::WA_PendingResizeEvent)) {
         QResizeEvent e(data.crect.size(), QSize());
         QApplication::sendEvent(q, &e);
         q->setAttribute(Qt::WA_PendingResizeEvent, false);
     }
+
+    if (!recursive)
+        return;
+
+    for (int i = 0; i < children.size(); ++i) {
+        if (QWidget *child = qobject_cast<QWidget *>(children.at(i)))
+            child->d_func()->sendPendingMoveAndResizeEvents(recursive);
+    }
+}
+
+void QWidgetPrivate::activateChildLayoutsRecursively()
+{
+    sendPendingMoveAndResizeEvents();
+
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *child = qobject_cast<QWidget *>(children.at(i));
+        if (!child || child->isHidden() || child->isWindow())
+            continue;
+
+        child->ensurePolished();
+
+        // Activate child's layout
+        QWidgetPrivate *childPrivate = child->d_func();
+        if (childPrivate->layout)
+            childPrivate->layout->activate();
+
+        // Pretend we're visible.
+        const bool wasVisible = child->isVisible();
+        if (!wasVisible)
+            child->setAttribute(Qt::WA_WState_Visible);
+
+        // Do the same for all my children.
+        childPrivate->activateChildLayoutsRecursively();
+
+        // We're not cheating anymore.
+        if (!wasVisible)
+            child->setAttribute(Qt::WA_WState_Visible, false);
+    }
+}
+
+void QWidgetPrivate::show_helper()
+{
+    Q_Q(QWidget);
+    data.in_show = true; // qws optimization
+    // make sure we receive pending move and resize events
+    sendPendingMoveAndResizeEvents();
 
     // become visible before showing all children
     q->setAttribute(Qt::WA_WState_Visible);

@@ -315,6 +315,8 @@ public:
 #ifdef Q_WS_MAC
     void setGeometry_sys_helper(int, int, int, int, bool);
 #endif
+    void sendPendingMoveAndResizeEvents(bool recursive = false);
+    void activateChildLayoutsRecursively();
     void show_recursive();
     void show_helper();
     void show_sys();
