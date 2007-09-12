@@ -156,6 +156,7 @@ SUBDIRS += bic \
            qlistwidget \
            qlocale \
            qmainwindow \
+           qmake \
            qmap \
            qmdiarea \
            qmdisubwindow \
@@ -320,8 +321,6 @@ SUBDIRS += bic \
            selftests \
            symbols \
            qrand
-
-!cross_compile: SUBDIRS += qmake
 
 # Patternist use member templates and exceptions
 !linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia):!contains(CONFIG, exceptions_off) {

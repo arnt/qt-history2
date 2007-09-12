@@ -9,7 +9,7 @@
 
 #include <QtTest/QtTest>
 
-
+#ifndef QMAKE_CROSS_COMPILED
 
 #include <qdir.h>
 #include <qprocess.h>
@@ -314,3 +314,7 @@ void tst_qmake::one_space()
 
 QTEST_MAIN(tst_qmake)
 #include "tst_qmake.moc"
+
+#else // QMAKE_CROSS_COMPILED
+QTEST_NOOP_MAIN
+#endif
