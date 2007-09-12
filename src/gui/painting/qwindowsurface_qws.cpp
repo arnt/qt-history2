@@ -611,7 +611,11 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     Q_UNUSED(offset);
 
     const bool opaque = isWidgetOpaque(win);
+#ifdef QT_QWS_DISABLE_FLUSHCLIPPING
+    QRegion toFlush = region;
+#else
     QRegion toFlush = region & d_ptr->clip;
+#endif
     const QRegion stillDirty = (d_ptr->dirty - toFlush);
 
     if (!toFlush.isEmpty()) {
