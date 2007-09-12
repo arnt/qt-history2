@@ -1175,6 +1175,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->opacity = 1;
     d->drawable.makeCurrent();
     d->matrix = QTransform();
+    d->high_quality_antialiasing = false;
 
     bool has_frag_program = (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
                             && (pdev->devType() != QInternal::Pixmap);
