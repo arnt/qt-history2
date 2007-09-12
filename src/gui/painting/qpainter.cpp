@@ -4640,8 +4640,10 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
 
     QTextOption opt = o;
     int flags = opt.alignment();
-    // avoid doing the alignment twice since qt_format_text does it, too
-    opt.setAlignment(Qt::AlignLeft);
+    if (!(opt.alignment() & Qt::AlignJustify)) { // justify is like left. In that case, don't touch.
+        // avoid doing the alignment twice since qt_format_text does it, too
+        opt.setAlignment(Qt::AlignLeft);
+    }
 
     if (opt.wrapMode() == QTextOption::WordWrap)
         flags |= Qt::TextWordWrap;
