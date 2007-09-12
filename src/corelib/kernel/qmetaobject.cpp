@@ -308,7 +308,7 @@ int QMetaObject::classInfoOffset() const
 
 /*!
     Returns the number of methods in this class. These include
-    ordinary methods, signals, and slots.
+    signals and slots.
 
     \sa method(), methodOffset(), indexOfMethod()
 */
