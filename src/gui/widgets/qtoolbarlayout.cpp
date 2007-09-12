@@ -364,6 +364,9 @@ bool QToolBarLayout::layoutActions(const QSize &size)
     bool extensionMenuContainsOnlyWidgetActions = true;
 
     int space = pick(o, rect.size()) - 2*margin - handleExtent;
+    if (space <= 0)
+        return false;  // nothing to do.
+
     bool ranOutOfSpace = false;
     int rows = 0;
     int rowPos = perp(o, rect.topLeft()) + margin;

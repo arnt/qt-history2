@@ -490,7 +490,9 @@ QRect QToolBarAreaLayout::fitLayout()
     docks[QInternal::BottomDock].rect = QRect(rect.left(), center.bottom() + 1,
                                     rect.width(), bottom_hint.height());
 
-    docks[QInternal::TopDock].fitLayout();
+    if (!mainWindow->unifiedTitleAndToolBarOnMac()) {
+        docks[QInternal::TopDock].fitLayout();
+    }
     docks[QInternal::LeftDock].fitLayout();
     docks[QInternal::RightDock].fitLayout();
     docks[QInternal::BottomDock].fitLayout();
