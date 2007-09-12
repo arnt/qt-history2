@@ -190,6 +190,7 @@ private slots:
     void specialValueCornerCase();
     void cursorPositionOnInit();
 
+    void task118867();
     void cachedDayTest();
 
     void dateEditTimeEditFormats();
@@ -2922,6 +2923,27 @@ void tst_QDateTimeEdit::cursorPositionOnInit()
     }
 }
 
+void tst_QDateTimeEdit::task118867()
+{
+    EditorDateEdit edit;
+    edit.setDisplayFormat("hh:mm");
+    edit.setMinimumTime(QTime(5, 30));
+    edit.setMaximumTime(QTime(6, 30));
+    QCOMPARE(edit.text(), QString("05:30"));
+    edit.lineEdit()->setCursorPosition(5);
+    QTest::keyClick(edit.lineEdit(), Qt::Key_Backspace);
+    QCOMPARE(edit.text(), QString("05:3"));
+    QTest::keyClick(edit.lineEdit(), Qt::Key_Backspace);
+    QCOMPARE(edit.text(), QString("05:"));
+    QTest::keyClick(edit.lineEdit(), Qt::Key_1);
+    QCOMPARE(edit.text(), QString("05:"));
+    QTest::keyClick(edit.lineEdit(), Qt::Key_2);
+    QCOMPARE(edit.text(), QString("05:"));
+    QTest::keyClick(edit.lineEdit(), Qt::Key_3);
+    QCOMPARE(edit.text(), QString("05:3"));
+    QTest::keyClick(edit.lineEdit(), Qt::Key_3);
+    QCOMPARE(edit.text(), QString("05:33"));
+}
 void tst_QDateTimeEdit::dateEditTimeEditFormats()
 {
     QTimeEdit t;

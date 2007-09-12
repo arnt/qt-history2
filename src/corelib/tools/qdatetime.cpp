@@ -4670,7 +4670,7 @@ int QDateTimeParser::potentialValueHelper(const QString &str, int min, int max, 
 {
     if (str.size() == size) {
         const int val = str.toInt();
-        if (val < min || val > max)
+        if ((val < min && min != -1) || (val > max && max != -1))
             return -1;
         QDTPDEBUG << "SUCCESS" << val << "is >=" << min << "and <=" << max;
         return val;
