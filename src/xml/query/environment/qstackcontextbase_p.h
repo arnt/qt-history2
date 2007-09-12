@@ -31,7 +31,7 @@ namespace Patternist
      * @author Frans Englich <fenglich@trolltech.com>
      */
     template<typename TSuperClass>
-    class StackContextBase : public TSuperClass
+    class Q_AUTOTEST_EXPORT StackContextBase : public TSuperClass
     {
     public:
         StackContextBase();
