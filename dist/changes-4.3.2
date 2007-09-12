@@ -20,9 +20,23 @@ Q3ButtonGroup
 Q3Header
     * [176202] Fixed lead when replacing icons using setLabel()
 
+QAbstractItemView
+    * [168493] Fixed drag and drop regression when parent in a tree doesn't allow dropping.
+
 QTreeView
     * [171947] Fixed bug where an inactive QTreeView does not paint alternate color 
       with inactive palette role.
+    * Fixes many possible crashes when there are pending changes.
+
+QTreeWidget
+    * [174396] setItemExpanded() could potentially fail.
+
+QColumnView
+    * selectAll wasn't selecting all if selection range contained multiple items.
+    * [170751] Fixed incorrect selection behavior when clicking on previously selected folder.
+    * [170753] When deselecting an index it was reselecting the index
+    * [170753] When passing an index to select, the full path wasn't selected.
+    * [170753] When deselecting an index its parent was getting deselected too.
 
 Style Sheets
     * QMainWindow now respects background-image.
@@ -33,6 +47,14 @@ Style Sheets
     * Fixed QComboBox styling bug where the popup would show an extra row when
       a style sheet is used.
     * [177168] Fixed memory leak where QStyleSheetStyle is never destroyed.
+
+QFileDialog
+    * Possible deadlock
+    * When setting a filter on the dialog re-connect the selection changed signals.
+    * [171158] Crash when using the Forward button to navigate into a folder that was deleted.
+    * [166786] (Windows) Some files not showing up, sometimes.
+    * [165289] (Windows) When starting the file dialog with a UNC path it would ignore it.
+    * [140539] (Windows) Dialog no longer gets the drives when launched.
 
 Third party components
 ----------------------
