@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <cmath>
+#include <math.h>
 
 #include <qnumeric.h>
 
@@ -90,7 +90,7 @@ Item DecimalMathematician::calculate(const Item &o1,
                 return Item(); /* Silences source code analyzer warning. */
             }
             else
-                return toItem(Decimal::fromValue(std::fmod(o1.as<Numeric>()->toDecimal(), o2.as<Numeric>()->toDecimal())));
+                return toItem(Decimal::fromValue(::fmod(o1.as<Numeric>()->toDecimal(), o2.as<Numeric>()->toDecimal())));
         }
         case Multiply:
             return toItem(Decimal::fromValue(o1.as<Numeric>()->toDecimal() * o2.as<Numeric>()->toDecimal()));
