@@ -108,6 +108,8 @@ void QFontDatabasePrivate::addQPF2File(const QByteArray &file)
                 int fontWeight = 50;
                 if (weight.type() == QVariant::Int)
                     fontWeight = weight.toInt();
+                else if (weight.type() == QVariant::UInt)
+                    fontWeight = (int)weight.toUInt();
 
                 bool italic = static_cast<QFont::Style>(style.toInt()) & QFont::StyleItalic;
 
