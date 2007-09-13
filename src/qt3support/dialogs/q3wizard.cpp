@@ -738,7 +738,7 @@ void Q3Wizard::layOutButtonRow( QHBoxLayout * layout )
 	h->addSpacing( 12 );
 	h->addWidget( d->finishButton );
     } else if ( d->pages.count() == 0 ||
-		d->current->finishEnabled ||
+		(d->current && d->current->finishEnabled) ||
 		d->current == d->pages.at( d->pages.count()-1 ) ) {
 	d->nextButton->hide();
 	d->finishButton->show();
