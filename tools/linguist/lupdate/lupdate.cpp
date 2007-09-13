@@ -123,8 +123,6 @@ int lupdateApplication::start()
             standardSyntax = false;
     }
 
-    QString oldDir = QDir::currentPath();
-
     for ( i = 1; i < argc; i++ ) {
         QString arg = argv.at(i);
         if ( arg == QLatin1String("-help") ) {
@@ -217,7 +215,6 @@ int lupdateApplication::start()
                 recursiveFileInfoList(dir, extensionsNameFilters, filters, true, &fileinfolist);
                 QFileInfoList::iterator ii;
                 QString fn;
-                QDir baseDir(oldDir);
                 for (ii = fileinfolist.begin(); ii != fileinfolist.end(); ++ii) {
                     // Make sure the path separator is stored with '/' in the ts file
                     fn = ii->canonicalFilePath().replace(QLatin1Char('\\'),QLatin1Char('/'));
@@ -241,10 +238,9 @@ int lupdateApplication::start()
         QStringList tsFiles = tsFileNames;
         if (proFiles.count() > 0) {
             QString pf = proFiles.at(pi);
-            QDir::setCurrent( QFileInfo(pf).path() );
             QMap<QByteArray, QStringList> variables;
 
-            if(!evaluateProFile(QFileInfo(pf).fileName(), verbose, &variables))
+            if(!evaluateProFile(pf, verbose, &variables))
                 return 2;
 
             sourceFiles = variables.value("SOURCES");
@@ -283,13 +279,11 @@ int lupdateApplication::start()
 
         removeDuplicates(&tsFiles, false);
         
-        QDir::setCurrent( oldDir );
         if ( tsFiles.count() > 0) {
             updateTsFiles( fetchedTor, tsFiles, QString::fromLatin1(codecForTr.constData()), noObsolete, verbose );
         }
         firstPass = false;
     }
-    QDir::setCurrent( oldDir );
 
     if ( numFiles == 0 ) {
         printUsage();
