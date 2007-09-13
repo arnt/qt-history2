@@ -106,6 +106,18 @@ Windows
 
 Mac OS X
 --------
+    * [172475] Don't repaint OpenGL widgets when another window is resized.
+    * Undefine the QMAKE_CC and QMAKE_CXX in Xcode project generator so distributed (distcc) builds work again.
+    * Ensure that the maximized bit is removed when a window is resized by user interaction.
+    * [111348] QMenu takes focus with the QPopupMenuReson now.
+    * [153436] Fix a crash in QColorDialog when choosing a color in the Gray colorspace.
+    * Ensure that we use the proper colorspace in QPixmap::grabWindow()
+    Note for Leopard pre-release builds: Qt 4.3.x applications run on the
+    August Leopard pre-release (build 9A527) won't show any windows because of
+    a regression in the Carbon library. This has been addressed for a futre OS
+    X release. In the meantime, if you *must* test your application against
+    this Leopard build, please contact Trolltech.
+
 
 Qtopia Core
 -----------
