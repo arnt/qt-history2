@@ -22,14 +22,21 @@ Q3Header
 
 QAbstractItemView
     * [168493] Fixed drag and drop regression when parent in a tree doesn't allow dropping.
+    * [174848] Fixed a crash while removing the current edited row
 
 QTreeView
     * [171947] Fixed bug where an inactive QTreeView does not paint alternate color 
       with inactive palette role.
     * Fixes many possible crashes when there are pending changes.
+    * [177165] Column minimum width could be wrong aénd not depend on the actual text in the header.
 
 QTreeWidget
     * [174396] setItemExpanded() could potentially fail.
+    * [172876] itemBelow and itemAbove now returns correct values.
+    * [171271] Fixed possible crash in when updating items too quickly
+
+QTableView
+    * [171128] Fixed painting problems when deleting a hidden rows.
 
 QColumnView
     * selectAll wasn't selecting all if selection range contained multiple items.
@@ -61,6 +68,7 @@ QColorDialog
 
 QMenu
     * [111348] QMenu takes focus with the QPopupMenuReson now.
+    * [176201] Fixed possible crash when clearing the menu from a triggered signal
 
 QPixmap
     * Ensure that we use the proper colorspace in QPixmap::grabWindow() on Mac OS X
