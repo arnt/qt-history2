@@ -418,7 +418,7 @@ SeeAlso: ???
 Feature: TEXTEDIT
 Description: Supports rich text editing.
 Section: Widgets
-Requires: SCROLLAREA
+Requires: SCROLLAREA PROPERTIES
 Name: QTextEdit
 SeeAlso: ???
 

@@ -447,19 +447,9 @@
 #define QT_NO_TABBAR
 #endif
 
-// QTextEdit
-#if !defined(QT_NO_TEXTEDIT) && (defined(QT_NO_SCROLLAREA))
-#define QT_NO_TEXTEDIT
-#endif
-
 // QUndoGroup
 #if !defined(QT_NO_UNDOGROUP) && (defined(QT_NO_UNDOCOMMAND) || defined(QT_NO_UNDOSTACK))
 #define QT_NO_UNDOGROUP
-#endif
-
-// QErrorMessage
-#if !defined(QT_NO_ERRORMESSAGE) && (defined(QT_NO_TEXTEDIT))
-#define QT_NO_ERRORMESSAGE
 #endif
 
 // The Model/View Framework
@@ -477,24 +467,19 @@
 #define QT_NO_SCRIPT
 #endif
 
-// QSyntaxHighlighter
-#if !defined(QT_NO_SYNTAXHIGHLIGHTER) && (defined(QT_NO_TEXTEDIT))
-#define QT_NO_SYNTAXHIGHLIGHTER
-#endif
-
 // Q3TabDialog
 #if !defined(QT_NO_TABDIALOG) && (defined(QT_NO_TABBAR))
 #define QT_NO_TABDIALOG
 #endif
 
-// QTextBrowser
-#if !defined(QT_NO_TEXTBROWSER) && (defined(QT_NO_TEXTEDIT))
-#define QT_NO_TEXTBROWSER
-#endif
-
 // QTextCodecPlugin
 #if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_TEXTCODEC) || defined(QT_NO_LIBRARY))
 #define QT_NO_TEXTCODECPLUGIN
+#endif
+
+// QTextEdit
+#if !defined(QT_NO_TEXTEDIT) && (defined(QT_NO_SCROLLAREA) || defined(QT_NO_PROPERTIES))
+#define QT_NO_TEXTEDIT
 #endif
 
 // QWhatsThis
@@ -510,6 +495,11 @@
 // QDirModel
 #if !defined(QT_NO_DIRMODEL) && (defined(QT_NO_ITEMVIEWS))
 #define QT_NO_DIRMODEL
+#endif
+
+// QErrorMessage
+#if !defined(QT_NO_ERRORMESSAGE) && (defined(QT_NO_TEXTEDIT))
+#define QT_NO_ERRORMESSAGE
 #endif
 
 // QListView
@@ -537,6 +527,11 @@
 #define QT_NO_STRINGLISTMODEL
 #endif
 
+// QSyntaxHighlighter
+#if !defined(QT_NO_SYNTAXHIGHLIGHTER) && (defined(QT_NO_TEXTEDIT))
+#define QT_NO_SYNTAXHIGHLIGHTER
+#endif
+
 // QTableView
 #if !defined(QT_NO_TABLEVIEW) && (defined(QT_NO_ITEMVIEWS))
 #define QT_NO_TABLEVIEW
@@ -545,6 +540,11 @@
 // QTabWidget
 #if !defined(QT_NO_TABWIDGET) && (defined(QT_NO_TABBAR) || defined(QT_NO_STACKEDWIDGET))
 #define QT_NO_TABWIDGET
+#endif
+
+// QTextBrowser
+#if !defined(QT_NO_TEXTBROWSER) && (defined(QT_NO_TEXTEDIT))
+#define QT_NO_TEXTBROWSER
 #endif
 
 // QTreeView
