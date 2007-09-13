@@ -83,6 +83,7 @@ struct QTLWExtra {
     QRect frameStrut;
     uint opacity : 8;
     uint posFromMove : 1;
+    uint sizeAdjusted : 1;
 #ifndef Q_WS_MAC
     QWidgetBackingStore *backingStore;
 #endif

@@ -1249,6 +1249,7 @@ void QWidgetPrivate::createTLExtra()
         x->windowSurface = 0;
         x->opacity = 255;
         x->posFromMove = false;
+        x->sizeAdjusted = false;
         x->icon = 0;
         x->iconPixmap = 0;
         x->frameStrut.setCoords(0, 0, 0, 0);
@@ -4008,8 +4009,7 @@ void QWidget::render(QPaintDevice *target, const QPoint &targetOffset,
     QWidget *topLevel = window();
 
     if (!isVisible()) {
-        const bool topLevelWasCreated = topLevel->testAttribute(Qt::WA_WState_Created);
-        if (!topLevelWasCreated)
+        if (!topLevel->testAttribute(Qt::WA_WState_Created))
             topLevel->d_func()->createWinId();
         topLevel->ensurePolished();
 
@@ -4032,7 +4032,9 @@ void QWidget::render(QPaintDevice *target, const QPoint &targetOffset,
             topLevel->d_func()->layout->activate();
 
         // Adjust size if necessary.
-        if (!topLevelWasCreated && !topLevel->testAttribute(Qt::WA_Resized)) {
+        QTLWExtra *topLevelExtra = topLevel->d_func()->maybeTopData();
+        if (topLevelExtra && !topLevelExtra->sizeAdjusted
+            && !topLevel->testAttribute(Qt::WA_Resized)) {
             topLevel->adjustSize();
             topLevel->setAttribute(Qt::WA_Resized, false);
         }
@@ -6022,6 +6024,9 @@ void QWidget::adjustSize()
 #endif
         s.setWidth(qMin(s.width(), screen.width()*2/3));
         s.setHeight(qMin(s.height(), screen.height()*2/3));
+
+        if (QTLWExtra *extra = d_func()->maybeTopData())
+            extra->sizeAdjusted = true;
     }
 
     if (!s.isValid()) {
@@ -7443,13 +7448,17 @@ void QWidget::setLayout(QLayout *l)
         return;
     }
 
+    Q_D(QWidget);
     l->d_func()->topLevel = true;
-    d_func()->layout = l;
+    d->layout = l;
     if (oldParent != this) {
         l->setParent(this);
         l->d_func()->reparentChildWidgets(this);
         l->invalidate();
     }
+
+    if (isWindow() && d->maybeTopData())
+        d->topData()->sizeAdjusted = false;
 }
 
 
@@ -7493,6 +7502,9 @@ void QWidget::setSizePolicy(QSizePolicy policy)
         return;
     d->size_policy = policy;
     updateGeometry();
+
+    if (isWindow() && d->maybeTopData())
+        d->topData()->sizeAdjusted = false;
 }
 
 /*!
@@ -7752,6 +7764,11 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
     }
     d->resolveLayoutDirection();
     d->resolveLocale();
+
+    if (QTLWExtra *extra = oldtlw->d_func()->maybeTopData())
+        extra->sizeAdjusted = false;
+    if (QTLWExtra *extra = window()->d_func()->maybeTopData())
+        extra->sizeAdjusted = false;
 
     // Note: GL widgets under Windows will always need a ParentChange
     // event to handle recreation/rebinding of the GL context, hence

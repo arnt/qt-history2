@@ -5186,9 +5186,6 @@ void tst_QWidget::renderInvisible()
 #ifdef RENDER_DEBUG
     testImage.save("explicitlyHiddenCalendarResized.png");
 #endif
-#ifndef Q_WS_X11
-    QSKIP("task 178793", SkipAll);
-#endif
     QCOMPARE(testImage, referenceImageResized);
     }
 
