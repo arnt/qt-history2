@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="zh">
+<defaultcodec></defaultcodec>
 <context>
     <name>PPDOptionsModel</name>
     <message>
@@ -526,7 +527,7 @@ to
     <message>
         <location filename="../src/plugins/accessible/compat/q3complexwidgets.cpp" line="219"/>
         <source>Restore up</source>
-        <translation type="unfinished">向上恢复</translation>
+        <translation>向上恢复</translation>
     </message>
     <message>
         <location filename="../src/plugins/accessible/compat/q3complexwidgets.cpp" line="220"/>
@@ -536,7 +537,7 @@ to
     <message>
         <location filename="../src/plugins/accessible/compat/q3complexwidgets.cpp" line="223"/>
         <source>Restore down</source>
-        <translation type="unfinished">向下恢复</translation>
+        <translation>向下恢复</translation>
     </message>
     <message>
         <location filename="../src/plugins/accessible/compat/q3complexwidgets.cpp" line="224"/>
@@ -556,17 +557,17 @@ to
     <message>
         <location filename="../src/plugins/accessible/compat/q3complexwidgets.cpp" line="247"/>
         <source>Puts a minimized back to normal</source>
-        <translation type="unfinished">把一个最小化窗口恢复为普通状态</translation>
+        <translation>把一个最小化窗口恢复为普通状态</translation>
     </message>
     <message>
         <location filename="../src/plugins/accessible/compat/q3complexwidgets.cpp" line="248"/>
         <source>Moves the window out of the way</source>
-        <translation type="unfinished">把窗口移到外面</translation>
+        <translation>把窗口移到外面</translation>
     </message>
     <message>
         <location filename="../src/plugins/accessible/compat/q3complexwidgets.cpp" line="251"/>
         <source>Puts a maximized window back to normal</source>
-        <translation type="unfinished">把一个最大化窗口恢复为普通状态</translation>
+        <translation>把一个最大化窗口恢复为普通状态</translation>
     </message>
     <message>
         <location filename="../src/plugins/accessible/compat/q3complexwidgets.cpp" line="252"/>
@@ -872,7 +873,7 @@ to
     <message>
         <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1394"/>
         <source>Close</source>
-        <translation type="unfinished">关闭</translation>
+        <translation>关闭</translation>
     </message>
 </context>
 <context>
@@ -1203,7 +1204,8 @@ to
         <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1557"/>
         <source>%1 already exists.
 Do you want to replace it?</source>
-        <translation>%1已经存在。你想要替换它么？</translation>
+        <translation>%1已经存在。
+你想要替换它么？</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1575"/>
@@ -1372,17 +1374,17 @@ Do you want to delete it anyway?</source>
     <message>
         <location filename="../src/gui/dialogs/qfiledialog.cpp" line="752"/>
         <source>File &amp;name:</source>
-        <translation type="unfinished">文件名称(&amp;N)：</translation>
+        <translation>文件名称(&amp;N)：</translation>
     </message>
     <message>
         <location filename="../src/gui/ui_qfiledialog.h" line="256"/>
         <source>Look in:</source>
-        <translation type="unfinished"></translation>
+        <translation>查看：</translation>
     </message>
     <message>
         <location filename="../src/gui/ui_qfiledialog.h" line="260"/>
         <source>Create New Folder</source>
-        <translation type="unfinished">创建新文件夹</translation>
+        <translation>创建新文件夹</translation>
     </message>
 </context>
 <context>
@@ -1938,7 +1940,7 @@ Do you want to delete it anyway?</source>
     <message>
         <location filename="../src/corelib/plugin/qlibrary.cpp" line="355"/>
         <source>Could not mmap &apos;%1&apos;: %2</source>
-        <translation type="unfinished">不能映射”%1“：%2</translation>
+        <translation>不能映射”%1“：%2</translation>
     </message>
     <message>
         <location filename="../src/corelib/plugin/qlibrary.cpp" line="376"/>
@@ -1948,7 +1950,7 @@ Do you want to delete it anyway?</source>
     <message>
         <location filename="../src/corelib/plugin/qlibrary.cpp" line="383"/>
         <source>Could not unmap &apos;%1&apos;: %2</source>
-        <translation type="unfinished">不能取消映射“%1“：%2</translation>
+        <translation>不能取消映射“%1“：%2</translation>
     </message>
     <message>
         <location filename="../src/corelib/plugin/qlibrary.cpp" line="620"/>
@@ -2115,7 +2117,7 @@ Do you want to delete it anyway?</source>
     <message>
         <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="553"/>
         <source>Restore Down</source>
-        <translation type="unfinished">向下恢复</translation>
+        <translation>向下恢复</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="893"/>
@@ -3800,12 +3802,12 @@ Please choose a different file name.</source>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="218"/>
         <source>Error creating SSL context (%1)</source>
-        <translation type="unfinished">创建SSL上下文错误（%1）</translation>
+        <translation>创建SSL上下文错误（%1）</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="240"/>
         <source>Invalid or empty cipher list (%1)</source>
-        <translation type="unfinished">无效或者空白的密码列表（%1）</translation>
+        <translation>无效或者空白的密码列表（%1）</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="291"/>
@@ -3820,22 +3822,22 @@ Please choose a different file name.</source>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="256"/>
         <source>Cannot provide a certificate with no key, %1</source>
-        <translation type="unfinished"></translation>
+        <translation>不能提供没有键的证书，%1</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="263"/>
         <source>Error loading local certificate, %1</source>
-        <translation type="unfinished"></translation>
+        <translation>不能载入本地证书，%1</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="275"/>
         <source>Error loading private key, %1</source>
-        <translation type="unfinished"></translation>
+        <translation>不能载入私有键，%1</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="282"/>
         <source>Private key do not certificate public key, %1</source>
-        <translation type="unfinished"></translation>
+        <translation>私有键不能验证公有键，%1</translation>
     </message>
 </context>
 <context>
@@ -4288,7 +4290,7 @@ Please choose a different file name.</source>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1687"/>
         <source>Extra content at end of document.</source>
-        <translation type="unfinished">文档末尾有额外内容。</translation>
+        <translation>文档末尾有额外内容。</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="613"/>
@@ -4318,7 +4320,7 @@ Please choose a different file name.</source>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1436"/>
         <source>Unexpected character &apos;%1&apos; in public id literal.</source>
-        <translation type="unfinished">在公有标识文本中有意外的字符”%1“。</translation>
+        <translation>在公有标识文本中有意外的字符”%1“。</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1464"/>
@@ -4348,7 +4350,7 @@ Please choose a different file name.</source>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1514"/>
         <source>Standalone accepts only yes or no.</source>
-        <translation type="unfinished">独立运行只允许是或者否。</translation>
+        <translation>独立运行只允许是或者否。</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1516"/>
@@ -4458,17 +4460,17 @@ Please choose a different file name.</source>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1011"/>
         <source>Encountered incorrectly encoded content.</source>
-        <translation type="unfinished"></translation>
+        <translation>遇到不正确的编码内容。</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1487"/>
         <source>The standalone pseudo attribute must appear after the encoding.</source>
-        <translation type="unfinished"></translation>
+        <translation>独立运行伪属性必须出现在编码之后。</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1558"/>
         <source>%1 is an invalid PUBLIC identifier.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1是一个无效的公有(PUBLIC)标识符。</translation>
     </message>
 </context>
 </TS>
