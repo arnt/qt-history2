@@ -1722,12 +1722,11 @@ void QHeaderViewPrivate::_q_layoutChanged()
     bool sectionCountChanged = false;
     for (int i = 0; i < persistentHiddenSections.count(); ++i) {
         QModelIndex index = persistentHiddenSections.at(i);
-        int logical = (orientation == Qt::Horizontal
-                       ? persistentHiddenSections.at(i).column()
-                       : persistentHiddenSections.at(i).row());
-        int visual = visualIndex(logical);
         if (index.isValid()) {
-            sectionHidden.setBit(visual);
+            const int logical = (orientation == Qt::Horizontal
+                                 ? index.column()
+                                 : index.row());
+            sectionHidden.setBit(visualIndex(logical));
         } else if (!sectionCountChanged && (modelSectionCount() != sectionCount)) {
             sectionCountChanged = true;
             break;
