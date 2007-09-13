@@ -20,6 +20,10 @@ Q3ButtonGroup
 Q3Header
     * [176202] Fixed lead when replacing icons using setLabel()
 
+Q3ListView
+    * [125599] Fixed bug where the CPU usage would stay continuously high
+      when an item was only partly visible.
+
 QAbstractItemView
     * [168493] Fixed drag and drop regression when parent in a tree doesn't allow dropping.
     * [174848] Fixed a crash while removing the current edited row
@@ -76,6 +80,10 @@ QPixmap
 QMainWindow
     * [175479] Fix so that the unified toolbar on Mac OS X doesn't fail assertions in the layout engine.
 
+Qt Script
+    * QScriptEngine::evaluate() no longer throws a syntax error in the case where
+      the script contains no actual statements.
+    * [175714] Fixed parsing of octal numbers on Windows and Mac.
 
 Third party components
 ----------------------
