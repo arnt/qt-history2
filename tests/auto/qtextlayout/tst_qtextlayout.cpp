@@ -58,6 +58,13 @@ private slots:
     void charStopForSurrogatePairs();
     void tabStops();
     void integerOverflow();
+    // QTextLine stuff
+    void setNumColumnsNoWrap();
+    void setNumColumnsWordWrap();
+    void smallTextLengthNoWrap();
+    void smallTextLengthWordWrap();
+    void smallTextLengthWrapAtWordBoundaryOrAnywhere();
+
 
 private:
     QFont testFont;
@@ -574,6 +581,125 @@ void tst_QTextLayout::integerOverflow()
     QCOMPARE(line.textLength(), txt.length());
 
     QVERIFY(!layout.createLine().isValid());
+
+    layout.endLayout();
+}
+
+void tst_QTextLayout::setNumColumnsNoWrap()
+{
+    QString txt("This is a small test text");
+    QTextLayout layout(txt, testFont);
+    QTextOption option = layout.textOption();
+    option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    layout.setTextOption(option);
+
+    /// NoWrap
+    layout.beginLayout();
+    QTextLine line1 = layout.createLine();
+    QVERIFY(line1.isValid());
+    line1.setNumColumns(1);
+
+    qDebug() << line1.naturalTextWidth();
+    QVERIFY(line1.naturalTextWidth() < 10); // contains only one character
+    QCOMPARE(line1.textLength(), 1);
+
+    QTextLine line2 = layout.createLine();
+    QVERIFY(line2.isValid());
+
+    layout.endLayout();
+}
+
+void tst_QTextLayout::setNumColumnsWordWrap()
+{
+    QString txt("This is a small test text");
+    QTextLayout layout(txt, testFont);
+    QTextOption option = layout.textOption();
+    option.setWrapMode(QTextOption::WordWrap);
+    layout.setTextOption(option);
+
+    /// WordWrap
+    layout.beginLayout();
+    QTextLine line1 = layout.createLine();
+    QVERIFY(line1.isValid());
+    line1.setNumColumns(1);
+
+    qDebug() << line1.naturalTextWidth();
+    QVERIFY(line1.naturalTextWidth() > 20.0); // contains the whole first word.
+    QCOMPARE(line1.textLength(), 5);
+
+    QTextLine line2 = layout.createLine();
+    QVERIFY(line2.isValid());
+
+    layout.endLayout();
+}
+
+void tst_QTextLayout::smallTextLengthNoWrap()
+{
+    QString txt("This is a small test text");
+    QTextLayout layout(txt, testFont);
+    QTextOption option = layout.textOption();
+    option.setWrapMode(QTextOption::NoWrap);
+    layout.setTextOption(option);
+
+    /// NoWrap
+    layout.beginLayout();
+    QTextLine line1 = layout.createLine();
+    QVERIFY(line1.isValid());
+    line1.setLineWidth(5); // most certainly too short for the word 'This' to fit.
+
+    QCOMPARE(line1.width(), 5.0);
+    QVERIFY(line1.naturalTextWidth() > 70); // contains all the text.
+
+    QTextLine line2 = layout.createLine();
+    QVERIFY(! line2.isValid());
+
+    layout.endLayout();
+}
+
+void tst_QTextLayout::smallTextLengthWordWrap()
+{
+    QString txt("This is a small test text");
+    QTextLayout layout(txt, testFont);
+    QTextOption option = layout.textOption();
+    option.setWrapMode(QTextOption::WordWrap);
+    layout.setTextOption(option);
+
+    /// WordWrap
+    layout.beginLayout();
+    QTextLine line1 = layout.createLine();
+    QVERIFY(line1.isValid());
+    line1.setLineWidth(5); // most certainly too short for the word 'This' to fit.
+
+    QCOMPARE(line1.width(), 5.0);
+    QVERIFY(line1.naturalTextWidth() > 20.0); // contains the whole first word.
+    QCOMPARE(line1.textLength(), 5);
+
+    QTextLine line2 = layout.createLine();
+    QVERIFY(line2.isValid());
+
+    layout.endLayout();
+}
+
+void tst_QTextLayout::smallTextLengthWrapAtWordBoundaryOrAnywhere()
+{
+    QString txt("This is a small test text");
+    QTextLayout layout(txt, testFont);
+    QTextOption option = layout.textOption();
+    option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    layout.setTextOption(option);
+
+    layout.beginLayout();
+    QTextLine line1 = layout.createLine();
+    QVERIFY(line1.isValid());
+    line1.setLineWidth(5); // most certainly too short for the word 'This' to fit.
+
+    QCOMPARE(line1.width(), 5.0);
+    qDebug() << line1.naturalTextWidth();
+    QCOMPARE(line1.textLength(), 1);
+    QVERIFY(line1.naturalTextWidth() <= 5.0); // contains just the characters that fit.
+
+    QTextLine line2 = layout.createLine();
+    QVERIFY(line2.isValid());
 
     layout.endLayout();
 }
