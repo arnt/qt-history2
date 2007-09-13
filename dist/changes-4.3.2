@@ -56,17 +56,32 @@ QFileDialog
     * [165289] (Windows) When starting the file dialog with a UNC path it would ignore it.
     * [140539] (Windows) Dialog no longer gets the drives when launched.
 
+QColorDialog
+    * [153436] Fix a crash in QColorDialog when choosing a color in the Gray colorspace.
+
+QMenu
+    * [111348] QMenu takes focus with the QPopupMenuReson now.
+
+QPixmap
+    * Ensure that we use the proper colorspace in QPixmap::grabWindow() on Mac OS X
+
+QMainWindow
+    * [175479] Fix so that the unified toolbar on Mac OS X doesn't fail assertions in the layout engine.
+
+
 Third party components
 ----------------------
 
 Build System
 ------------
 
-   * Updated compiler notes for version 10.0.026 of the Intel C++
-    Compiler for Linux. Precompiled header support has been fixed in
-    this version of the compiler, and the -no-pch workaround is no
-    longer needed. Note that there is still one outstanding bug in the
-    64-bit compiler that requires configuring and building with -debug.
+    * Undefine the QMAKE_CC and QMAKE_CXX in Xcode project generator so distributed (distcc) builds work again.
+    * [165183] Make DESTDIR work in the Xcode Generator again.
+    * Updated compiler notes for version 10.0.026 of the Intel C++
+      Compiler for Linux. Precompiled header support has been fixed in
+      this version of the compiler, and the -no-pch workaround is no
+      longer needed. Note that there is still one outstanding bug in the
+      64-bit compiler that requires configuring and building with -debug.
 
 ****************************************************************************
 *                           Library                                        *
@@ -91,7 +106,6 @@ General Improvements
 
 X11
 ---
-
     * [169366] Fixed intermittent program hangs in the 64-bit PowerPC
       implementation used on AIX.
     * [176192] Fixed show() followed by move() before the event loop
@@ -106,13 +120,11 @@ Windows
 
 Mac OS X
 --------
+    * [178551] Fix a regression where it wasn't possible to deliver mouse move events to other
+      widgets after a double-click on a widget that was immediatly hidden from the said double-click.
     * [172475] Don't repaint OpenGL widgets when another window is resized.
-    * Undefine the QMAKE_CC and QMAKE_CXX in Xcode project generator so distributed (distcc) builds work again.
     * Ensure that the maximized bit is removed when a window is resized by user interaction.
-    * [111348] QMenu takes focus with the QPopupMenuReson now.
-    * [153436] Fix a crash in QColorDialog when choosing a color in the Gray colorspace.
-    * Ensure that we use the proper colorspace in QPixmap::grabWindow()
-    Note for Leopard pre-release builds: Qt 4.3.x applications run on the
+    * Note for Leopard pre-release builds: Qt 4.3.x applications run on the
     August Leopard pre-release (build 9A527) won't show any windows because of
     a regression in the Carbon library. This has been addressed for a futre OS
     X release. In the meantime, if you *must* test your application against
