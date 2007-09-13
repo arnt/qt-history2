@@ -17,6 +17,8 @@
 #include "qmutex.h"
 #include "qwaitcondition.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QSemaphore
     \brief The QSemaphore class provides a general counting semaphore.
@@ -222,5 +224,7 @@ bool QSemaphore::tryAcquire(int n, int timeout)
 
 
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_THREAD

@@ -14,6 +14,8 @@
 #include "abstractformwindowmanager.h"
 #include <private/qobject_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerFormWindowManagerInterface
 
@@ -432,3 +434,5 @@ QAction *QDesignerFormWindowManagerInterface::actionRedo() const
 
     \internal
 */
+
+QT_END_NAMESPACE

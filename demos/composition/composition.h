@@ -19,8 +19,8 @@
 #include <QPainter>
 #include <QEvent>
 
-class QPushButton;
-class QRadioButton;
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QRadioButton)
 
 #ifdef QT_OPENGL_SUPPORT
 #include <QtOpenGL>

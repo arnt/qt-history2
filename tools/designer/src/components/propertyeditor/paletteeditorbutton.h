@@ -21,6 +21,8 @@
 
 #include "abstractformeditor.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QT_PROPERTYEDITOR_EXPORT PaletteEditorButton: public QToolButton
@@ -50,5 +52,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // PALETTEEDITORBUTTON_H

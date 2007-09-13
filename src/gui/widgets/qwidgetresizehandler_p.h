@@ -30,6 +30,8 @@
 
 #ifndef QT_NO_RESIZEHANDLER
 
+QT_BEGIN_NAMESPACE
+
 class QMouseEvent;
 class QKeyEvent;
 
@@ -103,6 +105,8 @@ private:
         return moveResizeMode && !isMove();
     }
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_RESIZEHANDLER
 

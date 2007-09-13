@@ -15,6 +15,8 @@
 #define OUBLIETTEVIEW_H
 
 #include <QtGui/QScrollArea>
+
+QT_BEGIN_NAMESPACE
 class Oubliette;
 
 class OublietteView : public QScrollArea
@@ -30,5 +32,7 @@ public slots:
 private:
     Oubliette *m_oubliette;
 };
+
+QT_END_NAMESPACE
 
 #endif

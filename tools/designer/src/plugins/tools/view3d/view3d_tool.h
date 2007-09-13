@@ -18,6 +18,8 @@
 #include "view3d.h"
 #include <QtDesigner/QDesignerFormWindowToolInterface>
 
+QT_BEGIN_NAMESPACE
+
 class VIEW3D_EXPORT QView3DTool : public QDesignerFormWindowToolInterface
 {
     Q_OBJECT
@@ -42,3 +44,5 @@ private:
 };
 
 #endif // VIEW3D_TOOL_H
+
+QT_END_NAMESPACE

@@ -18,6 +18,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QPen
     \ingroup multimedia
@@ -1006,5 +1008,8 @@ QDebug operator<<(QDebug dbg, const QPen &p)
 
 /*!
     \typedef QPen::DataPtr
+
     \internal
 */
+
+QT_END_NAMESPACE

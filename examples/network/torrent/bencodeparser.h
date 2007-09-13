@@ -18,8 +18,7 @@
 #include <QMap>
 #include <QString>
 #include <QVariant>
-
-template<typename T> class QList;
+#include <QList>
 
 typedef QMap<QByteArray,QVariant> Dictionary;
 Q_DECLARE_METATYPE(Dictionary)

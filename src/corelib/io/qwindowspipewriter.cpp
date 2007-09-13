@@ -13,6 +13,8 @@
 
 #include "qwindowspipewriter_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QWindowsPipeWriter::QWindowsPipeWriter(HANDLE pipe, QObject * parent)
     : QThread(parent),
       writePipe(INVALID_HANDLE_VALUE),
@@ -108,3 +110,4 @@ void QWindowsPipeWriter::run()
     }
 }
 
+QT_END_NAMESPACE

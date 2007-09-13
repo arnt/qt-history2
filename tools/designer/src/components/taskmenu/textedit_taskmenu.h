@@ -20,6 +20,7 @@
 #include <qdesigner_taskmenu_p.h>
 #include <extensionfactory_p.h>
 
+QT_BEGIN_NAMESPACE
 
 class QDesignerFormWindowInterface;
 
@@ -49,5 +50,7 @@ private:
 
 typedef ExtensionFactory<QDesignerTaskMenuExtension, QTextEdit, TextEditTaskMenu> TextEditTaskMenuFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // TEXTEDIT_TASKMENU_H

@@ -28,10 +28,11 @@
 #include "QtNetwork/qhostaddress.h"
 #include "QtNetwork/qabstractsocket.h"
 #include "private/qobject_p.h"
+
+QT_BEGIN_NAMESPACE
+
 class QAuthenticator;
-
 class QAbstractSocketEnginePrivate;
-
 
 class QAbstractSocketEngineReceiver {
 public:
@@ -173,5 +174,7 @@ protected:
 private:
     friend class QAbstractSocketEngine;
 };
+
+QT_END_NAMESPACE
 
 #endif // QABSTRACTSOCKETENGINE_P_H

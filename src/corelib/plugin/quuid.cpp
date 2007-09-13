@@ -15,6 +15,8 @@
 
 #include "qdatastream.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QUuid
     \brief The QUuid class stores a Universally Unique Identifier (UUID).
@@ -381,7 +383,11 @@ bool QUuid::operator>(const QUuid &other) const
     \sa variant(), version()
 */
 #if defined(Q_OS_WIN32)
+
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <objbase.h> // For CoCreateGuid
+QT_END_INCLUDE_NAMESPACE
+
 QUuid QUuid::createUuid()
 {
     GUID guid;
@@ -389,9 +395,14 @@ QUuid QUuid::createUuid()
     QUuid result = guid;
     return result;
 }
+
 #else // !Q_OS_WIN32
+
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qdatetime.h"
 #include "stdlib.h" // For srand/rand
+QT_END_INCLUDE_NAMESPACE
+
 QUuid QUuid::createUuid()
 {
     static const int intbits = sizeof(int)*8;
@@ -433,3 +444,5 @@ QUuid QUuid::createUuid()
     Returns true if this UUID is not equal to the Windows GUID \a
     guid; otherwise returns false.
 */
+
+QT_END_NAMESPACE

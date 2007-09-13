@@ -20,6 +20,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDataStream
     \reentrant
@@ -1244,5 +1246,7 @@ int QDataStream::skipRawData(int len)
     Use writeRawData() instead.
 */
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DATASTREAM

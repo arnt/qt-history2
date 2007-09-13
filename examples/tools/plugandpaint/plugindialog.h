@@ -17,11 +17,11 @@
 #include <QDialog>
 #include <QIcon>
 
-class QLabel;
-class QPushButton;
-class QStringList;
-class QTreeWidget;
-class QTreeWidgetItem;
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QStringList)
+QT_DECLARE_CLASS(QTreeWidget)
+QT_DECLARE_CLASS(QTreeWidgetItem)
 
 class PluginDialog : public QDialog
 {

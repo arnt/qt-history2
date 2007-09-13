@@ -15,6 +15,8 @@
 #include "qtools_p.h"
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
     QList as an array-list combines the easy-of-use of a random
     access interface with fast list operations and the low memory
@@ -1794,3 +1796,5 @@ void **QListData::erase(void **xi)
 
     \sa fromStdList(), QVector::toStdVector()
 */
+
+QT_END_NAMESPACE

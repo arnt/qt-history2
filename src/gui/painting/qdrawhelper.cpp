@@ -16,6 +16,9 @@
 #include <private/qmath_p.h>
 #include <private/qdrawhelper_x86_p.h>
 #include <math.h>
+
+QT_BEGIN_NAMESPACE
+
 #define MASK(src, a) src = BYTE_MUL(src, a)
 
 #if defined(Q_OS_IRIX) && defined(Q_CC_GNU) && __GNUC__ == 3 && __GNUC__ < 4 && QT_POINTER_SIZE == 8
@@ -5313,3 +5316,4 @@ static void qt_memfill16_setup(quint16 *dest, quint16 value, int count)
     qt_memfill16(dest, value, count);
 }
 
+QT_END_NAMESPACE

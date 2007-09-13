@@ -14,12 +14,15 @@
 #ifndef Patternist_QObjectNodeModel_H
 #define Patternist_QObjectNodeModel_H
 
-class QObject;
 #include "qnamepool_p.h"
 #include "qitem_p.h"
 #include "qdynamiccontext_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QObject;
 
 namespace Patternist
 {
@@ -97,6 +100,8 @@ namespace Patternist
         inline Item propertyValue(const Node n) const;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

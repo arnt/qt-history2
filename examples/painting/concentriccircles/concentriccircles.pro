@@ -9,3 +9,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/painting/concentriccircles
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS concentriccircles.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/painting/concentriccircles
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

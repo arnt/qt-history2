@@ -20,7 +20,7 @@
 #include <qevent.h>
 #include <qlineedit.h>
 
-class QWidget;
+QT_DECLARE_CLASS(QWidget)
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/src/qevent.h gui/src/qevent.cpp
@@ -246,11 +246,16 @@ void tst_QFocusEvent::checkReason_Popup()
     QVERIFY( !childFocusWidgetTwo->focusOutEventRecieved );
 }
 
+#ifdef Q_WS_MAC
+QT_BEGIN_NAMESPACE
+    extern void qt_set_sequence_auto_mnemonic(bool);
+QT_END_NAMESPACE
+#endif
+
 void tst_QFocusEvent::checkReason_Shortcut()
 {
     initWidget();
 #ifdef Q_WS_MAC
-    extern void qt_set_sequence_auto_mnemonic(bool);
     qt_set_sequence_auto_mnemonic(true);
 #endif
     QLabel* label = new QLabel( "&Test", testFocusWidget );

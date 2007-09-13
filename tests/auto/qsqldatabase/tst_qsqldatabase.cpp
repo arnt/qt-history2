@@ -26,7 +26,7 @@
 
 //TESTED_FILES=
 
-class QSqlDatabase;
+QT_DECLARE_CLASS(QSqlDatabase)
 struct FieldDef;
 
 class tst_QSqlDatabase : public QObject

@@ -29,6 +29,8 @@
 
 #include <QtDesigner/QDesignerPromotionInterface>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 
 namespace qdesigner_internal {
@@ -62,5 +64,7 @@ namespace qdesigner_internal {
         QDesignerFormEditorInterface *m_core;
     };
 }
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNERPROMOTION_H

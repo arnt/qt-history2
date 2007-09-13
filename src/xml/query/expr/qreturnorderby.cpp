@@ -17,6 +17,8 @@
 
 #include "qreturnorderby_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ReturnOrderBy::ReturnOrderBy(const OrderBy::Stability aStability,
@@ -93,3 +95,5 @@ Expression::ID ReturnOrderBy::id() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

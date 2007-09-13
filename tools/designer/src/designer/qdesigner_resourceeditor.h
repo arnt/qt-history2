@@ -16,6 +16,8 @@
 
 #include "qdesigner_toolwindow.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerWorkbench;
 class QDesignerAbstractFormWindowInterface;
 
@@ -28,5 +30,7 @@ public:
 
     virtual QRect geometryHint() const;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_RESOURCEEDITOR_H

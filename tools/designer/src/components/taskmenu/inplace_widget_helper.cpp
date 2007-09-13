@@ -19,6 +19,8 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QShortcut>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
     InPlaceWidgetHelper::InPlaceWidgetHelper(QWidget *editorWidget, QWidget *parentWidget, QDesignerFormWindowInterface *fw)
         : QObject(0),
@@ -74,3 +76,5 @@ namespace qdesigner_internal {
         return QObject::eventFilter(object, e);
     }
 }
+
+QT_END_NAMESPACE

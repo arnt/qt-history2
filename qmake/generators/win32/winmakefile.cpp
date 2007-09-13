@@ -23,6 +23,8 @@
 #include <qdir.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 Win32MakefileGenerator::Win32MakefileGenerator() : MakefileGenerator()
 {
 }
@@ -760,3 +762,5 @@ QString Win32MakefileGenerator::escapeFilePath(const QString &path) const
     }
     return ret;
 }
+
+QT_END_NAMESPACE

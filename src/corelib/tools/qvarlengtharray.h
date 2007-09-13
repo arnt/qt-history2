@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 // Prealloc = 256 by default, specified in qcontainerfwd.h
@@ -193,6 +195,8 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int asize, int a
     if (oldPtr != reinterpret_cast<T *>(array) && oldPtr != ptr)
         qFree(oldPtr);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

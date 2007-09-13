@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class DomUI;
 class QWidget;
 class QPoint;
@@ -37,6 +39,8 @@ public:
     virtual DropType type() const = 0;
     virtual QWidget *source() const = 0;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

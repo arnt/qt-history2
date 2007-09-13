@@ -14,6 +14,8 @@
 #include <private/qt_mac_p.h>
 #include "qcoreapplication.h"
 
+QT_BEGIN_NAMESPACE
+
 QRegion::QRegionData QRegion::shared_empty = { Q_BASIC_ATOMIC_INITIALIZER(1), 0, 0 };
 
 #define RGN_CACHE_SIZE 200
@@ -126,3 +128,5 @@ RgnHandle QRegion::handle(bool require_rgn) const
     }
     return d->rgn;
 }
+
+QT_END_NAMESPACE

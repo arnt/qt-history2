@@ -22,6 +22,8 @@
 
 #include "tr.h"
 
+QT_BEGIN_NAMESPACE
+
 class Config;
 class QRegExp;
 
@@ -86,5 +88,7 @@ private:
     static QString programName;
     static QRegExp *spuriousRegExp;
 };
+
+QT_END_NAMESPACE
 
 #endif

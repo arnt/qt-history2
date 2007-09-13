@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 template <class T>
@@ -104,6 +106,8 @@ template<class T>
 inline bool operator!= (int i, const QPointer<T> &p)
 { Q_ASSERT(i == 0); return !i && !p.isNull(); }
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

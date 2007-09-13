@@ -34,6 +34,8 @@
 
 #ifndef QT_NO_TABBAR
 
+QT_BEGIN_NAMESPACE
+
 inline static bool verticalTabs(QTabBar::Shape shape)
 {
     return shape == QTabBar::RoundedWest
@@ -1417,6 +1419,8 @@ void QTabBar::setUsesScrollButtons(bool useButtons)
     Use currentChanged() instead.
 */
 
+
+QT_END_NAMESPACE
 
 #include "moc_qtabbar.cpp"
 

@@ -16,6 +16,8 @@
 
 #include "ui_plugindialog.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 
 class PluginDialog : public QDialog
@@ -41,5 +43,7 @@ private:
     QIcon interfaceIcon;
     QIcon featureIcon;
 };
+
+QT_END_NAMESPACE
 
 #endif

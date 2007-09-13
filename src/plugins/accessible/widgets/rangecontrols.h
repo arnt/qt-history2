@@ -17,6 +17,8 @@
 #include <QtGui/qaccessiblewidget.h>
 #include <QtGui/qaccessible2.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_ACCESSIBILITY
 
 class QAbstractSpinBox;
@@ -197,5 +199,7 @@ protected:
 #endif // QT_NO_DIAL
 
 #endif // QT_NO_ACCESSIBILITY
+
+QT_END_NAMESPACE
 
 #endif // RANGECONTROLS_H

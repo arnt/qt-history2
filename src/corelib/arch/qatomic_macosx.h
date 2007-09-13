@@ -20,6 +20,16 @@
 #  include <QtCore/qatomic_i386.h>
 #else // !__x86_64 && !__i386__
 
+// Use the functions in OSAtomic.h if we are in 64-bit mode. This header is
+// unfortunately not available on 10.3, so we can't use it in 32-bit
+// mode. (64-bit is not supported on 10.3.)
+#if defined (__LP64__)
+#include <libkern/OSAtomic.h>
+#endif
+
+QT_BEGIN_HEADER
+QT_BEGIN_NAMESPACE
+
 // PowerPC
 
 #define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
@@ -76,15 +86,6 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddNative()
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
 { return false; }
-
-// Use the functions in OSAtomic.h if we are in 64-bit mode. This header is
-// unfortunately not available on 10.3, so we can't use it in 32-bit
-// mode. (64-bit is not supported on 10.3.)
-#if defined (__LP64__)
-#include <libkern/OSAtomic.h>
-#endif
-
-QT_BEGIN_HEADER
 
 #if defined (__LP64__)
 
@@ -649,8 +650,10 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueTo
 
 #endif // __LP64__
 
-QT_END_HEADER
+QT_END_NAMESPACE
 
 #endif // !__x86_64__ && !__i386__
+
+QT_END_HEADER
 
 #endif // QATOMIC_MACOSX_H

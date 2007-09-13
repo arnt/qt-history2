@@ -26,6 +26,8 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/QCoreApplication>
 
+QT_BEGIN_NAMESPACE
+
 static QStringList unique(const QStringList &lst)
 {
     const QSet<QString> s = QSet<QString>::fromList(lst);
@@ -240,3 +242,4 @@ QList<QObject*> QDesignerPluginManager::instances() const
     return lst;
 }
 
+QT_END_NAMESPACE

@@ -17,6 +17,8 @@
 #include <QLayout>
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+
 PropertyDialog::PropertyDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
 {
@@ -79,5 +81,7 @@ QList<QVariant> PropertyDialog::values() const
         result << propertyTable->item(i, 1)->data(Qt::EditRole);
 
     return result;
+
+QT_END_NAMESPACE
 }
 

@@ -20,6 +20,8 @@
 
 #include "uncompressor.h"
 
+QT_BEGIN_NAMESPACE
+
 class PolyUncompressor : public Uncompressor
 {
 public:
@@ -35,5 +37,7 @@ public:
 private:
     QString cmd;
 };
+
+QT_END_NAMESPACE
 
 #endif

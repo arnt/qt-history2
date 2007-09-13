@@ -65,6 +65,8 @@ static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
 #include <wintab.h>
 #include <pktdef.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef HCTX        (API *PtrWTOpen)(HWND, LPLOGCONTEXT, BOOL);
 typedef BOOL        (API *PtrWTClose)(HCTX);
 typedef UINT        (API *PtrWTInfo)(UINT, UINT, LPVOID);
@@ -1150,7 +1152,9 @@ void QWidgetPrivate::show_sys()
 #  define SHFS_SHOWSIPBUTTON          0x0004
    extern "C" BOOL __stdcall SHFullScreen(HWND hwndRequester, DWORD dwState);
 # else
+QT_BEGIN_INCLUDE_NAMESPACE
 #  include <aygshell.h>
+QT_END_INCLUDE_NAMESPACE
 # endif
 
 void QWidget::show_sys()
@@ -1907,3 +1911,5 @@ QPaintEngine *QWidget::paintEngine() const
 void QWidgetPrivate::setModal_sys()
 {
 }
+
+QT_END_NAMESPACE

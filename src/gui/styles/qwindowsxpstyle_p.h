@@ -52,6 +52,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 // Older Platform SDKs do not have the extended DrawThemeBackgroundEx
 // function. We add the needed parts here, and use the extended
 // function dynamically, if available in uxtheme.dll. Else, we revert
@@ -320,4 +322,7 @@ private:
 };
 
 #endif // QT_NO_STYLE_WINDOWS
+
+QT_END_NAMESPACE
+
 #endif //QWINDOWSXPSTYLE_P_H

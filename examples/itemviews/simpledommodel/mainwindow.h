@@ -18,8 +18,8 @@
 #include <QString>
 
 class DomModel;
-class QMenu;
-class QTreeView;
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QTreeView)
 
 class MainWindow : public QMainWindow
 {

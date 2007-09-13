@@ -20,6 +20,8 @@
 
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class Q3ListView;
 class Q3ListViewItem;
 class DomItem;
@@ -59,5 +61,7 @@ protected:
 private:
     QDesignerFormEditorInterface *m_core;
 };
+
+QT_END_NAMESPACE
 
 #endif // Q3LISTVIEW_EXTRAINFO_H

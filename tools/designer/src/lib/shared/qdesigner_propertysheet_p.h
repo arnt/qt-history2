@@ -36,6 +36,8 @@
 
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QLayout;
 class QDesignerPropertySheetPrivate;
 
@@ -194,5 +196,7 @@ void QDesignerPropertySheetFactory<Object, PropertySheet>::registerExtension(QEx
 
 // Standard property sheet
 typedef QDesignerPropertySheetFactory<QObject, QDesignerPropertySheet> QDesignerDefaultPropertySheetFactory;
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_PROPERTYSHEET_H

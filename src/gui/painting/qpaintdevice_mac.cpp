@@ -22,6 +22,8 @@
 #include <private/qprintengine_mac_p.h>
 #include <private/qpixmap_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -31,6 +33,7 @@
   External functions
  *****************************************************************************/
 
+extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
 
 /*****************************************************************************
   QPaintDevice member functions
@@ -45,7 +48,6 @@ QPaintDevice::~QPaintDevice()
     if(paintingActive())
         qWarning("QPaintDevice: Cannot destroy paint device that is being "
                  "painted, be sure to QPainter::end() painters");
-    extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
     qt_painter_removePaintDevice(this);
 }
 
@@ -136,3 +138,5 @@ Q_GUI_EXPORT CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
     }
     return 0;
 }
+
+QT_END_NAMESPACE

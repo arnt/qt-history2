@@ -22,6 +22,10 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
+class QVariant;
+
 class QSignalSpy: public QObject, public QList<QList<QVariant> >
 {
 public:
@@ -104,6 +108,8 @@ private:
     // holds the QMetaType types for the argument list of the signal
     QList<int> args;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

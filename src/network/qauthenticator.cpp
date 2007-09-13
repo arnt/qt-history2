@@ -21,6 +21,9 @@
 #include <qdatastream.h>
 #include <qendian.h>
 #include <qstring.h>
+
+QT_BEGIN_NAMESPACE
+
 #include <../3rdparty/des/des.cpp>
 
 static QByteArray qNtlmPhase1();
@@ -382,7 +385,7 @@ QHash<QByteArray, QByteArray> QAuthenticatorPrivate::parseDigestAuthenticationCh
 
 
 /* calculate request-digest/response-digest as per HTTP Digest spec */
-static QByteArray digestMd5Response(
+static QByteArray digestMd5ResponseHelper(
     const QByteArray &alg,
     const QByteArray &userName,
     const QByteArray &realm,
@@ -457,7 +460,7 @@ QByteArray QAuthenticatorPrivate::digestMd5Response(const QByteArray &challenge,
     QByteArray qop = options.value("qop");
 
     qDebug() << "calculating digest: method=" << method << "path=" << path;
-    QByteArray response = ::digestMd5Response(options.value("algorithm"), user.toLatin1(),
+    QByteArray response = digestMd5ResponseHelper(options.value("algorithm"), user.toLatin1(),
                                               realm.toLatin1(), password.toLatin1(),
                                               nonce, nonceCountString,
                                               cnonce, qop, method,
@@ -991,3 +994,5 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
 }
 
 
+
+QT_END_NAMESPACE

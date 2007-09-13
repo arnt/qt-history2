@@ -15,6 +15,8 @@
 
 #include "qtriplecontainer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 TripleContainer::TripleContainer(const Expression::Ptr &operand1,
@@ -55,3 +57,5 @@ bool TripleContainer::compressOperands(const StaticContext::Ptr &context)
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

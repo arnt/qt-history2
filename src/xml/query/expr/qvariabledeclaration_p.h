@@ -14,7 +14,6 @@
 #ifndef Patternist_VariableDeclaration_H
 #define Patternist_VariableDeclaration_H
 
-template<typename T> class QStack;
 #include <QSharedData>
 
 #include "qexpression_p.h"
@@ -22,6 +21,10 @@ template<typename T> class QStack;
 #include "qvariablereference_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+template<typename T> class QStack;
 
 namespace Patternist
 {
@@ -120,6 +123,8 @@ namespace Patternist
     }
 
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

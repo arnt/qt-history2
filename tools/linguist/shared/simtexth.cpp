@@ -19,6 +19,8 @@
 
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef QList<MetaTranslatorMessage> TML;
 
 /*
@@ -243,3 +245,5 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
     }
     return candidates;
 }
+
+QT_END_NAMESPACE

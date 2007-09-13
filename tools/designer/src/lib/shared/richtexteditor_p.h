@@ -29,6 +29,8 @@
 #include <QtGui/QDialog>
 #include "shared_global_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QToolBar;
 
 namespace qdesigner_internal {
@@ -67,5 +69,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // RITCHTEXTEDITOR_H

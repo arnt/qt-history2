@@ -18,8 +18,8 @@
 
 #include "helper.h"
 
-class QLabel;
-class QWidget;
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QWidget)
 
 class Window : public QWidget
 {

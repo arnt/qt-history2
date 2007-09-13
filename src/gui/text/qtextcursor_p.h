@@ -31,6 +31,7 @@
 #include <private/qtextformat_p.h>
 #include "qtextobject.h"
 
+QT_BEGIN_NAMESPACE
 
 class QTextCursorPrivate : public QSharedData
 {
@@ -80,5 +81,7 @@ public:
     int adjusted_anchor;
     int currentCharFormat;
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTCURSOR_P_H

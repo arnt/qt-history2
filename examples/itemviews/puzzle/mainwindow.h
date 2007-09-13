@@ -18,7 +18,7 @@
 #include <QMainWindow>
 
 class PuzzleWidget;
-class QListView;
+QT_DECLARE_CLASS(QListView)
 class PiecesModel;
 
 class MainWindow : public QMainWindow

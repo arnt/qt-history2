@@ -32,6 +32,8 @@
 #include "qwscommand_qws_p.h"
 #include "qwslock_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWSDisplay::Data
 {
 public:
@@ -123,5 +125,7 @@ private:
     enum { VariableEvent=-1 };
 
 };
+
+QT_END_NAMESPACE
 
 #endif // QWSDISPLAY_QWS_P_H

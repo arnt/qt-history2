@@ -38,6 +38,8 @@
 #include <qt_windows.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 Uic::Uic(Driver *d)
      : drv(d),
        out(d->output()),
@@ -303,3 +305,5 @@ bool Uic::isMenu(const QString &className) const
     return customWidgetsInfo()->extends(className, QLatin1String("QMenu"))
         || customWidgetsInfo()->extends(className, QLatin1String("QPopupMenu"));
 }
+
+QT_END_NAMESPACE

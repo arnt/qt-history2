@@ -34,6 +34,8 @@ TRANSLATOR qdesigner_internal::PaletteModel
 #include <QtGui/QLabel>
 #include <QtGui/QHeaderView>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 enum { BrushRole = 33 };
@@ -612,3 +614,5 @@ QSize ColorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex
     return QItemDelegate::sizeHint(opt, index) + QSize(4, 4);
 }
 }
+
+QT_END_NAMESPACE

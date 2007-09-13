@@ -40,6 +40,7 @@
 #  define QDTEDEBUGN if (false) qDebug
 #endif
 
+QT_BEGIN_NAMESPACE
 
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate, public QDateTimeParser
 {
@@ -2515,8 +2516,8 @@ void QCalendarPopup::hideEvent(QHideEvent *)
         emit hidingCalendar(oldDate);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qdatetimeedit.cpp"
-
-
 
 #endif // QT_NO_DATETIMEEDIT

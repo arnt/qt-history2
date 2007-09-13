@@ -28,6 +28,8 @@
 #include <qpoint.h>
 #include <qrect.h>
 
+QT_BEGIN_NAMESPACE
+
 class QTessellatorPrivate;
 
 typedef int Q27Dot5;
@@ -66,5 +68,7 @@ private:
     friend class QTessellatorPrivate;
     QTessellatorPrivate *d;
 };
+
+QT_END_NAMESPACE
 
 #endif

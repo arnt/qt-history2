@@ -36,6 +36,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
 
+QT_BEGIN_NAMESPACE
+
 class QStandardItemPrivate
 {
     Q_DECLARE_PUBLIC(QStandardItem)
@@ -168,6 +170,8 @@ public:
     const QStandardItem *itemPrototype;
     int sortRole;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_STANDARDITEMMODEL
 

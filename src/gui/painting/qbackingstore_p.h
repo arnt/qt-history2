@@ -28,6 +28,8 @@
 #include "private/qpaintengine_raster_p.h"
 #include "private/qwidget_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWindowSurface;
 
 class Q_AUTOTEST_EXPORT QWidgetBackingStore
@@ -99,5 +101,7 @@ private:
     friend class QWindowSurface;
     friend class QWSWindowSurface;
 };
+
+QT_END_NAMESPACE
 
 #endif // QBACKINGSTORE_P_H

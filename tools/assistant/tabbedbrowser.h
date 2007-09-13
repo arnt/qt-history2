@@ -16,6 +16,8 @@
 
 #include "ui_tabbedbrowser.h"
 
+QT_BEGIN_NAMESPACE
+
 class MainWindow;
 class HelpWindow;
 class QStyleSheet;
@@ -86,5 +88,7 @@ private:
     bool underlineLnk;
 	QTimer *autoHideTimer;
 };
+
+QT_END_NAMESPACE
 
 #endif // TABBEDBROWSER_H

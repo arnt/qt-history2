@@ -24,6 +24,8 @@ Hybrid Graphics, Ltd.
 #include <vanilla/eglVanilla.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 static void imgToVanilla(QImage &img, VanillaPixmap *pix)
 {
 
@@ -75,4 +77,7 @@ void QEGL::destroyNativePixmap(NativePixmapType pix)
 {
     delete (VanillaPixmap *)pix;
 }
+
+QT_END_NAMESPACE
+
 #endif

@@ -41,6 +41,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 class QItemDelegatePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QItemDelegate)
@@ -1122,7 +1124,7 @@ QRect QItemDelegate::textRectangle(QPainter * /*painter*/, const QRect &rect,
 
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
 {
-    QWidget *editor = ::qobject_cast<QWidget*>(object);
+    QWidget *editor = qobject_cast<QWidget*>(object);
     if (!editor)
         return false;
     if (event->type() == QEvent::KeyPress) {
@@ -1253,6 +1255,8 @@ QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
 
     return opt;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qitemdelegate.cpp"
 

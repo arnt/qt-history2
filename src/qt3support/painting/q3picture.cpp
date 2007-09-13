@@ -17,6 +17,8 @@
 #include "q3picture.h"
 #include "q3paintengine_svg_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3SvgDevice : public QPaintDevice
 {
 public:
@@ -210,6 +212,7 @@ bool Q3Picture::save(QIODevice *dev, const char *format)
 	svg.setBoundingRect(boundingRect());
 	return svg.save(dev);
     }
-
     return QPicture::save(dev, format);
 }
+
+QT_END_NAMESPACE

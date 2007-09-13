@@ -30,3 +30,5 @@ sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.pri images
 sources.path = $$[QT_INSTALL_DEMOS]/shared
 INSTALLS += sources
 !cross_compile:INSTALLS += target
+
+DEFINES += QT_USE_USING_NAMESPACE

@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtCore/qglobal.h>
+
 #define QT_FT_BEGIN_HEADER
 #define QT_FT_END_HEADER
 #include <private/qrasterdefs_p.h>
@@ -67,7 +69,6 @@
 #endif
 #include <limits.h>
 
-
 #if defined(Q_WS_WIN)
 #  ifndef SPI_GETFONTSMOOTHINGTYPE
 #    define SPI_GETFONTSMOOTHINGTYPE 0x200A
@@ -81,6 +82,8 @@
 #if defined(QT_NO_FPU) || (_MSC_VER >= 1300 && _MSC_VER < 1400)
 #  define FLOATING_POINT_BUGGY_OR_NO_FPU
 #endif
+
+QT_BEGIN_NAMESPACE
 
 #define qreal_to_fixed_26_6(f) (int(f * 64))
 #define qt_swap_int(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
@@ -4811,6 +4814,8 @@ void QSpanData::init(QRasterBuffer *rb, QRasterPaintEngine *pe)
     m12 = m13 = m21 = m23 = dx = dy = 0.;
 }
 
+extern QImage qt_imageForBrush(int brushStyle, bool invert);
+
 void QSpanData::setup(const QBrush &brush, int alpha)
 {
     Qt::BrushStyle brushStyle = brush.style();
@@ -4891,7 +4896,6 @@ void QSpanData::setup(const QBrush &brush, int alpha)
     case Qt::FDiagPattern:
     case Qt::DiagCrossPattern:
         type = Texture;
-        extern QImage qt_imageForBrush(int brushStyle, bool invert);
         tempImage = rasterBuffer->colorizeBitmap(qt_imageForBrush(brushStyle, true), brush.color());
         initTexture(&tempImage, alpha, TextureData::Tiled);
         break;
@@ -6028,3 +6032,5 @@ static void drawEllipse_midpoint_i(const QRect &rect, const QRect &clip,
     Reimplement this function to draw the largest ellipse that can be
     contained within rectangle \a rect.
 */
+
+QT_END_NAMESPACE

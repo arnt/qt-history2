@@ -74,7 +74,7 @@ static QString sys_qualifiedLibraryName(const QString &fileName)
 //TESTED_CLASS=
 //TESTED_FILES=corelib/plugin/qlibrary.h corelib/plugin/qlibrary.cpp
 
-class QLibrary;
+QT_DECLARE_CLASS(QLibrary)
 class tst_QLibrary : public QObject
 {
     Q_OBJECT

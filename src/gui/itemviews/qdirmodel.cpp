@@ -35,6 +35,8 @@
     \value FileNameRole
 */
 
+QT_BEGIN_NAMESPACE
+
 class QDirModelPrivate : public QAbstractItemModelPrivate
 {
     Q_DECLARE_PUBLIC(QDirModel)
@@ -1335,6 +1337,8 @@ QFileInfo QDirModelPrivate::resolvedInfo(QFileInfo info)
     return info;
 #endif
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qdirmodel.cpp"
 

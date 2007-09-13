@@ -33,9 +33,13 @@
 #include <comdef.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 //#define DEBUG_SHOW_ATCLIENT_COMMANDS
 #ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qdebug.h>
+QT_END_INCLUDE_NAMESPACE
 
 void showDebug(const char* funcName, const QAccessibleInterface *iface)
 {
@@ -74,7 +78,7 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
     case Alert:
         {
 #ifndef QT_NO_MESSAGEBOX
-            QMessageBox *mb = ::qobject_cast<QMessageBox*>(o);
+            QMessageBox *mb = qobject_cast<QMessageBox*>(o);
             if (mb) {
                 switch (mb->icon()) {
                 case QMessageBox::Warning:
@@ -1124,4 +1128,6 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::ContextSensitiveHelp(BOOL)
     return S_OK;
 }
 
-#endif
+QT_END_NAMESPACE
+
+#endif // QT_NO_ACCESSIBILITY

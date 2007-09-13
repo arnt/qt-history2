@@ -19,7 +19,7 @@
 
 #include <private/qmath_p.h>
 
-class QToolBox;
+QT_DECLARE_CLASS(QToolBox)
 
 class InteractiveWidget : public QWidget
 {

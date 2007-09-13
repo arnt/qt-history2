@@ -18,6 +18,8 @@
 #include "qpainter.h"
 #include "qpalette.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \fn void qDrawShadeLine(QPainter *painter, int x1, int y1, int x2, int y2,
                      const QPalette &palette, bool sunken,
@@ -1035,5 +1037,7 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
         p->drawText(x, y, w, h, flags, text.left(len));
     }
 }
+
 #endif
 
+QT_END_NAMESPACE

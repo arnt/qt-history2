@@ -46,6 +46,8 @@
 #include "tokenizer.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 static const struct {
     const char *key;
     const char *value;
@@ -203,8 +205,12 @@ static void processQdocconfFile(const QString &fileName)
 	delete translator;
 }
 
+QT_END_NAMESPACE
+
 int main( int argc, char **argv )
 {
+    QT_USE_NAMESPACE
+
     QCoreApplication app(argc, argv);
 
     PolyArchiveExtractor qsaExtractor( QStringList() << "qsa",
@@ -287,3 +293,4 @@ int main( int argc, char **argv )
     qDeleteAll(trees);
     return EXIT_SUCCESS;
 }
+

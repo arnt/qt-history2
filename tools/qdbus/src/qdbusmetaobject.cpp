@@ -25,6 +25,8 @@
 #include "qdbusintrospection_p.h"
 #include "qdbusabstractinterface_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDBusMetaObjectGenerator
 {
 public:
@@ -636,5 +638,7 @@ int QDBusMetaObject::propertyMetaType(int id) const
         int handle = priv(d.data)->propertyDBusData + id*intsPerProperty;
         return d.data[handle + 1];
     }
+
+QT_END_NAMESPACE
     return 0;
 }

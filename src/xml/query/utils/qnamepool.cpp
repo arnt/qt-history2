@@ -15,6 +15,8 @@
 
 #include "qnamepool_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 NamePool::NamePool()
@@ -294,3 +296,5 @@ QString NamePool::displayName(const QName qName) const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

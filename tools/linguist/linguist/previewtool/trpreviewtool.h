@@ -24,6 +24,8 @@
 
 #include "ui_trpreviewtool.h"
 
+QT_BEGIN_NAMESPACE
+
 class FormHolder : public QWidget
 {
     Q_OBJECT
@@ -80,5 +82,6 @@ private:
     QStandardItemModel *m_uiFilesModel;
 };
 
+QT_END_NAMESPACE
 
 #endif // TRPREVIEWTOOL_H

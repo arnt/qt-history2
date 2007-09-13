@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(OpenGL)
 
 class QGLPixelBufferPrivate;
@@ -65,6 +67,8 @@ private:
     QGLPixelBufferPrivate *d_ptr;
     friend class QGLDrawable;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

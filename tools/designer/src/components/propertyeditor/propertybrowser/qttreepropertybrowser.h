@@ -16,6 +16,8 @@
 
 #include "qtpropertybrowser.h"
 
+QT_BEGIN_NAMESPACE
+
 class QtTreePropertyBrowser : public QtAbstractPropertyBrowser
 {
     Q_OBJECT
@@ -82,5 +84,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotCollapsed(const QModelIndex &))
     Q_PRIVATE_SLOT(d_func(), void slotExpanded(const QModelIndex &))
 };
+
+QT_END_NAMESPACE
 
 #endif

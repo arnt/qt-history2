@@ -16,8 +16,8 @@
 
 #include <QGraphicsItem>
 
-class QGraphicsSceneMouseEvent;
-class QTimeLine;
+QT_DECLARE_CLASS(QGraphicsSceneMouseEvent)
+QT_DECLARE_CLASS(QTimeLine)
 
 class RobotPart : public QGraphicsItem
 {

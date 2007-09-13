@@ -16,6 +16,8 @@
 
 #include "qabstracturiresolver.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class QAbstractUriResolver
   \brief A callback that rewrites one URI into another.
@@ -114,5 +116,7 @@ QUrl QAbstractUriResolver::resolve(const QUrl &relative,
 
   \sa QUrl::isRelative(), QUrl::isValid()
  */
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

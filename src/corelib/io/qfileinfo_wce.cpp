@@ -30,6 +30,7 @@
 #include <ctype.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
 
 void QFileInfo::slashify(QString &s)
 {
@@ -222,3 +223,5 @@ uint QFileInfo::groupId() const
 {
     return nobodyID;
 }
+
+QT_END_NAMESPACE

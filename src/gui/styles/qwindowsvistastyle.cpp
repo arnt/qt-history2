@@ -16,6 +16,8 @@
 
 #if !defined(QT_NO_STYLE_WINDOWSVISTA) || defined(QT_PLUGIN)
 
+QT_BEGIN_NAMESPACE
+
 static const int windowsItemFrame        =  2; // menu item frame width
 static const int windowsItemHMargin      =  3; // menu item hor text margin
 static const int windowsItemVMargin      =  4; // menu item ver text margin
@@ -2332,5 +2334,7 @@ QIcon QWindowsVistaStyle::standardIconImplementation(StandardPixmap standardIcon
     }
     return QWindowsXPStyle::standardIconImplementation(standardIcon, option, widget);
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_WINDOWSVISTA

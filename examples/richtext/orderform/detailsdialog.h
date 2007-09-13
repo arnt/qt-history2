@@ -19,13 +19,13 @@
 #include <QPair>
 #include <QString>
 
-class QCheckBox;
-class QDialogButtonBox;
-class QLabel;
-class QLineEdit;
-class QTableWidget;
-class QTextEdit;
-class QWidget;
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QTableWidget)
+QT_DECLARE_CLASS(QTextEdit)
+QT_DECLARE_CLASS(QWidget)
 
 class DetailsDialog : public QDialog
 {

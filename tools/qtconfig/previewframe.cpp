@@ -17,6 +17,8 @@
 #include <QPainter>
 #include <QMdiSubWindow>
 
+QT_BEGIN_NAMESPACE
+
 PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
     : QFrame( parent, name )
 {
@@ -55,3 +57,5 @@ void Workspace::paintEvent( QPaintEvent* )
     p.drawText ( 0, height() / 2,  width(), height(), Qt::AlignHCenter,
                 QLatin1String("The moose in the noose\nate the goose who was loose.") );
 }
+
+QT_END_NAMESPACE

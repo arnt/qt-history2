@@ -45,6 +45,8 @@
 
 #define BUF_SIZE 512
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \internal
   memset for security purposes, guaranteed not to be optimized away
@@ -1551,6 +1553,8 @@ void FAREnforcer::reset()
     for (int i = 0; i < minutelyRate; i++ )
         authAttempts[i] = nullDateTime;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtransportauth_qws_p.cpp"
 

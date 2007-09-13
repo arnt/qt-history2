@@ -71,6 +71,8 @@
 
 #define CONVERSION_BUFF_SIZE 255
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_QLOCALE_USES_FCVT
 static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
@@ -85,7 +87,9 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
 ** Helpers for accessing Qt locale database
 */
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qlocale_data_p.h"
+QT_END_INCLUDE_NAMESPACE
 
 // Assumes that code is a
 // QChar code[3];
@@ -1205,8 +1209,8 @@ static QLocalePrivate *system_lp = 0;
 */
 QSystemLocale::QSystemLocale()
 {
-    delete ::_systemLocale;
-    ::_systemLocale = this;
+    delete _systemLocale;
+    _systemLocale = this;
 
     if (system_lp)
         system_lp->m_language_id = 0;
@@ -1217,9 +1221,9 @@ QSystemLocale::QSystemLocale()
 */
 QSystemLocale::~QSystemLocale()
 {
-    Q_ASSERT(::_systemLocale == this);
+    Q_ASSERT(_systemLocale == this);
 
-    ::_systemLocale = 0;
+    _systemLocale = 0;
 
     if (system_lp)
         system_lp->m_language_id = 0;
@@ -1911,7 +1915,7 @@ QDataStream &operator>>(QDataStream &ds, QLocale &l)
 
 static const int locale_data_size = sizeof(locale_data)/sizeof(QLocalePrivate) - 1;
 
-static const QLocalePrivate *dataPointer(void *v)
+static const QLocalePrivate *dataPointerHelper(void *v)
 {
     quint16 index = reinterpret_cast<quintptr>(v) & 0xFFFF;
 
@@ -1926,14 +1930,14 @@ static const QLocalePrivate *dataPointer(void *v)
     return &locale_data[index];
 }
 
-static int numberOptions(void *v)
+static int numberOptionsHelper(void *v)
 {
     quint16 opt = (reinterpret_cast<quintptr>(v) >> 16) & 0xFFFF;
 
     return opt;
 }
 
-static void setDataPointer(void **v, const QLocalePrivate *p)
+static void setDataPointerHelper(void **v, const QLocalePrivate *p)
 {
     quint32 i = reinterpret_cast<quintptr>(*v);
 
@@ -1952,7 +1956,7 @@ static void setDataPointer(void **v, const QLocalePrivate *p)
     *v = reinterpret_cast<void*>(i);
 }
 
-static void setNumberOptions(void **v, int _opts)
+static void setNumberOptionsHelper(void **v, int _opts)
 {
     quint32 i = reinterpret_cast<quintptr>(*v);
 
@@ -1991,8 +1995,8 @@ static void setNumberOptions(void **v, int _opts)
 
 QLocale::QLocale(const QString &name)
 {
-    ::setDataPointer(&v, findLocale(name));
-    ::setNumberOptions(&v, 0);
+    setDataPointerHelper(&v, findLocale(name));
+    setNumberOptionsHelper(&v, 0);
 }
 
 /*!
@@ -2005,8 +2009,8 @@ QLocale::QLocale(const QString &name)
 
 QLocale::QLocale()
 {
-    ::setDataPointer(&v, defaultPrivate());
-    ::setNumberOptions(&v, default_number_options);
+    setDataPointerHelper(&v, defaultPrivate());
+    setNumberOptionsHelper(&v, default_number_options);
 }
 
 /*!
@@ -2034,11 +2038,11 @@ QLocale::QLocale(Language language, Country country)
 
     // If not found, should default to system
     if (d->languageId() == QLocale::C && language != QLocale::C) {
-        ::setDataPointer(&v, defaultPrivate());
-        ::setNumberOptions(&v, default_number_options);
+        setDataPointerHelper(&v, defaultPrivate());
+        setNumberOptionsHelper(&v, default_number_options);
     } else {
-        ::setDataPointer(&v, d);
-        ::setNumberOptions(&v, 0);
+        setDataPointerHelper(&v, d);
+        setNumberOptionsHelper(&v, 0);
     }
 }
 
@@ -2053,7 +2057,7 @@ QLocale::QLocale(const QLocale &other)
 
 const QLocalePrivate *QLocale::d() const
 {
-    return ::dataPointer(v);
+    return dataPointerHelper(v);
 }
 
 /*!
@@ -2075,7 +2079,7 @@ QLocale &QLocale::operator=(const QLocale &other)
 */
 void QLocale::setNumberOptions(NumberOptions options)
 {
-    ::setNumberOptions(&v, options);
+    setNumberOptionsHelper(&v, options);
 }
 
 /*!
@@ -2088,7 +2092,7 @@ void QLocale::setNumberOptions(NumberOptions options)
 */
 QLocale::NumberOptions QLocale::numberOptions() const
 {
-    return static_cast<NumberOption>(::numberOptions(v));
+    return static_cast<NumberOption>(numberOptionsHelper(v));
 }
 
 /*!
@@ -2319,7 +2323,7 @@ uint QLocale::toUInt(const QString &s, bool *ok, int base) const
 qlonglong QLocale::toLongLong(const QString &s, bool *ok, int base) const
 {
     QLocalePrivate::GroupSeparatorMode mode
-        = ::numberOptions(v) & RejectGroupSeparator
+        = numberOptionsHelper(v) & RejectGroupSeparator
             ? QLocalePrivate::FailOnGroupSeparators
             : QLocalePrivate::ParseGroupSeparators;
 
@@ -2347,7 +2351,7 @@ qlonglong QLocale::toLongLong(const QString &s, bool *ok, int base) const
 qlonglong QLocale::toULongLong(const QString &s, bool *ok, int base) const
 {
     QLocalePrivate::GroupSeparatorMode mode
-        = ::numberOptions(v) & RejectGroupSeparator
+        = numberOptionsHelper(v) & RejectGroupSeparator
             ? QLocalePrivate::FailOnGroupSeparators
             : QLocalePrivate::ParseGroupSeparators;
 
@@ -2421,7 +2425,7 @@ float QLocale::toFloat(const QString &s, bool *ok) const
 double QLocale::toDouble(const QString &s, bool *ok) const
 {
     QLocalePrivate::GroupSeparatorMode mode
-        = ::numberOptions(v) & RejectGroupSeparator
+        = numberOptionsHelper(v) & RejectGroupSeparator
             ? QLocalePrivate::FailOnGroupSeparators
             : QLocalePrivate::ParseGroupSeparators;
 
@@ -2436,7 +2440,7 @@ double QLocale::toDouble(const QString &s, bool *ok) const
 
 QString QLocale::toString(qlonglong i) const
 {
-    int flags = ::numberOptions(v) & OmitGroupSeparator
+    int flags = numberOptionsHelper(v) & OmitGroupSeparator
                     ? 0
                     : QLocalePrivate::ThousandsGroup;
 
@@ -2451,7 +2455,7 @@ QString QLocale::toString(qlonglong i) const
 
 QString QLocale::toString(qulonglong i) const
 {
-    int flags = ::numberOptions(v) & OmitGroupSeparator
+    int flags = numberOptionsHelper(v) & OmitGroupSeparator
                     ? 0
                     : QLocalePrivate::ThousandsGroup;
 
@@ -2946,7 +2950,7 @@ QString QLocale::toString(double i, char f, int prec) const
             break;
     }
 
-    if (!(::numberOptions(v) & OmitGroupSeparator))
+    if (!(numberOptionsHelper(v) & OmitGroupSeparator))
         flags |= QLocalePrivate::ThousandsGroup;
     return d()->doubleToString(i, prec, form, -1, flags);
 }
@@ -2971,7 +2975,7 @@ QString QLocale::toString(double i, char f, int prec) const
 QLocale QLocale::system()
 {
     QLocale result(C);
-    setDataPointer(&result.v, systemPrivate());
+    setDataPointerHelper(&result.v, systemPrivate());
     return result;
 }
 
@@ -4238,7 +4242,10 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #define MALLOC malloc
 
 #ifdef BSD_QDTOA_DEBUG
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <stdio.h>
+QT_END_INCLUDE_NAMESPACE
+
 #define Bug(x) {fprintf(stderr, "%s\n", x); exit(1);}
 #endif
 
@@ -6554,3 +6561,5 @@ Q_CORE_EXPORT double qstrtod(const char *s00, const char **se, bool *ok)
     return ret;
 }
 #endif // QT_QLOCALE_USES_FCVT
+
+QT_END_NAMESPACE

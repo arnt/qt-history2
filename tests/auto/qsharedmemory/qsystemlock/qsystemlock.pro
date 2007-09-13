@@ -12,3 +12,6 @@ DEFINES	+= QSYSTEMSEMAPHORE_DEBUG
 
 SOURCES		+= tst_qsystemlock.cpp 
 TARGET		= tst_qsystemlock
+
+DEFINES += QT_USE_USING_NAMESPACE
+

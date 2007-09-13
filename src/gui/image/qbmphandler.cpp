@@ -19,6 +19,8 @@
 #include <qvariant.h>
 #include <qvector.h>
 
+QT_BEGIN_NAMESPACE
+
 static void swapPixel01(QImage *image)        // 1-bpp: swap 0 and 1 pixels
 {
     int i;
@@ -761,5 +763,7 @@ QByteArray QBmpHandler::name() const
 {
     return "bmp";
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_IMAGEFORMAT_BMP

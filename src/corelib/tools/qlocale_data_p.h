@@ -25,6 +25,8 @@
 // We mean it.
 //
 
+QT_BEGIN_NAMESPACE
+
 /*
     This file was generated on 2006-09-06 from the Common Locale Data Repository v1.4
 
@@ -3234,5 +3236,7 @@ static const unsigned char country_code_list[] =
 "ZW" // Zimbabwe
 "CS" // SerbiaAndMontenegro
 ;
+
+QT_END_NAMESPACE
 
 #endif

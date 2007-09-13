@@ -20,6 +20,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { debugWriteIncludes = 0 };
     enum { warnHeaderGeneration = 0 };
@@ -37,6 +39,7 @@ struct ClassInfoEntry
 static ClassInfoEntry qclass_lib_map[] = {
 #define QT_CLASS_LIB(klass, module, header) { #klass, #module, #header },
 #include "qclass_lib_map.h"
+
 #undef QT_CLASS_LIB
     { 0, 0, 0 }
 };
@@ -276,3 +279,5 @@ void WriteIncludes::activateScripts()
     }
 }
 } // namespace CPP
+
+QT_END_NAMESPACE

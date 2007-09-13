@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_TREEWIDGET
@@ -387,6 +389,8 @@ inline bool QTreeWidgetItem::isDisabled() const
 { return !(flags() & Qt::ItemIsEnabled); }
 
 #endif // QT_NO_TREEWIDGET
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

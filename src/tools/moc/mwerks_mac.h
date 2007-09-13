@@ -16,6 +16,8 @@
 
 #include <QtGlobal>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_OS_MAC
 
 #define macintosh
@@ -31,5 +33,7 @@ enum moc_status {
 };
 
 #endif
+
+QT_END_NAMESPACE
 
 #endif // MWERKS_MAC_H

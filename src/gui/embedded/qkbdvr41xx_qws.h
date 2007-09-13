@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_QWS_KEYBOARD) && !defined(QT_NO_QWS_KBD_VR41XX)
@@ -35,6 +37,8 @@ private:
 };
 
 #endif // QT_NO_QWS_KBD_VR41XX
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

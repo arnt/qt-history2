@@ -18,10 +18,10 @@
 #include <QWidget>
 #include <QBuffer>
 #include <QXmlStreamReader>
-class QLineEdit;
-class QTreeWidget;
-class QTreeWidgetItem;
-class QPushButton;
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QTreeWidget)
+QT_DECLARE_CLASS(QTreeWidgetItem)
+QT_DECLARE_CLASS(QPushButton)
 
 class RSSListing : public QWidget
 {

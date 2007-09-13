@@ -28,6 +28,8 @@
 #include "shared_global_p.h"
 #include <QtDesigner/QDesignerWidgetBoxInterface>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 // A widget box with a load mode that allows for updating custom widgets.
@@ -48,5 +50,7 @@ private:
     LoadMode m_loadMode;
 };
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_WIDGETBOX_H

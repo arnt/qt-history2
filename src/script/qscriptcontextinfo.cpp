@@ -22,6 +22,8 @@
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \since 4.4
   \class QScriptContextInfo
@@ -353,5 +355,7 @@ int QScriptContextInfo::functionMetaIndex() const
         return -1;
     return d->functionMetaIndex;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

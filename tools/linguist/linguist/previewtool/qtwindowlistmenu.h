@@ -18,6 +18,8 @@
 #include <QMenu>
 #include <QActionGroup>
 
+QT_BEGIN_NAMESPACE
+
 class QMenuBar;
 class QWidget;
 class QString;
@@ -71,5 +73,7 @@ private:
 	bool isEmpty();
     void setChecked(bool checked, QAction *a);    
 };
+
+QT_END_NAMESPACE
 
 #endif

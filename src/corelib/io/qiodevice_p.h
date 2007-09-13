@@ -34,6 +34,8 @@
 #include "private/qobject_p.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class Q_CORE_EXPORT QIODevicePrivate
 #ifndef QT_NO_QOBJECT
     : public QObjectPrivate
@@ -73,5 +75,7 @@ public:
     QIODevice *q_ptr;
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QIODEVICE_P_H

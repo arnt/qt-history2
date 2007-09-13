@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 class String: public Core
@@ -84,6 +86,8 @@ protected:
 
 } } // namespace QScript::Ecma
 
-#endif // QT_NO_SCRIPT
-#endif
+QT_END_NAMESPACE
 
+#endif // QT_NO_SCRIPT
+
+#endif

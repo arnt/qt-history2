@@ -58,6 +58,8 @@
 
 Q_DECLARE_METATYPE(QWidgetList)
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QFORMINTERNAL_NAMESPACE
 using namespace QFormInternal;
 #endif
@@ -2283,3 +2285,5 @@ bool QAbstractFormBuilder::isScriptingEnabled() const
     return !(formScriptRunner()->options() & QFormScriptRunner::DisableScripts);
 #endif
 }
+
+QT_END_NAMESPACE

@@ -29,6 +29,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -64,6 +66,8 @@ namespace Patternist
      */
     typedef AbstractFloatMathematician<false> FloatMathematician;
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

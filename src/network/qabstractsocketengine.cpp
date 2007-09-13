@@ -15,6 +15,8 @@
 #include "qnativesocketengine_p.h"
 #include "qmutex.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSocketEngineHandlerList : public QList<QSocketEngineHandler*>
 {
 public:
@@ -198,3 +200,5 @@ void QAbstractSocketEngine::setPeerPort(quint16 port)
 {
     d_func()->peerPort = port;
 }
+
+QT_END_NAMESPACE

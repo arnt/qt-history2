@@ -15,6 +15,8 @@
 #include <qstringlist.h>
 #include "../../../../src/sql/drivers/sqlite2/qsql_sqlite2.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSQLite2DriverPlugin : public QSqlDriverPlugin
 {
 public:
@@ -47,3 +49,5 @@ QStringList QSQLite2DriverPlugin::keys() const
 
 Q_EXPORT_STATIC_PLUGIN(QSQLite2DriverPlugin)
 Q_EXPORT_PLUGIN2(qsqlite2, QSQLite2DriverPlugin)
+
+QT_END_NAMESPACE

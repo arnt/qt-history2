@@ -32,6 +32,8 @@
 #include <private/qt_mac_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAbstractScrollArea
     \brief The QAbstractScrollArea widget provides a scrolling area with
@@ -1228,6 +1230,9 @@ void QAbstractScrollArea::setupViewport(QWidget *viewport)
     Q_UNUSED(viewport);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qabstractscrollarea.cpp"
 #include "moc_qabstractscrollarea_p.cpp"
+
 #endif // QT_NO_SCROLLAREA

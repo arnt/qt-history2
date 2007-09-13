@@ -17,6 +17,8 @@
 #include <QtGui/QLayout>
 #include <QtCore/qplugin.h>
 
+QT_BEGIN_NAMESPACE
+
 Q3ButtonGroupPlugin::Q3ButtonGroupPlugin(QObject *parent)
     : QObject(parent),
       m_initialized(false)
@@ -82,3 +84,5 @@ void Q3ButtonGroupPlugin::initialize(QDesignerFormEditorInterface *core)
     Q_UNUSED(core);
     m_initialized = true;
 }
+
+QT_END_NAMESPACE

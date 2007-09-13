@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 class Error: public Core
@@ -82,6 +84,8 @@ private:
 };
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif // QSCRIPTECMAERROR_P_H

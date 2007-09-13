@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 __forceinline int q_atomic_xchg(int newval)
 {
     static int lockvar = 0;
@@ -115,6 +117,8 @@ inline void *q_atomic_set_ptr(volatile void *pointer, void *newval)
 // int q_atomic_fetch_and_add_int(volatile int *ptr, int value);
 // int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value);
 // int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

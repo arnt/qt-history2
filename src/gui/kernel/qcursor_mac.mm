@@ -20,6 +20,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <AppKit/NSCursor.h>
+#include <qpainter.h>
+
+QT_BEGIN_NAMESPACE
 
 /*****************************************************************************
   Externals
@@ -32,7 +35,6 @@ extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_mac.cpp
 /*****************************************************************************
   Internal QCursorData class
  *****************************************************************************/
-#include <qpainter.h>
 
 class QMacAnimateCursor : public QObject
 {
@@ -441,3 +443,5 @@ void QCursorData::update()
     }
 #endif
 }
+
+QT_END_NAMESPACE

@@ -10,3 +10,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/painting/painterpaths
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS painterpaths.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/painting/painterpaths
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

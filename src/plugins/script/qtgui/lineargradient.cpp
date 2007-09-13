@@ -8,6 +8,8 @@ Q_DECLARE_METATYPE(QGradient)
 Q_DECLARE_METATYPE(QLinearGradient)
 Q_DECLARE_METATYPE(QLinearGradient*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newLinearGradient(QScriptEngine *eng, const QLinearGradient &gradient)
 {
     return eng->newVariant(qVariantFromValue(gradient));
@@ -92,3 +94,5 @@ QScriptValue constructLinearGradientClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

@@ -16,8 +16,8 @@
 
 #include <QWidget>
 
-class QRect;
-class QSize;
+QT_DECLARE_CLASS(QRect)
+QT_DECLARE_CLASS(QSize)
 
 class TicTacToe : public QWidget
 {

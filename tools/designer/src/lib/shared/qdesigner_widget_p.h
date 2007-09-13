@@ -29,6 +29,8 @@
 #include <QtGui/QDialog>
 #include <QtGui/QLabel>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -87,5 +89,7 @@ public:
     inline Qt::Orientation orientation() const
     { return frameShape() == HLine ? Qt::Horizontal : Qt::Vertical; }
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_WIDGET_H

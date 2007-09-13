@@ -18,6 +18,8 @@
 #include "separator.h"
 #include "tr.h"
 
+QT_BEGIN_NAMESPACE
+
 QString separator( int index, int count )
 {
     if ( index == count - 1 )
@@ -35,3 +37,5 @@ QString separator( int index, int count )
 	}
     }
 }
+
+QT_END_NAMESPACE

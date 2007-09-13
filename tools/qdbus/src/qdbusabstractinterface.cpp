@@ -587,4 +587,6 @@ QDBusMessage QDBusAbstractInterface::internalConstCall(QDBus::CallMode mode,
     return const_cast<QDBusAbstractInterface*>(this)->callWithArgumentList(mode, method, args);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qdbusabstractinterface.cpp"

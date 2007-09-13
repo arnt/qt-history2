@@ -23,6 +23,8 @@
 
 #include "location.h"
 
+QT_BEGIN_NAMESPACE
+
 class Quoter
 {
 public:
@@ -54,5 +56,7 @@ private:
     QRegExp splitPoint;
     QRegExp manyEndls;
 };
+
+QT_END_NAMESPACE
 
 #endif

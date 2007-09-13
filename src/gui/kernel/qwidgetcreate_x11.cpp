@@ -14,12 +14,13 @@
 #include "qwidget.h"
 #include "qt_x11_p.h"
 
-
 /*
   Internal Qt functions to create X windows.  We have put them in
   separate functions to allow the programmer to reimplement them by
   custom versions.
 */
+
+QT_BEGIN_NAMESPACE
 
 Window qt_XCreateWindow(const QWidget *, Display *display, Window parent,
                          int x, int y, uint w, uint h,
@@ -46,3 +47,5 @@ void qt_XDestroyWindow(const QWidget *, Display *display, Window window)
     if (window)
         XDestroyWindow(display, window);
 }
+
+QT_END_NAMESPACE

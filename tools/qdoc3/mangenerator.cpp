@@ -22,6 +22,8 @@
 #include "node.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 ManGenerator::ManGenerator()
 {
     date = QDate::currentDate().toString( "d MMMM yyyy" );
@@ -194,3 +196,5 @@ QString ManGenerator::protectTextLine( const QString& str )
 	t.prepend( "\\&" );
     return t;
 }
+
+QT_END_NAMESPACE

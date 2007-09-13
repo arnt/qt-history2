@@ -20,6 +20,8 @@
 #include <sys/types.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_FILESYSTEMWATCHER
 
 #if defined Q_AUTOTEST_EXPORT
@@ -338,3 +340,5 @@ void QFileInfoGatherer::fetch(const QFileInfo &fileInfo, QTime &base, bool &firs
 }
 
 #endif // QT_NO_FILESYSTEMWATCHER
+
+QT_END_NAMESPACE

@@ -13,6 +13,8 @@
 
 #include "qacceliterators_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 xsInteger AccelIterator::position() const
@@ -140,5 +142,7 @@ Item::Iterator::Ptr AttributeIterator::copy() const
 {
     return Item::Iterator::Ptr(new AttributeIterator(m_document, m_preNumber));
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

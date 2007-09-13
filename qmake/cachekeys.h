@@ -21,6 +21,8 @@
 #include <qfileinfo.h>
 #include <qhash.h>
 
+QT_BEGIN_NAMESPACE
+
 // -------------------------------------------------------------------------------------------------
 struct FixStringCacheKey
 {
@@ -147,5 +149,7 @@ inline void qmakeFreeCacheClear(void *i) { free(i); }
 typedef void (*qmakeCacheClearFunc)(void *);
 void qmakeAddCacheClear(qmakeCacheClearFunc func, void **);
 void qmakeClearCaches();
+
+QT_END_NAMESPACE
 
 #endif // CACHEKEYS_H

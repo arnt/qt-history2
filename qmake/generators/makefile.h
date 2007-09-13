@@ -22,6 +22,8 @@
 #include <qhash.h>
 #include <qfileinfo.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen
 #else
@@ -224,5 +226,7 @@ inline bool MakefileGenerator::findLibraries()
 
 inline MakefileGenerator::~MakefileGenerator()
 { }
+
+QT_END_NAMESPACE
 
 #endif // MAKEFILE_H

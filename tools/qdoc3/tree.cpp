@@ -25,6 +25,8 @@
 #include "text.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 struct InheritanceBound
 {
     Node::Access access;
@@ -1283,3 +1285,5 @@ QString Tree::fullDocumentName(const Node *node) const
 
     return "";
 }
+
+QT_END_NAMESPACE

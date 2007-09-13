@@ -24,6 +24,8 @@
 #include "private/qabstractslider_p.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSliderPrivate : public QAbstractSliderPrivate
 {
     Q_DECLARE_PUBLIC(QSlider)
@@ -642,3 +644,5 @@ Q_GUI_EXPORT QStyleOptionSlider qt_qsliderStyleOption(QSlider *slider)
 }
 
 #endif
+
+QT_END_NAMESPACE

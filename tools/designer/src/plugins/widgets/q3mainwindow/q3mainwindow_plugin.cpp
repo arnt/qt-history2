@@ -20,6 +20,8 @@
 #include <QtCore/qplugin.h>
 #include <Qt3Support/Q3MainWindow>
 
+QT_BEGIN_NAMESPACE
+
 Q3MainWindowPlugin::Q3MainWindowPlugin(QObject *parent)
     : QObject(parent), m_initialized(false)
 {}
@@ -83,3 +85,5 @@ QString Q3MainWindowPlugin::domXml() const
     ");
 }
 
+
+QT_END_NAMESPACE

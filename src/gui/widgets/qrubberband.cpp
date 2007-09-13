@@ -29,6 +29,8 @@
 
 #include <private/qwidget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 //### a rubberband window type would be a more elegant solution
 #define RUBBERBAND_WINDOW_TYPE Qt::ToolTip
 
@@ -323,5 +325,7 @@ bool QRubberBand::event(QEvent *e)
 {
     return QWidget::event(e);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_RUBBERBAND

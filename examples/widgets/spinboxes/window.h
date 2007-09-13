@@ -16,10 +16,10 @@
 
 #include <QWidget>
 
-class QDateTimeEdit;
-class QDoubleSpinBox;
-class QGroupBox;
-class QLabel;
+QT_DECLARE_CLASS(QDateTimeEdit)
+QT_DECLARE_CLASS(QDoubleSpinBox)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
 
 class Window : public QWidget
 {

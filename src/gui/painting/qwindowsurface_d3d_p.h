@@ -28,6 +28,8 @@
 #include <qglobal.h>
 #include "private/qwindowsurface_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPaintDevice;
 class QPoint;
 class QRegion;
@@ -48,5 +50,7 @@ public:
 private:
     QD3DWindowSurfacePrivate *d_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWINDOWSURFACE_D3D_P_H

@@ -12,3 +12,6 @@ target.path = $$[QT_INSTALL_DEMOS]/books
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.pro images
 sources.path = $$[QT_INSTALL_DEMOS]/books
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE
+

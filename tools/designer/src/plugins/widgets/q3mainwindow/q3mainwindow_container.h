@@ -17,6 +17,8 @@
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QExtensionFactory>
 
+QT_BEGIN_NAMESPACE
+
 class Q3MainWindow;
 
 class Q3MainWindowContainer: public QObject, public QDesignerContainerExtension
@@ -48,5 +50,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
+
+QT_END_NAMESPACE
 
 #endif // Q3MAINWINDOW_CONTAINER_H

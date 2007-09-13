@@ -26,6 +26,8 @@
 #include <string.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest {
 
     struct IgnoreResultList
@@ -325,3 +327,4 @@ void QTestLog::setMaxWarnings(int m)
     QTest::maxWarnings = m <= 0 ? INT_MAX : m + 2;
 }
 
+QT_END_NAMESPACE

@@ -32,6 +32,8 @@
 #  include "qfilesystemwatcher_kqueue_p.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 enum { PollingInterval = 1000 };
 
 class QPollingFileSystemWatcherEngine : public QFileSystemWatcherEngine
@@ -534,7 +536,11 @@ QStringList QFileSystemWatcher::files() const
     return d->files;
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qfilesystemwatcher.cpp"
+
 #include "qfilesystemwatcher.moc"
 
 #endif // QT_NO_FILESYSTEMWATCHER
+

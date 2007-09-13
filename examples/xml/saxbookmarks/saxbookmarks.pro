@@ -12,3 +12,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/xml/saxbookmarks
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS saxbookmarks.pro *.xbel
 sources.path = $$[QT_INSTALL_EXAMPLES]/xml/saxbookmarks
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

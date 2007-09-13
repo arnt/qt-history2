@@ -16,6 +16,8 @@
 
 #include "qtpropertymanager.h"
 
+QT_BEGIN_NAMESPACE
+
 class QtSpinBoxFactory : public QtAbstractEditorFactory<QtIntPropertyManager>
 {
     Q_OBJECT
@@ -288,5 +290,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-#endif
+QT_END_NAMESPACE
 
+#endif

@@ -22,13 +22,15 @@
 #include <QtCore/qstringlist.h>
 #endif
 
-QT_BEGIN_HEADER
-
-QT_MODULE(Core)
-
 #if defined(Q_WS_WIN) && !defined(tagMSG)
 typedef struct tagMSG MSG;
 #endif
+
+QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
+
+QT_MODULE(Core)
 
 class QCoreApplicationPrivate;
 class QTextCodec;
@@ -236,6 +238,8 @@ Q_CORE_EXPORT QString qAppName();                // get application name
 Q_CORE_EXPORT QString decodeMSG(const MSG &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const MSG &);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

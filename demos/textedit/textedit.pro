@@ -19,3 +19,5 @@ target.path = $$[QT_INSTALL_DEMOS]/textedit
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.html *.doc images
 sources.path = $$[QT_INSTALL_DEMOS]/textedit
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE

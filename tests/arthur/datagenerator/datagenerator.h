@@ -7,9 +7,9 @@
 #include <QTextStream>
 #include <QSettings>
 
-class QSvgRenderer;
-class QEngine;
-class QFileInfo;
+QT_DECLARE_CLASS(QSvgRenderer)
+QT_DECLARE_CLASS(QEngine)
+QT_DECLARE_CLASS(QFileInfo)
 
 class DataGenerator
 {

@@ -18,6 +18,8 @@
 #include <QtCore/qcoreevent.h>
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 static const qreal pi = 3.14159265359;
 static const qreal halfPi = pi / 2.0;
 
@@ -736,3 +738,5 @@ void QTimeLine::timerEvent(QTimerEvent *event)
         d->setCurrentTime(d->startTime - d->timer.elapsed());
     }
 }
+
+QT_END_NAMESPACE

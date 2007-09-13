@@ -8,6 +8,8 @@
 Q_DECLARE_METATYPE(QIODevice*)
 Q_DECLARE_METATYPE(QProcess*)
 
+QT_BEGIN_NAMESPACE
+
 class ProcessConstructor : public QObject,
                            public QScriptable
 {
@@ -230,5 +232,7 @@ QScriptValue constructProcessClass(QScriptEngine *eng)
     proto.setProperty("constructor", ctor);
     return ctor;
 }
+
+QT_END_NAMESPACE
 
 #include "process.moc"

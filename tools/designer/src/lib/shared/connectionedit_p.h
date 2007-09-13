@@ -37,7 +37,8 @@
 #include <QtGui/QPolygonF>
 
 #include <QtGui/QUndoCommand>
-#
+
+QT_BEGIN_NAMESPACE
 
 class QDesignerFormWindowInterface;
 class QUndoStack;
@@ -277,5 +278,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // CONNECTIONEDIT_H

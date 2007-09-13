@@ -30,6 +30,8 @@
 
 #include "qfontengine_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #define ObjectSelectionBrush (QTextFormat::ForegroundBrush + 1)
 
 static inline QFixed leadingSpaceWidth(QTextEngine *eng, const QScriptLine &line)
@@ -2290,3 +2292,5 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
     pos = qMin(pos, maxPos);
     return pos;
 }
+
+QT_END_NAMESPACE

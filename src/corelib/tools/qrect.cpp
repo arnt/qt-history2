@@ -17,6 +17,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QRect
     \ingroup multimedia
@@ -2127,3 +2129,5 @@ QDebug operator<<(QDebug dbg, const QRectF &r) {
     return dbg.space();
 }
 #endif
+
+QT_END_NAMESPACE

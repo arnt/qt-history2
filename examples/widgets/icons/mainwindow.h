@@ -19,12 +19,12 @@
 #include <QMainWindow>
 #include <QPixmap>
 
-class QAction;
-class QActionGroup;
-class QGroupBox;
-class QMenu;
-class QRadioButton;
-class QTableWidget;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QActionGroup)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QRadioButton)
+QT_DECLARE_CLASS(QTableWidget)
 class IconPreviewArea;
 class IconSizeSpinBox;
 

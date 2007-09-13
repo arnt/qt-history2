@@ -35,7 +35,6 @@
 
 #ifdef Q_WS_X11
 #include "qx11info_x11.h"
-extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 #endif
 #ifdef Q_WS_QWS
 #include "qscreen_qws.h"
@@ -52,6 +51,15 @@ extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 #  define FC_DEBUG if (false) qDebug
 #endif
 
+#ifdef Q_WS_WIN
+extern HDC shared_dc;
+#endif
+
+QT_BEGIN_NAMESPACE
+
+#ifdef Q_WS_X11
+extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
+#endif
 
 bool QFontDef::exactMatch(const QFontDef &other) const
 {
@@ -106,10 +114,6 @@ bool QFontDef::exactMatch(const QFontDef &other) const
 #endif // Q_WS_X11
        );
 }
-
-#ifdef Q_WS_WIN
-extern HDC shared_dc;
-#endif
 
 extern bool qt_is_gui_used;
 
@@ -2283,12 +2287,12 @@ static const int slow_timeout = 300000; //  5m
 
 const uint QFontCache::min_cost = 4*1024; // 4mb
 
-Q_GLOBAL_STATIC(QThreadStorage<QFontCache *>, fontCache)
+Q_GLOBAL_STATIC(QThreadStorage<QFontCache *>, theFontCache)
 
 
 QFontCache *QFontCache::instance()
 {
-    QFontCache *&fontCache = ::fontCache()->localData();
+    QFontCache *&fontCache = theFontCache()->localData();
     if (!fontCache)
         fontCache = new QFontCache;
     return fontCache;
@@ -2296,7 +2300,7 @@ QFontCache *QFontCache::instance()
 
 void QFontCache::cleanup()
 {
-    ::fontCache()->setLocalData(0);
+    theFontCache()->setLocalData(0);
 }
 
 QFontCache::QFontCache()
@@ -2730,3 +2734,5 @@ QDebug operator<<(QDebug stream, const QFont &font)
     return stream << "QFont(" << font.toString() << ')';
 }
 #endif
+
+QT_END_NAMESPACE

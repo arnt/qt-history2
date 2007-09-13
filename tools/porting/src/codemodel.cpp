@@ -18,6 +18,8 @@
 #include <QByteArray>
 #include <QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace CodeModel {
 
 BuiltinType BuiltinType::Bool("bool", 0 );
@@ -57,3 +59,5 @@ void Scope::addNameUse(NameUse *nameUse)
 }
 
 } //namepsace CodeModel
+
+QT_END_NAMESPACE

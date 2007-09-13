@@ -14,3 +14,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/activeqt/multiple
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS multiple.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/activeqt/multiple
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

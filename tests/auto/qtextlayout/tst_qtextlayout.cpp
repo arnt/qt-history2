@@ -108,7 +108,9 @@ void tst_QTextLayout::getSetCheck()
     QCOMPARE(true, obj2.cacheEnabled());
 }
 
+QT_BEGIN_NAMESPACE
 extern Q_GUI_EXPORT bool qt_enable_test_font;
+QT_END_NAMESPACE
 
 tst_QTextLayout::tst_QTextLayout()
 {

@@ -18,6 +18,8 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QList>
 
+QT_BEGIN_NAMESPACE
+
 struct AbstractProItemVisitor;
 
 class ProItem {
@@ -188,5 +190,7 @@ private:
     QString m_displayFileName;
     bool m_modified;
 };
+
+QT_END_NAMESPACE
 
 #endif //PROITEMS_H

@@ -17,6 +17,8 @@
 #include <QtGui/qaccessible2.h>
 #include <QtGui/qaccessiblewidget.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_ACCESSIBILITY
 
 class QAbstractButton;
@@ -120,5 +122,7 @@ protected:
 #endif // QT_NO_LINEEDIT
 
 #endif // QT_NO_ACCESSIBILITY
+
+QT_END_NAMESPACE
 
 #endif // SIMPLEWIDGETS_H

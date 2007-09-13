@@ -34,6 +34,8 @@
 
 #include "formbuilderextra_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
 {
@@ -119,5 +121,7 @@ inline EnumType enumKeyOfObjectToValue(const char *enumName, const char *key, co
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_NAMESPACE
 
 #endif // UILIBPROPERTIES_H

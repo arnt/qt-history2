@@ -18,8 +18,11 @@
 #include <qvector.h>
 
 Q_DECLARE_METATYPE(QPoint)
+
+QT_BEGIN_NAMESPACE
 template<> struct QMetaTypeId<Q3ListView::StringComparisonMode>
 { enum { Defined = 1 }; static inline int qt_metatype_id() { return QMetaType::Int; } };
+QT_END_NAMESPACE
 
 
 //TESTED_CLASS=

@@ -18,6 +18,8 @@
 #include "qvarlengtharray.h"
 #include "private/qcore_mac_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static const CFStringRef hostNames[2] = { kCFPreferencesCurrentHost, kCFPreferencesAnyHost };
 static const int numHostNames = 2;
 
@@ -581,3 +583,5 @@ bool QConfFileSettingsPrivate::writePlistFile(const QString &fileName,
     SInt32 code;
     return CFURLWriteDataAndPropertiesToResource(urlFromFileName(fileName), xmlData, 0, &code);
 }
+
+QT_END_NAMESPACE

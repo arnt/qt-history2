@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     class ProjectedExpression
@@ -117,6 +119,8 @@ namespace Patternist
         const ProjectedExpression::Ptr  m_right;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

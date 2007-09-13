@@ -15,6 +15,8 @@
 #include "qabstracteventdispatcher.h"
 #include "qcoreapplication.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QTimer
     \brief The QTimer class provides repetitive and single-shot timers.
@@ -274,7 +276,9 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
     delete this;
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qtimer.moc"
+QT_END_INCLUDE_NAMESPACE
 
 /*!
     \reentrant
@@ -348,3 +352,5 @@ void QTimer::setInterval(int msec)
 
    Use setInterval(msec) or start(msec) instead.
 */
+
+QT_END_NAMESPACE

@@ -5,3 +5,6 @@ include(../../../../modeltest/modeltest.pri)
 
 SOURCES		+= tst_qfilesystemmodel.cpp 
 TARGET		= tst_qfilesystemmodel
+
+DEFINES += QT_USE_USING_NAMESPACE
+

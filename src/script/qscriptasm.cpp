@@ -22,6 +22,8 @@
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 const char *QScriptInstruction::opcode[] = {
 #define STR(a) #a
 #define Q_SCRIPT_DEFINE_OPERATOR(op) STR(i##op) ,
@@ -71,5 +73,7 @@ void Code::init(const CompilationUnit &compilation, NodePool *pool)
 }
 
 } // namespace QScript
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

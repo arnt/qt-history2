@@ -9,6 +9,8 @@ Q_DECLARE_METATYPE(QByteArray*)
 Q_DECLARE_METATYPE(const char *)
 Q_DECLARE_METATYPE(QList<QByteArray>)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newByteArray(QScriptEngine *eng, const QByteArray &array)
 {
     return eng->newVariant(qVariantFromValue(array));
@@ -602,3 +604,5 @@ QScriptValue constructByteArrayClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

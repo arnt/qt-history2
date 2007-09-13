@@ -22,6 +22,10 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
+class QObject;
+
 class QDESIGNER_SDK_EXPORT QDesignerBrushManagerInterface : public QObject
 {
     Q_OBJECT
@@ -43,6 +47,8 @@ signals:
     void currentBrushChanged(const QString &name, const QBrush &brush);
 
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

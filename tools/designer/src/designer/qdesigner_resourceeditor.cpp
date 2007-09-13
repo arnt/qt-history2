@@ -19,6 +19,8 @@
 #include <QtDesigner/QDesignerComponents>
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 QDesignerResourceEditor::QDesignerResourceEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
@@ -48,3 +50,4 @@ QRect QDesignerResourceEditor::geometryHint() const
     return r;
 }
 
+QT_END_NAMESPACE

@@ -16,6 +16,8 @@
 #include "messagemodel.h"
 #include <QtCore/QLocale>
 
+QT_BEGIN_NAMESPACE
+
 TranslationSettingsDialog::TranslationSettingsDialog(QWidget *w /*= 0*/) : QDialog(w)
 {
     m_ui.setupUi(this);    
@@ -66,3 +68,5 @@ void TranslationSettingsDialog::showEvent(QShowEvent *e)
     itemindex = m_ui.cbCountryList->findData(QVariant(int(country)));
     m_ui.cbCountryList->setCurrentIndex(itemindex == -1 ? 0 : itemindex);
 }
+
+QT_END_NAMESPACE

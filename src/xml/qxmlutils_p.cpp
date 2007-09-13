@@ -16,6 +16,8 @@
 
 #include "qxmlutils_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /* TODO:
  * - isNameChar() doesn't have to be public, it's only needed in
  *   qdom.cpp -- refactor fixedXmlName() to use isNCName()
@@ -345,3 +347,4 @@ bool QXmlUtils::isNCName(const QString &ncName)
     return true;
 }
 
+QT_END_NAMESPACE

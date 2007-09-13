@@ -18,6 +18,8 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 // ---- QDesignerLayoutDecorationFactory ----
@@ -57,3 +59,5 @@ QObject *QDesignerLayoutDecorationFactory::createExtension(QObject *object, cons
     return 0;
 }
 }
+
+QT_END_NAMESPACE

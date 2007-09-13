@@ -28,6 +28,8 @@ TRANSLATOR qdesigner_internal::GraphicsPropertyEditor
 #include <QtGui/QToolButton>
 #include <QtGui/QHBoxLayout>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 GraphicsPropertyEditor::~GraphicsPropertyEditor()
@@ -252,3 +254,5 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
 }
 
 }
+
+QT_END_NAMESPACE

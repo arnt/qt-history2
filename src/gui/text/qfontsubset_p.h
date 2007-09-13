@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_PRINTER
 
+QT_BEGIN_NAMESPACE
+
 class QFontSubset
 {
 public:
@@ -62,5 +64,8 @@ public:
     mutable QVector<QFixed> widths;
 };
 
-#endif
-#endif
+QT_END_NAMESPACE
+
+#endif // QT_NO_PRINTER
+
+#endif // QFONTSUBSET_P_H

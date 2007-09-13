@@ -29,6 +29,8 @@ TRANSLATOR qdesigner_internal::TreeWidgetTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 TreeWidgetTaskMenu::TreeWidgetTaskMenu(QTreeWidget *button, QObject *parent)
@@ -79,3 +81,4 @@ void TreeWidgetTaskMenu::updateSelection()
         m_editor->deleteLater();
 }
 
+QT_END_NAMESPACE

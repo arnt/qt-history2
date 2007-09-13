@@ -16,7 +16,7 @@
 
 #include <QMainWindow>
 
-class QTreeWidget;
+QT_DECLARE_CLASS(QTreeWidget)
 
 class MainWindow : public QMainWindow
 {

@@ -24,6 +24,8 @@
 #include <QXmlDefaultHandler>
 #include <QXmlParseException>
 
+QT_BEGIN_NAMESPACE
+
 static QString protect(const QString & str)
 {
     QString p = str;
@@ -178,3 +180,5 @@ QString PhraseBook::friendlyPhraseBookName() const
 }
 
 
+
+QT_END_NAMESPACE

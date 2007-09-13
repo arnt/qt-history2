@@ -20,6 +20,8 @@
 
 #include "cppcodeparser.h"
 
+QT_BEGIN_NAMESPACE
+
 class CCodeParser : public CppCodeParser
 {
 public:
@@ -30,5 +32,7 @@ public:
     virtual QString headerFileNameFilter();
     virtual QString sourceFileNameFilter();
 };
+
+QT_END_NAMESPACE
 
 #endif

@@ -12,3 +12,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/xml/streambookmarks
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS streambookmarks.pro *.xbel
 sources.path = $$[QT_INSTALL_EXAMPLES]/xml/streambookmarks
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

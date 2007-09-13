@@ -14,6 +14,8 @@
 #include "atom.h"
 #include "location.h"
 
+QT_BEGIN_NAMESPACE
+
 /*! \class Atom
     \brief The Atom class is the fundamental unit for representing
     documents internally.
@@ -258,3 +260,5 @@ QString Atom::typeString() const
 
   \also type(), next()
 */
+
+QT_END_NAMESPACE

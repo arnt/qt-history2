@@ -16,3 +16,5 @@ target.path = $$[QT_INSTALL_DEMOS]/spreadsheet
 sources.files = $$SOURCES $$RESOURCES *.pro images
 sources.path = $$[QT_INSTALL_DEMOS]/spreadsheet
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE

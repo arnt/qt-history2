@@ -24,6 +24,8 @@
 #include <QtCore/qdebug.h>
 #include <private/qwidget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSplashScreenPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QSplashScreen)
@@ -318,5 +320,7 @@ bool QSplashScreen::event(QEvent *e)
 {
     return QWidget::event(e);
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_SPLASHSCREEN

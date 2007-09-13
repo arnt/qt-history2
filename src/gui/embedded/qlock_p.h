@@ -27,6 +27,8 @@
 
 #include "QtCore/qstring.h"
 
+QT_BEGIN_NAMESPACE
+
 class QLockData;
 
 class Q_GUI_EXPORT QLock
@@ -64,5 +66,7 @@ public:
 private:
     QLock *qlock;
 };
+
+QT_END_NAMESPACE
 
 #endif // QLOCK_P_H

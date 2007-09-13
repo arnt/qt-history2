@@ -10,3 +10,6 @@ JOINEDNEWCONFIG = $$join( NEWCONFIG, "-" )
 !contains( JOINEDNEWCONFIG, 5-4-3 ) {
   message( "FAILED: member [$$JOINEDNEWCONFIG != 5-4-3]" )
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

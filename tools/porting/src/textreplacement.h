@@ -18,6 +18,8 @@
 #include <QList>
 #include <QtAlgorithms>
 
+QT_BEGIN_NAMESPACE
+
 class TextReplacement
 {
 public:
@@ -55,5 +57,7 @@ public:
 private:
     QList<TextReplacement> textReplacementList;
 };
+
+QT_END_NAMESPACE
 
 #endif

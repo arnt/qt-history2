@@ -43,6 +43,8 @@ TRANSLATOR qdesigner_internal::WidgetBoxTreeView
 #include <QtCore/QFile>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum TopLevelRole  { NORMAL_ITEM, SCRATCHPAD_ITEM=1,CUSTOM_ITEM=2 };
     typedef QList<QDomElement> ElementList;
@@ -1130,5 +1132,6 @@ void WidgetBox::dropEvent(QDropEvent * event)
 }
 }  // namespace qdesigner_internal
 
+QT_END_NAMESPACE
 
 #include "widgetbox.moc"

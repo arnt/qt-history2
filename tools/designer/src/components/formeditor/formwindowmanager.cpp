@@ -50,6 +50,8 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { debugFWM = 0 };
 }
@@ -826,3 +828,5 @@ QUndoGroup *FormWindowManager::undoGroup() const
     return m_undoGroup;
 }
 }
+
+QT_END_NAMESPACE

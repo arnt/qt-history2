@@ -16,10 +16,10 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QListWidget;
-class QMenu;
-class QTextEdit;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QListWidget)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QTextEdit)
 
 class MainWindow : public QMainWindow
 {

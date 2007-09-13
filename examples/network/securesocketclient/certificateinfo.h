@@ -17,7 +17,7 @@
 #include <QtGui/QDialog>
 #include <QtNetwork/QSslCertificate>
 
-class Ui_CertificateInfo;
+QT_DECLARE_CLASS(Ui_CertificateInfo)
 
 class CertificateInfo : public QDialog
 {

@@ -12,3 +12,6 @@ QT += xml opengl svg qt3support
 # Input
 HEADERS += shower.h
 SOURCES += main.cpp shower.cpp
+
+DEFINES += QT_USE_USING_NAMESPACE
+

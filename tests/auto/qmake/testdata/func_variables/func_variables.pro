@@ -48,3 +48,6 @@ callTest($$value)
    message( "FAILED: result [$$RESULT] != $$value" )
 }
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

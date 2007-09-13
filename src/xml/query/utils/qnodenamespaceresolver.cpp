@@ -16,6 +16,8 @@
 
 #include "qnodenamespaceresolver_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 NodeNamespaceResolver::NodeNamespaceResolver(const Item &item) : m_node(item.asNode())
@@ -51,3 +53,5 @@ NamespaceResolver::Bindings NodeNamespaceResolver::bindings() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

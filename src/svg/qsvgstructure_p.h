@@ -30,6 +30,8 @@
 #include "QtCore/qlist.h"
 #include "QtCore/qhash.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSvgTinyDocument;
 class QSvgNode;
 class QPainter;
@@ -85,5 +87,7 @@ private:
     static QHash<QString, bool> m_features;
     static QHash<QString, bool> m_extensions;
 };
+
+QT_END_NAMESPACE
 
 #endif // QSVGSTRUCTURE_P_H

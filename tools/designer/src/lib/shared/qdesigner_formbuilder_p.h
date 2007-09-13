@@ -33,6 +33,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QSet>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 
@@ -112,5 +114,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_FORMBUILDER_H

@@ -19,6 +19,8 @@
 #include "qsystemsemaphore.h"
 #include "qsharedmemory_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSystemSemaphorePrivate
 {
 
@@ -55,5 +57,7 @@ public:
 
 #endif // QT_NO_SYSTEMSEMAPHORE
 
+
+QT_END_NAMESPACE
 #endif // QSYSTEMSEMAPHORE_P_H
 

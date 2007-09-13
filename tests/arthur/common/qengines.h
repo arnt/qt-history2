@@ -10,8 +10,8 @@
 #include <QMap>
 #include <QList>
 
-class QSvgRenderer;
-class QGLWidget;
+QT_DECLARE_CLASS(QSvgRenderer)
+QT_DECLARE_CLASS(QGLWidget)
 
 class QEngine
 {

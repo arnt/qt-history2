@@ -17,6 +17,8 @@
 #include <qimage.h>
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
 extern QCursorData *qt_cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
 
 /*****************************************************************************
@@ -357,3 +359,5 @@ void QCursorData::update()
         hcurs = LoadCursorA(0, reinterpret_cast<const char*>(sh));
     });
 }
+
+QT_END_NAMESPACE

@@ -17,6 +17,8 @@
 
 #include "qkbd_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QKbdDriverPlugin
     \ingroup plugins
@@ -88,5 +90,7 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 
     \sa keys()
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_LIBRARY

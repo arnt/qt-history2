@@ -28,6 +28,8 @@
 #include "qabstractfileengine.h"
 #include "qdir.h"
 
+QT_BEGIN_NAMESPACE
+
 class QResourceFileEngineIteratorPrivate;
 class QResourceFileEngineIterator : public QAbstractFileEngineIterator
 {
@@ -44,5 +46,7 @@ private:
     QStringList entries;
     int index;
 };
+
+QT_END_NAMESPACE
 
 #endif

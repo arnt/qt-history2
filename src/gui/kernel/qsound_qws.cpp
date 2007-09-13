@@ -31,6 +31,10 @@
 #include "qdatastream.h"
 #include "qcopchannel_qws.h"
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 #define SERVER_CHANNEL "QPE/MediaServer"
 
 class QCopMessage : public QDataStream
@@ -311,3 +315,5 @@ QAuServer* qt_new_audio_server()
 #include "qsound_qws.moc"
 
 #endif // QT_NO_SOUND
+
+QT_END_NAMESPACE

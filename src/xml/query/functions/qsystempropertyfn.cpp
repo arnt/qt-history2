@@ -17,6 +17,8 @@
 
 #include "qsystempropertyfn_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Item SystemPropertyFN::evaluateSingleton(const DynamicContext::Ptr &context) const
@@ -43,3 +45,5 @@ Expression::Ptr SystemPropertyFN::typeCheck(const StaticContext::Ptr &context,
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

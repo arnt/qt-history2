@@ -31,6 +31,8 @@
 
 #include "qscriptecmacore_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 class RegExp: public Core
@@ -88,6 +90,8 @@ private:
 };
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif // QSCRIPTECMAREGEXP_P_H

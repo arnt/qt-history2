@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -66,6 +68,8 @@ namespace Patternist
         static FunctionFactory::Ptr xpath10Factory();
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

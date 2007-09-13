@@ -20,7 +20,7 @@
 
 #include "renderarea.h"
 
-class QComboBox;
+QT_DECLARE_CLASS(QComboBox)
 
 class Window : public QWidget
 {

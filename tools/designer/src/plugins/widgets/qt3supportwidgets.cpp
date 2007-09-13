@@ -34,6 +34,8 @@
 #include <QtCore/qplugin.h>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 class Qt3SupportWidgets: public QObject, public QDesignerCustomWidgetCollectionInterface
 {
     Q_OBJECT
@@ -75,5 +77,7 @@ QList<QDesignerCustomWidgetInterface*> Qt3SupportWidgets::customWidgets() const
 }
 
 Q_EXPORT_PLUGIN(Qt3SupportWidgets)
+
+QT_END_NAMESPACE
 
 #include "qt3supportwidgets.moc"

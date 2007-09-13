@@ -33,6 +33,8 @@
 #include "qdebug.h"
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 // These pixmaps approximate the images in the Windows User Interface Guidelines.
 
 // XPM
@@ -658,3 +660,5 @@ QDropData::~QDropData()
 {
 }
 #endif // QT_NO_DRAGANDDROP
+
+QT_END_NAMESPACE

@@ -40,6 +40,11 @@
 
 #if defined(Q_WS_MAC)
 #include <private/qcore_mac_p.h>
+#endif
+
+QT_BEGIN_NAMESPACE
+
+#if defined(Q_WS_MAC)
 extern QString qt_mac_from_pascal_string(const Str255); // qglobal.cpp
 #endif
 
@@ -2035,7 +2040,7 @@ void QDateTime::setTimeSpec(Qt::TimeSpec spec)
     }
 }
 
-static uint toTime_t(const QDate &utcDate, const QTime &utcTime)
+static uint toTime_tHelper(const QDate &utcDate, const QTime &utcTime)
 {
     int days = QDate(1970, 1, 1).daysTo(utcDate);
     int secs = QTime().secsTo(utcTime);
@@ -2064,7 +2069,7 @@ uint QDateTime::toTime_t() const
     QTime utcTime;
     d->getUTC(utcDate, utcTime);
 
-    return ::toTime_t(utcDate, utcTime);
+    return toTime_tHelper(utcDate, utcTime);
 }
 
 /*!
@@ -3275,7 +3280,7 @@ static QDateTimePrivate::Spec utcToLocal(QDate &date, QTime &time)
         fakeDate = upperLimit;
     }
 
-    time_t secsSince1Jan1970UTC = toTime_t(fakeDate, time);
+    time_t secsSince1Jan1970UTC = toTime_tHelper(fakeDate, time);
     tm *brokenDown = 0;
 
 #if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
@@ -4900,3 +4905,5 @@ bool operator==(const QDateTimeParser::SectionNode &s1, const QDateTimeParser::S
 
 
 #endif // QT_BOOTSTRAPPED
+
+QT_END_NAMESPACE

@@ -41,6 +41,8 @@
 #include <QtGui/QPushButton>
 #include <QtCore/QSignalMapper>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 QStringList extensionList()
@@ -572,3 +574,5 @@ void FindIconDialog::setPreviousInputBox(InputBox box)
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

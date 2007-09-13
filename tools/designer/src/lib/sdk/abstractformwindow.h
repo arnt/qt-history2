@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowCursorInterface;
 class QDesignerFormWindowToolInterface;
@@ -143,6 +145,8 @@ Q_SIGNALS:
     void changed();
     void widgetRemoved(QWidget *w);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

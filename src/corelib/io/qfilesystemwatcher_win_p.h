@@ -36,6 +36,8 @@
 #include <QtCore/qmutex.h>
 #include <QtCore/qvector.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWindowsFileSystemWatcherEngine : public QFileSystemWatcherEngine
 {
     Q_OBJECT
@@ -89,5 +91,7 @@ private:
     };
     QHash<HANDLE, QHash<QString, PathInfo> > pathInfoForHandle;
 };
+
+QT_END_NAMESPACE
 
 #endif // QFILESYSTEMWATCHER_WIN_P_H

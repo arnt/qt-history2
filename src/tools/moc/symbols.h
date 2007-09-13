@@ -20,6 +20,8 @@
 #include <QVector>
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+
 //#define USE_LEXEM_STORE
 
 struct SubArray
@@ -111,5 +113,7 @@ Q_DECLARE_TYPEINFO(Symbol, Q_MOVABLE_TYPE);
 
 
 typedef QVector<Symbol> Symbols;
+
+QT_END_NAMESPACE
 
 #endif // SYMBOLS_H

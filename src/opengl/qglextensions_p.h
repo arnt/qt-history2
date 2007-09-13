@@ -40,6 +40,8 @@
 # define APIENTRYP *
 #endif
 
+#include <QtCore/qglobal.h>
+
 // ARB_fragment_program
 typedef void (APIENTRY *_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
 typedef void (APIENTRY *_glBindProgramARB) (GLenum, GLuint);
@@ -98,6 +100,8 @@ typedef void (APIENTRY *_glFramebufferRenderbufferEXT) (GLenum target, GLenum at
 typedef void (APIENTRY *_glGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname,
                                                                           GLint *params);
 typedef void (APIENTRY *_glGenerateMipmapEXT) (GLenum target);
+
+QT_BEGIN_NAMESPACE
 
 struct QGLExtensionFuncs
 {
@@ -366,5 +370,7 @@ extern bool qt_resolve_framebufferobject_extensions(QGLContext *ctx);
 bool qt_resolve_version_1_3_functions(QGLContext *ctx);
 bool qt_resolve_stencil_face_extension(QGLContext *ctx);
 bool qt_resolve_frag_program_extensions(QGLContext *ctx);
+
+QT_END_NAMESPACE
 
 #endif // QGL_EXTENSIONS_P_H

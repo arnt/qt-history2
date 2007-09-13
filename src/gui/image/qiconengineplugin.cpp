@@ -14,6 +14,8 @@
 #include "qiconengineplugin.h"
 #include "qiconengine.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QIconEnginePlugin
     \brief The QIconEnginePlugin class provides an abstract base for custom QIconEngine plugins.
@@ -137,3 +139,5 @@ QIconEnginePluginV2::QIconEnginePluginV2(QObject *parent)
 QIconEnginePluginV2::~QIconEnginePluginV2()
 {
 }
+
+QT_END_NAMESPACE

@@ -36,11 +36,16 @@
 #include <signal.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 QtCrashHandler QSegfaultHandler::callback = 0;
 
 #if defined(__GLIBC__) && (__GLIBC__ >= 2) && !defined(__UCLIBC__) && !defined(QT_LSB)
+QT_BEGIN_INCLUDE_NAMESPACE
 # include "qstring.h"
 # include <execinfo.h>
+QT_END_INCLUDE_NAMESPACE
+
 static void print_backtrace(FILE *outb)
 {
     void *stack[128];
@@ -60,8 +65,10 @@ static void print_backtrace(FILE *outb)
 static void init_backtrace(char **, int)
 {
 }
+
 #else /* Don't use the GLIBC callback */
 /* Code sourced from: */
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
@@ -70,6 +77,8 @@ static void init_backtrace(char **, int)
 #if defined(Q_OS_IRIX) && defined(USE_LIBEXC)
 # include <libexc.h>
 #endif
+QT_END_INCLUDE_NAMESPACE
+
 
 static char *globalProgName = NULL;
 static bool backtrace_command(FILE *outb, const char *format, ...)
@@ -375,3 +384,5 @@ QSegfaultHandler::initialize(char **argv, int argc)
     sigaction(SIGSEGV, &SignalAction, NULL);
     sigaction(SIGBUS, &SignalAction, NULL);
 }
+
+QT_END_NAMESPACE

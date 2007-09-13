@@ -19,9 +19,9 @@
 #include <QPixmap>
 #include <QWidget>
 
-class QDragEnterEvent;
-class QDropEvent;
-class QMouseEvent;
+QT_DECLARE_CLASS(QDragEnterEvent)
+QT_DECLARE_CLASS(QDropEvent)
+QT_DECLARE_CLASS(QMouseEvent)
 
 class PuzzleWidget : public QWidget
 {

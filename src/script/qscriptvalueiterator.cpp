@@ -22,6 +22,8 @@
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \since 4.3
   \class QScriptValueIterator
@@ -355,5 +357,7 @@ QScriptValueIterator& QScriptValueIterator::operator=(QScriptValue &object)
     d->nextIndex = -1;
     return *this;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

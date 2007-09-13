@@ -19,7 +19,9 @@
 
 #include "qtokenlookup.cpp"
 
-using namespace Patternist;
+QT_BEGIN_NAMESPACE
+
+namespace Patternist {
 
 #define handleWhitespace()                      \
 {                                               \
@@ -2047,3 +2049,7 @@ void XQueryTokenizer::resumeTokenizationFrom(const int pos)
 }
 
 #undef handleWhitespace
+
+} // namespace Patternist
+
+QT_END_NAMESPACE

@@ -30,6 +30,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(OpenGL)
 
 class QGLScreenPrivate;
@@ -46,6 +48,8 @@ public:
 private:
     QGLScreenPrivate *d_ptr;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

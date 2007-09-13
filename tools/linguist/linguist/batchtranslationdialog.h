@@ -20,6 +20,8 @@
 #include <QtGui/QStandardItemModel>
 #include "phrase.h"
 
+QT_BEGIN_NAMESPACE
+
 class MessageModel;
 
 class CheckableListModel : public QStandardItemModel
@@ -52,6 +54,7 @@ private:
     QList<PhraseBook> m_phrasebooks;
 };
 
+QT_END_NAMESPACE
 
 #endif  //BATCHTRANSLATIONDIALOG_H
 

@@ -14,12 +14,12 @@
 
 #include <QtCore/QObject>
 #include <QtDBus/QtDBus>
-class QByteArray;
+QT_DECLARE_CLASS(QByteArray)
 template<class T> class QList;
 template<class Key, class Value> class QMap;
-class QString;
-class QStringList;
-class QVariant;
+QT_DECLARE_CLASS(QString)
+QT_DECLARE_CLASS(QStringList)
+QT_DECLARE_CLASS(QVariant)
 
 /*
  * Adaptor class for interface com.trolltech.Examples.CarInterface

@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QFontComboBoxPrivate;
@@ -73,6 +75,8 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFontComboBox::FontFilters)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

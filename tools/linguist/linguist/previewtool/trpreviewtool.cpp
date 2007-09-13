@@ -25,6 +25,8 @@
 
 Q_DECLARE_METATYPE(QPointer<FormHolder>)
 
+QT_BEGIN_NAMESPACE
+
 TrPreviewTool::TrPreviewTool(QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags), currentTr(0)
 {
@@ -370,3 +372,5 @@ void FormHolder::retranslate()
 {
     loadFormFile(formPath);
 }
+
+QT_END_NAMESPACE

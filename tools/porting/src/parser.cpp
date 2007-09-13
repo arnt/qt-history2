@@ -20,6 +20,8 @@
 #include <QStringList>
 #include <QDateTime>
 
+QT_BEGIN_NAMESPACE
+
 #define TT (tokenStream->currentTokenText().data())
 
 #define ADVANCE(tk, descr) \
@@ -4492,3 +4494,5 @@ void Parser::advance()
             break;
     }
 }
+
+QT_END_NAMESPACE

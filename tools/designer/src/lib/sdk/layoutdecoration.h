@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QPoint;
 class QLayoutItem;
 class QWidget;
@@ -61,6 +63,8 @@ public:
     virtual void adjustIndicator(const QPoint &pos, int index) = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerLayoutDecorationExtension, "com.trolltech.Qt.Designer.LayoutDecoration")
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

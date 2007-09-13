@@ -20,6 +20,8 @@
 #include "formwindow_dnditem.h"
 #include "formwindow.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 static QWidget *decorationFromWidget(QWidget *w)
@@ -63,4 +65,4 @@ DomUI *FormWindowDnDItem::domUi() const
     return result;
 }
 
-
+QT_END_NAMESPACE

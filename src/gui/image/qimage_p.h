@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 struct QImageData {        // internal image data
     QImageData();
     ~QImageData();
@@ -61,5 +65,7 @@ struct QImageData {        // internal image data
 
     QPaintEngine *paintEngine;
 };
+
+QT_END_NAMESPACE
 
 #endif

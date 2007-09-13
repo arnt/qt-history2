@@ -19,6 +19,8 @@
 #include <qstringlist.h>
 #include <qwidget.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_QWS_CURSOR
 
 class QMultiScreenCursor : public QScreenCursor
@@ -427,5 +429,7 @@ void QMultiScreen::removeSubScreen(QScreen *screen)
     d_ptr->screens.removeAll(screen);
     d_ptr->region -= screen->region();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_MULTISCREEN

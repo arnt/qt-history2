@@ -22,7 +22,11 @@
 
 #include "location.h"
 
+QT_BEGIN_NAMESPACE
+
 void executeCommand( const Location& location, const QString& commandFormat,
 		     const QStringList& args );
+
+QT_END_NAMESPACE
 
 #endif

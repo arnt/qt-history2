@@ -16,6 +16,8 @@
 
 #include <QImage>
 
+QT_BEGIN_NAMESPACE
+
 class QAnimationWriterData;
 
 class QAnimationWriter
@@ -35,5 +37,7 @@ private:
     QIODevice* dev;
     QAnimationWriterData* d;
 };
+
+QT_END_NAMESPACE
 
 #endif

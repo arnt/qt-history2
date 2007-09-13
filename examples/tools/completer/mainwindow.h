@@ -16,13 +16,13 @@
 
 #include <QMainWindow>
 
-class QAbstractItemModel;
-class QComboBox;
-class QCompleter;
-class QLabel;
-class QLineEdit;
-class QProgressBar;
-class QCheckBox;
+QT_DECLARE_CLASS(QAbstractItemModel)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QCompleter)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QProgressBar)
+QT_DECLARE_CLASS(QCheckBox)
 
 class MainWindow : public QMainWindow
 {

@@ -10,3 +10,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/itemviews/customsortfiltermodel
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/itemviews/customsortfiltermodel
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

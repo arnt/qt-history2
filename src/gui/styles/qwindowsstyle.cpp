@@ -44,9 +44,13 @@
 #include <private/qt_x11_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #if defined(Q_WS_WIN)
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qt_windows.h"
+QT_END_INCLUDE_NAMESPACE
 #  ifndef COLOR_GRADIENTACTIVECAPTION
 #    define COLOR_GRADIENTACTIVECAPTION     27
 #  endif
@@ -74,7 +78,9 @@ static PtrSHGetStockIconInfo pSHGetStockIconInfo = 0;
 
 #endif //Q_WS_WIN
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <limits.h>
+QT_END_INCLUDE_NAMESPACE
 
 static const int windowsItemFrame        =  2; // menu item frame width
 static const int windowsSepHeight        =  9; // separator item height
@@ -140,7 +146,7 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
     if (!o->isWidgetType())
         return QObject::eventFilter(o, e);
 
-    QWidget *widget = ::qobject_cast<QWidget*>(o);
+    QWidget *widget = qobject_cast<QWidget*>(o);
     Q_D(QWindowsStyle);
     switch(e->type()) {
     case QEvent::KeyPress:
@@ -1024,8 +1030,8 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
             Q_D(const QWindowsStyle);
             if (!ret && widget && d) {
 #ifndef QT_NO_MENUBAR
-                const QMenuBar *menuBar = ::qobject_cast<const QMenuBar*>(widget);
-                if (!menuBar && ::qobject_cast<const QMenu *>(widget)) {
+                const QMenuBar *menuBar = qobject_cast<const QT_ADD_NAMESPACE(QMenuBar)*>(widget);
+                if (!menuBar && qobject_cast<const QMenu *>(widget)) {
                     QWidget *w = QApplication::activeWindow();
                     if (w && w != widget)
                         menuBar = qFindChild<QMenuBar *>(w);
@@ -3389,5 +3395,7 @@ QPixmap QWindowsStylePrivate::findIcon(int size, const QString &name) const
     return QPixmap();
 #endif
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_STYLE_WINDOWS

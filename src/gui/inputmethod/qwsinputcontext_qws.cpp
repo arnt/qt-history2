@@ -25,6 +25,8 @@
 
 #ifndef QT_NO_QWS_INPUTMETHODS
 
+QT_BEGIN_NAMESPACE
+
 static QWidget* activeWidget = 0;
 
 //#define EXTRA_DEBUG
@@ -191,8 +193,6 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
     return true;
 }
 
-
-
-
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_INPUTMETHODS

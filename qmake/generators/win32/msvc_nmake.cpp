@@ -18,6 +18,8 @@
 #include <qdir.h>
 #include <time.h>
 
+QT_BEGIN_NAMESPACE
+
 NmakeMakefileGenerator::NmakeMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
 
@@ -278,3 +280,4 @@ void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     t << endl;
 }
 
+QT_END_NAMESPACE

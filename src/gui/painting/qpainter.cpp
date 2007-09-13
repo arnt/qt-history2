@@ -39,6 +39,8 @@
 #include <private/qwidget_p.h>
 #include <private/qmath_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #define QGradient_StretchToDevice 0x10000000
 #define QPaintEngine_OpaqueBackground 0x40000000
 
@@ -7059,3 +7061,5 @@ QTransform QPainter::combinedTransform() const
     Q_D(const QPainter);
     return d->state->worldMatrix * d->viewTransform();
 }
+
+QT_END_NAMESPACE

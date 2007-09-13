@@ -24,6 +24,8 @@ TRANSLATOR qdesigner_internal::ScriptErrorDialog
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPen>
 
+QT_BEGIN_NAMESPACE
+
 static void formatError(const QFormScriptRunner::Error &error,
                         QTextCursor &cursor)
 {
@@ -77,3 +79,5 @@ namespace qdesigner_internal {
             formatError(error, cursor);
     }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

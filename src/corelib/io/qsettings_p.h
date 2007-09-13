@@ -39,6 +39,8 @@
 #include "QtCore/qt_windows.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #if defined(Q_WS_QWS)
 #define QT_QSETTINGS_ALWAYS_CASE_SENSITIVE
 #endif
@@ -264,5 +266,7 @@ private:
     QString extension;
     Qt::CaseSensitivity caseSensitivity;
 };
+
+QT_END_NAMESPACE
 
 #endif // QSETTINGS_P_H

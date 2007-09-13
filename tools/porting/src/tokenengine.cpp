@@ -13,6 +13,8 @@
 
 #include "tokenengine.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace TokenEngine {
 
 /*
@@ -368,3 +370,5 @@ TokenTempRef TokenSectionSequenceIterator::tokenTempRef() const
 
 
 } //namespace TokenEngine
+
+QT_END_NAMESPACE

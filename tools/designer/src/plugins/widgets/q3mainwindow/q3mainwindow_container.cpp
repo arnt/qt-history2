@@ -22,6 +22,8 @@
 
 #include <Qt3Support/Q3ToolBar>
 
+QT_BEGIN_NAMESPACE
+
 Q3MainWindowContainer::Q3MainWindowContainer(Q3MainWindow *widget, QObject *parent)
     : QObject(parent),
       m_mainWindow(widget)
@@ -96,3 +98,5 @@ QObject *Q3MainWindowContainerFactory::createExtension(QObject *object, const QS
     return 0;
 }
 
+
+QT_END_NAMESPACE

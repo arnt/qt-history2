@@ -17,6 +17,8 @@
 #include <QtGui/QIcon>
 #include <Qt3Support/Q3ProgressBar>
 
+QT_BEGIN_NAMESPACE
+
 Q3ProgressBarPlugin::Q3ProgressBarPlugin(QObject *parent)
         : QObject(parent), m_initialized(false)
 {}
@@ -53,3 +55,5 @@ void Q3ProgressBarPlugin::initialize(QDesignerFormEditorInterface *core)
     Q_UNUSED(core);
     m_initialized = true;
 }
+
+QT_END_NAMESPACE

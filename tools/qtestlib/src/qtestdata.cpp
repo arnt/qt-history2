@@ -20,6 +20,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 class QTestDataPrivate
 {
 public:
@@ -88,3 +90,5 @@ int QTestData::dataCount() const
 {
     return d->dataCount;
 }
+
+QT_END_NAMESPACE

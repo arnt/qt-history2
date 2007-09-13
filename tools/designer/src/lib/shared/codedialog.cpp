@@ -35,6 +35,8 @@ TRANSLATOR qdesigner_internal::CodeDialog
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 // ----------------- CodeDialogPrivate
 struct CodeDialog::CodeDialogPrivate {
@@ -203,3 +205,5 @@ void CodeDialog::copyAll()
     QApplication::clipboard()->setText(code());
 }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

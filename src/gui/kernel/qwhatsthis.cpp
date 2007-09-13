@@ -42,6 +42,8 @@
 #include <qwidget.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QWhatsThis
     \brief The QWhatsThis class provides a simple description of any
@@ -729,5 +731,8 @@ QAction *QWhatsThis::createAction(QObject *parent)
     return new QWhatsThisAction(parent);
 }
 
+QT_END_NAMESPACE
+
 #include "qwhatsthis.moc"
-#endif
+
+#endif // QT_NO_WHATSTHIS

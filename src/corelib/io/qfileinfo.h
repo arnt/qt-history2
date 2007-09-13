@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QDir;
@@ -149,6 +151,8 @@ typedef QList<QFileInfo> QFileInfoList;
 #ifdef QT3_SUPPORT
 typedef QList<QFileInfo>::Iterator QFileInfoListIterator;
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

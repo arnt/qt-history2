@@ -22,6 +22,8 @@
 #include <QtDBus/QtDBus>
 #include <private/qdbusutil_p.h>
 
+QT_BEGIN_NAMESPACE
+
 static QDBusConnection connection(QLatin1String(""));
 
 static void printArg(const QVariant &v)
@@ -418,5 +420,7 @@ int main(int argc, char **argv)
     }
 
     placeCall(service, path, interface, member, args);
+
+QT_END_NAMESPACE
 }
 

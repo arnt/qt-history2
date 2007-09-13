@@ -23,6 +23,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QStyle>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { windowsDecoSize = 9 };
 }
@@ -151,3 +153,5 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
     drawTreeBranches(this, viewOptions(), painter, rect, index);
 }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

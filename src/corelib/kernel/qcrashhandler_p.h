@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 typedef void (*QtCrashHandler)();
 
 class Q_CORE_EXPORT QSegfaultHandler
@@ -39,5 +43,7 @@ public:
 
 private:
 };
+
+QT_END_NAMESPACE
 
 #endif // QCRASHHANDLER_P_H

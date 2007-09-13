@@ -30,6 +30,8 @@
 #include <QtGui/QAction>
 #include <QtGui/QToolButton>
 
+QT_BEGIN_NAMESPACE
+
 class QToolBar;
 class QDesignerFormWindowInterface;
 
@@ -107,5 +109,7 @@ private:
     QPoint m_startPosition;
 };
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_TOOLBAR_H

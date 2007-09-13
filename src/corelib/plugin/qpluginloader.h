@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QLibraryPrivate;
@@ -55,6 +57,8 @@ private:
     bool did_load;
     Q_DISABLE_COPY(QPluginLoader)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

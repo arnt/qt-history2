@@ -29,6 +29,8 @@
 
 #include <QtGui/QLineEdit>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
     // A line edit with a special context menu allowing for adding (escaped) new  lines
@@ -49,5 +51,7 @@ namespace qdesigner_internal {
         bool m_wantNewLine;
     };
 }
+
+QT_END_NAMESPACE
 
 #endif // PROPERTYLINEEDIT_H

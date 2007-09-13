@@ -33,6 +33,8 @@
 #include "qtextcodec.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 //#define Q3FTPPI_DEBUG
 //#define Q3FTPDTP_DEBUG
 
@@ -1021,7 +1023,7 @@ static void cleanup_d_ptr()
     delete d_ptr;
     d_ptr = 0;
 }
-static Q3FtpPrivate* d( const Q3Ftp* foo )
+static Q3FtpPrivate* dHelper( const Q3Ftp* foo )
 {
     if ( !d_ptr ) {
 	d_ptr = new Q3PtrDict<Q3FtpPrivate>;
@@ -1228,7 +1230,7 @@ Q3Ftp::Q3Ftp( QObject *parent, const char *name ) : Q3NetworkProtocol()
 
 void Q3Ftp::init()
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     d->errorString = QFtp::tr( "Unknown error" );
 
     connect( &d->pi, SIGNAL(connectState(int)),
@@ -1743,7 +1745,7 @@ int Q3Ftp::rawCommand( const QString &command )
 */
 Q_ULONG Q3Ftp::bytesAvailable() const
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     return d->pi.dtp.bytesAvailable();
 }
 
@@ -1755,7 +1757,7 @@ Q_ULONG Q3Ftp::bytesAvailable() const
 */
 Q_LONG Q3Ftp::readBlock( char *data, Q_ULONG maxlen )
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     return d->pi.dtp.readBlock( data, maxlen );
 }
 
@@ -1767,7 +1769,7 @@ Q_LONG Q3Ftp::readBlock( char *data, Q_ULONG maxlen )
 */
 QByteArray Q3Ftp::readAll()
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     return d->pi.dtp.readAll();
 }
 
@@ -1802,7 +1804,7 @@ QByteArray Q3Ftp::readAll()
 */
 void Q3Ftp::abort()
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     if ( d->pending.isEmpty() )
 	return;
 
@@ -1818,7 +1820,7 @@ void Q3Ftp::abort()
 */
 int Q3Ftp::currentId() const
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     Q3FtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return 0;
@@ -1833,7 +1835,7 @@ int Q3Ftp::currentId() const
 */
 Q3Ftp::Command Q3Ftp::currentCommand() const
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     Q3FtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return None;
@@ -1852,7 +1854,7 @@ Q3Ftp::Command Q3Ftp::currentCommand() const
 */
 QIODevice* Q3Ftp::currentDevice() const
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     Q3FtpCommand *c = d->pending.getFirst();
     if ( !c )
 	return 0;
@@ -1872,7 +1874,7 @@ QIODevice* Q3Ftp::currentDevice() const
 */
 bool Q3Ftp::hasPendingCommands() const
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     return d->pending.count() > 1;
 }
 
@@ -1885,7 +1887,7 @@ bool Q3Ftp::hasPendingCommands() const
 */
 void Q3Ftp::clearPendingCommands()
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     Q3FtpCommand *c = 0;
     if ( d->pending.count() > 0 )
 	c = d->pending.take( 0 );
@@ -1902,7 +1904,7 @@ void Q3Ftp::clearPendingCommands()
 */
 Q3Ftp::State Q3Ftp::state() const
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     return d->state;
 }
 
@@ -1915,7 +1917,7 @@ Q3Ftp::State Q3Ftp::state() const
 */
 Q3Ftp::Error Q3Ftp::error() const
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     return d->error;
 }
 
@@ -1932,13 +1934,13 @@ Q3Ftp::Error Q3Ftp::error() const
 */
 QString Q3Ftp::errorString() const
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     return d->errorString;
 }
 
 int Q3Ftp::addCommand( Q3FtpCommand *cmd )
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     d->pending.append( cmd );
 
     if ( d->pending.count() == 1 )
@@ -1950,7 +1952,7 @@ int Q3Ftp::addCommand( Q3FtpCommand *cmd )
 
 void Q3Ftp::startNextCommand()
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
 
     Q3FtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
@@ -1993,7 +1995,7 @@ void Q3Ftp::startNextCommand()
 
 void Q3Ftp::piFinished( const QString& )
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     Q3FtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return;
@@ -2020,7 +2022,7 @@ void Q3Ftp::piFinished( const QString& )
 
 void Q3Ftp::piError( int errorCode, const QString &text )
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     Q3FtpCommand *c = d->pending.getFirst();
 
     // non-fatal errors
@@ -2078,7 +2080,7 @@ void Q3Ftp::piError( int errorCode, const QString &text )
 
 void Q3Ftp::piConnectState( int state )
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     d->state = (State)state;
     emit stateChanged( d->state );
     if ( d->close_waitForStateChange ) {
@@ -2090,7 +2092,7 @@ void Q3Ftp::piConnectState( int state )
 void Q3Ftp::piFtpReply( int code, const QString &text )
 {
     if ( currentCommand() == RawCommand ) {
-	Q3FtpPrivate *d = ::d( this );
+	Q3FtpPrivate *d = dHelper( this );
 	d->pi.rawCommand = true;
 	emit rawCommandReply( code, text );
     }
@@ -2175,7 +2177,7 @@ void Q3Ftp::operationPut( Q3NetworkOperation *op )
 */
 bool Q3Ftp::checkConnection( Q3NetworkOperation *op )
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
     if ( state() == Unconnected && !d->npWaitForLoginDone ) {
 	connect( this, SIGNAL(listInfo(QUrlInfo)),
 		this, SLOT(npListInfo(QUrlInfo)) );
@@ -2242,7 +2244,7 @@ void Q3Ftp::npListInfo( const QUrlInfo & i )
 
 void Q3Ftp::npDone( bool err )
 {
-    Q3FtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = dHelper( this );
 
     bool emitFinishedSignal = false;
     Q3NetworkOperation *op = operationInProgress();
@@ -2392,6 +2394,8 @@ void Q3Ftp::dataBytesWritten( int )
 void Q3Ftp::error( int )
 {
 }
+
+QT_END_NAMESPACE
 
 #include "q3ftp.moc"
 

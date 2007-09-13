@@ -41,6 +41,8 @@
 #define QFONTLOADER_DEBUG
 #define QFONTLOADER_DEBUG_VERBOSE
 
+QT_BEGIN_NAMESPACE
+
 double qt_pixelSize(double pointSize, int dpi)
 {
     if (pointSize < 0)
@@ -408,6 +410,7 @@ QString QFont::lastResortFont() const
 #if defined(CHECK_NULL)
     qFatal("QFontPrivate::lastResortFont: Cannot find any reasonable font");
 #endif
-
     return last;
 }
+
+QT_END_NAMESPACE

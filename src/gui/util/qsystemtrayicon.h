@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QSystemTrayIconPrivate;
@@ -93,6 +95,8 @@ private:
     friend class QBalloonTip;
     friend void qtsystray_sendActivated(QSystemTrayIcon *, int);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

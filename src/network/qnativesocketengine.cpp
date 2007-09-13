@@ -68,11 +68,13 @@
     errorString() can be called to determine the cause of the error.
 */
 
-#include "qnativesocketengine_p.h"
 #include <qabstracteventdispatcher.h>
 #include <qsocketnotifier.h>
 
+#include "qnativesocketengine_p.h"
 #include <private/qthread_p.h>
+
+QT_BEGIN_NAMESPACE
 
 //#define QNATIVESOCKETENGINE_DEBUG
 
@@ -1010,3 +1012,5 @@ void QNativeSocketEngine::setExceptionNotificationEnabled(bool enable)
         d->exceptNotifier->setEnabled(true);
     }
 }
+
+QT_END_NAMESPACE

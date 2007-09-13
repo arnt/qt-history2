@@ -22,6 +22,8 @@
 
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWSPropertyManager::Data {
 public:
     QByteArray find(int winId, int property)
@@ -109,5 +111,7 @@ bool QWSPropertyManager::removeProperties(int winId)
 {
     return d->properties.remove(winId);
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_QWS_PROPERTIES

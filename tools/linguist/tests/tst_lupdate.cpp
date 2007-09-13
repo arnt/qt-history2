@@ -12,6 +12,8 @@
 
 #include <QtCore>
 
+QT_BEGIN_NAMESPACE
+
 //TESTED_CLASS=
 //TESTED_FILES=
 
@@ -33,5 +35,7 @@ void tst_lupdate::runCheck()
 }
 
 QTEST_MAIN(tst_lupdate)
+
+QT_END_NAMESPACE
 #include "tst_lupdate.moc"
 

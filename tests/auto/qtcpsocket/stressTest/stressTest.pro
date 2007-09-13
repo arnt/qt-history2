@@ -7,3 +7,6 @@ CONFIG += console
 DESTDIR = ./
 MOC_DIR = .moc/
 TMP_DIR = .tmp/
+
+DEFINES += QT_USE_USING_NAMESPACE
+

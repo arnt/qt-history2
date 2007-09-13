@@ -7,6 +7,8 @@
 
 DECLARE_POINTER_METATYPE(QTextStream)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newTextStream(QScriptEngine *eng, QTextStream *ts)
 {
     return QScript::wrapPointer(eng, ts);
@@ -269,5 +271,7 @@ QScriptValue constructTextStreamClass(QScriptEngine *eng)
     proto.setProperty("constructor", ctor);
     return ctor;
 }
+
+QT_END_NAMESPACE
 
 #include "textstream.moc"

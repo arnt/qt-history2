@@ -32,6 +32,8 @@
 #include <qwindowsystem_qws.h>
 #include <qwsdisplay_qws.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QT_REGION_DEBUG
 
 class QTransformedScreenPrivate
@@ -871,5 +873,7 @@ QRegion QTransformedScreen::region() const
     const QSize size(deviceWidth(), deviceHeight());
     return mapFromDevice(deviceRegion, size);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_TRANSFORMED

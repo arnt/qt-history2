@@ -17,6 +17,8 @@
 #include "proitems.h"
 #include "proreader.h"
 
+QT_BEGIN_NAMESPACE
+
 ProReader::ProReader()
 {
     m_fixBackSlashes = false;
@@ -327,3 +329,5 @@ void ProReader::updateItem()
 
     m_proitem.clear();
 }
+
+QT_END_NAMESPACE

@@ -31,6 +31,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Script)
 
 class QDateTime;
@@ -360,6 +362,8 @@ Q_SCRIPT_EXPORT bool qScriptDisconnect(QObject *sender, const char *signal,
 #endif // QT_NO_QOBJECT
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QScriptEngine::QObjectWrapOptions)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

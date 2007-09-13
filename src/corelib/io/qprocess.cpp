@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <errno.h>
 
+QT_BEGIN_NAMESPACE
 /*
     Returns a human readable representation of the first \a len
     characters in \a data.
@@ -48,6 +49,9 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
     return out;
 }
+
+QT_END_NAMESPACE
+
 #endif
 
 #include "qprocess.h"
@@ -64,6 +68,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #endif
 
 #ifndef QT_NO_PROCESS
+
+QT_BEGIN_NAMESPACE
 
 /*!
     \class QProcess
@@ -1732,12 +1738,14 @@ bool QProcess::startDetached(const QString &program)
     return QProcessPrivate::startDetached(prog, args);
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #ifdef Q_OS_MAC
 # include <crt_externs.h>
 # define environ (*_NSGetEnviron())
 #elif !defined(Q_OS_WIN)
   extern char **environ;
 #endif
+QT_END_INCLUDE_NAMESPACE
 
 /*!
     \since 4.1
@@ -1774,6 +1782,9 @@ QStringList QProcess::systemEnvironment()
     \sa QProcess::pid()
 */
 
+QT_END_NAMESPACE
+
 #include "moc_qprocess.cpp"
 
 #endif // QT_NO_PROCESS
+

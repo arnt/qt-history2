@@ -31,6 +31,8 @@
 #include "qsvgstyle_p.h"
 #include "private/qcssparser_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSvgNode;
 class QSvgTinyDocument;
 class QSvgHandler;
@@ -159,5 +161,7 @@ private:
     static QHash<QString, StyleFactoryMethod>   s_styleFactory;
     static QHash<QString, StyleParseMethod>     s_styleUtilFactory;
 };
+
+QT_END_NAMESPACE
 
 #endif // QSVGHANDLER_P_H

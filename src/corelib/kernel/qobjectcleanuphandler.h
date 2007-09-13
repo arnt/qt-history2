@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QObjectCleanupHandler : public QObject
@@ -40,6 +42,8 @@ private:
 private Q_SLOTS:
     void objectDestroyed(QObject *);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -16,9 +16,9 @@
 
 #include <QDialog>
 
-class QListWidget;
-class QListWidgetItem;
-class QStackedWidget;
+QT_DECLARE_CLASS(QListWidget)
+QT_DECLARE_CLASS(QListWidgetItem)
+QT_DECLARE_CLASS(QStackedWidget)
 
 class ConfigDialog : public QDialog
 {

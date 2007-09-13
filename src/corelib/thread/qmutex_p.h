@@ -26,6 +26,10 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 class QMutexPrivate {
 public:
     QMutexPrivate(QMutex::RecursionMode mode);
@@ -48,5 +52,7 @@ public:
     HANDLE event;
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QMUTEX_P_H

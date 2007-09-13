@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_HEADER
@@ -187,6 +189,8 @@ inline bool Q3Header::tracking() const { return trackingIsOn; }
 extern Q_COMPAT_EXPORT bool qt_qheader_label_return_null_strings; // needed for professional edition
 
 #endif // QT_NO_HEADER
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

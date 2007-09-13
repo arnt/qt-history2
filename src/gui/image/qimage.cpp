@@ -40,8 +40,12 @@
 
 #include <private/qimage_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_WS_QWS
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qscreen_qws.h> //### for qt_conv...
+QT_END_INCLUDE_NAMESPACE
 #else
 static inline ushort qt_convRgbTo16(QRgb c)
 {
@@ -5175,7 +5179,9 @@ bool QImage::hasAlphaChannel() const
 
 #ifdef QT3_SUPPORT
 #if defined(Q_WS_X11)
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <private/qt_x11_p.h>
+QT_END_INCLUDE_NAMESPACE
 #endif
 
 QImage::Endian QImage::systemBitOrder()
@@ -5389,13 +5395,13 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
     // Make use of the optimized algorithm when we're scaling
     if (scale_xform && mode == Qt::SmoothTransformation) {
         if (mat.m11() < 0.0F && mat.m22() < 0.0F) { // horizontal/vertical flip
-            return ::smoothScaled(mirrored(true, true), wd, hd);
+            return smoothScaled(mirrored(true, true), wd, hd);
         } else if (mat.m11() < 0.0F) { // horizontal flip
-            return ::smoothScaled(mirrored(true, false), wd, hd);
+            return smoothScaled(mirrored(true, false), wd, hd);
         } else if (mat.m22() < 0.0F) { // vertical flip
-            return ::smoothScaled(mirrored(false, true), wd, hd);
+            return smoothScaled(mirrored(false, true), wd, hd);
         } else { // no flipping
-            return ::smoothScaled(*this, wd, hd);
+            return smoothScaled(*this, wd, hd);
         }
     }
 
@@ -5536,3 +5542,5 @@ QTransform QImage::trueMatrix(const QTransform &matrix, int w, int h)
     \fn DataPtr & QImage::data_ptr()
     \internal
 */
+
+QT_END_NAMESPACE

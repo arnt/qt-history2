@@ -27,6 +27,8 @@
 #include "qdbusmessage_p.h"
 #include "qdbusutil_p.h"
 
+QT_BEGIN_NAMESPACE
+
 // defined in qdbusxmlgenerator.cpp
 extern QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo,
                                           const QMetaObject *base, int flags);
@@ -258,5 +260,7 @@ QDBusMessage qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode &node
     }
 
     // the property was not found or not written to
+
+QT_END_NAMESPACE
     return qDBusPropertyError(msg, interface_name);
 }

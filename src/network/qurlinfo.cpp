@@ -19,6 +19,8 @@
 #include "qdir.h"
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 class QUrlInfoPrivate
 {
 public:
@@ -678,3 +680,5 @@ bool QUrlInfo::isValid() const
 }
 
 #endif // QT_NO_URLINFO
+
+QT_END_NAMESPACE

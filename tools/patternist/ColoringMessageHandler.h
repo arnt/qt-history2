@@ -29,6 +29,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class ColoringMessageHandler : public QAbstractMessageHandler
                              , private ColorOutput
 {
@@ -55,6 +57,8 @@ private:
 
     QHash<QString, ColorType> m_classToColor;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

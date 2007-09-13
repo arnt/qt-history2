@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_THREAD
 
+QT_BEGIN_NAMESPACE
+
 class Q_CORE_EXPORT QMutexPool
 {
 public:
@@ -47,6 +49,8 @@ private:
 };
 
 extern Q_CORE_EXPORT QMutexPool *qt_global_mutexpool;
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_THREAD
 

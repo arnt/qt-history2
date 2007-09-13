@@ -20,6 +20,8 @@ extern "C" {
 #include "tiffio.h"
 }
 
+QT_BEGIN_NAMESPACE
+
 tsize_t qtiffReadProc(thandle_t fd, tdata_t buf, tsize_t size)
 {
     QIODevice* device = static_cast<QTiffHandler*>(fd)->device();
@@ -266,3 +268,5 @@ void QTiffHandler::convert32BitOrderBigEndian(const void *source, void *destinat
                     | (p & 0x000000ff) << 8;
     }
 }
+
+QT_END_NAMESPACE

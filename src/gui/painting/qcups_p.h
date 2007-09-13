@@ -32,6 +32,8 @@
 #include <QtCore/qlibrary.h>
 #include <cups/cups.h>
 
+QT_BEGIN_NAMESPACE
+
 class QCUPSSupport
 {
 public:
@@ -77,5 +79,8 @@ private:
 #endif
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_CUPS
+
 #endif

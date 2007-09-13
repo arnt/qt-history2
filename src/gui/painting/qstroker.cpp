@@ -17,6 +17,8 @@
 #include "qline.h"
 #include "qtransform.h"
 
+QT_BEGIN_NAMESPACE
+
 // #define QPP_STROKE_DEBUG
 
 class QSubpathForwardIterator
@@ -1090,3 +1092,5 @@ void QDashStroker::processCurrentSubpath()
         prev = e;
     }
 }
+
+QT_END_NAMESPACE

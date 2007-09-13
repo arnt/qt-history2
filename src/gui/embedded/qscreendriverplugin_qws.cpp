@@ -13,6 +13,8 @@
 
 #include "qscreendriverplugin_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_LIBRARY
 
 /*!
@@ -89,3 +91,5 @@ QScreenDriverPlugin::~QScreenDriverPlugin()
 */
 
 #endif // QT_NO_LIBRARY
+
+QT_END_NAMESPACE

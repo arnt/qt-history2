@@ -18,6 +18,8 @@ TRANSLATOR qdesigner_internal::OrderDialog
 #include "orderdialog_p.h"
 #include <QtDesigner/QDesignerFormWindowInterface>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 OrderDialog::OrderDialog(QDesignerFormWindowInterface *form, QWidget *parent)
@@ -87,3 +89,5 @@ void OrderDialog::on_pageList_currentRowChanged(int)
     ui.upButton->setEnabled(true);
     ui.downButton->setEnabled(true);
 }
+
+QT_END_NAMESPACE

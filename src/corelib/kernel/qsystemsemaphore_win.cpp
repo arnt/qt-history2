@@ -15,6 +15,8 @@
 #include "qsystemsemaphore_p.h"
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 QSystemSemaphorePrivate::QSystemSemaphorePrivate() :
         semaphore(0)
 {
@@ -73,3 +75,5 @@ bool QSystemSemaphorePrivate::modifySemaphore(int count)
     return true;
 }
 
+
+QT_END_NAMESPACE

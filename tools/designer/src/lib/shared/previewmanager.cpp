@@ -38,6 +38,8 @@
 
 #include <private/qobject_p.h>
 
+QT_BEGIN_NAMESPACE
+
 static inline int compare(const qdesigner_internal::PreviewConfiguration &pc1, const qdesigner_internal::PreviewConfiguration &pc2)
 {
     int rc = pc1.style.compare(pc2.style);
@@ -463,5 +465,7 @@ QActionGroup *PreviewManager::createStyleActionGroup(QObject *parent, QMenu *sub
     return rc;
 }
 }
+
+QT_END_NAMESPACE
 
 #include "previewmanager.moc"

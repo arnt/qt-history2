@@ -33,6 +33,8 @@
 #include <QtCore/qvector.h>
 #include <QtCore/qobjectcleanuphandler.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef void (*qt_sighandler_t)(int);
 
 class QWSSignalHandlerPrivate;
@@ -61,6 +63,8 @@ private:
 
     friend class QWSSignalHandlerPrivate;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_SIGNALHANDLER
 

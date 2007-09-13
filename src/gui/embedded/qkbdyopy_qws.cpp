@@ -39,6 +39,8 @@ extern "C" {
 #include <qwidget.h>
 #include <qsocketnotifier.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWSYopyKbPrivate : public QObject
 {
     Q_OBJECT
@@ -172,7 +174,8 @@ void QWSYopyKbPrivate::readKeyboardData()
     }
 }
 
+QT_END_NAMESPACE
+
 #include "qkbdyopy_qws.moc"
 
 #endif // QT_NO_QWS_KBD_YOPY
-

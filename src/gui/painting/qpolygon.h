@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QMatrix;
@@ -127,6 +129,8 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QPolygonF &array);
 
 inline void QPolygonF::translate(qreal dx, qreal dy)
 { translate(QPointF(dx, dy)); }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

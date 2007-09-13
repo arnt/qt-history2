@@ -16,6 +16,8 @@
 
 #ifndef QT_NO_THREAD
 
+QT_BEGIN_NAMESPACE
+
 // qt_global_mutexpool is here for backwards compatability only,
 // use QMutexpool::instance() in new clode.
 Q_CORE_EXPORT QMutexPool *qt_global_mutexpool = 0;
@@ -146,5 +148,7 @@ QMutex *QMutexPool::globalInstanceGet(const void *address)
         return 0;
     return globalInstance->get(address);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_THREAD

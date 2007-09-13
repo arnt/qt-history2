@@ -26,6 +26,8 @@ template<typename T> class QList;
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
 
@@ -162,6 +164,8 @@ namespace Patternist
                QLatin1String("</span>");
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

@@ -28,6 +28,8 @@
 #include "separator.h"
 #include "tokenizer.h"
 
+QT_BEGIN_NAMESPACE
+
 QList<Generator *> Generator::generators;
 QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
 QMap<QString, QMap<QString, QString> > Generator::fmtRightMaps;
@@ -880,3 +882,5 @@ QString Generator::fullName(const Node *node, const Node *relative,
     else
         return marker->plainFullName(node, relative);
 }
+
+QT_END_NAMESPACE

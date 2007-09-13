@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tablet
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS tablet.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/tablet
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -20,6 +20,8 @@
 #include <extensionfactory_p.h>
 #include <QtGui/QWorkspace>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QWorkspaceContainer: public QObject, public QDesignerContainerExtension
@@ -43,5 +45,7 @@ private:
 
 typedef ExtensionFactory<QDesignerContainerExtension, QWorkspace, QWorkspaceContainer> QWorkspaceContainerFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QWORKSPACE_CONTAINER_H

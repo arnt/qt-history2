@@ -13,6 +13,8 @@
 
 #include "qschemacomponent_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 SchemaComponent::SchemaComponent()
@@ -24,3 +26,5 @@ SchemaComponent::~SchemaComponent()
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

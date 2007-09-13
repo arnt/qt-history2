@@ -28,6 +28,8 @@
 #ifndef QMAC_Q3MENUBAR_CPP_FILE
 #include "QtGui/qstyleoption.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_MENUBAR
 class QMenuBarExtension;
 class QMenuBarPrivate : public QWidgetPrivate
@@ -136,5 +138,7 @@ public:
 #endif
 
 #endif // QT_NO_MENUBAR
+
+QT_END_NAMESPACE
 
 #endif // QMENUBAR_P_H

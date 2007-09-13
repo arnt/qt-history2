@@ -23,6 +23,8 @@
 #include <QStringList>
 #include <QHash>
 
+QT_BEGIN_NAMESPACE
+
 class IncludeFiles
 {
 public:
@@ -69,8 +71,8 @@ public:
 
     TokenEngine::TokenSectionSequence evaluate(const QString &filename, Rpp::DefineMap *activedefinitions);
 public slots:
-    void includeSlot(::Rpp::Source *&includee, const ::Rpp::Source *includer,
-         const QString &filename, ::Rpp::RppTreeEvaluator::IncludeType includeType);
+    void includeSlot(Rpp::Source *&includee, const Rpp::Source *includer,
+         const QString &filename, Rpp::RppTreeEvaluator::IncludeType includeType);
     void readFile(QByteArray &contents, QString filename);
 signals:
     void error(QString type, QString text);
@@ -103,5 +105,7 @@ private:
     PreprocessorController m_controller;
     StandardOutErrorHandler m_errorHandler;
 };
+
+QT_END_NAMESPACE
 
 #endif

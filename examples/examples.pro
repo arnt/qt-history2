@@ -31,3 +31,4 @@ win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += activeqt
 sources.files = README *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]
 INSTALLS += sources
+DEFINES += QT_USE_USING_NAMESPACE

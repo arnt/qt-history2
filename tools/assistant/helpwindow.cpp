@@ -24,7 +24,6 @@
 #include <QDir>
 #include <QFile>
 #include <QProcess>
-#include <QMenu>
 #include <QAction>
 #include <QFileInfo>
 #include <QFont>
@@ -41,6 +40,8 @@
 #if defined(Q_OS_WIN32)
 #  include <windows.h>
 #endif
+
+QT_BEGIN_NAMESPACE
 
 HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
     : QTextBrowser(parent)
@@ -202,3 +203,4 @@ bool HelpWindow::isKDERunning() const
     return !qgetenv("KDE_FULL_SESSION").isEmpty();
 }
 
+QT_END_NAMESPACE

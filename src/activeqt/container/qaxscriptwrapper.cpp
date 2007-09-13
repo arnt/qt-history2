@@ -16,6 +16,8 @@
 
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
 QAxBase *qax_create_object_wrapper(QObject *object)
 {
     IDispatch *dispatch = 0;
@@ -28,3 +30,5 @@ QAxBase *qax_create_object_wrapper(QObject *object)
     }
     return wrapper;
 }
+
+QT_END_NAMESPACE

@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/opengl/overpainting
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS overpainting.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/opengl/overpainting
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

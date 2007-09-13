@@ -31,6 +31,8 @@
 #include <QtCore/qstring.h>
 #include <QtNetwork/qhostaddress.h>
 
+QT_BEGIN_NAMESPACE
+
 class QNetworkAddressEntryPrivate
 {
 public:
@@ -80,5 +82,7 @@ private:
     QList<QNetworkInterfacePrivate *> scan();
 };
 
+
+QT_END_NAMESPACE
 
 #endif

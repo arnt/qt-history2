@@ -18,6 +18,8 @@
 
 #include "qxpathhelper_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 bool XPathHelper::isReservedNamespace(const QName::NamespaceCode ns)
@@ -96,3 +98,5 @@ void XPathHelper::splitQName(const QString &qName, QString &prefix, QString &ncN
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

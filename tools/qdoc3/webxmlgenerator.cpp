@@ -24,6 +24,8 @@
 #include "separator.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 #define COMMAND_VERSION                 Doc::alias("version")
 
 WebXMLGenerator::WebXMLGenerator()
@@ -623,3 +625,5 @@ const Atom *WebXMLGenerator::addAtomElements(QXmlStreamWriter &writer,
         atomElement.appendChild(atomValue);
         descriptionElement.appendChild(atomElement);
 */
+
+QT_END_NAMESPACE

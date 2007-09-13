@@ -12,3 +12,6 @@ DESTDIR=.
 # Input
 HEADERS += signalbug.h
 SOURCES += signalbug.cpp
+
+DEFINES += QT_USE_USING_NAMESPACE
+

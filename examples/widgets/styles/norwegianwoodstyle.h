@@ -17,7 +17,7 @@
 #include <QMotifStyle>
 #include <QPalette>
 
-class QPainterPath;
+QT_DECLARE_CLASS(QPainterPath)
 
 class NorwegianWoodStyle : public QMotifStyle
 {

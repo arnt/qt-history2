@@ -15,8 +15,10 @@
 
 #include <QtGui>
 
+QT_BEGIN_NAMESPACE
+
 ControlInfo::ControlInfo(QWidget *parent)
-: QDialog(parent)
+    : QDialog(parent)
 {
     setupUi(this);
 
@@ -88,3 +90,5 @@ void ControlInfo::setControl(QWidget *activex)
     }
     group->setText(1, QString::number(count));
 }
+
+QT_END_NAMESPACE

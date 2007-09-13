@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QImageWriter;
@@ -252,6 +254,8 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 QT3_SUPPORT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap *src,
                                     int sx=0, int sy=0, int sw=-1, int sh=-1);
 #endif // QT3_SUPPORT
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

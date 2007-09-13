@@ -26,6 +26,8 @@
 
 #include "qdbusthreaddebug_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDBusConnectionManager
 {
 public:
@@ -944,5 +946,7 @@ void QDBusConnectionPrivate::setBusService(const QDBusConnection &connection)
     \value AutoDetect           Automatically detect if the called function has a reply.
 
     When using BlockWithGui, applications must be prepared for reentrancy in any function.
+
+QT_END_NAMESPACE
 */
 

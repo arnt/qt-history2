@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_TREEWIDGET
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class QTreeWidgetItemIterator
   \ingroup model-view
@@ -88,12 +90,12 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFl
 
 QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, IteratorFlags flags)
     : d_ptr(new QTreeWidgetItemIteratorPrivate(
-                this, ::qobject_cast<QTreeModel*>(item->view->model()))),
+                this, qobject_cast<QTreeModel*>(item->view->model()))),
       current(item), flags(flags)
 {
     Q_D(QTreeWidgetItemIterator);
     Q_ASSERT(item);
-    QTreeModel *model = ::qobject_cast<QTreeModel*>(item->view->model());
+    QTreeModel *model = qobject_cast<QTreeModel*>(item->view->model());
     Q_ASSERT(model);
     model->iterators.append(this);
 
@@ -426,4 +428,7 @@ void QTreeWidgetItemIteratorPrivate::ensureValidIterator(const QTreeWidgetItem *
     \value NotEditable
     \value UserFlag
 */
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_TREEWIDGET

@@ -29,6 +29,8 @@
 #include <private/qcore_mac_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 //#define GENERATE_AGGREGRATE_SUBDIR
 
 // Note: this is fairly hacky, but it does the job...
@@ -1818,3 +1820,5 @@ ProjectBuilderMakefileGenerator::writeSettings(QString var, QStringList vals, in
     }
     return ret;
 }
+
+QT_END_NAMESPACE

@@ -24,6 +24,8 @@ template<typename T> class QList;
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -80,6 +82,8 @@ namespace Patternist
         return m_argumentDeclarations;
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

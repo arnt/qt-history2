@@ -11,3 +11,6 @@ mac {
     HEADERS += guitest.h
 }
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

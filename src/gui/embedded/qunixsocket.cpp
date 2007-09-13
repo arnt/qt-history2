@@ -58,6 +58,8 @@ struct ucred
 
 #endif // QT_LSB
 
+QT_BEGIN_NAMESPACE
+
 ///////////////////////////////////////////////////////////////////////////////
 // class QUnixSocketRights
 ///////////////////////////////////////////////////////////////////////////////
@@ -1724,5 +1726,6 @@ void QUnixSocketPrivate::readActivated()
     }
 }
 
-#include "qunixsocket.moc"
+QT_END_NAMESPACE
 
+#include "qunixsocket.moc"

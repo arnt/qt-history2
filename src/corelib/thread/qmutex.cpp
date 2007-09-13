@@ -18,6 +18,8 @@
 #include "qatomic.h"
 #include "qmutex_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QMutex
     \brief The QMutex class provides access serialization between threads.
@@ -556,5 +558,7 @@ void QMutex::unlock()
 
     Use the constructor that takes a RecursionMode parameter instead.
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_THREAD

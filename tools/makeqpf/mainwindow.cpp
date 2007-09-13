@@ -24,6 +24,8 @@
 #include <QDirModel>
 #include <QTextCodec>
 
+QT_BEGIN_NAMESPACE
+
 MainWindow::MainWindow(const QString &customFont)
 {
     setupUi(this);
@@ -289,3 +291,4 @@ void MainWindow::addCustomFont(const QString &fontFile)
     fontComboBox->setCurrentFont(f);
 }
 
+QT_END_NAMESPACE

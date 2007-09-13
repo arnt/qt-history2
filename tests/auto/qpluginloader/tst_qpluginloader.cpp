@@ -65,7 +65,7 @@ static QString sys_qualifiedLibraryName(const QString &fileName)
 //TESTED_CLASS=
 //TESTED_FILES=corelib/plugin/qpluginloader.h corelib/plugin/qpluginloader.cpp
 
-class QPluginLoader;
+QT_DECLARE_CLASS(QPluginLoader)
 class tst_QPluginLoader : public QObject
 {
     Q_OBJECT

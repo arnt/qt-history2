@@ -18,6 +18,8 @@
 #include "qstringlist.h"
 #include "qtextcodec.h"
 
+QT_BEGIN_NAMESPACE
+
 struct QMimeDataStruct
 {
     QString format;
@@ -615,3 +617,5 @@ void QMimeData::clear()
     Q_D(QMimeData);
     d->dataList.clear();
 }
+
+QT_END_NAMESPACE

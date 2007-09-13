@@ -33,6 +33,8 @@
 #include <qdebug.h>
 #include <qvector.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QT_DEBUG_COMPONENT
 
 #ifdef QT_NO_DEBUG
@@ -270,8 +272,10 @@ static bool qt_parse_pattern(const char *s, uint *version, bool *debug, QByteArr
 
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
 #  define USE_MMAP
+QT_BEGIN_INCLUDE_NAMESPACE
 #  include <sys/types.h>
 #  include <sys/mman.h>
+QT_END_INCLUDE_NAMESPACE
 #endif // Q_OS_FREEBSD || Q_OS_LINUX
 
 static long qt_find_pattern(const char *s, ulong s_len,
@@ -975,10 +979,12 @@ bool qt_debug_component()
 #else
     static int debug_env = -1;
     if (debug_env == -1)
-       debug_env = ::qgetenv("QT_DEBUG_PLUGINS").toInt();
+       debug_env = QT_ADD_NAMESPACE(qgetenv)("QT_DEBUG_PLUGINS").toInt();
 
     return debug_env != 0;
 #endif
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_LIBRARY

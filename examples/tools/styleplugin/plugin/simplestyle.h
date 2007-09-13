@@ -16,7 +16,7 @@
 
 #include <QWindowsStyle>
 
-class QPalette;
+QT_DECLARE_CLASS(QPalette)
 
 class SimpleStyle : public QWindowsStyle
 {

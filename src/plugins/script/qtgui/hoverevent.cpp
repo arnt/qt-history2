@@ -8,6 +8,8 @@
 Q_DECLARE_METATYPE(QEvent*)
 DECLARE_POINTER_METATYPE(QHoverEvent)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newHoverEvent(QScriptEngine *eng, QHoverEvent *he)
 {
     return QScript::wrapPointer(eng, he);
@@ -53,3 +55,5 @@ QScriptValue constructHoverEventClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

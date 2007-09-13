@@ -16,11 +16,11 @@
 
 #include <QDialog>
 
-class QDialogButtonBox;
-class QLabel;
-class QPushButton;
-class QTimer;
-class QUdpSocket;
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTimer)
+QT_DECLARE_CLASS(QUdpSocket)
 
 class Sender : public QDialog
 {

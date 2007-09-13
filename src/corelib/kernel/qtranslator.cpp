@@ -44,6 +44,8 @@
 
 #include "qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 enum Tag { Tag_End = 1, Tag_SourceText16, Tag_Translation, Tag_Context16, Tag_Obsolete1,
            Tag_SourceText, Tag_Context, Tag_Comment, Tag_Obsolete2 };
 /*
@@ -85,7 +87,7 @@ static uint elfHash(const char *name)
     return h;
 }
 
-static int numerus(int n, const uchar *rules, int rulesSize)
+static int numerusHelper(int n, const uchar *rules, int rulesSize)
 {
 #define CHECK_RANGE \
     do { \
@@ -636,7 +638,7 @@ QString QTranslatorPrivate::do_translate(const char *context, const char *source
 
     int numerus = 0;
     if (n >= 0)
-        numerus = ::numerus(n, numerusRulesArray, numerusRulesLength);
+        numerus = numerusHelper(n, numerusRulesArray, numerusRulesLength);
 
     for (;;) {
         quint32 h = elfHash(QByteArray(sourceText) + comment);
@@ -772,3 +774,5 @@ bool QTranslator::isEmpty() const
 */
 
 #endif // QT_NO_TRANSLATION
+
+QT_END_NAMESPACE

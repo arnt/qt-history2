@@ -15,6 +15,8 @@
 #include "ui_newdynamicpropertydialog.h"
 #include <abstractdialoggui_p.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 NewDynamicPropertyDialog::NewDynamicPropertyDialog(QDesignerDialogGuiInterface *dialogGui,
@@ -108,3 +110,5 @@ void NewDynamicPropertyDialog::on_m_buttonBox_clicked(QAbstractButton *btn)
 }
 
 }
+
+QT_END_NAMESPACE

@@ -20,6 +20,8 @@
 #include <QHash>
 #include <QtCore/QLocale>
 
+QT_BEGIN_NAMESPACE
+
 class ContextItem;
 class QIODevice;
 
@@ -334,5 +336,7 @@ private:
 
     friend class iterator;
 };
+
+QT_END_NAMESPACE
 
 #endif //MESSAGEMODEL_H

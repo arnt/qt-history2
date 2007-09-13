@@ -23,6 +23,8 @@
 #include "qatomiccomparatorlocators.cpp"
 #include "qatomicmathematicianlocators.cpp"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 // STATIC DATA
@@ -126,3 +128,5 @@ nt(pi,          ProcessingInstruction);
 #undef nt
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

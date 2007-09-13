@@ -20,6 +20,8 @@
 #include "qxmlquery.h"
 #include "qxmlquery_p.h"
 
+QT_BEGIN_NAMESPACE
+
 // TODO Mention XML chars and QString.
 
 /*!
@@ -404,5 +406,7 @@ QAbstractUriResolver::Ptr QXmlQuery::uriResolver() const
 {
     return d->uriResolver;
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

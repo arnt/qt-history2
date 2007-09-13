@@ -18,6 +18,8 @@
 
 #include "string.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_VSNPRINTF
 
 /*!
@@ -63,7 +65,9 @@ int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap)
 
 #else
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <stdio.h>
+QT_END_INCLUDE_NAMESPACE
 
 int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap)
 {
@@ -97,3 +101,5 @@ int qsnprintf(char *str, size_t n, const char *fmt, ...)
 
     return ret;
 }
+
+QT_END_NAMESPACE

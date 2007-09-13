@@ -17,12 +17,12 @@
 #include <QMainWindow>
 #include <QString>
 
-class QClipboard;
-class QComboBox;
-class QFontComboBox;
-class QLineEdit;
-class QScrollArea;
-class QCheckBox;
+QT_DECLARE_CLASS(QClipboard)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QFontComboBox)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QScrollArea)
+QT_DECLARE_CLASS(QCheckBox)
 class CharacterWidget;
 
 class MainWindow : public QMainWindow

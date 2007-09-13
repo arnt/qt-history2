@@ -20,6 +20,8 @@
 #include "qstring.h"
 #include "qvector.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSqlRecordPrivate
 {
 public:
@@ -572,3 +574,5 @@ QDebug operator<<(QDebug dbg, const QSqlRecord &r)
 
     Use indexOf() instead.
 */
+
+QT_END_NAMESPACE

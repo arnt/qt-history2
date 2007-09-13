@@ -18,6 +18,8 @@
 #include <QtGui/qwidget.h>
 #include <private/qt_mac_p.h>
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -41,5 +43,7 @@ private:
     void createQWidgetsFromHIViews();
     void addViews_recursive(HIViewRef child, QWidget *parent);
 };
+
+QT_END_NAMESPACE
 
 #endif // QHIVIEWWIDGET_P_H

@@ -27,6 +27,8 @@
 
 #include <Qt3Support/Q3WidgetStack>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerContainerExtension;
 class QToolButton;
@@ -72,5 +74,7 @@ private:
     QWidget *widget(int index);
     QToolButton *m_prev, *m_next;
 };
+
+QT_END_NAMESPACE
 
 #endif // !QDESIGNER_Q3WIDGETSTACK_P_H

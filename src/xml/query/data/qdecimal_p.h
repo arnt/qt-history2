@@ -16,12 +16,14 @@
 
 #include "qnumeric_p.h"
 
+QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
 /**
  * Defined in QtCore's qlocale.cpp.
  */
 extern char *qdtoa(double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp);
-
-QT_BEGIN_HEADER 
 
 namespace Patternist
 {
@@ -103,6 +105,8 @@ namespace Patternist
         const xsDecimal m_value;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

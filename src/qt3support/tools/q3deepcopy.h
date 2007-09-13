@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 template <class T>
@@ -51,6 +53,8 @@ public:
 private:
     T deepcopy;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

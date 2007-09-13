@@ -13,3 +13,5 @@ target.path = $$[QT_INSTALL_DEMOS]/mainwindow
 sources.files = $$SOURCES $$HEADERS *.pro $$RESOURCES qt.png 
 sources.path = $$[QT_INSTALL_DEMOS]/mainwindow
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE

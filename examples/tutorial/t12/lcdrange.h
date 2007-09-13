@@ -16,8 +16,8 @@
 
 #include <QWidget>
 
-class QLabel;
-class QSlider;
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QSlider)
 
 class LCDRange : public QWidget
 {

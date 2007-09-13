@@ -18,6 +18,8 @@
 #include <QtGui/QIcon>
 #include <QtCore/QStringList>
 
+QT_BEGIN_NAMESPACE
+
 class QtCursorDatabase
 {
 public:
@@ -37,5 +39,6 @@ private:
     QMap<Qt::CursorShape, int> m_cursorShapeToValue;
 };
 
-#endif
+QT_END_NAMESPACE
 
+#endif

@@ -17,6 +17,8 @@
 
 #include "ccodeparser.h"
 
+QT_BEGIN_NAMESPACE
+
 CCodeParser::CCodeParser()
 {
 }
@@ -39,3 +41,5 @@ QString CCodeParser::sourceFileNameFilter()
 {
     return "*.c";
 }
+
+QT_END_NAMESPACE

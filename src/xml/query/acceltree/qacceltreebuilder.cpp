@@ -16,6 +16,8 @@
 
 #include "qacceltreebuilder_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 AccelTreeBuilder::AccelTreeBuilder(const QUrl &docURI,
@@ -276,5 +278,7 @@ NodeBuilder::Ptr AccelTreeBuilder::create(const QUrl &baseURI) const
     Q_UNUSED(baseURI);
     return NodeBuilder::Ptr(new AccelTreeBuilder(QUrl(), baseURI, m_namePool));
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

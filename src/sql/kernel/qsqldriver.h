@@ -24,6 +24,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Sql)
 
 class QSqlDatabase;
@@ -113,6 +115,8 @@ protected Q_SLOTS:
 private:
     Q_DISABLE_COPY(QSqlDriver)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

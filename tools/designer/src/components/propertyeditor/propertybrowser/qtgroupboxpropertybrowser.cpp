@@ -19,7 +19,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QMap>
 
-//////////////////////////////////
+QT_BEGIN_NAMESPACE
 
 class QtGroupBoxPropertyBrowserPrivate
 {
@@ -498,15 +498,6 @@ void QtGroupBoxPropertyBrowser::itemChanged(QtBrowserItem *item)
     d_ptr->propertyChanged(item);
 }
 
-
-
-
-
-
-
-
-
-
+QT_END_NAMESPACE
 
 #include "moc_qtgroupboxpropertybrowser.cpp"
-

@@ -14,6 +14,8 @@
 #ifndef QSCRIPTAST_FWD_P_H
 #define QSCRIPTAST_FWD_P_H
 
+#include <QtCore/qglobal.h>
+
 //
 //  W A R N I N G
 //  -------------
@@ -24,6 +26,8 @@
 //
 // We mean it.
 //
+
+QT_BEGIN_NAMESPACE
 
 namespace QScript { namespace AST {
 
@@ -108,5 +112,6 @@ class StatementSourceElement;
 
 } } // namespace AST
 
-#endif
+QT_END_NAMESPACE
 
+#endif

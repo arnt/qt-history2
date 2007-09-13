@@ -14,6 +14,8 @@
 #include "QtTest/qtestcase.h"
 #include "QtTest/qtestassert.h"
 
+QT_BEGIN_NAMESPACE
+
 /*! \internal
     Convert an ascii char key value to a Qt Key value.
     If the key is unknown a 0 is returned.
@@ -472,4 +474,4 @@ char QTest::keyToAscii(Qt::Key key)
     }
 }
 
-
+QT_END_NAMESPACE

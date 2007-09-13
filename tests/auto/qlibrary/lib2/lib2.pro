@@ -25,3 +25,6 @@ unix: {
 
 #no special install rule for the library used by test
 INSTALLS =
+
+DEFINES += QT_USE_USING_NAMESPACE
+

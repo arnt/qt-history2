@@ -16,11 +16,11 @@
 
 #include <QDialog>
 
-class QComboBox;
-class QDir;
-class QLabel;
-class QPushButton;
-class QTableWidget;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QDir)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTableWidget)
 
 class Window : public QDialog
 {

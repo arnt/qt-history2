@@ -29,6 +29,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 QPixelTool::QPixelTool(QWidget *parent)
     : QWidget(parent),
       m_assistantClient(0)
@@ -499,3 +501,5 @@ void QPixelTool::showHelp()
 
     m_assistantClient->showPage(filePath);
 }
+
+QT_END_NAMESPACE

@@ -13,6 +13,8 @@
 
 #include "translatedialog.h"
 
+QT_BEGIN_NAMESPACE
+
 TranslateDialog::TranslateDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -64,3 +66,5 @@ void TranslateDialog::setFindWhat(const QString &str)
 {
     m_ui.ledFindWhat->setText(str);
 }
+
+QT_END_NAMESPACE

@@ -18,13 +18,13 @@
 #include "diagramitem.h"
 #include "diagramtextitem.h"
 
-class QGraphicsSceneMouseEvent;
-class QMenu;
-class QPointF;
-class QGraphicsLineItem;
-class QFont;
-class QGraphicsTextItem;
-class QColor;
+QT_DECLARE_CLASS(QGraphicsSceneMouseEvent)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QPointF)
+QT_DECLARE_CLASS(QGraphicsLineItem)
+QT_DECLARE_CLASS(QFont)
+QT_DECLARE_CLASS(QGraphicsTextItem)
+QT_DECLARE_CLASS(QColor)
 
 class DiagramScene : public QGraphicsScene
 {

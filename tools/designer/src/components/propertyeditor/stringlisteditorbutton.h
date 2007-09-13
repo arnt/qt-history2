@@ -19,6 +19,8 @@
 #include <QtCore/QStringList>
 #include <QtGui/QToolButton>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QT_PROPERTYEDITOR_EXPORT StringListEditorButton: public QToolButton
@@ -45,5 +47,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // STRINGLISTEDITORBUTTON_H

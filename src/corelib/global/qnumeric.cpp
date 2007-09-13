@@ -14,6 +14,8 @@
 #include "qnumeric.h"
 #include "qnumeric_p.h"
 
+QT_BEGIN_NAMESPACE
+
 Q_CORE_EXPORT bool qIsInf(double d) { return qt_is_inf(d); }
 Q_CORE_EXPORT bool qIsNaN(double d) { return qt_is_nan(d); }
 Q_CORE_EXPORT bool qIsFinite(double d) { return qt_is_finite(d); }
@@ -24,3 +26,5 @@ Q_CORE_EXPORT double qSNaN() { return qt_snan(); }
 Q_CORE_EXPORT double qQNaN() { return qt_qnan(); }
 Q_CORE_EXPORT double qInf() { return qt_inf(); }
 
+
+QT_END_NAMESPACE

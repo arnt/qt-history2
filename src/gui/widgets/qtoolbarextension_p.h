@@ -27,6 +27,8 @@
 
 #include "QtGui/qtoolbutton.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TOOLBUTTON
 
 class QToolBarExtension : public QToolButton
@@ -44,5 +46,7 @@ public Q_SLOTS:
 };
 
 #endif // QT_NO_TOOLBUTTON
+
+QT_END_NAMESPACE
 
 #endif // QDYNAMICTOOLBAREXTENSION_P_H

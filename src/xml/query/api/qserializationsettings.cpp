@@ -16,6 +16,8 @@
 #include "qserializationsettings.h"
 #include "qserializationsettings_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /* Comments
  * - TODO Implementation indentation
  */
@@ -115,5 +117,7 @@ bool QSerializationSettings::indentationEnabled() const
 {
     return d->indentationEnabled;
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

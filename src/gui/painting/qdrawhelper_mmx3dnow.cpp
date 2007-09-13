@@ -18,6 +18,8 @@
 #include <private/qdrawhelper_mmx_p.h>
 #include <mm3dnow.h>
 
+QT_BEGIN_NAMESPACE
+
 struct QMMX3DNOWIntrinsics : public QMMXCommonIntrinsics
 {
     static inline void end() {
@@ -86,3 +88,5 @@ void qt_blend_color_argb_mmx3dnow(int count, const QSpan *spans, void *userData)
 }
 
 #endif // QT_HAVE_3DNOW
+
+QT_END_NAMESPACE

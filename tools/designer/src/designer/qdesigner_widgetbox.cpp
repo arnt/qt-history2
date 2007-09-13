@@ -21,6 +21,8 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
@@ -51,3 +53,5 @@ Qt::DockWidgetArea QDesignerWidgetBox::dockWidgetAreaHint() const
 {
     return Qt::LeftDockWidgetArea;
 }
+
+QT_END_NAMESPACE

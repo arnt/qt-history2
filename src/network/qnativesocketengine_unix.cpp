@@ -30,11 +30,14 @@
 #include <arpa/inet.h>
 #endif
 
-//#define QNATIVESOCKETENGINE_DEBUG
-
 #if defined QNATIVESOCKETENGINE_DEBUG
 #include <qstring.h>
 #include <ctype.h>
+#endif
+
+QT_BEGIN_NAMESPACE
+
+#if defined QNATIVESOCKETENGINE_DEBUG
 
 /*
     Returns a human readable representation of the first \a len
@@ -868,3 +871,5 @@ int QNativeSocketEnginePrivate::nativeSelect(int timeout, bool checkRead, bool c
     *selectForWrite = FD_ISSET(socketDescriptor, &fdwrite);
     return ret;
 }
+
+QT_END_NAMESPACE

@@ -28,6 +28,8 @@
 #include "QtCore/qbytearray.h"
 #include "QtCore/qlist.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q_COMPAT_EXPORT Q3Membuf
 {
 public:
@@ -67,5 +69,7 @@ inline bool Q3Membuf::canReadLine() const
 
 inline qint64 Q3Membuf::size() const
 { return _size; }
+
+QT_END_NAMESPACE
 
 #endif // Q3MEMBUF_P_H

@@ -16,9 +16,9 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QMenu;
-class QSettings;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QSettings)
 class LocationDialog;
 class SettingsTree;
 

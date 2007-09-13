@@ -22,6 +22,8 @@
 #include <QDomElement>
 #include <QXmlStreamWriter>
 
+QT_BEGIN_NAMESPACE
+
 class QStringList;
 class TreePrivate;
 
@@ -88,5 +90,7 @@ private:
     QString vers;
     TreePrivate *priv;
 };
+
+QT_END_NAMESPACE
 
 #endif

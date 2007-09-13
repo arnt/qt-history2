@@ -22,6 +22,8 @@
 #include "uncompressor.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
   ###
 */
@@ -701,3 +703,5 @@ QStringList Config::getFilesHere(const QString& dir, const QString& nameFilter)
     }
     return result;
 }
+
+QT_END_NAMESPACE

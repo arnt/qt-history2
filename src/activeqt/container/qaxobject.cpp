@@ -19,6 +19,8 @@
 
 #include <windows.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAxObject
     \brief The QAxObject class provides a QObject that wraps a COM object.
@@ -174,3 +176,5 @@ bool QAxObject::doVerb(const QString &verb)
 
     return hres == S_OK;
 }
+
+QT_END_NAMESPACE

@@ -19,6 +19,8 @@
 #include <errno.h>
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_OS_WIN
 #  ifndef S_ISREG
 #    define S_ISREG(x)   (((x) & S_IFMT) == S_IFREG)
@@ -761,3 +763,5 @@ bool QFSFileEngine::supportsExtension(Extension extension) const
         return true;
     return false;
 }
+
+QT_END_NAMESPACE

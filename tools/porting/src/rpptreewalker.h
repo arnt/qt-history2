@@ -16,6 +16,8 @@
 
 #include "rpp.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace Rpp {
 
 class RppTreeWalker
@@ -49,5 +51,7 @@ public:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

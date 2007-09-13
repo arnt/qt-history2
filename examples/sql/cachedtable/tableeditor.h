@@ -16,9 +16,9 @@
 
 #include <QDialog>
 
-class QDialogButtonBox;
-class QPushButton;
-class QSqlTableModel;
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QSqlTableModel)
 
 class TableEditor : public QDialog
 {

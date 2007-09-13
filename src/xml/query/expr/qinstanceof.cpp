@@ -20,6 +20,8 @@
 
 #include "qinstanceof_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 InstanceOf::InstanceOf(const Expression::Ptr &operand,
@@ -111,3 +113,5 @@ ExpressionVisitorResult::Ptr InstanceOf::accept(const ExpressionVisitor::Ptr &vi
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

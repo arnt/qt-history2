@@ -31,6 +31,8 @@
 #include <QtCore/QSignalMapper>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 static QAction *separatorAction(QObject *parent)
 {
     QAction *rc = new  QAction(parent);
@@ -307,3 +309,5 @@ void PromotionTaskMenu::slotEditSignalsSlots()
     SignalSlotDialog::editPromotedClass(fw->core(), m_widget, fw);
 }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

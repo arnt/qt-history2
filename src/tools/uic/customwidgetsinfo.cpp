@@ -16,6 +16,8 @@
 #include "ui4.h"
 #include "utils.h"
 
+QT_BEGIN_NAMESPACE
+
 CustomWidgetsInfo::CustomWidgetsInfo()
 {
 }
@@ -71,3 +73,5 @@ DomScript *CustomWidgetsInfo::customWidgetScript(const QString &name) const
 
     return it.value()->elementScript();
 }
+
+QT_END_NAMESPACE

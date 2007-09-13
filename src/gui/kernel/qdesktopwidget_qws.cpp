@@ -15,6 +15,10 @@
 #include "qscreen_qws.h"
 #include "private/qapplication_p.h"
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 QDesktopWidget::QDesktopWidget()
     : QWidget(0, Qt::Desktop)
 {
@@ -123,3 +127,5 @@ int QDesktopWidget::screenNumber(const QPoint &p) const
 void QDesktopWidget::resizeEvent(QResizeEvent *)
 {
 }
+
+QT_END_NAMESPACE

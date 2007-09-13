@@ -14,13 +14,13 @@
 #ifndef PEERWIRECLIENT_H
 #define PEERWIRECLIENT_H
 
-class QHostAddress;
-class QTimerEvent;
-class TorrentPeer;
-
 #include <QBitArray>
 #include <QList>
 #include <QTcpSocket>
+
+QT_DECLARE_CLASS(QHostAddress)
+QT_DECLARE_CLASS(QTimerEvent)
+class TorrentPeer;
 
 struct TorrentBlock
 {

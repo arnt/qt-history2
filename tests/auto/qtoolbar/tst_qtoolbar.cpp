@@ -24,7 +24,7 @@
 
 //TESTED_FILES=
 
-class QAction;
+QT_DECLARE_CLASS(QAction)
 
 class tst_QToolBar : public QObject
 {
@@ -506,6 +506,10 @@ void tst_QToolBar::insertWidget()
     }
 }
 
+QT_BEGIN_NAMESPACE
+extern void qt_x11_wait_for_window_manager(QWidget* w);
+QT_END_NAMESPACE
+
 void tst_QToolBar::actionGeometry()
 {
     QToolBar tb;
@@ -522,7 +526,6 @@ void tst_QToolBar::actionGeometry()
 
     tb.show();
 #ifdef Q_WS_X11
-    extern void qt_x11_wait_for_window_manager(QWidget* w);
     qt_x11_wait_for_window_manager(&tb);
 #endif
 
@@ -814,7 +817,6 @@ void tst_QToolBar::actionTriggered()
 
     tb.show();
 #ifdef Q_WS_X11
-    extern void qt_x11_wait_for_window_manager(QWidget* w);
     qt_x11_wait_for_window_manager(&tb);
 #endif
 

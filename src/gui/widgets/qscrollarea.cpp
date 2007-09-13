@@ -24,6 +24,7 @@
 #include "qdebug.h"
 #include "private/qlayoutengine_p.h"
 
+QT_BEGIN_NAMESPACE
 
 /*!
     \class QScrollArea
@@ -463,5 +464,7 @@ Qt::Alignment QScrollArea::alignment() const
     Q_D(const QScrollArea);
     return d->alignment;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCROLLAREA

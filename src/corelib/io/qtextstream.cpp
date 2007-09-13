@@ -236,6 +236,8 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 #if defined QTEXTSTREAM_DEBUG
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 // Returns a human readable representation of the first \a len
 // characters in \a data.
 static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
@@ -262,6 +264,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
     return out;
 }
+QT_END_NAMESPACE
+
 #endif
 
 // A precondition macro
@@ -300,6 +304,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
         setStatus(atEnd() ? QTextStream::ReadPastEnd : QTextStream::ReadCorruptData); \
     } \
     return *this; } while (0)
+
+QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_QOBJECT
 class QDeviceClosedNotifier : public QObject
@@ -428,7 +434,8 @@ QTextStreamPrivate::~QTextStreamPrivate()
 }
 
 #ifndef QT_NO_TEXTCODEC
-static void resetCodecConverterState(QTextCodec::ConverterState *state) {
+static void resetCodecConverterStateHelper(QTextCodec::ConverterState *state)
+{
     state->flags = QTextCodec::DefaultConversion;
     state->remainingChars = state->invalidChars =
            state->state_data[0] = state->state_data[1] = state->state_data[2] = 0;
@@ -436,7 +443,8 @@ static void resetCodecConverterState(QTextCodec::ConverterState *state) {
     state->d = 0;
 }
 
-static void copyConverterState(QTextCodec::ConverterState *dest, const QTextCodec::ConverterState *src)
+static void copyConverterStateHelper(QTextCodec::ConverterState *dest,
+    const QTextCodec::ConverterState *src)
 {
     // ### QTextCodec::ConverterState's copy constructors and assignments are
     // private. This function copies the structure manually.
@@ -473,9 +481,9 @@ void QTextStreamPrivate::reset()
 
 #ifndef QT_NO_TEXTCODEC
     codec = QTextCodec::codecForLocale();
-    ::resetCodecConverterState(&readConverterState);
-    ::resetCodecConverterState(&writeConverterState);
-    ::resetCodecConverterState(&readBufferStartReadConverterState);
+    resetCodecConverterStateHelper(&readConverterState);
+    resetCodecConverterStateHelper(&writeConverterState);
+    resetCodecConverterStateHelper(&readBufferStartReadConverterState);
     writeConverterState.flags |= QTextCodec::IgnoreHeader;
     autoDetectUnicode = true;
 #endif
@@ -793,7 +801,8 @@ inline void QTextStreamPrivate::consume(int size)
             readBuffer.clear();
             readBufferStartDevicePos = device->pos();
 #ifndef QT_NO_TEXTCODEC
-            copyConverterState(&readBufferStartReadConverterState, &readConverterState);
+            copyConverterStateHelper(&readBufferStartReadConverterState,
+                &readConverterState);
 #endif
         }
     }
@@ -1096,9 +1105,9 @@ bool QTextStream::seek(qint64 pos)
 
 #ifndef QT_NO_TEXTCODEC
         // Reset the codec converter states.
-        ::resetCodecConverterState(&d->readConverterState);
-        ::resetCodecConverterState(&d->readBufferStartReadConverterState);
-        ::resetCodecConverterState(&d->writeConverterState);
+        resetCodecConverterStateHelper(&d->readConverterState);
+        resetCodecConverterStateHelper(&d->readBufferStartReadConverterState);
+        resetCodecConverterStateHelper(&d->writeConverterState);
 #endif
         return true;
     }
@@ -1146,7 +1155,8 @@ qint64 QTextStream::pos() const
         // Restore the codec converter state and end state to the read buffer
         // start state.
 #ifndef QT_NO_TEXTCODEC
-        ::copyConverterState(&thatd->readConverterState, &d->readBufferStartReadConverterState);
+        copyConverterStateHelper(&thatd->readConverterState,
+            &d->readBufferStartReadConverterState);
 #endif
 #ifndef QT_NO_TEXTCODEC
         if (d->readBufferStartDevicePos == 0)
@@ -3121,8 +3131,8 @@ int QTextStream::flagsInternal(int newFlags)
 void QTextStream::setEncoding(Encoding encoding)
 {
     Q_D(QTextStream);
-    ::resetCodecConverterState(&d->readConverterState);
-    ::resetCodecConverterState(&d->writeConverterState);
+    resetCodecConverterStateHelper(&d->readConverterState);
+    resetCodecConverterStateHelper(&d->writeConverterState);
 
     switch (encoding) {
     case Locale:
@@ -3281,6 +3291,9 @@ void QTextStream::setEncoding(Encoding encoding)
 
 #endif
 
+QT_END_NAMESPACE
+
 #ifndef QT_NO_QOBJECT
 #include "qtextstream.moc"
 #endif
+

@@ -14,3 +14,6 @@ QT += svg opengl xml qt3support
 # Input
 HEADERS += htmlgenerator.h
 SOURCES += main.cpp htmlgenerator.cpp
+
+DEFINES += QT_USE_USING_NAMESPACE
+

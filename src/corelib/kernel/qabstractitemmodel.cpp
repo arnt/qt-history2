@@ -24,6 +24,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPersistentModelIndexDataLessThan
 {
 public:
@@ -2726,3 +2728,5 @@ bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     Returns true if this model index is smaller than the \a other
     model index; otherwise returns false.
 */
+
+QT_END_NAMESPACE

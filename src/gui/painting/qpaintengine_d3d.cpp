@@ -39,6 +39,8 @@
 #include <mmintrin.h>
 #include <xmmintrin.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
 #endif
@@ -4535,5 +4537,7 @@ bool QDirect3DPaintEngine::hasDirect3DSupport()
     Q_D(QDirect3DPaintEngine);
     return d->m_supports_d3d;
 }
+
+QT_END_NAMESPACE
 
 #include "qpaintengine_d3d.moc"

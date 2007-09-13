@@ -15,6 +15,8 @@
 
 #include <QVariant>
 
+QT_BEGIN_NAMESPACE
+
 /*
  *  Constructs a PreviewWidgetBase as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.
@@ -54,3 +56,5 @@ void PreviewWidgetBase::init()
 void PreviewWidgetBase::destroy()
 {
 }
+
+QT_END_NAMESPACE

@@ -20,7 +20,9 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
 QT_MODULE(Core)
+QT_END_NAMESPACE
 
 #ifndef QT_NO_SETTINGS
 
@@ -29,6 +31,8 @@ QT_MODULE(Core)
 #endif
 
 #include <ctype.h>
+
+QT_BEGIN_NAMESPACE
 
 #ifdef Status // ### we seem to pick up a macro Status --> int somewhere
 #undef Status
@@ -263,6 +267,8 @@ protected:
 private:
     Q_DISABLE_COPY(QSettings)
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SETTINGS
 

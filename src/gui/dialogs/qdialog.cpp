@@ -37,6 +37,8 @@
 #  define SPI_GETSNAPTODEFBUTTON  95
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDialog
     \brief The QDialog class is the base class of dialog windows.
@@ -297,7 +299,10 @@ void QDialogPrivate::hideDefault()
 }
 
 #ifdef Q_OS_TEMP
+QT_BEGIN_INCLUDE_NAMESPACE
 # include "qmessagebox.h"
+QT_END_INCLUDE_NAMESPACE
+
 extern const char * mb_texts[]; // Defined in qmessagebox.cpp
 /*!
   \internal
@@ -1076,3 +1081,5 @@ void QDialog::resizeEvent(QResizeEvent *)
 
     \sa finished(), accepted()
 */
+
+QT_END_NAMESPACE

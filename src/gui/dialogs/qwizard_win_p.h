@@ -34,6 +34,8 @@
 #include <qabstractbutton.h>
 #include <QtGui/private/qwidget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QVistaBackButton : public QAbstractButton
 {
 public:
@@ -108,7 +110,9 @@ private:
     QVistaBackButton *backButton_;
 };
 
-#endif // QT_NO_STYLE_WINDOWSXP
-#endif // QT_NO_WIZARD
 
+QT_END_NAMESPACE
+
+#endif // QT_NO_STYLE_WINDOWSVISTA
+#endif // QT_NO_WIZARD
 #endif // QWIZARD_WIN_P_H

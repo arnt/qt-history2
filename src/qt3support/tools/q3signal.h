@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3Signal : public QObject
@@ -59,6 +61,8 @@ private:
 #endif
 
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

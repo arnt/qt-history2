@@ -19,6 +19,8 @@
 #include <QString>
 #include <QRegExp>
 
+QT_BEGIN_NAMESPACE
+
 using namespace TokenStreamAdapter;
 using namespace TokenEngine;
 using namespace CodeModel;
@@ -1193,3 +1195,5 @@ TokenEngine::TokenRef Semantic::tokenRefFromAST(AST *node)
     const int containerIndex = m_tokenStream->containerIndex(startTokenIndex);
     return TokenEngine::TokenRef(tokenContainer, containerIndex);
 }
+
+QT_END_NAMESPACE

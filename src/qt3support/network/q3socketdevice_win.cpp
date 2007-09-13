@@ -35,6 +35,9 @@
 #  define QT_SS_ALIGNSIZE (sizeof(__int64))
 #  define QT_SS_PAD1SIZE (QT_SS_ALIGNSIZE - sizeof (short))
 #  define QT_SS_PAD2SIZE (QT_SS_MAXSIZE - (sizeof (short) + QT_SS_PAD1SIZE + QT_SS_ALIGNSIZE))
+
+QT_BEGIN_NAMESPACE
+
 struct qt_sockaddr_storage {
       short ss_family;
       char __ss_pad1[QT_SS_PAD1SIZE];
@@ -62,7 +65,9 @@ typedef struct {
 #endif
 
 #ifndef NO_ERRNO_H
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <errno.h>
+QT_END_INCLUDE_NAMESPACE
 #endif
 
 
@@ -1024,3 +1029,5 @@ QHostAddress Q3SocketDevice::peerAddress() const
     }
     return pa;
 }
+
+QT_END_NAMESPACE

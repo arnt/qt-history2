@@ -28,6 +28,7 @@
 #include "qfontengine_ft_p.h"
 #endif
 
+QT_BEGIN_NAMESPACE
 
 void QFont::initialize()
 { }
@@ -101,3 +102,5 @@ QString QFont::lastResortFont() const
     return QString();
 }
 
+
+QT_END_NAMESPACE

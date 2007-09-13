@@ -15,6 +15,8 @@
 #include "qtools_p.h"
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 QVectorData QVectorData::shared_null = { Q_BASIC_ATOMIC_INITIALIZER(1), 0, 0, true, false };
 
 QVectorData *QVectorData::malloc(int sizeofTypedData, int size, int sizeofT, QVectorData *init)
@@ -1000,3 +1002,5 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
+
+QT_END_NAMESPACE

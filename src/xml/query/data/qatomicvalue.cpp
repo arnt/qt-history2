@@ -26,6 +26,8 @@
 
 #include "qitem_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /**
  * @file
  * @short Contains the implementation for AtomicValue. The defintion is in qitem_p.h.
@@ -95,3 +97,5 @@ Item AtomicValue::toXDM(const QVariant &value,
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

@@ -15,6 +15,8 @@
 #include "oubliette.h"
 #include "oublietteview.h"
 
+QT_BEGIN_NAMESPACE
+
 OublietteView::OublietteView()
 {
     m_oubliette = new Oubliette;
@@ -37,3 +39,5 @@ void OublietteView::scrollToCharacter(const QPoint &pt)
     horizontalScrollBar()->setValue(pt.x() - width() / 2);
     verticalScrollBar()->setValue(pt.y() - height() / 2);
 }
+
+QT_END_NAMESPACE

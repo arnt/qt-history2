@@ -20,6 +20,8 @@
 #include "atom.h"
 #include "openedlist.h"
 
+QT_BEGIN_NAMESPACE
+
 static const char roman[] = "m\2d\5c\2l\5x\2v\5i";
 
 OpenedList::OpenedList( Style style )
@@ -194,3 +196,5 @@ int OpenedList::fromRoman( const QString& str )
 	return 0;
     }
 }
+
+QT_END_NAMESPACE

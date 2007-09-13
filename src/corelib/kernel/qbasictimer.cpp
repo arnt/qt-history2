@@ -15,6 +15,8 @@
 #include "qcoreapplication.h"
 #include "qabstracteventdispatcher.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QBasicTimer
     \brief The QBasicTimer class provides timer events for objects.
@@ -104,3 +106,5 @@ void QBasicTimer::stop()
     }
     id = 0;
 }
+
+QT_END_NAMESPACE

@@ -26,6 +26,8 @@
 #include <private/qwindowsurface_qws_p.h>
 #include <private/qwidget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // #define QT_USE_MEMCPY_DUFF
 
 #ifndef QT_NO_QWS_CURSOR
@@ -2729,4 +2731,7 @@ const unsigned char* qt_probe_bus()
 }
 
 #endif
+
 #endif // 0
+
+QT_END_NAMESPACE

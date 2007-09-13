@@ -17,11 +17,11 @@
 #include <QDialog>
 #include <QSettings>
 
-class QComboBox;
-class QDialogButtonBox;
-class QGroupBox;
-class QLabel;
-class QTableWidget;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QTableWidget)
 
 class LocationDialog : public QDialog
 {

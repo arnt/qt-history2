@@ -15,6 +15,8 @@
 #include <qstringlist.h>
 #include "../../../sql/drivers/db2/qsql_db2.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDB2DriverPlugin : public QSqlDriverPlugin
 {
 public:
@@ -47,3 +49,5 @@ QStringList QDB2DriverPlugin::keys() const
 
 Q_EXPORT_STATIC_PLUGIN(QDB2DriverPlugin)
 Q_EXPORT_PLUGIN2(qsqldb2, QDB2DriverPlugin)
+
+QT_END_NAMESPACE

@@ -30,6 +30,8 @@
 #include "private/qabstractscrollarea_p.h"
 #include <QtGui/qscrollbar.h>
 
+QT_BEGIN_NAMESPACE
+
 class QScrollAreaPrivate: public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QScrollArea)
@@ -45,5 +47,7 @@ public:
 };
 
 #endif
+
+QT_END_NAMESPACE
 
 #endif

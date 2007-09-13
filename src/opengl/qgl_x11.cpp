@@ -39,6 +39,8 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
+QT_BEGIN_NAMESPACE
+
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 
@@ -949,7 +951,9 @@ void QGLOverlayWidget::paintGL()
 }
 
 #undef Bool
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qgl_x11.moc"
+QT_END_INCLUDE_NAMESPACE
 
 /*****************************************************************************
   QGLWidget UNIX/GLX-specific code
@@ -1360,3 +1364,5 @@ void QGLExtensions::init()
         nvidiaFboNeedsFinish = nvidiaDriverVersion >= 90.0 && nvidiaDriverVersion < 100.0;
     }
 }
+
+QT_END_NAMESPACE

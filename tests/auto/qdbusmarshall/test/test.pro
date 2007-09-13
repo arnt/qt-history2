@@ -4,3 +4,6 @@ TARGET = ../tst_qdbusmarshall
 
 QT = core
 CONFIG += qdbus
+
+DEFINES += QT_USE_USING_NAMESPACE
+

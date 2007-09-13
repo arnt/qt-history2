@@ -18,6 +18,8 @@
 
 #include <QtCore/QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 namespace CPP {
 
 static QByteArray transformImageData(QString data)
@@ -147,3 +149,5 @@ void WriteIconData::writeImage(QIODevice &output, DomImage *image)
 }
 
 } // namespace CPP
+
+QT_END_NAMESPACE

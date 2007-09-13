@@ -18,6 +18,8 @@
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
 
+QT_BEGIN_NAMESPACE
+
 // ------------ QDesignerMemberSheetPrivate
 class QDesignerMemberSheetPrivate : public  QObjectPrivate {
 public:
@@ -223,3 +225,5 @@ QObject *QDesignerMemberSheetFactory::createExtension(QObject *object, const QSt
 
     return 0;
 }
+
+QT_END_NAMESPACE

@@ -16,8 +16,6 @@
 
 #include "QtCore/qglobal.h"
 
-QT_BEGIN_HEADER
-
 #if defined(QT_ARCH_ALPHA)
 #  include "QtCore/qatomic_alpha.h"
 #elif defined(QT_ARCH_ARM)
@@ -51,8 +49,6 @@ QT_BEGIN_HEADER
 #else
 #  error "Qt has not been ported to this architecture"
 #endif
-
-QT_END_HEADER
 
 #endif // QATOMIC_ARCH_H
 

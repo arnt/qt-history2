@@ -18,6 +18,8 @@
 
 #include <QtGui/QFileDialog>
 
+QT_BEGIN_NAMESPACE
+
 PreferencesDialog::PreferencesDialog(QWidget *parentWidget) :
     QDialog(parentWidget)
 {
@@ -136,3 +138,5 @@ QString PreferencesDialog::chooseTemplatePath(QWidget *parent)
         rc.remove(rc.size() - 1, 1);
     return rc;
 }
+
+QT_END_NAMESPACE

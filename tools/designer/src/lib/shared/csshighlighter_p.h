@@ -28,6 +28,8 @@
 #include <QtGui/QSyntaxHighlighter>
 #include "shared_global_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QDESIGNER_SHARED_EXPORT CssHighlighter : public QSyntaxHighlighter
@@ -46,5 +48,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // CSSHIGHLIGHTER_H

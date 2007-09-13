@@ -30,6 +30,8 @@
         return; \
     }
 
+QT_BEGIN_NAMESPACE
+
 /*
   internal: guesses a descriptive text from a text suited for a menu entry
  */
@@ -1328,6 +1330,8 @@ bool QAction::isIconVisibleInMenu() const
     return d->iconVisibleInMenu;
 }
 
-#include "moc_qaction.cpp"
-#endif // QT_NO_ACTION
+QT_END_NAMESPACE
 
+#include "moc_qaction.cpp"
+
+#endif // QT_NO_ACTION

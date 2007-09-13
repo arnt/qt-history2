@@ -25,6 +25,8 @@
 
 #include <QtCore/QMultiMap>
 
+QT_BEGIN_NAMESPACE
+
 static const int BG_ALPHA =              32;
 static const int LINE_PROXIMITY_RADIUS =  3;
 static const int LOOP_MARGIN  =          20;
@@ -47,7 +49,7 @@ static QRect expand(const QRect &r, int i)
     return QRect(r.x() - i, r.y() - i, r.width() + 2*i, r.height() + 2*i);
 }
 
-static QRect endPointRect(const QPoint &pos)
+static QRect endPointRectHelper(const QPoint &pos)
 {
     const QRect r(pos + QPoint(-LINE_PROXIMITY_RADIUS, -LINE_PROXIMITY_RADIUS),
                   QSize(2*LINE_PROXIMITY_RADIUS, 2*LINE_PROXIMITY_RADIUS));
@@ -759,10 +761,10 @@ QRect Connection::endPointRect(EndPoint::Type type) const
 {
     if (type == EndPoint::Source) {
         if (m_source_pos != QPoint(-1, -1))
-            return ::endPointRect(m_source_pos);
+            return endPointRectHelper(m_source_pos);
     } else {
         if (m_target_pos != QPoint(-1, -1))
-            return ::endPointRect(m_target_pos);
+            return endPointRectHelper(m_target_pos);
     }
     return QRect();
 }
@@ -1474,3 +1476,5 @@ void ConnectionEdit::setTarget(Connection *con, const QString &obj_name)
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

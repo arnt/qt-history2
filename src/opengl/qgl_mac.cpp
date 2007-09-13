@@ -41,6 +41,8 @@
 #include <qdesktopwidget.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   QOpenGL debug facilities
  *****************************************************************************/
@@ -742,3 +744,5 @@ void QGLExtensions::init()
 }
 
 #endif
+
+QT_END_NAMESPACE

@@ -207,6 +207,8 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
 #include <math.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 // QRectF::intersects() returns false always if either the source or target
 // rectangle's width or height are 0. This works around that problem.
 static QRectF _q_adjustedRect(const QRectF &rect)
@@ -3471,6 +3473,8 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
     if (!d->hasSceneRect && d->growingItemsBoundingRect != oldGrowingItemsBoundingRect)
         emit sceneRectChanged(d->growingItemsBoundingRect);
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qgraphicsscene.cpp"
 

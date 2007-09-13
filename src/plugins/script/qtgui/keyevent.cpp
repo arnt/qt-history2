@@ -8,6 +8,8 @@
 Q_DECLARE_METATYPE(QEvent*)
 DECLARE_POINTER_METATYPE(QKeyEvent)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newKeyEvent(QScriptEngine *eng, QKeyEvent *ke)
 {
     return QScript::wrapPointer(eng, ke);
@@ -135,3 +137,5 @@ QScriptValue constructKeyEventClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

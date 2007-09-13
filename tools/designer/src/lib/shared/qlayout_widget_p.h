@@ -34,6 +34,8 @@
 #include <QtGui/QWidget>
 #include <QtGui/QLayout>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerFormEditorInterface;
 class QGridLayout;
@@ -223,5 +225,7 @@ private:
     int m_rightMargin;
     int m_bottomMargin;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_WIDGET_H

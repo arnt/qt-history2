@@ -29,6 +29,8 @@
 
 #if !defined(QT_NO_GRAPHICSVIEW) || (QT_EDITION & QT_MODULE_GRAPHICSVIEW) != QT_MODULE_GRAPHICSVIEW
 
+QT_BEGIN_NAMESPACE
+
 class Q_AUTOTEST_EXPORT QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsItem)
@@ -159,6 +161,8 @@ public:
 
     QGraphicsItem *q_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_GRAPHICSVIEW
 

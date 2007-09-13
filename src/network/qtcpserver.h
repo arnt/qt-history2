@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Network)
 
 class QTcpServerPrivate;
@@ -69,6 +71,8 @@ private:
     Q_DISABLE_COPY(QTcpServer)
     Q_DECLARE_PRIVATE(QTcpServer)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

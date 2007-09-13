@@ -33,6 +33,8 @@
 #include "QtGui/qtextoption.h"
 #include "QtCore/qstack.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTextCharFormat;
 
 class QSvgAnimation : public QSvgNode
@@ -201,5 +203,7 @@ public:
     virtual void draw(QPainter *p);
     virtual Type type() const;
 };
+
+QT_END_NAMESPACE
 
 #endif // QSVGGRAPHICS_P_H

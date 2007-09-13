@@ -30,6 +30,8 @@
 #include <errno.h>
 #include <termios.h>
 
+QT_BEGIN_NAMESPACE
+
 #if defined(QT_QWS_IPAQ)
  #define QT_QWS_IPAQ_RAW
  #define QT_QWS_SCREEN_COORDINATES
@@ -297,5 +299,8 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
     mouseIdx = surplus;
 }
 
+QT_END_NAMESPACE
+
 #include "qmouselinuxtp_qws.moc"
+
 #endif //QT_NO_QWS_MOUSE_LINUXTP

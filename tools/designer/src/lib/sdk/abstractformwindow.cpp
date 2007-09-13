@@ -24,6 +24,8 @@
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerFormWindowInterface
 
@@ -754,3 +756,5 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     This signal is emitted whenever a widget is removed from the form.
     The widget that was removed is specified by \a widget.
 */
+
+QT_END_NAMESPACE

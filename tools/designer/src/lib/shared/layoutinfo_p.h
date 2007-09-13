@@ -27,6 +27,8 @@
 
 #include "shared_global_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 class QLayout;
 class QDesignerFormEditorInterface;
@@ -63,5 +65,7 @@ public:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // LAYOUTINFO_H

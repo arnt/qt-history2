@@ -16,6 +16,8 @@
 
 #include <QtGui/qaccessiblewidget.h>
 
+QT_BEGIN_NAMESPACE
+
 class Q3AccessibleDisplay : public QAccessibleWidget
 {
 public:
@@ -27,5 +29,7 @@ public:
     Relation relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
     int navigate(RelationFlag, int entry, QAccessibleInterface **target) const;
 };
+
+QT_END_NAMESPACE
 
 #endif // Q3SIMPLEWIDGETS_H

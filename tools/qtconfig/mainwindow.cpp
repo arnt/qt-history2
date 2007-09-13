@@ -36,6 +36,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 // from qapplication.cpp and qapplication_x11.cpp - These are NOT for
 // external use ignore them
 // extern bool Q_CORE_EXPORT qt_resolve_symlinks;
@@ -936,3 +938,5 @@ void MainWindow::closeEvent(QCloseEvent *e)
     } else
         e->accept();
 }
+
+QT_END_NAMESPACE

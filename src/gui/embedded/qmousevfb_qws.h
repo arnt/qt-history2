@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_MOUSE_QVFB
@@ -45,6 +47,8 @@ private Q_SLOTS:
     void readMouseData();
 };
 #endif // QT_NO_QWS_MOUSE_QVFB
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -16,6 +16,8 @@
 
 #include <QtGui/QToolButton>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerBrushManagerInterface;
 
 namespace qdesigner_internal {
@@ -51,5 +53,7 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

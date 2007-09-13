@@ -16,6 +16,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 #if defined(_LP64)
 
 #define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
@@ -487,6 +489,8 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelease(qptrdiff valueTo
 }
 
 #endif // _LP64
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

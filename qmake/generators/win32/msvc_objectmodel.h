@@ -23,6 +23,8 @@
 #include <qmap.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 enum DotNET {
     NETUnknown = 0,
     NET2002 = 0x70,
@@ -997,5 +999,7 @@ XmlOutput &operator<<(XmlOutput &, const VCConfiguration &);
 XmlOutput &operator<<(XmlOutput &, VCFilter &);
 XmlOutput &operator<<(XmlOutput &, const VCProjectSingleConfig &);
 XmlOutput &operator<<(XmlOutput &, VCProject &);
+
+QT_END_NAMESPACE
 
 #endif // MSVC_OBJECTMODEL_H

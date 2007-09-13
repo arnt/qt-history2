@@ -61,3 +61,5 @@ mac:ICON = qtdemo.icns
 target.path = $$[QT_INSTALL_BINS]
 sources.files = $$SOURCES $$HEADERS $$RESOURCES qtdemo.pro images xml *.ico *.icns *.rc
 sources.path = $$[QT_INSTALL_DEMOS]/qtdemo
+
+DEFINES += QT_USE_USING_NAMESPACE

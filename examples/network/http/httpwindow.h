@@ -16,15 +16,15 @@
 
 #include <QDialog>
 
-class QDialogButtonBox;
-class QFile;
-class QHttp;
-class QHttpResponseHeader;
-class QLabel;
-class QLineEdit;
-class QProgressDialog;
-class QPushButton;
-class QAuthenticator;
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QFile)
+QT_DECLARE_CLASS(QHttp)
+QT_DECLARE_CLASS(QHttpResponseHeader)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QProgressDialog)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QAuthenticator)
 
 class HttpWindow : public QDialog
 {

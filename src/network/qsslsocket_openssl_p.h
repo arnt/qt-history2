@@ -61,6 +61,8 @@
 #include <openssl/x509v3.h>
 #include <openssl/x509_vfy.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSslSocketBackendPrivate : public QSslSocketPrivate
 {
     Q_DECLARE_PUBLIC(QSslSocket)
@@ -90,5 +92,7 @@ public:
     static QSslCipher QSslCipher_from_SSL_CIPHER(SSL_CIPHER *cipher);
     static QList<QSslCertificate> STACKOFX509_to_QSslCertificates(STACK_OF(X509) *x509);
 };
+
+QT_END_NAMESPACE
 
 #endif

@@ -34,6 +34,8 @@
 #include <qdatetime.h>
 #include <qfile.h>
 
+QT_BEGIN_NAMESPACE
+
 class QDnotifyFileSystemWatcherEngine : public QFileSystemWatcherEngine
 {
     Q_OBJECT
@@ -95,5 +97,7 @@ private:
 };
 
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_FILESYSTEMWATCHER
 #endif // QFILESYSTEMWATCHER_DNOTIFY_P_H

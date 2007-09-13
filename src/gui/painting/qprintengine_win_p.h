@@ -33,6 +33,8 @@
 #include "QtCore/qt_windows.h"
 #include "private/qpaintengine_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QAlphaPaintEnginePrivate;
 class QWin32PrintEnginePrivate;
 class QPrinterPrivate;
@@ -296,6 +298,8 @@ public:
     QTransform painterMatrix;
     QTransform matrix;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER
 

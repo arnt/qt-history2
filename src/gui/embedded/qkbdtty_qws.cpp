@@ -41,6 +41,7 @@
 #include <sys/vt.h>
 #endif
 
+QT_BEGIN_NAMESPACE
 
 #define VTACQSIG SIGUSR1
 #define VTRELSIG SIGUSR2
@@ -228,6 +229,8 @@ void QWSTtyKbPrivate::readKeyboardData()
 }
 
 #endif // QT_NO_QWS_KBD_TTY
+
+QT_END_NAMESPACE
 
 #include "qkbdtty_qws.moc"
 

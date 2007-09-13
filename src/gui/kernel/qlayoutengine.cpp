@@ -21,6 +21,9 @@
 #include <qalgorithms.h>
 
 #include <qdebug.h>
+
+QT_BEGIN_NAMESPACE
+
 //#define QLAYOUT_EXTRA_DEBUG
 
 typedef qint64 Fixed;
@@ -402,3 +405,5 @@ int qSmartSpacing(const QLayout *layout, QStyle::PixelMetric pm)
         return static_cast<QLayout *>(parent)->spacing();
     }
 }
+
+QT_END_NAMESPACE

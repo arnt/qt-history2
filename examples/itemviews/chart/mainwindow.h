@@ -16,9 +16,9 @@
 
 #include <QMainWindow>
 
-class QAbstractItemModel;
-class QAbstractItemView;
-class QItemSelectionModel;
+QT_DECLARE_CLASS(QAbstractItemModel)
+QT_DECLARE_CLASS(QAbstractItemView)
+QT_DECLARE_CLASS(QItemSelectionModel)
 
 class MainWindow : public QMainWindow
 {

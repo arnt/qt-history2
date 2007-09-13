@@ -17,7 +17,9 @@
 #include "mainwindow.h"
 
 #ifdef Q_WS_MAC
+QT_BEGIN_NAMESPACE
 extern void qt_mac_set_menubar_merge(bool merge);
+QT_END_NAMESPACE
 #endif
 
 LanguageChooser::LanguageChooser(QWidget *parent)

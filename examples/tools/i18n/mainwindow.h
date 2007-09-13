@@ -16,12 +16,12 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QGroupBox;
-class QLabel;
-class QListWidget;
-class QMenu;
-class QRadioButton;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QListWidget)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QRadioButton)
 
 class MainWindow : public QMainWindow
 {

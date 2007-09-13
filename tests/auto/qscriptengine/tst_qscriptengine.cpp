@@ -317,8 +317,10 @@ void tst_QScriptEngine::newQObject()
     }
 }
 
+QT_BEGIN_NAMESPACE
 Q_SCRIPT_DECLARE_QMETAOBJECT(QObject, QObject*)
 Q_SCRIPT_DECLARE_QMETAOBJECT(QWidget, QWidget*)
+QT_END_NAMESPACE
 
 void tst_QScriptEngine::newQMetaObject()
 {

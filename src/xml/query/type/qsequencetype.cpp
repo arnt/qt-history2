@@ -13,6 +13,8 @@
 
 #include "qsequencetype_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 SequenceType::SequenceType()
@@ -32,3 +34,5 @@ bool SequenceType::matches(const SequenceType::Ptr other) const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

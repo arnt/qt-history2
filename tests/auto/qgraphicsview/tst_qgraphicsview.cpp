@@ -39,7 +39,9 @@ Q_DECLARE_METATYPE(QRectF)
 Q_DECLARE_METATYPE(Qt::ScrollBarPolicy)
 
 #ifdef Q_WS_X11
+QT_BEGIN_NAMESPACE
 extern void qt_x11_wait_for_window_manager(QWidget *);
+QT_END_NAMESPACE
 #endif
 
 static void sendMousePress(QWidget *widget, const QPoint &point, Qt::MouseButton button = Qt::LeftButton)

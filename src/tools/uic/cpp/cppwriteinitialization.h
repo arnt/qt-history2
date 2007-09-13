@@ -21,6 +21,8 @@
 #include <QtCore/QStack>
 #include <QtCore/QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 class Driver;
 class Uic;
 class DomBrush;
@@ -246,5 +248,7 @@ private:
 };
 
 } // namespace CPP
+
+QT_END_NAMESPACE
 
 #endif // CPPWRITEINITIALIZATION_H

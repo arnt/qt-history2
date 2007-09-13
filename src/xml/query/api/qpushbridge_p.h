@@ -25,9 +25,11 @@
 
 #include "qsequencereceiver_p.h"
 
-class QAbstractXmlPushCallback;
-
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
+
+class QAbstractXmlPushCallback;
 
 class PushBridge : public Patternist::SequenceReceiver
 {
@@ -58,6 +60,8 @@ public:
 private:
     QAbstractXmlPushCallback *const m_receiver;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

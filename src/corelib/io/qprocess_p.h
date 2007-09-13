@@ -41,6 +41,8 @@ typedef int Q_PIPE;
 
 #ifndef QT_NO_PROCESS
 
+QT_BEGIN_NAMESPACE
+
 class QSocketNotifier;
 class QWindowsPipeWriter;
 class QWinEventNotifier;
@@ -210,6 +212,8 @@ public:
     static void initializeProcessManager();
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PROCESS
 

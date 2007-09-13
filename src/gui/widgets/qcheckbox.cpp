@@ -22,6 +22,8 @@
 
 #include "private/qabstractbutton_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QCheckBoxPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QCheckBox)
@@ -393,3 +395,5 @@ QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char* name)
 
     Use checkState() instead.
 */
+
+QT_END_NAMESPACE

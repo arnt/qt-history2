@@ -22,6 +22,8 @@
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3EditorFactory qeditorfactory.h
     \brief The Q3EditorFactory class is used to create editor widgets
@@ -166,4 +168,7 @@ QWidget * Q3EditorFactory::createEditor(QWidget * parent, const QVariant & v)
     }
     return w;
 }
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_SQL

@@ -24,12 +24,15 @@
 # include <QtCore/qt_windows.h>
 #endif
 
+struct sqlite;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 class QSQLite2DriverPrivate;
 class QSQLite2ResultPrivate;
 class QSQLite2Driver;
-struct sqlite;
 
 class QSQLite2Result : public QSqlCachedResult
 {
@@ -86,6 +89,8 @@ public:
 private:
     QSQLite2DriverPrivate* d;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

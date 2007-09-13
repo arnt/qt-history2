@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -134,6 +136,8 @@ namespace Patternist
 
     Q_DECLARE_OPERATORS_FOR_FLAGS(PatternPlatform::Flags)
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

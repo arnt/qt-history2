@@ -31,6 +31,8 @@ TRANSLATOR qdesigner_internal::ComboBoxTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 ComboBoxTaskMenu::ComboBoxTaskMenu(QComboBox *button, QObject *parent)
@@ -104,3 +106,4 @@ void ComboBoxTaskMenu::updateSelection()
         m_editor->deleteLater();
 }
 
+QT_END_NAMESPACE

@@ -24,6 +24,8 @@
 
 #ifndef QT_NO_DESKTOPSERVICES
 
+QT_BEGIN_NAMESPACE
+
 //#undef UNICODE
 
 static bool openDocument(const QUrl &file)
@@ -157,5 +159,7 @@ QString QDesktopServices::displayName(const Location type)
     return QString();
 }
 */
-#endif // QT_NO_DESKTOPSERVICES
 
+QT_END_NAMESPACE
+
+#endif // QT_NO_DESKTOPSERVICES

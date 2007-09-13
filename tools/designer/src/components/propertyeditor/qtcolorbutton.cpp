@@ -15,6 +15,8 @@
 #include <QtGui/QColorDialog>
 #include <QtGui/QPainter>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtColorButtonPrivate
@@ -110,5 +112,7 @@ void QtColorButton::paintEvent(QPaintEvent *e)
     p.fillRect(r, br);
 }
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtcolorbutton.cpp"

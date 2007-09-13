@@ -47,6 +47,8 @@
 #include "private/qfactoryloader_p.h"
 #include "qmutex.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QInputContextFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/inputmethods")))
@@ -241,5 +243,7 @@ QString QInputContextFactory::description( const QString &key )
 #endif // QT_NO_LIBRARY
     return QString();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_IM

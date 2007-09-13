@@ -18,12 +18,12 @@
 #include <QMap>
 #include <QPointer>
 
-class QAction;
-class QComboBox;
-class QFontComboBox;
-class QTextEdit;
-class QTextCharFormat;
-class QMenu;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QFontComboBox)
+QT_DECLARE_CLASS(QTextEdit)
+QT_DECLARE_CLASS(QTextCharFormat)
+QT_DECLARE_CLASS(QMenu)
 
 class TextEdit : public QMainWindow
 {

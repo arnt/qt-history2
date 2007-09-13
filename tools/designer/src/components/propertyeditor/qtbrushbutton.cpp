@@ -16,6 +16,8 @@
 #include <QtGui/QPainter>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtBrushButtonPrivate
@@ -167,4 +169,7 @@ void QtBrushButton::setTexture(const QPixmap &texture)
 }
 
 }
+
+QT_END_NAMESPACE
+
 #include "moc_qtbrushbutton.cpp"

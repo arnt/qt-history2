@@ -27,6 +27,8 @@
 
 #include "qkeysequence.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_SHORTCUT
 struct Q_AUTOTEST_EXPORT QKeyBinding
 {
@@ -62,5 +64,7 @@ public:
 
 };
 #endif // QT_NO_SHORTCUT
+
+QT_END_NAMESPACE
 
 #endif //QKEYSEQUENCE_P_H

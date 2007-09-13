@@ -16,6 +16,8 @@
 #include <QChar>
 #include <QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 using namespace TokenEngine;
 namespace Rpp {
 
@@ -520,3 +522,5 @@ TokenSection MacroFunctionParser::argument(int argumentIndex)
 }
 
 } //namespace Rpp
+
+QT_END_NAMESPACE

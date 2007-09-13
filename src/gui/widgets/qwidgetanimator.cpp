@@ -20,6 +20,8 @@
 
 #include "qwidgetanimator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static const int g_animation_steps = 12;
 static const int g_animation_interval = 16;
 
@@ -32,7 +34,7 @@ static const int g_animate_function[] =
 };
 static const int g_animate_function_points = sizeof(g_animate_function)/sizeof(int);
 
-static inline int animate(int start, int stop, int step, int steps)
+static inline int animateHelper(int start, int stop, int step, int steps)
 {
     if (start == stop)
         return start;
@@ -128,13 +130,13 @@ void QWidgetAnimator::animationStep()
 
         item.step = qMin(item.step + steps, g_animation_steps);
 
-        int x = ::animate(item.r1.left(), item.r2.left(),
+        int x = animateHelper(item.r1.left(), item.r2.left(),
                             item.step, g_animation_steps);
-        int y = ::animate(item.r1.top(), item.r2.top(),
+        int y = animateHelper(item.r1.top(), item.r2.top(),
                             item.step, g_animation_steps);
-        int w = ::animate(item.r1.width(), item.r2.width(),
+        int w = animateHelper(item.r1.width(), item.r2.width(),
                             item.step, g_animation_steps);
-        int h = ::animate(item.r1.height(), item.r2.height(),
+        int h = animateHelper(item.r1.height(), item.r2.height(),
                             item.step, g_animation_steps);
 
         item.widget->setGeometry(x, y, w, h);
@@ -164,3 +166,5 @@ bool QWidgetAnimator::animating(QWidget *widget)
 {
     return m_animation_map.contains(widget);
 }
+
+QT_END_NAMESPACE

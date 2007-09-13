@@ -14,6 +14,10 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 inline bool is_whitespace(char s)
 {
     return (s == ' ' || s == '\t' || s == '\n');
@@ -73,5 +77,7 @@ inline const char *skipQuote(const char *data)
         ++data;
     return data; 
 }
+
+QT_END_NAMESPACE
 
 #endif // UTILS_H

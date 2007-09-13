@@ -53,6 +53,8 @@
 #include <qregexp.h>
 #include <qstringlist.h>
 
+QT_BEGIN_NAMESPACE
+
 /* qmake ignore Q_OBJECT */
 
 /*
@@ -1082,6 +1084,8 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
     return qMax( 0, indent );
 }
 
+QT_END_NAMESPACE
+
 #ifdef Q_TEST_YYINDENT
 /*
   Test driver.
@@ -1091,6 +1095,8 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
 #include <qtextstream.h>
 
 #include <errno.h>
+
+QT_BEGIN_NAMESPACE
 
 static QString fileContents( const QString& fileName )
 {
@@ -1109,8 +1115,12 @@ static QString fileContents( const QString& fileName )
     return contents;
 }
 
+QT_END_NAMESPACE
+
 int main( int argc, char **argv )
 {
+    QT_USE_NAMESPACE
+
     if ( argc != 2 ) {
         qWarning( "usage: yyindent file.cpp" );
         return 1;
@@ -1148,4 +1158,5 @@ int main( int argc, char **argv )
     printf( "%s\n", out.toLatin1().data() );
     return 0;
 }
-#endif
+
+#endif // Q_TEST_YYINDENT

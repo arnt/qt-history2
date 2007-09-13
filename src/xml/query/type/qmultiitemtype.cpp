@@ -15,6 +15,8 @@
 
 #include "qmultiitemtype_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 MultiItemType::MultiItemType(const ItemType::List &list) : m_types(list),
@@ -108,3 +110,5 @@ ItemType::Ptr MultiItemType::atomizedType() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

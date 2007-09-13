@@ -27,6 +27,8 @@ TRANSLATOR qdesigner_internal::ScriptDialog
 #include <QtGui/QMessageBox>
 #include <QtScript/QScriptEngine>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
     // ScriptDialog
@@ -94,3 +96,5 @@ variables <i>widget</i> and <i>childWidgets</i>, respectively.");
         return  false;
     }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

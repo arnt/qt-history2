@@ -4,8 +4,10 @@
 #include <QtGui/QGraphicsPixmapItem>
 #include "../global.h"
 
-DECLARE_POINTER_METATYPE(QGraphicsPixmapItem)
 Q_DECLARE_METATYPE(QPixmap*)
+DECLARE_POINTER_METATYPE(QGraphicsPixmapItem)
+
+QT_BEGIN_NAMESPACE
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -107,3 +109,5 @@ QScriptValue constructGraphicsPixmapItemClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

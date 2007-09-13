@@ -18,6 +18,8 @@
 #include "command.h"
 #include "polyuncompressor.h"
 
+QT_BEGIN_NAMESPACE
+
 PolyUncompressor::PolyUncompressor( const QStringList& extensions,
 				    const QString& commandFormat )
     : Uncompressor( extensions ), cmd( commandFormat )
@@ -47,3 +49,5 @@ void PolyUncompressor::uncompressFile( const Location& location,
     executeCommand( location, cmd,
 		    QStringList() << filePath << outputFilePath );
 }
+
+QT_END_NAMESPACE

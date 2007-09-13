@@ -30,6 +30,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest
 {
 
@@ -65,6 +67,8 @@ inline static bool pixmapsAreEqual(const QPixmap *actual, const QPixmap *expecte
         return false;
     return actual->toImage() == expected->toImage();
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

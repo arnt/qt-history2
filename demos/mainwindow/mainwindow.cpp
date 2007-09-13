@@ -596,7 +596,10 @@ void MainWindow::destroyDockWidget(QAction *action)
     dumpLayout();
 }
 
+QT_BEGIN_NAMESPACE
 extern void qt_dumpLayout(QTextStream &qout, QMainWindow *window); // qmainwindow.cpp
+QT_END_NAMESPACE
+
 void MainWindow::dumpLayout()
 {
     QString text;

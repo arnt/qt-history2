@@ -23,6 +23,8 @@
 #include <QtGui/QLabel>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 class QtMetaEnumWrapper : public QObject
 {
     Q_OBJECT
@@ -6465,6 +6467,8 @@ void QtCursorPropertyManager::uninitializeProperty(QtProperty *property)
 {
     d_ptr->m_values.remove(property);
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtpropertymanager.cpp"
 #include "qtpropertymanager.moc"

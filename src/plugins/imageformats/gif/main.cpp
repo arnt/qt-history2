@@ -21,6 +21,8 @@
 #endif
 #include "qgifhandler.h"
 
+QT_BEGIN_NAMESPACE
+
 class QGifPlugin : public QImageIOPlugin
 {
 public:
@@ -64,3 +66,5 @@ Q_EXPORT_STATIC_PLUGIN(QGifPlugin)
 Q_EXPORT_PLUGIN2(qgif, QGifPlugin)
 
 #endif // QT_NO_IMAGEFORMATPLUGIN
+
+QT_END_NAMESPACE

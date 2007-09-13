@@ -23,8 +23,8 @@
 #include <QPen>
 #include <QPoint>
 
-class QPaintEvent;
-class QString;
+QT_DECLARE_CLASS(QPaintEvent)
+QT_DECLARE_CLASS(QString)
 
 class TabletCanvas : public QWidget
 {

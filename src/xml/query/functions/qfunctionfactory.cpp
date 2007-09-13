@@ -15,6 +15,8 @@
 
 #include "qfunctionfactory_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 FunctionFactory::~FunctionFactory()
@@ -47,3 +49,5 @@ bool FunctionFactory::hasSignature(const FunctionSignature::Ptr &signature) cons
     return false;
 }
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

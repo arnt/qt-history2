@@ -25,6 +25,8 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QRegExp>
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \since 4.3
   \class QScriptValue
@@ -1131,5 +1133,7 @@ void QScriptValue::setData(const QScriptValue &data)
     QScriptValueImpl data_p = QScriptValuePrivate::valueOf(data);
     self.setInternalValue(data_p);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

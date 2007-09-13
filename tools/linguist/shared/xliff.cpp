@@ -21,6 +21,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMessageBox>
 
+QT_BEGIN_NAMESPACE
+
 /**
  * Implementation of XLIFF file format for Linguist
  */
@@ -554,3 +556,5 @@ bool XLIFFHandler::fatalError( const QXmlParseException& exception )
 
     return false;
 }
+
+QT_END_NAMESPACE

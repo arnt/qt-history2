@@ -7,6 +7,8 @@
 
 DECLARE_POINTER_METATYPE(QEvent)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newEvent(QScriptEngine *eng, QEvent *e)
 {
     return QScript::wrapPointer(eng, e);
@@ -241,3 +243,5 @@ QScriptValue constructEventClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

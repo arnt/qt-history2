@@ -20,6 +20,8 @@
 
 #include <QtCore/QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 namespace CPP {
 
 WriteIconInitialization::WriteIconInitialization(Uic *uic)
@@ -75,3 +77,5 @@ void WriteIconInitialization::acceptImage(DomImage *image)
 }
 
 } // namespace CPP
+
+QT_END_NAMESPACE

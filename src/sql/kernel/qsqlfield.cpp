@@ -15,6 +15,8 @@
 #include "qatomic.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSqlFieldPrivate
 {
 public:
@@ -530,3 +532,4 @@ void QSqlField::setAutoValue(bool autoVal)
     d->autoval = autoVal;
 }
 
+QT_END_NAMESPACE

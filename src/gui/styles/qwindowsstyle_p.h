@@ -33,6 +33,8 @@
 #include <qdatetime.h>
 #include <qhash.h>
 
+QT_BEGIN_NAMESPACE
+
 class QStringList;
 class QTime;
 class QProgressBar;
@@ -88,5 +90,8 @@ public:
 #endif
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_STYLE_WINDOWS
+
 #endif //QWINDOWSSTYLE_P_H

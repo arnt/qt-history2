@@ -26,6 +26,7 @@
 #include <qcoreapplication.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_LINEEDIT
 
@@ -527,6 +528,8 @@ bool QBooleanComboBox::value() const
 }
 
 #endif // QT_NO_COMBOBOX
+
+QT_END_NAMESPACE
 
 #if !defined(QT_NO_LINEEDIT) || !defined(QT_NO_COMBOBOX)
 #include "qitemeditorfactory.moc"

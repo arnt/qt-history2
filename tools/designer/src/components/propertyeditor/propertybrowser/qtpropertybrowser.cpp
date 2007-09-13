@@ -16,6 +16,8 @@
 #include <QtCore/QMap>
 #include <QtGui/QIcon>
 
+QT_BEGIN_NAMESPACE
+
 class QtPropertyPrivate
 {
 public:
@@ -1917,5 +1919,6 @@ void QtAbstractPropertyBrowser::unsetFactoryForManager(QtAbstractPropertyManager
     }
 }
 
-#include "moc_qtpropertybrowser.cpp"
+QT_END_NAMESPACE
 
+#include "moc_qtpropertybrowser.cpp"

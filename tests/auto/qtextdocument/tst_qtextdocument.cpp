@@ -24,7 +24,7 @@
 #include <qurl.h>
 #include "common.h"
 
-class QTextDocument;
+QT_DECLARE_CLASS(QTextDocument)
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/text/qtextdocument.h gui/text/qtextdocument.cpp

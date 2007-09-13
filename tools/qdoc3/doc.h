@@ -23,6 +23,8 @@
 
 #include "location.h"
 
+QT_BEGIN_NAMESPACE
+
 class Atom;
 class CodeMarker;
 class Config;
@@ -83,5 +85,7 @@ private:
 
     DocPrivate *priv;
 };
+
+QT_END_NAMESPACE
 
 #endif

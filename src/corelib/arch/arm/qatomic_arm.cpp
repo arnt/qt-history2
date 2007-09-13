@@ -13,4 +13,10 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 Q_CORE_EXPORT char q_atomic_lock = 0;
+
+QT_END_NAMESPACE

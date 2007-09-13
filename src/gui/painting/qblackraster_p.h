@@ -61,8 +61,11 @@ QT_FT_BEGIN_HEADER
 #define QT_FT_EXPORT_VAR( x )  extern  x
 #endif
 
+QT_BEGIN_NAMESPACE
+
   QT_FT_EXPORT_VAR( const QT_FT_Raster_Funcs )  qt_ft_standard_raster;
 
+QT_END_NAMESPACE
 
 QT_FT_END_HEADER
 

@@ -32,6 +32,8 @@
 
 #include <private/qmath_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPicturePaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QPicturePaintEngine)
@@ -471,5 +473,7 @@ void QPicturePaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyCompositionMode) updateCompositionMode(state.compositionMode());
     if (flags & DirtyOpacity) updateOpacity(state.opacity());
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PICTURE

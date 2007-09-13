@@ -32,6 +32,8 @@
 #include <QToolTip>
 #include <QDesktopWidget>
 
+QT_BEGIN_NAMESPACE
+
 static uint MYWM_TASKBARCREATED = 0;
 #define MYWM_NOTIFYICON	(WM_APP+101)
 
@@ -604,3 +606,5 @@ bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
 {
     return true;
 }
+
+QT_END_NAMESPACE

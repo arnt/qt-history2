@@ -26,6 +26,8 @@
 #include "qmousedriverplugin_qws.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
 
@@ -159,6 +161,7 @@ QStringList QMouseDriverFactory::keys()
     }
 #endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
-
     return list;
 }
+
+QT_END_NAMESPACE

@@ -28,6 +28,8 @@
 #include "qplatformdefs.h"
 #include "QtCore/qstring.h"
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(QT_NO_QWS_MULTIPROCESS)
 
 class QWSSharedMemory {
@@ -69,5 +71,7 @@ private:
 };
 
 #endif // QT_NO_QWS_MULTIPROCESS
+
+QT_END_NAMESPACE
 
 #endif // QWSSHAREDMEMORY_P_H

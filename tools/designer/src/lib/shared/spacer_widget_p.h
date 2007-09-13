@@ -31,6 +31,8 @@
 #include <QtGui/QWidget>
 #include <QtGui/QSizePolicy>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 class QDESIGNER_SHARED_EXPORT Spacer: public QWidget
@@ -70,5 +72,7 @@ private:
     bool m_interactive;
     QSize m_sizeHint;
 };
+
+QT_END_NAMESPACE
 
 #endif // SPACER_WIDGET_H

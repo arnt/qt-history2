@@ -19,6 +19,8 @@
 #include "qwindowsystem_p.h"
 #include "qwscursor_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_QWS_CURSOR
 static QWSCursor *systemCursorTable[Qt::LastCursor+1];
 static bool systemCursorTableInit = false;
@@ -621,3 +623,5 @@ void QWSCursor::createDropShadow(int dropx, int dropy)
     }
 #endif
 }
+
+QT_END_NAMESPACE

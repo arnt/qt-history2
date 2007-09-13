@@ -22,6 +22,8 @@
 #include <qbytearray.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSvgIconPlugin : public QIconEnginePluginV2
 {
 public:
@@ -44,5 +46,7 @@ QIconEngineV2 *QSvgIconPlugin::create(const QString &file)
 
 Q_EXPORT_STATIC_PLUGIN(QSvgIconPlugin)
 Q_EXPORT_PLUGIN2(qsvg, QSvgIconPlugin)
+
+QT_END_NAMESPACE
 
 #endif // !QT_NO_IMAGEFORMATPLUGIN

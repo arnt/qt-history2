@@ -30,6 +30,8 @@
 
 #include <QtCore/QDateTime>
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -863,5 +865,8 @@ inline bool QScriptValueImpl::strictlyEquals(const QScriptValueImpl &other) cons
     return eng_p->strictlyEquals(*this, other);
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif

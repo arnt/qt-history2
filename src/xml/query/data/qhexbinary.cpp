@@ -21,6 +21,8 @@
 
 #include "qhexbinary_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 HexBinary::HexBinary(const QByteArray &val) : Base64Binary(val)
@@ -108,3 +110,5 @@ ItemType::Ptr HexBinary::type() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

@@ -151,6 +151,8 @@
 #include "qfileinfo.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 // ### Qt 5: Consider accepting empty strings as valid. See task 144227.
 
 //#define QURL_DEBUG
@@ -2995,13 +2997,13 @@ public:
               << QLatin1String("vn");
     }
 };
-Q_GLOBAL_STATIC(QIdnWhitelist, idnWhitelist)
+Q_GLOBAL_STATIC(QIdnWhitelist, idnWhitelistHelper)
 
 static bool qt_is_idn_enabled(const QStringList &labels)
 {
     const QString &tld = labels.last();
 
-    return idnWhitelist()->contains(tld);
+    return idnWhitelistHelper()->contains(tld);
 }
 
 static QString qt_from_ACE(const QString &domain)
@@ -5022,7 +5024,7 @@ QByteArray QUrl::toAce(const QString &domain)
 */
 QStringList QUrl::idnWhitelist()
 {
-    return *::idnWhitelist();
+    return *idnWhitelistHelper();
 }
 
 /*!
@@ -5045,7 +5047,7 @@ QStringList QUrl::idnWhitelist()
 */
 void QUrl::setIdnWhitelist(const QStringList &list)
 {
-    static_cast<QStringList &>(*::idnWhitelist()) = list;
+    static_cast<QStringList &>(*idnWhitelistHelper()) = list;
 }
 
 /*!
@@ -5434,3 +5436,5 @@ QString QUrl::errorString() const
     \fn DataPtr &QUrl::data_ptr()
     \internal
 */
+
+QT_END_NAMESPACE

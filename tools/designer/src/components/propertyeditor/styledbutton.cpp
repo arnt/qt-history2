@@ -24,6 +24,8 @@ TRANSLATOR qdesigner_internal::StyledButton
 
 #include "styledbutton.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 StyledButton::StyledButton (QWidget *parent, ButtonType type)
@@ -132,3 +134,5 @@ void StyledButton::onEditor()
         emit changed();
     }
 }
+
+QT_END_NAMESPACE

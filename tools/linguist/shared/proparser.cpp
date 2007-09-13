@@ -20,6 +20,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QStringList>
 
+QT_BEGIN_NAMESPACE
+
 // assumes that the list is sorted (or more correctly, that all equal elements are grouped together).
 void removeDuplicates(QStringList *strings, bool alreadySorted /*= true*/)
 {
@@ -135,3 +137,4 @@ QStringList getListOfProfiles(const QStringList &proFiles, bool verbose)
     return profileList;
 }
 
+QT_END_NAMESPACE

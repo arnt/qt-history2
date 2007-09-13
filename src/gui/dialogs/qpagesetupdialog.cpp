@@ -13,6 +13,8 @@
 
 #include <private/qabstractpagesetupdialog_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \enum QPageSetupDialog::PageSetupDialogOption
 
@@ -59,3 +61,5 @@ bool QPageSetupDialog::isOptionEnabled(PageSetupDialogOption option) const
 {
     return reinterpret_cast<const QAbstractPageSetupDialogPrivate *>(d_func())->isOptionEnabled(option);
 }
+
+QT_END_NAMESPACE

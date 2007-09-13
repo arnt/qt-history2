@@ -21,6 +21,8 @@
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 FormWindowWidgetStack::FormWindowWidgetStack(QWidget *parent)
@@ -195,3 +197,4 @@ QSize FormWindowWidgetStack::minimumSizeHint() const
     return QWidget::minimumSizeHint();
 }
 
+QT_END_NAMESPACE

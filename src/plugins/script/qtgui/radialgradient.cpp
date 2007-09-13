@@ -8,6 +8,8 @@ Q_DECLARE_METATYPE(QGradient)
 Q_DECLARE_METATYPE(QRadialGradient)
 Q_DECLARE_METATYPE(QRadialGradient*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newRadialGradient(QScriptEngine *eng, const QRadialGradient &gradient)
 {
     return eng->newVariant(qVariantFromValue(gradient));
@@ -120,3 +122,5 @@ QScriptValue constructRadialGradientClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

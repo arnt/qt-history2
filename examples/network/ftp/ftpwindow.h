@@ -17,16 +17,16 @@
 #include <QDialog>
 #include <QHash>
 
-class QDialogButtonBox;
-class QFile;
-class QFtp;
-class QLabel;
-class QLineEdit;
-class QTreeWidget;
-class QTreeWidgetItem;
-class QProgressDialog;
-class QPushButton;
-class QUrlInfo;
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QFile)
+QT_DECLARE_CLASS(QFtp)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QTreeWidget)
+QT_DECLARE_CLASS(QTreeWidgetItem)
+QT_DECLARE_CLASS(QProgressDialog)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QUrlInfo)
 
 class FtpWindow : public QDialog
 {

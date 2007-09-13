@@ -33,6 +33,8 @@
 
 #include "qxpath10corefunctions_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Expression::Ptr XPath10CoreFunctions::retrieveExpression(const QName name,
@@ -273,3 +275,5 @@ FunctionSignature::Ptr XPath10CoreFunctions::retrieveFunctionSignature(const Nam
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

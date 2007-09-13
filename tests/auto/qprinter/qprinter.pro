@@ -4,3 +4,6 @@ SOURCES  += tst_qprinter.cpp
 
 QT += qt3support
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -27,10 +27,13 @@
 
 #include "QtNetwork/qhostaddress.h"
 #include "private/qabstractsocketengine_p.h"
-
 #ifndef Q_OS_WIN
 #include "qplatformdefs.h"
+#endif
 
+QT_BEGIN_NAMESPACE
+
+#ifndef Q_OS_WIN
 // Almost always the same. If not, specify in qplatformdefs.h.
 #if !defined(QT_SOCKOPTLEN_T)
 # define QT_SOCKOPTLEN_T QT_SOCKLEN_T
@@ -206,5 +209,7 @@ public:
 
     bool fetchConnectionParameters();
 };
+
+QT_END_NAMESPACE
 
 #endif // QNATIVESOCKETENGINE_P_H

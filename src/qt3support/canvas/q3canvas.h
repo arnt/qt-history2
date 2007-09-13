@@ -24,6 +24,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3Support)
 
 class Q3CanvasSprite;
@@ -749,6 +751,8 @@ private:
                       const Q3CanvasEllipse*,
                       const Q3CanvasText*) const;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

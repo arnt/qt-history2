@@ -17,10 +17,10 @@
 #include <QList>
 #include <QMainWindow>
 
-class QAction;
-class QMenu;
-class QTextCodec;
-class QTextEdit;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QTextCodec)
+QT_DECLARE_CLASS(QTextEdit)
 class PreviewForm;
 
 class MainWindow : public QMainWindow

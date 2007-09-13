@@ -22,6 +22,8 @@
 #include "qdbusmetatype.h"
 #include "qdbusutil_p.h"
 
+QT_BEGIN_NAMESPACE
+
 extern QDBUS_EXPORT QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo,
                                                        const QMetaObject *base, int flags);
 
@@ -305,5 +307,7 @@ QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo, con
     return QString::fromLatin1("  <interface name=\"%1\">\n%2  </interface>\n")
         .arg(interface, xml);
 }
+
+QT_END_NAMESPACE
 
 #endif

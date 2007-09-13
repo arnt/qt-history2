@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -154,5 +156,8 @@ inline bool QScript::Member::operator!=(const QScript::Member &other) const
     return m_nameId != other.m_nameId;
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif

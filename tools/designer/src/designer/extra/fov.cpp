@@ -29,6 +29,8 @@
 #include "oublietteplan.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 double FOV::slope(double x1, double y1, double x2, double y2)
 {
 	double xDiff=x1-x2;
@@ -1098,3 +1100,5 @@ void SIMPLEFOV::applyCell(OublietteLevel *map, int x, int y)
 {
 	map->updateTileFlags(QPoint(x, y), Tile::Explored);
 }
+
+QT_END_NAMESPACE

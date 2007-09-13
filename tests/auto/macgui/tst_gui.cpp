@@ -15,9 +15,9 @@
 #include <QProgressDialog>
 #include <QSpinBox>
 
-#ifdef Q_OS_MAC
-
 #include <guitest.h>
+
+#ifdef Q_OS_MAC
 
 class tst_gui : public GuiTester
 {

@@ -29,6 +29,8 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QIcon>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 /*
@@ -134,5 +136,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // ICONCACHE_H

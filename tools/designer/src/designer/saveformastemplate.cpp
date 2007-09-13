@@ -22,6 +22,8 @@
 
 #include <QtDesigner/abstractformwindow.h>
 
+QT_BEGIN_NAMESPACE
+
 SaveFormAsTemplate::SaveFormAsTemplate(QDesignerFormWindowInterface *formWindow, QWidget *parent)
     : QDialog(parent, Qt::Sheet),
       m_formWindow(formWindow)
@@ -120,3 +122,5 @@ void SaveFormAsTemplate::checkToAddPath(int itemIndex)
     ui.categoryCombo->setCurrentIndex(m_addPathIndex);
     ++m_addPathIndex;
 }
+
+QT_END_NAMESPACE

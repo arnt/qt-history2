@@ -30,6 +30,8 @@
 #include "qstring.h"
 #include "qsvgstyle_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSvgGlyph
 {
 public:
@@ -64,4 +66,6 @@ public:
     QHash<QChar, QSvgGlyph> m_glyphs;
 };
 
-#endif
+QT_END_NAMESPACE
+
+#endif // QSVGFONT_P_H

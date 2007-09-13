@@ -32,6 +32,8 @@
 #include <qdesktopwidget.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   Externals
  *****************************************************************************/
@@ -522,4 +524,7 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
     return retstr;
 }
 
-#endif
+QT_END_NAMESPACE
+
+#endif // QT_NO_FILEDIALOG
+

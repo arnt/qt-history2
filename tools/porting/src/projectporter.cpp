@@ -25,6 +25,8 @@
 #include <QFileInfo>
 #include <QBuffer>
 
+QT_BEGIN_NAMESPACE
+
 using namespace TokenEngine;
 
 ProjectPorter::ProjectPorter(QString basePath, QStringList includeDirectories, QStringList qt3HeadersFilenames)
@@ -380,3 +382,5 @@ void ProjectPorter::enableAttributes(const IncludeFiles &includeFiles, const QSt
     TokenAttributes *attributes = tokenContainer.tokenAttributes();
     attributes->addAttribute("CreateAttributes", "True");
 }
+
+QT_END_NAMESPACE

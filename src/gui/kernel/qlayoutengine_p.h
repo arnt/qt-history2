@@ -28,6 +28,8 @@
 #include "QtGui/qlayoutitem.h"
 #include "QtGui/qstyle.h"
 
+QT_BEGIN_NAMESPACE
+
 template <typename T> class QVector;
 
 struct QLayoutStruct
@@ -104,5 +106,7 @@ static inline void qMaxExpCalc(int & max, bool &exp, bool &empty,
     exp = exp || boxexp;
     empty = empty && boxempty;
 }
+
+QT_END_NAMESPACE
 
 #endif // QLAYOUTENGINE_P_H

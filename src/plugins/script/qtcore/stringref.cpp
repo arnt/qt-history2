@@ -7,6 +7,8 @@
 Q_DECLARE_METATYPE(QStringRef)
 Q_DECLARE_METATYPE(QStringRef*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newStringRef(QScriptEngine *eng, const QStringRef &ref)
 {
     return eng->newVariant(qVariantFromValue(ref));
@@ -139,3 +141,5 @@ QScriptValue constructStringRefClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

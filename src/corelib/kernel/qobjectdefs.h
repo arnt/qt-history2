@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QString;
@@ -390,6 +392,8 @@ inline const QMetaObject *QMetaObject::superClass() const
 inline const char *QMetaObject::superClassName() const
 { return d.superdata ? d.superdata->className() : 0; }
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

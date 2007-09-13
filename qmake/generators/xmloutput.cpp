@@ -13,6 +13,8 @@
 
 #include "xmloutput.h"
 
+QT_BEGIN_NAMESPACE
+
 XmlOutput::XmlOutput(QTextStream &file, ConverstionType type)
     : xmlFile(file), indent("\t"), currentLevel(0), currentState(Bare), format(NewLine),
       conversion(type)
@@ -306,3 +308,5 @@ void XmlOutput::addAttribute(const QString &attribute, const QString &value)
         xmlFile << endl;
     xmlFile << currentIndent << doConversion(attribute) << "=\"" << doConversion(value) << "\"";
 }
+
+QT_END_NAMESPACE

@@ -29,6 +29,8 @@
 #include "QtGui/qmime.h"
 #include "QtGui/qclipboard.h"
 
+QT_BEGIN_NAMESPACE
+
 class QClipboardPrivate;
 
 class QMimeDataWrapper : public QMimeSource
@@ -95,5 +97,7 @@ inline QMimeSourceWrapper::~QMimeSourceWrapper()
         d->compat_data[mode] = 0;
     delete source;
 }
+
+QT_END_NAMESPACE
 
 #endif // QCLIPBOARD_P_H

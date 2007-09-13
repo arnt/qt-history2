@@ -80,6 +80,8 @@
 #include <QtCore/qstack.h>
 #include <QtCore/qvariant.h>
 
+QT_BEGIN_NAMESPACE
+
 class QDirIteratorPrivate
 {
 public:
@@ -510,3 +512,5 @@ QString QDirIterator::path() const
 {
     return d->path;
 }
+
+QT_END_NAMESPACE

@@ -28,6 +28,8 @@
 
 #include <math.h> // floor & friends...
 
+QT_BEGIN_NAMESPACE
+
 #define Q_SCRIPT_NO_PRINT_GENERATED_CODE
 
 #define Q_SCRIPT_NO_JOINED_FUNCTION
@@ -2419,5 +2421,7 @@ QScriptContextPrivate *QScriptContextPrivate::exceptionHandlerContext() const
         return handlerContext;
     return 0;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

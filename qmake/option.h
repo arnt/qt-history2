@@ -19,6 +19,8 @@
 #include <qstringlist.h>
 #include <qfile.h>
 
+QT_BEGIN_NAMESPACE
+
 #define QMAKE_VERSION_MAJOR 2
 #define QMAKE_VERSION_MINOR 1
 #define QMAKE_VERSION_PATCH 0
@@ -178,5 +180,7 @@ public:
     };
     static QString location(LibraryLocation);
 };
+
+QT_END_NAMESPACE
 
 #endif // OPTION_H

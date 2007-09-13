@@ -36,6 +36,8 @@
 #include <errno.h>
 #include <sys/types.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef __MIPSEL__
 # ifndef SOCK_DGRAM
 #  define SOCK_DGRAM 1
@@ -441,7 +443,9 @@ void Q3ProcessManager::sigchldHnd( int fd )
 	sn->setEnabled( true );
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "q3process_unix.moc"
+QT_END_INCLUDE_NAMESPACE
 
 
 /***********************************************************************
@@ -1375,5 +1379,7 @@ Q3Process::PID Q3Process::processIdentifier()
 	return -1;
     return d->proc->pid;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PROCESS

@@ -18,6 +18,8 @@
 #include <QtCore/qstring.h>
 #include <private/qgraphicsitem_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QGraphicsSceneInsertItemBspTreeVisitor : public QGraphicsSceneBspTreeVisitor
 {
 public:
@@ -292,5 +294,7 @@ QRectF QGraphicsSceneBspTree::rectForIndex(int index) const
 
     return rect;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_GRAPHICSVIEW

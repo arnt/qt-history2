@@ -33,6 +33,8 @@
 #  define UTF16 "UTF-16"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 QIconvCodec::QIconvCodec()
     : utf16Codec(0)
 {
@@ -293,3 +295,5 @@ iconv_t QIconvCodec::createIconv_t(const char *to, const char *from)
 
     return cd;
 }
+
+QT_END_NAMESPACE

@@ -16,14 +16,14 @@
 
 #include <QWidget>
 
-class QAbstractItemModel;
-class QCheckBox;
-class QComboBox;
-class QGroupBox;
-class QLabel;
-class QLineEdit;
-class QSortFilterProxyModel;
-class QTreeView;
+QT_DECLARE_CLASS(QAbstractItemModel)
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QSortFilterProxyModel)
+QT_DECLARE_CLASS(QTreeView)
 
 class Window : public QWidget
 {

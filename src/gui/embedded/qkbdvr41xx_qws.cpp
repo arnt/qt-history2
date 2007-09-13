@@ -25,6 +25,8 @@
 
 #include <qsocketnotifier.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWSVr41xxKbPrivate : public QObject
 {
     Q_OBJECT
@@ -148,7 +150,8 @@ void QWSVr41xxKbPrivate::readKeyboardData()
     kbdIdx = surplus;
 }
 
+QT_END_NAMESPACE
+
 #include "qkbdvr41xx_qws.moc"
 
 #endif // QT_NO_QWS_KBD_VR41XX
-

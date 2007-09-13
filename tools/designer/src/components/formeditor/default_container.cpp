@@ -14,6 +14,8 @@
 #include "default_container.h"
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 template <class Container>
 static inline void setCurrentContainerIndex(int index, Container *container)
 {
@@ -135,3 +137,5 @@ QDockWidgetContainer::QDockWidgetContainer(QDockWidget *widget, QObject *parent)
 }
 
 }
+
+QT_END_NAMESPACE

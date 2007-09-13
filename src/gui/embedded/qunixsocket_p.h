@@ -34,6 +34,8 @@ extern "C" {
 #include <sys/types.h>
 };
 
+QT_BEGIN_NAMESPACE
+
 class QUnixSocketRights;
 class QUnixSocketRightsPrivate;
 class QUnixSocketPrivate;
@@ -166,5 +168,7 @@ private:
 
     QUnixSocketPrivate * d;
 };
+
+QT_END_NAMESPACE
 
 #endif // QUNIXSOCKET_P_H

@@ -20,6 +20,8 @@
 #include <QXmlAttributes>
 #include <QXmlParseException>
 
+QT_BEGIN_NAMESPACE
+
 class Profile;
 
 struct ContentItem {
@@ -130,5 +132,7 @@ private:
     QString propertyName;
     Profile *prof;
 };
+
+QT_END_NAMESPACE
 
 #endif // DOCUPARSER_H

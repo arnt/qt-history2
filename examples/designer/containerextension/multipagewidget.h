@@ -16,9 +16,9 @@
 
 #include <QWidget>
 
-class QComboBox;
-class QStackedWidget;
-class QVBoxLayout;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QStackedWidget)
+QT_DECLARE_CLASS(QVBoxLayout)
 
 class MultiPageWidget : public QWidget
 {

@@ -22,6 +22,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qtextstream.h>
 
+QT_BEGIN_NAMESPACE
+
 static QDBusIntrospection::Annotations
 parseAnnotations(const QDomElement& elem)
 {
@@ -334,5 +336,7 @@ QDBusXmlParser::objectTree() const
     }
 
     return QSharedDataPointer<QDBusIntrospection::ObjectTree>( retval );
+
+QT_END_NAMESPACE
 }
 

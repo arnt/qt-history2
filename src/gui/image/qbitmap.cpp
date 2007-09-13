@@ -20,6 +20,8 @@
 #include <private/qt_x11_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QBitmap
     \brief The QBitmap class provides monochrome (1-bit depth) pixmaps.
@@ -424,3 +426,5 @@ QBitmap QBitmap::transformed(const QMatrix &matrix) const
     use QImage::Format_Mono.
 */
 #endif
+
+QT_END_NAMESPACE

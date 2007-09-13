@@ -32,6 +32,10 @@
 #include <private/qdnd_p.h>
 #include <private/qt_mac_p.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 struct QMacDndAnswerRecord {
     QRect rect;
     Qt::KeyboardModifiers modifiers;
@@ -635,3 +639,5 @@ void QDragManager::updatePixmap()
 }
 
 #endif // QT_NO_DRAGANDDROP
+
+QT_END_NAMESPACE

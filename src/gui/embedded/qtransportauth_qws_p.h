@@ -36,6 +36,8 @@
 
 #include <QtCore/qcache.h>
 
+QT_BEGIN_NAMESPACE
+
 // Uncomment to generate debug output
 // #define QTRANSPORTAUTH_DEBUG 1
 
@@ -359,5 +361,7 @@ class FAREnforcer
 };
 
 #endif // QT_NO_SXE
+
+QT_END_NAMESPACE
 #endif // QTRANSPORTAUTH_QWS_P_H
 

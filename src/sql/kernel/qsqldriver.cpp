@@ -19,6 +19,8 @@
 #include "qsqlindex.h"
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSqlDriverPrivate : public QObjectPrivate
 {
 public:
@@ -788,3 +790,5 @@ QStringList QSqlDriver::subscribedToNotificationsImplementation() const
 {
     return QStringList();
 }
+
+QT_END_NAMESPACE

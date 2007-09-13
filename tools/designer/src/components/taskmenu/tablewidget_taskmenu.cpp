@@ -30,6 +30,8 @@ TRANSLATOR qdesigner_internal::TableWidgetTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 TableWidgetTaskMenu::TableWidgetTaskMenu(QTableWidget *button, QObject *parent)
@@ -80,3 +82,4 @@ void TableWidgetTaskMenu::updateSelection()
         m_editor->deleteLater();
 }
 
+QT_END_NAMESPACE

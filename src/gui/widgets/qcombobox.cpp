@@ -40,6 +40,10 @@
 #include <QMacStyle>
 #endif
 
+QT_BEGIN_NAMESPACE
+
+extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
+
 QComboBoxPrivate::QComboBoxPrivate()
     : QWidgetPrivate(),
       model(0),
@@ -105,7 +109,6 @@ QStyleOptionMenuItem QComboMenuDelegate::getStyleOption(const QStyleOptionViewIt
     menuOption.maxIconWidth =  option.decorationSize.width() + 4;
     menuOption.menuRect = option.rect;
     menuOption.rect = option.rect;
-    extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
 
     // Make sure fonts set on the combo box also overrides the font for the popup menu.
     if (mCombo->testAttribute(Qt::WA_SetFont))
@@ -2940,6 +2943,8 @@ void QComboBox::setModelColumn(int visibleColumn)
     Use QComboBox::InsertPolicy instead.
 */
 
+QT_END_NAMESPACE
 
 #include "moc_qcombobox.cpp"
+
 #endif // QT_NO_COMBOBOX

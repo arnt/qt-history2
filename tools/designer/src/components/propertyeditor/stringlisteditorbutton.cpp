@@ -20,6 +20,8 @@ TRANSLATOR qdesigner_internal::StringListEditorButton
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 StringListEditorButton::StringListEditorButton(
@@ -51,3 +53,5 @@ void StringListEditorButton::showStringListEditor()
         emit stringListChanged(m_stringList);
     }
 }
+
+QT_END_NAMESPACE

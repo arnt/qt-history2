@@ -23,6 +23,8 @@
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 QDesignerActionProvider::QDesignerActionProvider(QWidget *widget, QObject *parent)
@@ -136,3 +138,5 @@ QObject *QDesignerActionProviderFactory::createExtension(QObject *object, const 
 
     return 0;
 }
+
+QT_END_NAMESPACE

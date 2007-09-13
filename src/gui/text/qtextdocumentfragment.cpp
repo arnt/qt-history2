@@ -23,6 +23,8 @@
 #include <qdatastream.h>
 #include <qdatetime.h>
 
+QT_BEGIN_NAMESPACE
+
 QTextCopyHelper::QTextCopyHelper(const QTextCursor &_source, const QTextCursor &_destination, bool forceCharFormat, const QTextCharFormat &fmt)
     : formatCollection(*_destination.d->priv->formatCollection()), originalText(_source.d->priv->buffer())
 {
@@ -1128,3 +1130,5 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html, const
     importer.import();
     return res;
 }
+
+QT_END_NAMESPACE

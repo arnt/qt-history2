@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_MAINWINDOW
@@ -201,6 +203,8 @@ inline Q3DockArea *Q3DockWindow::area() const
 }
 
 #endif // QT_NO_MAINWINDOW
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

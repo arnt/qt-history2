@@ -28,16 +28,20 @@
 #include <stdlib.h>
 
 
-// -----------------------------------------------------------------------------------------------------
+QT_BEGIN_NAMESPACE
+
+// ----------------------------------------------------------------------------
 //
 // The BiDi algorithm
 //
-// -----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 
 #define BIDI_DEBUG 0
 #if (BIDI_DEBUG >= 1)
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <iostream>
+QT_END_INCLUDE_NAMESPACE
 using namespace std;
 
 static const char *directions[] = {
@@ -622,15 +626,17 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
 #endif
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
+
 #if defined(Q_WS_X11) || defined (Q_WS_QWS)
-
-#include "qfontengine_ft_p.h"
-
+#   include "qfontengine_ft_p.h"
 #elif defined(Q_WS_MAC)
 # include "qtextengine_mac.cpp"
 #endif
 
 #include <private/qharfbuzz_p.h>
+
+QT_END_INCLUDE_NAMESPACE
 
 static bool stringToGlyphs(HB_ShaperItem *item, HB_Glyph *itemGlyphs, QFontEngine *fontEngine)
 {
@@ -2096,3 +2102,5 @@ QTextItemInt::QTextItemInt(const QScriptItem &si, QFont *font, const QTextCharFo
     if (f->d->strikeOut || format.fontStrikeOut())
         flags |= QTextItem::StrikeOut;
 }
+
+QT_END_NAMESPACE

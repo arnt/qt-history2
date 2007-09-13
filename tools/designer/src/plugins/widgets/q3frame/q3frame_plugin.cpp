@@ -16,6 +16,8 @@
 #include <Qt3Support/Q3Frame>
 #include <QtCore/qplugin.h>
 
+QT_BEGIN_NAMESPACE
+
 Q3FramePlugin::Q3FramePlugin(QObject *parent)
     : QObject(parent),
       m_initialized(false)
@@ -78,3 +80,5 @@ void Q3FramePlugin::initialize(QDesignerFormEditorInterface *core)
     m_initialized = true;
 }
 
+
+QT_END_NAMESPACE

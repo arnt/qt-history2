@@ -27,6 +27,8 @@
 #define P (*fragment(p))
 #define PP (*fragment(pp))
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QT_QMAP_DEBUG
 #define PMDEBUG qDebug
 void QFragmentMap::inorder(uint x, int level) {
@@ -615,3 +617,5 @@ int QFragmentMapData::length() const {
     return root ? sizeLeft(root) + size(root) + sizeRight(root) : 0;
 }
 
+
+QT_END_NAMESPACE

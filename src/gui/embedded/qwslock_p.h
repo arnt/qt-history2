@@ -27,6 +27,8 @@
 
 #include <qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_QWS_MULTIPROCESS
 
 class QWSLock
@@ -49,5 +51,7 @@ private:
     int lockCount[2];
 };
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_QWS_MULTIPROCESS
 #endif // QWSLOCK_P_H

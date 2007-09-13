@@ -31,13 +31,17 @@
 #define CALLBACK_CALL_TYPE
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QT_LSB
 
 // LSB doesn't standardize png_info_struct and png_struct_def
 // These structs are documented to not change, so fork as much as
 // we need. In the future, we should use the propper accessors, though.
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <setjmp.h>
+QT_END_INCLUDE_NAMESPACE
 
 struct png_info_struct
 {
@@ -137,7 +141,6 @@ struct png_struct_def
 };
 
 #endif // QT_LSB
-
 
 /*
   All PNG files load to the minimal QImage equivalent.
@@ -978,5 +981,7 @@ QByteArray QPngHandler::name() const
 {
     return "png";
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_IMAGEFORMAT_PNG

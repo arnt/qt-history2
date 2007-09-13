@@ -26,6 +26,10 @@
 #include <qwsproperty_qws.h>
 #include <qwsevent_qws.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 
 /*****************************************************************************
   Internal QClipboard functions for Qtopia Core
@@ -268,3 +272,5 @@ void QClipboard::ownerDestroyed()
 }
 
 #endif // QT_NO_CLIPBOARD
+
+QT_END_NAMESPACE

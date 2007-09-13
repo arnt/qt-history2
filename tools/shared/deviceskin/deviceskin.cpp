@@ -35,6 +35,8 @@
 #  include <QtGui/QHBoxLayout>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { joydistance = 10, key_repeat_period = 50, key_repeat_delay = 500 };
     enum { debugDeviceSkin = 0 };
@@ -788,3 +790,6 @@ int main(int argc,char *argv[])
 }
 
 #endif
+
+QT_END_NAMESPACE
+

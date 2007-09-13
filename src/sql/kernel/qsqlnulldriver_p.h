@@ -30,6 +30,8 @@
 #include "QtSql/qsqlerror.h"
 #include "QtSql/qsqlresult.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSqlNullResult : public QSqlResult
 {
 public:
@@ -78,5 +80,7 @@ protected:
     inline void setOpenError(bool) {}
     inline void setLastError(const QSqlError&) {}
 };
+
+QT_END_NAMESPACE
 
 #endif // QSQLNULLDRIVER_P_H

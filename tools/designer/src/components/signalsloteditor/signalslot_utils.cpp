@@ -25,9 +25,10 @@
 
 #include <QtCore/QPair>
 
-namespace {
-    typedef QPair<QString, QString> ClassNameSignaturePair;
-}
+
+QT_BEGIN_NAMESPACE
+
+typedef QPair<QString, QString> ClassNameSignaturePair;
 
 // Find all member functions that match a predicate on the signature string
 // using the member sheet and the fake methods stored in the widget
@@ -261,3 +262,5 @@ namespace qdesigner_internal {
         return object->objectName();
     }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

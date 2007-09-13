@@ -27,6 +27,8 @@
 
 #include "../global.h"
 
+QT_BEGIN_NAMESPACE
+
 QScriptValue constructByteArrayClass(QScriptEngine *eng);
 QScriptValue constructDirClass(QScriptEngine *eng);
 QScriptValue constructEventClass(QScriptEngine *eng);
@@ -218,3 +220,5 @@ void QtCoreScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
 
 Q_EXPORT_STATIC_PLUGIN(QtCoreScriptPlugin)
 Q_EXPORT_PLUGIN2(qtscriptcore, QtCoreScriptPlugin)
+
+QT_END_NAMESPACE

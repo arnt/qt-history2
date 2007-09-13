@@ -17,6 +17,8 @@
 #include "qdatastream.h"
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class Q3GDict
   \reentrant
@@ -1120,3 +1122,5 @@ Q3PtrCollection::Item Q3GDictIterator::operator+=(uint jumps)
         operator++();
     return curNode ? curNode->getData() : 0;
 }
+
+QT_END_NAMESPACE

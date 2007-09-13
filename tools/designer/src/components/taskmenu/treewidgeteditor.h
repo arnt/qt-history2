@@ -16,6 +16,8 @@
 
 #include "ui_treewidgeteditor.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTreeWidget;
 class QDesignerFormWindowInterface;
 
@@ -74,5 +76,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // TREEWIDGETEDITOR_H

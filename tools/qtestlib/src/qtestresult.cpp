@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest
 {
     static QTestData *currentTestData = 0;
@@ -316,3 +318,4 @@ bool QTestResult::skipCurrentTest()
     return QTest::skipCurrentTest;
 }
 
+QT_END_NAMESPACE

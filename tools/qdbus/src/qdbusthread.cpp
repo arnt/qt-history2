@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <dbus/dbus.h>
 
+QT_BEGIN_NAMESPACE
+
 struct DBusMutex: public QMutex
 {
     inline DBusMutex(QMutex::RecursionMode mode = QMutex::NonRecursive)
@@ -148,5 +150,7 @@ bool qDBusInitThreads()
     dbus_threads_init(&fcn);
 
     return true;
+
+QT_END_NAMESPACE
 #endif
 }

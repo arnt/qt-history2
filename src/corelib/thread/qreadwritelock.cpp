@@ -21,6 +21,8 @@
 
 #include "qreadwritelock_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*! \class QReadWriteLock
     \brief The QReadWriteLock class provides read-write locking.
 
@@ -492,5 +494,7 @@ void QReadWriteLock::unlock()
     Returns a pointer to the read-write lock that was passed
     to the constructor.
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_THREAD

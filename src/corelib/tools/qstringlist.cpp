@@ -13,6 +13,8 @@
 
 #include <qstringlist.h>
 
+QT_BEGIN_NAMESPACE
+
 /*! \typedef QStringListIterator
     \relates QStringList
 
@@ -580,3 +582,5 @@ int QtPrivate::QStringList_lastIndexOf(const QStringList *that, const QRegExp &r
 
     \sa indexOf(), QList::lastIndexOf()
 */
+
+QT_END_NAMESPACE

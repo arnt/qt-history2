@@ -16,6 +16,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 #define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
 
 inline bool QBasicAtomicInt::isReferenceCountingNative()
@@ -604,6 +606,8 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueTo
 {
     return fetchAndAddAcquire(valueToAdd);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

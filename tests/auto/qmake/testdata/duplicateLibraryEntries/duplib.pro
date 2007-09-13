@@ -6,3 +6,6 @@ JOINEDLIBS = $$join(LIBS, "_")
    message("FAILED: duplibs")
 }
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

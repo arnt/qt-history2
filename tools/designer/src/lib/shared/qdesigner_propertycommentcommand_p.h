@@ -30,6 +30,8 @@
 #include <QtCore/QList>
 #include <QtCore/QVariant>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -71,7 +73,8 @@ private:
     QString m_newCommentValue;
 };
 
-
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_PROPERTYCOMMENTCOMMAND_H

@@ -28,6 +28,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 class StringClassData: public QScriptClassData
@@ -646,5 +648,7 @@ QScriptValueImpl String::method_fromCharCode(QScriptContextPrivate *context, QSc
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

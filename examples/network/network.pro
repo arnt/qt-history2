@@ -17,3 +17,4 @@ contains(QT_CONFIG, openssl):SUBDIRS += securesocketclient
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS network.pro README
 sources.path = $$[QT_INSTALL_EXAMPLES]/network
 INSTALLS += sources
+DEFINES += QT_USE_USING_NAMESPACE

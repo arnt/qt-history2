@@ -40,6 +40,9 @@
 #include <QtGui/QFocusFrame>
 
 #ifndef QT_NO_ACCESSIBILITY
+
+QT_BEGIN_NAMESPACE
+
 using namespace QAccessible2;
 
 QList<QWidget*> childWidgets(const QWidget *widget, bool includeTopLevel)
@@ -1623,5 +1626,6 @@ QMainWindow *QAccessibleMainWindow::mainWindow() const
 
 #endif //QT_NO_MAINWINDOW
 
+QT_END_NAMESPACE
 
 #endif // QT_NO_ACCESSIBILITY

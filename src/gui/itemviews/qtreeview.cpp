@@ -33,6 +33,8 @@
 
 #include <private/qtreeview_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QTreeView
     \brief The QTreeView class provides a default model/view implementation of a tree view.
@@ -3385,6 +3387,8 @@ int QTreeView::visualIndex(const QModelIndex &index) const
     d->executePostedLayout();
     return d->viewIndex(index);
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtreeview.cpp"
 

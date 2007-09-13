@@ -19,6 +19,8 @@
 #include <QList>
 #include <QAbstractItemModel>
 
+QT_BEGIN_NAMESPACE
+
 class PhraseModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -61,5 +63,7 @@ private:
 
     QList<Phrase> plist;
 };
+
+QT_END_NAMESPACE
 
 #endif // PHRASEMODEL_H

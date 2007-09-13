@@ -13,3 +13,6 @@ win32 {
 
 QT = core network
 embedded: QT += gui
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 template <class Key, class T>
@@ -178,6 +180,8 @@ void QCache<Key,T>::trim(int m)
             unlink(*u);
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

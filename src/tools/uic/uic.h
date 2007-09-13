@@ -21,6 +21,8 @@
 #include <QtCore/QHash>
 #include <QtCore/QStack>
 
+QT_BEGIN_NAMESPACE
+
 class QTextStream;
 class QIODevice;
 
@@ -106,5 +108,7 @@ private:
     QString pixFunction;
     bool externalPix;
 };
+
+QT_END_NAMESPACE
 
 #endif // UIC_H

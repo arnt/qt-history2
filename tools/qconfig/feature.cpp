@@ -17,6 +17,8 @@
 #include <QLibraryInfo>
 #include <QFileInfo>
 
+QT_BEGIN_NAMESPACE
+
 QMap<QString, Feature*> Feature::instances;
 
 Feature* Feature::getInstance(const QString &key)
@@ -204,3 +206,4 @@ void Feature::updateSelectable()
     }
 }
 
+QT_END_NAMESPACE

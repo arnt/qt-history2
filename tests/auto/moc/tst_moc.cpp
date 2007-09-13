@@ -41,6 +41,8 @@
 #  define NOLONGLONG
 #endif
 
+QT_USE_NAMESPACE
+
 struct MyStruct {};
 struct MyStruct2 {};
 

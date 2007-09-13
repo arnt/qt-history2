@@ -16,6 +16,8 @@
 #include <QMap>
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef QMap<QByteArray, MetaTranslatorMessage> TMM;
 typedef QList<MetaTranslatorMessage> TML;
 
@@ -74,3 +76,5 @@ int applySameTextHeuristic( MetaTranslator *tor )
     }
     return inserted;
 }
+
+QT_END_NAMESPACE

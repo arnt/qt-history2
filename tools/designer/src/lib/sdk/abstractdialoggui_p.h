@@ -31,6 +31,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 
 class QDESIGNER_SDK_EXPORT QDesignerDialogGuiInterface
@@ -58,6 +60,8 @@ private:
     QDesignerDialogGuiInterface(const QDesignerDialogGuiInterface &other);
     QDesignerDialogGuiInterface &operator=(const QDesignerDialogGuiInterface &other);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

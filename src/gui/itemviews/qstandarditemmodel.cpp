@@ -26,6 +26,8 @@
 #include <private/qstandarditemmodel_p.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 class QStandardItemModelLessThan
 {
 public:
@@ -2812,6 +2814,8 @@ void QStandardItemModel::sort(int column, Qt::SortOrder order)
   \fn QObject *QStandardItemModel::parent() const
   \internal
 */
+
+QT_END_NAMESPACE
 
 #include "moc_qstandarditemmodel.cpp"
 

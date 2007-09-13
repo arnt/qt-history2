@@ -20,6 +20,8 @@
 #include <qfontmetrics.h>
 #include <qbrush.h>
 
+QT_BEGIN_NAMESPACE
+
 #include "qcssscanner.cpp"
 
 using namespace QCss;
@@ -1173,7 +1175,7 @@ bool Declaration::realValue(qreal *real, const char *unit) const
     return ok;
 }
 
-static bool intValue(const Value &v, int *i, const char *unit)
+static bool intValueHelper(const Value &v, int *i, const char *unit)
 {
     if (unit && v.type != Value::Length)
         return false;
@@ -1194,16 +1196,16 @@ bool Declaration::intValue(int *i, const char *unit) const
 {
     if (values.count() != 1)
         return false;
-    return ::intValue(values.first(), i, unit);
+    return intValueHelper(values.first(), i, unit);
 }
 
 QSize Declaration::sizeValue() const
 {
     int x[2] = { 0, 0 };
     if (values.count() > 0)
-        ::intValue(values.at(0), &x[0], "px");
+        intValueHelper(values.at(0), &x[0], "px");
     if (values.count() > 1)
-        ::intValue(values.at(1), &x[1], "px");
+        intValueHelper(values.at(1), &x[1], "px");
     else
         x[1] = x[0];
     return QSize(x[0], x[1]);
@@ -2371,3 +2373,4 @@ bool Parser::testTokenAndEndsWith(TokenType t, const QLatin1String &str)
     return true;
 }
 
+QT_END_NAMESPACE

@@ -14,7 +14,10 @@
 #ifndef CONTROLINFO_H
 #define CONTROLINFO_H
 
+#include <QtCore/qglobal.h>
 #include "ui_controlinfo.h"
+
+QT_BEGIN_NAMESPACE
 
 class ControlInfo : public QDialog, Ui::ControlInfo
 {
@@ -24,5 +27,7 @@ public:
 
     void setControl(QWidget *activex);
 };
+
+QT_END_NAMESPACE
 
 #endif // CONTROLINFO_H

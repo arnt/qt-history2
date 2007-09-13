@@ -7,8 +7,8 @@
 #include <QList>
 #include <QString>
 
-class QStringList;
-class QSettings;
+QT_DECLARE_CLASS(QStringList)
+QT_DECLARE_CLASS(QSettings)
 
 struct HTMLImage
 {

@@ -7,3 +7,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/spinboxes
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS spinboxes.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/spinboxes
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

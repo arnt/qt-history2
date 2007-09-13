@@ -14,6 +14,8 @@
 #include "qdbusserver.h"
 #include "qdbusconnection_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDBusServer
     \inmodule QtDBus
@@ -81,5 +83,7 @@ QString QDBusServer::address() const
   \fn void QDBusServer::newConnection(const QDBusConnection &connection)
 
   This signal is currently not used, but if and when it is
+
+QT_END_NAMESPACE
   used, \a connection will be the new connection. 
  */

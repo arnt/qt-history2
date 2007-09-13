@@ -26,6 +26,8 @@
 
 #include <private/qwidget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QStatusBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QStatusBar)
@@ -740,5 +742,7 @@ bool QStatusBar::event(QEvent *e)
     }
     return QWidget::event(e);
 }
+
+QT_END_NAMESPACE
 
 #endif

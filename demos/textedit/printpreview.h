@@ -20,7 +20,7 @@
 #include <QSizeF>
 
 class PreviewView;
-class QTextDocument;
+QT_DECLARE_CLASS(QTextDocument)
 
 class PrintPreview : public QMainWindow
 {

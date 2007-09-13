@@ -17,6 +17,8 @@
 
 #include "qunaryexpression_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Expression::Ptr UnaryExpression::create(const AtomicMathematician::Operator op,
@@ -33,3 +35,5 @@ Expression::Ptr UnaryExpression::create(const AtomicMathematician::Operator op,
 
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

@@ -17,13 +17,13 @@
 #include <QAssistantClient>
 #include <QDialog>
 
-class QComboBox;
-class QDialogButtonBox;
-class QLabel;
-class QTextEdit;
-class QToolButton;
-class QTreeWidget;
-class QTreeWidgetItem;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QTextEdit)
+QT_DECLARE_CLASS(QToolButton)
+QT_DECLARE_CLASS(QTreeWidget)
+QT_DECLARE_CLASS(QTreeWidgetItem)
 
 class FindFileDialog : public QDialog
 {

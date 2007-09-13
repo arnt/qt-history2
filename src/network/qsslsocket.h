@@ -31,21 +31,22 @@
 
 #include <QtCore/qlist.h>
 #include <QtCore/qregexp.h>
+#ifndef QT_NO_OPENSSL
+#   include <QtNetwork/qtcpsocket.h>
+#   include <QtNetwork/qsslerror.h>
+#endif
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Network)
 
 #ifndef QT_NO_OPENSSL
 
-#include <QtNetwork/qtcpsocket.h>
-#include <QtNetwork/qsslerror.h>
-
 class QDir;
 class QSslCipher;
 class QSslCertificate;
-
-Q_DECLARE_METATYPE(QList<QSslError>)
 
 class QSslSocketPrivate;
 class Q_NETWORK_EXPORT QSslSocket : public QTcpSocket
@@ -162,6 +163,12 @@ private:
 };
 
 #endif // QT_NO_OPENSSL
+
+QT_END_NAMESPACE
+
+#ifndef QT_NO_OPENSSL
+Q_DECLARE_METATYPE(QList<QSslError>)
+#endif
 
 QT_END_HEADER
 

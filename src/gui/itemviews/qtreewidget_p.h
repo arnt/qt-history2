@@ -30,6 +30,8 @@
 
 #ifndef QT_NO_TREEWIDGET
 
+QT_BEGIN_NAMESPACE
+
 class QTreeWidgetItem;
 class QTreeWidgetItemIterator;
 class QTreeModelPrivate;
@@ -128,7 +130,9 @@ private:
     Q_DECLARE_PRIVATE(QTreeModel)
 };
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "private/qabstractitemmodel_p.h"
+QT_END_INCLUDE_NAMESPACE
 
 class QTreeModelPrivate : public QAbstractItemModelPrivate
 {
@@ -148,5 +152,8 @@ public:
     QTreeWidgetItem::ChildIndicatorPolicy policy;
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_TREEWIDGET
+
 #endif // QTREEWIDGET_P_H

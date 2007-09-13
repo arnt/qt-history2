@@ -35,6 +35,8 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 
+QT_BEGIN_NAMESPACE
+
 enum NewForm_CustomRole {   TemplateNameRole = Qt::UserRole + 100 };
 
 NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QString &fileName)
@@ -310,3 +312,5 @@ bool NewForm::openTemplate(const QString &templateFileName)
     }
     return true;
 }
+
+QT_END_NAMESPACE

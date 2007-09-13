@@ -31,6 +31,8 @@
 #include <QtGui/QMenu>
 #include <QtGui/QApplication>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { VBOX_MARGIN = 1, HBOX_MARGIN = 4, BG_ALPHA = 32 };
 }
@@ -349,3 +351,5 @@ void TabOrderEditor::resizeEvent(QResizeEvent *e)
 }
 
 }
+
+QT_END_NAMESPACE

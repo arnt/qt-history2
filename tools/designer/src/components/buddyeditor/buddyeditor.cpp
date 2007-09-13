@@ -31,6 +31,8 @@ TRANSLATOR qdesigner_internal::BuddyEditor
 #include <QtCore/qdebug.h>
 #include <QtGui/QLabel>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     bool canBeBuddy(QWidget *w, QDesignerFormWindowInterface *form) {
         if (qobject_cast<const QLayoutWidget*>(w)        || w == form->mainContainer() || w->isHidden())
@@ -326,3 +328,5 @@ void BuddyEditor::deleteSelected()
 }
 
 }
+
+QT_END_NAMESPACE

@@ -18,6 +18,7 @@
 #include <QtCore/qnamespace.h>
 
 QT_BEGIN_HEADER
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Gui)
 
@@ -59,6 +60,9 @@ class QApplication;
 
 template<typename T> class QList;
 typedef QList<QWidget *> QWidgetList;
+
+QT_END_NAMESPACE
+QT_END_HEADER
 
 // Window system dependent definitions
 
@@ -124,9 +128,16 @@ typedef unsigned long  WId;
 #if defined(Q_WS_QWS)
 
 typedef unsigned long  WId;
+QT_BEGIN_HEADER
+QT_BEGIN_NAMESPACE
 struct QWSEvent;
+QT_END_NAMESPACE
+QT_END_HEADER
 
 #endif // Q_WS_QWS
+
+QT_BEGIN_HEADER
+QT_BEGIN_NAMESPACE
 
 template<class K, class V> class QHash;
 typedef QHash<WId, QWidget *> QWidgetMapper;
@@ -134,12 +145,13 @@ typedef QHash<WId, QWidget *> QWidgetMapper;
 template<class V> class QSet;
 typedef QSet<QWidget *> QWidgetSet;
 
+QT_END_NAMESPACE
+QT_END_HEADER
+
 #if defined(QT_NEEDS_QMAIN)
 #define main qMain
 #endif
 
 // Global platform-independent types and functions
-
-QT_END_HEADER
 
 #endif // QWINDOWDEFS_H

@@ -16,11 +16,11 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QToolBar;
-class QMenu;
-class QUndoStack;
-class QUndoView;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QToolBar)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QUndoStack)
+QT_DECLARE_CLASS(QUndoView)
 class DiagramScene;
 class DiagramItem;
 

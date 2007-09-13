@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -50,6 +52,8 @@ namespace Patternist
         Qt::CaseSensitivity m_caseSensitivity;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

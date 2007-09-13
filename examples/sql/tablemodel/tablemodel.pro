@@ -7,3 +7,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/sql/tablemodel
 sources.files = $$SOURCES *.h $$RESOURCES $$FORMS tablemodel.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/sql/tablemodel
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -23,6 +23,9 @@
 #include "q3tl.h"
 
 #include <stdlib.h>
+
+QT_BEGIN_NAMESPACE
+
 using namespace Qt;
 
 class Q3CanvasData {
@@ -1276,7 +1279,10 @@ void Q3Canvas::drawArea(const QRect& clip, QPainter* painter, bool dbuf)
 	drawCanvasArea(clip, painter, dbuf);
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qdebug.h>
+QT_END_INCLUDE_NAMESPACE
+
 /*!
   \internal
 */
@@ -5165,3 +5171,5 @@ void Q3CanvasPolygonalItem::scanPolygon(const Q3PointArray& pa, int winding, QPo
     Q3CanvasPolygonScanner scanner(process);
     scanner.scan(pa,winding);
 }
+
+QT_END_NAMESPACE

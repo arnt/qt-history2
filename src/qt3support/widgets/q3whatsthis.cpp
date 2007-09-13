@@ -17,6 +17,8 @@
 #include "qwidget.h"
 #include "qevent.h"
 
+QT_BEGIN_NAMESPACE
+
 /*! \class Q3WhatsThis
     \compat
 */
@@ -186,5 +188,7 @@ QToolButton *Q3WhatsThis::whatsThisButton(QWidget * parent)
 {
     return QWhatsThis::whatsThisButton(parent);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_WHATSTHIS

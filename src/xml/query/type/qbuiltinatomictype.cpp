@@ -19,6 +19,8 @@
 
 #include "qbuiltinatomictype_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 BuiltinAtomicType::BuiltinAtomicType(const AtomicType::Ptr &base,
@@ -63,3 +65,5 @@ AtomicCasterLocator::Ptr BuiltinAtomicType::casterLocator() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

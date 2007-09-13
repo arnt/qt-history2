@@ -16,7 +16,7 @@
 
 #include <QLabel>
 
-class QMimeData;
+QT_DECLARE_CLASS(QMimeData)
 
 class DropArea : public QLabel
 {

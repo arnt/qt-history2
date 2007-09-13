@@ -34,6 +34,8 @@
 Q_DECLARE_METATYPE(sqlite3*)
 Q_DECLARE_METATYPE(sqlite3_stmt*)
 
+QT_BEGIN_NAMESPACE
+
 static QVariant::Type qGetColumnType(const QString &tpName)
 {
     const QString typeName = tpName.toLower();
@@ -630,3 +632,4 @@ QString QSQLiteDriver::escapeIdentifier(const QString &identifier, IdentifierTyp
     return res;
 }
 
+QT_END_NAMESPACE

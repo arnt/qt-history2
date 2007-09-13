@@ -82,6 +82,8 @@
 # error "This architecture is not supported. Please talk to qt-bugs@trolltech.com"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QT_LSB
 // ### the LSB doesn't standardize syscall, need to wait until glib2.4 is standardized
 static inline int syscall(...) { return -1; }
@@ -132,11 +134,17 @@ struct inotify_event {
 #define IN_MOVE                 (IN_MOVED_FROM | IN_MOVED_TO)
 }
 
+QT_END_NAMESPACE
+
 // --------- inotify.h end ----------
 
 #else /* QT_NO_INOTIFY */
+
 #include <sys/inotify.h>
+
 #endif
+
+QT_BEGIN_NAMESPACE
 
 QInotifyFileSystemWatcherEngine *QInotifyFileSystemWatcherEngine::create()
 {
@@ -311,5 +319,7 @@ void QInotifyFileSystemWatcherEngine::readFromInotify()
         ev += sizeof(inotify_event) + ev->len;
     }
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_FILESYSTEMWATCHER

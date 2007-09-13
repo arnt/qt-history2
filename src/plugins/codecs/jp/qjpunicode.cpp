@@ -24,6 +24,8 @@
 #endif
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 #define        USE_JISX0212
 
 #define        Q_STRICT
@@ -10669,3 +10671,5 @@ uint QJpUnicodeConv::unicodeToCp932(uint h, uint l) const
 
 \internal
 */
+
+QT_END_NAMESPACE

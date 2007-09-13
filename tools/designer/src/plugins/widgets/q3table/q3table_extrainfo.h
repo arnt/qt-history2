@@ -20,6 +20,8 @@
 
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class Q3Table;
 class Q3TableItem;
 class DomItem;
@@ -57,5 +59,7 @@ protected:
 private:
     QDesignerFormEditorInterface *m_core;
 };
+
+QT_END_NAMESPACE
 
 #endif // Q3TABLE_EXTRAINFO_H

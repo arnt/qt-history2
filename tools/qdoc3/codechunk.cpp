@@ -20,6 +20,8 @@
 
 #include "codechunk.h"
 
+QT_BEGIN_NAMESPACE
+
 enum { Other, Alnum, Gizmo, Comma, LParen, RParen, RAngle, Colon };
 
 // entries 128 and above are Other
@@ -155,3 +157,5 @@ QStringList CodeChunk::toPath() const
     t.remove(QRegExp("<([^<>]|<([^<>]|<[^<>]*>)*>)*>"));
     return t.split("::");
 }
+
+QT_END_NAMESPACE

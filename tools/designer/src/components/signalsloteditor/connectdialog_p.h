@@ -28,6 +28,8 @@
 #include "ui_connectdialog.h"
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QPushButton;
 
@@ -73,4 +75,7 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
+
 #endif // CONNECTDIALOG_H

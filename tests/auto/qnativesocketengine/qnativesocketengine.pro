@@ -11,4 +11,3 @@ include(../qnativesocketengine/qsocketengine.pri)
 MOC_DIR=tmp
 
 QT = core network
-

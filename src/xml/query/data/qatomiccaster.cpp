@@ -13,6 +13,8 @@
 
 #include "qatomiccaster_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 AtomicCaster::AtomicCaster()
@@ -24,3 +26,5 @@ AtomicCaster::~AtomicCaster()
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

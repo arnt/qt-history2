@@ -30,6 +30,8 @@
 # include <private/qcore_mac_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \internal
 
@@ -887,3 +889,5 @@ QDateTime QFSFileEngine::fileTime(FileTime time) const
     }
     return ret;
 }
+
+QT_END_NAMESPACE

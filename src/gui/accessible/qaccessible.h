@@ -25,6 +25,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -286,8 +288,6 @@ class QAccessibleEditableTextInterface;
 class QAccessibleValueInterface;
 class QAccessibleTableInterface;
 
-Q_DECLARE_METATYPE(QSet<QAccessible::Method>)
-
 class Q_GUI_EXPORT QAccessibleInterface : public QAccessible
 {
 public:
@@ -357,8 +357,6 @@ public:
     { return 0; }
 };
 
-#define QAccessibleInterface_iid "com.trolltech.Qt.QAccessibleInterface"
-Q_DECLARE_INTERFACE(QAccessibleInterface, QAccessibleInterface_iid)
 
 class Q_GUI_EXPORT QAccessibleEvent : public QEvent
 {
@@ -376,7 +374,14 @@ private:
 inline QAccessibleEvent::QAccessibleEvent(Type atype, int achild)
     : QEvent(atype), c(achild) {}
 
+#define QAccessibleInterface_iid "com.trolltech.Qt.QAccessibleInterface"
+Q_DECLARE_INTERFACE(QAccessibleInterface, QAccessibleInterface_iid)
+
 #endif // QT_NO_ACCESSIBILITY
+
+QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QSet<QAccessible::Method>)
 
 QT_END_HEADER
 

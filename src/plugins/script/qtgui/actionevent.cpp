@@ -9,6 +9,8 @@ Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QEvent*)
 DECLARE_POINTER_METATYPE(QActionEvent)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newActionEvent(QScriptEngine *eng, QActionEvent *ae)
 {
     return QScript::wrapPointer(eng, ae);
@@ -54,3 +56,5 @@ QScriptValue constructActionEventClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

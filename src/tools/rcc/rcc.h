@@ -20,6 +20,8 @@
 #include <QHash>
 #include <QString>
 
+QT_BEGIN_NAMESPACE
+
 #define TAG_RCC "RCC"
 #define TAG_RESOURCE "qresource"
 #define TAG_FILE "file"
@@ -151,5 +153,7 @@ inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale::Langu
     this->mCompressLevel = compressLevel;
     this->mCompressThreshold = compressThreshold;
 }
+
+QT_END_NAMESPACE
 
 #endif // RCC_H

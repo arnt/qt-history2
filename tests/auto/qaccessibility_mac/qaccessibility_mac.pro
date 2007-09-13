@@ -18,3 +18,6 @@ mac {
     QT += xml
     LIBS += -framework ApplicationServices -framework Carbon
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

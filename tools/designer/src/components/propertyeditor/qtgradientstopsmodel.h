@@ -17,6 +17,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 
+QT_BEGIN_NAMESPACE
+
 class QColor;
 
 namespace qdesigner_internal {
@@ -83,5 +85,7 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

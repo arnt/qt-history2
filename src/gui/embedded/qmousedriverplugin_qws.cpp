@@ -17,6 +17,8 @@
 
 #include "qmouse_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QMouseDriverPlugin
     \ingroup plugins
@@ -88,5 +90,7 @@ QMouseDriverPlugin::~QMouseDriverPlugin()
 
     \sa keys()
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_LIBRARY

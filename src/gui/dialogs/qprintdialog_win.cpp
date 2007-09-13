@@ -23,6 +23,8 @@
 #include <private/qabstractprintdialog_p.h>
 #include <private/qprintengine_win_p.h>
 
+QT_BEGIN_NAMESPACE
+
 extern void qt_win_eatMouseMove();
 
 class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
@@ -240,6 +242,8 @@ int QPrintDialog::exec()
 
     return result;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qprintdialog.cpp"
 

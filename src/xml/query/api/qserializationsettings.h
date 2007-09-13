@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Xml)
 
 class QSerializationSettingsPrivate;
@@ -39,6 +41,8 @@ public:
 private:
     QSerializationSettingsPrivate *d;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

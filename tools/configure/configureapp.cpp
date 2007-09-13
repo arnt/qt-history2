@@ -31,6 +31,8 @@
 #include <windows.h>
 #include <conio.h>
 
+QT_BEGIN_NAMESPACE
+
 std::ostream &operator<<( std::ostream &s, const QString &val ) {
     s << val.toLocal8Bit().data();
     return s;
@@ -2772,3 +2774,5 @@ Configure::filesDiffer(const QString &fn1, const QString &fn2)
     }
     return !file1.atEnd() || !file2.atEnd();
 }
+
+QT_END_NAMESPACE

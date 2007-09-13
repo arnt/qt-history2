@@ -6,6 +6,8 @@
 
 DECLARE_POINTER_METATYPE(QXmlStreamWriter)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newXmlStreamWriter(QScriptEngine *eng, QXmlStreamWriter *writer)
 {
     return QScript::wrapPointer(eng, writer);
@@ -33,3 +35,5 @@ QScriptValue constructXmlStreamWriterClass(QScriptEngine *eng)
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
     return ctorFun;
 }
+
+QT_END_NAMESPACE

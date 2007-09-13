@@ -21,6 +21,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QLineEdit>
 
+QT_BEGIN_NAMESPACE
 
 // Add a row consisting of widget and a description label to a grid.
 static void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w, int &row) {
@@ -280,6 +281,7 @@ void FontPanel::delayedPreviewFontUpdate()
     }
     if (m_previewFontUpdateTimer->isActive())
         return;
-
     m_previewFontUpdateTimer->start();
 }
+
+QT_END_NAMESPACE

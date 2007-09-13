@@ -16,8 +16,8 @@
 
 #include <QXmlStreamWriter>
 
-class QTreeWidget;
-class QTreeWidgetItem;
+QT_DECLARE_CLASS(QTreeWidget)
+QT_DECLARE_CLASS(QTreeWidgetItem)
 
 class XbelWriter : public QXmlStreamWriter
 {

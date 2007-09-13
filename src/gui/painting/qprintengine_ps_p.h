@@ -35,6 +35,8 @@
 #include "QtCore/qhash.h"
 #include "QtCore/qabstractitemmodel.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPrinter;
 class QPSPrintEnginePrivate;
 
@@ -96,6 +98,8 @@ public:
     bool hugeDocument;
     bool headerDone;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER
 

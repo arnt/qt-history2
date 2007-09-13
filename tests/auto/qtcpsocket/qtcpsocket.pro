@@ -1,2 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS = test stressTest
+
+DEFINES += QT_USE_USING_NAMESPACE
+

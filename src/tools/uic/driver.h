@@ -20,6 +20,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 class QTextStream;
 class DomUI;
 class DomWidget;
@@ -98,5 +100,7 @@ private:
     QHash<QString, bool> m_nameRepository;
     QHash<QString, bool> m_pixmaps;
 };
+
+QT_END_NAMESPACE
 
 #endif // DRIVER_H

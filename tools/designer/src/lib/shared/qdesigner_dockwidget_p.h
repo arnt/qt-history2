@@ -28,6 +28,8 @@
 #include "shared_global_p.h"
 #include <QtGui/QDockWidget>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 class QDESIGNER_SHARED_EXPORT QDesignerDockWidget: public QDockWidget
@@ -51,5 +53,7 @@ private:
     QDesignerFormWindowInterface *formWindow() const;
     QMainWindow *findMainWindow() const;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_DOCKWIDGET_H

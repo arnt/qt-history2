@@ -28,6 +28,8 @@
 #include <QtDesigner/default_extensionfactory.h>
 #include <QtDesigner/QExtensionManager>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 // Extension factory for registering an extension for an object type.
@@ -84,5 +86,7 @@ void ExtensionFactory<ExtensionInterface, Object, Extension>::registerExtension(
     mgr->registerExtensions(factory, iid);
 }
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // SHARED_EXTENSIONFACTORY_H

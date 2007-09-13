@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Network)
 
 class QObject;
@@ -62,6 +64,8 @@ public:
 private:
     QHostInfoPrivate *d;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

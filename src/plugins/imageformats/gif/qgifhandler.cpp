@@ -22,6 +22,8 @@
 #include <qiodevice.h>
 #include <qvariant.h>
 
+QT_BEGIN_NAMESPACE
+
 #define Q_TRANSPARENT 0x00ffffff
 
 /*
@@ -858,3 +860,5 @@ QByteArray QGifHandler::name() const
 {
     return "gif";
 }
+
+QT_END_NAMESPACE

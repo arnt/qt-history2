@@ -18,7 +18,7 @@
 
 #include "highlighter.h"
 
-class QTextEdit;
+QT_DECLARE_CLASS(QTextEdit)
 
 class MainWindow : public QMainWindow
 {

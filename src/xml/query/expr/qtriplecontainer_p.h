@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -44,6 +46,8 @@ namespace Patternist
         Expression::Ptr m_operand3;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

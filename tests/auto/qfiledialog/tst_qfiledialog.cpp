@@ -707,26 +707,34 @@ void tst_QFiledialog::enableChooseButton()
     QCOMPARE(button->isEnabled(), true);
 }
 
+QT_BEGIN_NAMESPACE
 typedef QString (*_qt_filedialog_existing_directory_hook)(QWidget *parent, const QString &caption, const QString &dir, QFileDialog::Options options);
 extern Q_GUI_EXPORT _qt_filedialog_existing_directory_hook qt_filedialog_existing_directory_hook;
+QT_END_NAMESPACE
 QString existing(QWidget *, const QString &, const QString &, QFileDialog::Options) {
     return "dir";
 }
 
+QT_BEGIN_NAMESPACE
 typedef QString (*_qt_filedialog_open_filename_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
 extern Q_GUI_EXPORT _qt_filedialog_open_filename_hook qt_filedialog_open_filename_hook;
+QT_END_NAMESPACE
 QString openName(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
     return "openName";
 }
 
+QT_BEGIN_NAMESPACE
 typedef QStringList (*_qt_filedialog_open_filenames_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
 extern Q_GUI_EXPORT _qt_filedialog_open_filenames_hook qt_filedialog_open_filenames_hook;
+QT_END_NAMESPACE
 QStringList openNames(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
     return QStringList("openNames");
 }
 
+QT_BEGIN_NAMESPACE
 typedef QString (*_qt_filedialog_save_filename_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
 extern Q_GUI_EXPORT _qt_filedialog_save_filename_hook qt_filedialog_save_filename_hook;
+QT_END_NAMESPACE
 QString saveName(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
     return "saveName";
 }
@@ -745,7 +753,9 @@ void tst_QFiledialog::hooks()
     QCOMPARE(QFileDialog::getSaveFileName(), QString("saveName"));
 }
 
+QT_BEGIN_NAMESPACE
 bool Q_AUTOTEST_EXPORT QFileInfoGatherer_fetchedRoot;
+QT_END_NAMESPACE
 
 void tst_QFiledialog::listRoot()
 {

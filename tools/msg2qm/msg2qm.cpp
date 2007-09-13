@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 static QString* defaultScope = 0;
 
 bool hasHandle( const QString& line, const QString& handle)
@@ -211,5 +213,7 @@ int main( int argc, char* argv[] )
     }
 
     translate(argv[infile], argc > infile+1 ? argv[infile+1] : "tr.qm");
+
+QT_END_NAMESPACE
     return 0;
 }

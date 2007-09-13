@@ -29,6 +29,8 @@
 #include <QPaintDevice>
 #include "private/qwindowsurface_qws_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPaintDevice;
 class QPoint;
 class QRegion;
@@ -54,5 +56,7 @@ private:
     QWSGLWindowSurfacePrivate *d_ptr;
 };
 
+
+QT_END_NAMESPACE
 
 #endif // QWINDOWSURFACE_GL_P_H

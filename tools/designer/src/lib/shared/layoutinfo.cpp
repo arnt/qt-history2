@@ -22,6 +22,8 @@
 #include <QtGui/QSplitter>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 /*!
   \overload
@@ -173,4 +175,7 @@ QLayout *LayoutInfo::managedLayout(const QDesignerFormEditorInterface *core, QLa
         return 0;
     return layout;
 }
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

@@ -19,6 +19,8 @@
 
 #include "qdbusargument.h"
 
+QT_BEGIN_NAMESPACE
+
 static inline bool isValidCharacterNoDash(const QChar &c)
 {
     register ushort u = c.unicode();
@@ -260,5 +262,7 @@ namespace QDBusUtil
     {
         return dbus_signature_validate_single(signature.toUtf8(), 0);
     }
+
+QT_END_NAMESPACE
 
 } // namespace QDBusUtil

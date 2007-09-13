@@ -127,6 +127,8 @@
 #endif
 #include <QMdiArea>
 
+QT_BEGIN_NAMESPACE
+
 static const QStyle::SubControl SubControls[] =
 {
     QStyle::SC_TitleBarLabel, // 1
@@ -3423,6 +3425,8 @@ QSize QMdiSubWindow::minimumSizeHint() const
 
     return QSize(minWidth, minHeight).expandedTo(QApplication::globalStrut());
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qmdisubwindow.cpp"
 #include "qmdisubwindow.moc"

@@ -17,10 +17,10 @@
 #include "qtvariantproperty.h"
 #include <QtCore/QUrl>
 
+QT_BEGIN_NAMESPACE
+
 typedef QPair<QString, uint> DesignerIntPair;
-Q_DECLARE_METATYPE(DesignerIntPair)
 typedef QList<DesignerIntPair> DesignerFlagList;
-Q_DECLARE_METATYPE(DesignerFlagList)
 
 class QDesignerFormEditorInterface;
 class QLineEdit;
@@ -215,6 +215,11 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(DesignerIntPair)
+Q_DECLARE_METATYPE(DesignerFlagList)
 
 #endif
 

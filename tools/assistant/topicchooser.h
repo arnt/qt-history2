@@ -19,6 +19,8 @@
 #include <QDialog>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
+
 class TopicChooser : public QDialog
 {
     Q_OBJECT
@@ -43,3 +45,5 @@ private:
 };
 
 #endif // TOPICCHOOSER_H
+
+QT_END_NAMESPACE

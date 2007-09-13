@@ -20,6 +20,8 @@
 
 #include <QtDesigner/QDesignerFormWindowToolInterface>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QAction;
@@ -53,5 +55,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // TABORDEREDITOR_TOOL_H

@@ -17,9 +17,9 @@
 #include <QFrame>
 #include <QWidget>
 
-class QLCDNumber;
-class QLabel;
-class QPushButton;
+QT_DECLARE_CLASS(QLCDNumber)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
 class TetrixBoard;
 
 class TetrixWindow : public QWidget

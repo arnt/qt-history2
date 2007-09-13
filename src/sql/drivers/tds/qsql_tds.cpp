@@ -35,6 +35,10 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 #ifdef DBNTWIN32
 #define QMSGHANDLE DBMSGHANDLE_PROC
 #define QERRHANDLE DBERRHANDLE_PROC
@@ -763,3 +767,5 @@ QSqlIndex QTDSDriver::primaryIndex(const QString& tablename) const
     }
     return idx;
 }
+
+QT_END_NAMESPACE

@@ -16,6 +16,8 @@
 
 #include "proitems.h"
 
+QT_BEGIN_NAMESPACE
+
 struct AbstractProItemVisitor {
     virtual ~AbstractProItemVisitor() {}
     virtual bool visitBeginProBlock(ProBlock *block) = 0;
@@ -34,5 +36,7 @@ struct AbstractProItemVisitor {
 
 };
 
+
+QT_END_NAMESPACE
 #endif // ABSTRACTPROITEMVISITOR
 

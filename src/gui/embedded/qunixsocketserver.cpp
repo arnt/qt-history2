@@ -31,6 +31,8 @@ extern "C" {
 
 #define UNIX_PATH_MAX 108 // From unix(7)
 
+QT_BEGIN_NAMESPACE
+
 class QUnixSocketServerPrivate : public QObject
 {
 Q_OBJECT
@@ -340,5 +342,7 @@ void QUnixSocketServerPrivate::acceptActivated()
     if(-1 != connsock)
         me->incomingConnection(connsock);
 }
+
+QT_END_NAMESPACE
 
 #include "qunixsocketserver.moc"

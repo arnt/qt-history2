@@ -16,6 +16,8 @@
 
 #include <QtGui/QTreeView>
 
+QT_BEGIN_NAMESPACE
+
 class MessagesTreeView : public QTreeView
 {
     Q_OBJECT
@@ -25,5 +27,7 @@ public:
 };
 
 
+
+QT_END_NAMESPACE
 #endif // MESSAGESTREEVIEW_H
 

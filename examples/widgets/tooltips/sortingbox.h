@@ -18,9 +18,9 @@
 
 #include "shapeitem.h"
 
-class QAction;
-class QPoint;
-class QToolButton;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QPoint)
+QT_DECLARE_CLASS(QToolButton)
 
 class SortingBox : public QWidget
 {

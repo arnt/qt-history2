@@ -20,6 +20,8 @@
 #include <ibase.h>
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 class QIBaseDriverPrivate;
 class QIBaseResultPrivate;
 class QIBaseDriver;
@@ -92,6 +94,8 @@ private Q_SLOTS:
 private:
     QIBaseDriverPrivate* d;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 #endif // QSQL_IBASE_H

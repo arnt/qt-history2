@@ -21,6 +21,8 @@
 #include "qhash.h"
 #include "qdir.h"
 
+QT_BEGIN_NAMESPACE
+
 class QFileInfoPrivate
 {
 public:
@@ -1456,3 +1458,5 @@ QFileInfo::setCaching(bool enable)
 
     Synonym for QList<QFileInfo>.
 */
+
+QT_END_NAMESPACE

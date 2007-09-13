@@ -24,6 +24,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 QSvgStyleProperty::~QSvgStyleProperty()
 {
 }
@@ -810,3 +812,4 @@ void QSvgGradientStyle::resolveStops()
     }
 }
 
+QT_END_NAMESPACE

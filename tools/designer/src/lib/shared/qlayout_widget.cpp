@@ -34,6 +34,43 @@
 #include <QtCore/QPair>
 #include <QtCore/QSet>
 
+
+// Grid/form Helpers: get info (overloads to make templates work)
+
+namespace { // Do not use static, will break HP-UX due to templates 
+
+QT_USE_NAMESPACE
+
+inline int gridRowCount(const QGridLayout *gridLayout)
+{
+    return  gridLayout->rowCount();
+}
+
+inline int gridColumnCount(const QGridLayout *gridLayout)
+{
+    return  gridLayout->columnCount();
+}
+
+// QGridLayout/QFormLayout Helpers: get item position (overloads
+// to make templates work)
+inline void getGridItemPosition(QGridLayout *gridLayout, int index,
+    int *row, int *column, int *rowspan, int *colspan)
+{
+    gridLayout->getItemPosition(index, row, column, rowspan, colspan);
+}
+
+QRect gridItemInfo(QGridLayout *grid, int index)
+{
+    int row, column, rowSpan, columnSpan;
+    // getItemPosition is not const, grmbl..
+    grid->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
+    return QRect(column, row, columnSpan, rowSpan);
+}
+
+} // namespace anono
+
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { ShiftValue = 1 };
     enum { debugLayout = 0 };
@@ -50,27 +87,6 @@ static inline bool isEmptyItem(QLayoutItem *item)
 static inline QSpacerItem *createGridSpacer()
 {
     return new QSpacerItem(20, 20);
-}
-
-// Grid/form Helpers: get info (overloads to make templates work)
-
-namespace { // Do not use static, will break HP-UX due to templates 
-inline int gridRowCount(const QGridLayout *gridLayout)    { return  gridLayout->rowCount(); }
-inline int gridColumnCount(const QGridLayout *gridLayout) { return  gridLayout->columnCount(); }
-
-// QGridLayout/QFormLayout Helpers: get item position (overloads to make templates work)
- inline void getGridItemPosition(QGridLayout *gridLayout, int index, int *row, int *column, int *rowspan, int *colspan)
-{
-    gridLayout->getItemPosition(index, row, column, rowspan, colspan);
-}
-
-QRect gridItemInfo(QGridLayout *grid, int index)
-{
-    int row, column, rowSpan, columnSpan;
-    // getItemPosition is not const, grmbl..
-    grid->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
-    return QRect(column, row, columnSpan, rowSpan);
-}
 }
 
 // QGridLayout/QFormLayout Helpers: Debug items of GridLikeLayout
@@ -1503,3 +1519,5 @@ void QLayoutWidget::setLayoutBottomMargin(int layoutMargin)
         layout()->setContentsMargins(left, top, right, newMargin);
     }
 }
+
+QT_END_NAMESPACE

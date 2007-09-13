@@ -23,6 +23,8 @@
 #include <qendian.h>
 #include <private/qharfbuzz_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // Harfbuzz helper functions
 
 static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, hb_uint32 length, HB_Glyph *glyphs, hb_uint32 *numGlyphs, HB_Bool rightToLeft)
@@ -1390,3 +1392,4 @@ QFontEngine *QFontEngineMulti::engine(int at) const
     return engines.at(at);
 }
 
+QT_END_NAMESPACE

@@ -18,6 +18,8 @@
 #include <qdrawutil.h>
 #include "qdecorationdefault_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(QT_NO_QWS_DECORATION_DEFAULT) || defined(QT_PLUGIN)
 
 QPixmap *QDecorationDefault::staticHelpPixmap = 0;
@@ -663,5 +665,6 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *widget,
         painter->drawPixmap(brect.x() + xoff, brect.y() + yoff, pm);
 }
 
-
 #endif // QT_NO_QWS_DECORATION_DEFAULT
+
+QT_END_NAMESPACE

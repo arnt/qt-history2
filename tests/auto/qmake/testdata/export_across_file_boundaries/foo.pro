@@ -13,3 +13,6 @@ O_BAR=$$fromfile(oink.pri,BAR)
    message( "FAILED: export() invisible from default_pre.prf through \$$fromfile()" )
 }
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

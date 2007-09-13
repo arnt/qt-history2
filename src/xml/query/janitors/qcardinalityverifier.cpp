@@ -21,6 +21,8 @@
 
 #include "qcardinalityverifier_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 QString CardinalityVerifier::wrongCardinality(const Cardinality &req,
@@ -179,3 +181,5 @@ ExpressionVisitorResult::Ptr CardinalityVerifier::accept(const ExpressionVisitor
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

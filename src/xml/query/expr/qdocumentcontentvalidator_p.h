@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -63,6 +65,8 @@ namespace Patternist
         xsInteger                   m_elementDepth;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

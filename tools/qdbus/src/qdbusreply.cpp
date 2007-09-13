@@ -16,6 +16,8 @@
 #include "qdbusmetatype_p.h"
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDBusReply
     \inmodule QtDBus
@@ -167,5 +169,7 @@ void qDBusReplyFill(const QDBusMessage &reply, QDBusError &error, QVariant &data
                       errorMsg.arg(QLatin1String(receivedSignature),
                                    QLatin1String(expectedSignature),
                                    QLatin1String(data.typeName())));
+
+QT_END_NAMESPACE
     data = QVariant();      // clear it
 }

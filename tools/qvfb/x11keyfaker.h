@@ -18,6 +18,8 @@
 #include <QX11Info>
 #include <qnamespace.h>
 
+QT_BEGIN_NAMESPACE
+
 class X11KeyFaker : public QObject
 {
     Q_OBJECT
@@ -45,5 +47,7 @@ private:
     int modeSwitchKeycode;
     int modifiers;
 };
+
+QT_END_NAMESPACE
 
 #endif

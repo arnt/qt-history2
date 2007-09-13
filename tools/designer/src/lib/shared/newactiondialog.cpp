@@ -21,6 +21,8 @@
 #include <QtGui/QPushButton>
 #include <QtCore/QRegExp>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 NewActionDialog::NewActionDialog(ActionEditor *parent)
@@ -127,3 +129,5 @@ void NewActionDialog::updateButtons()
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

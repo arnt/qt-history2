@@ -17,6 +17,8 @@
 #include <QtCore/QPointer>
 #include <QtGui/QMainWindow>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerWorkbench;
 
 class QDesignerToolWindow: public QMainWindow
@@ -49,5 +51,7 @@ private:
     QAction *m_action;
     bool m_saveSettings;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_TOOLWINDOW_H

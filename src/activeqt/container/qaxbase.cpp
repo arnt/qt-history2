@@ -35,6 +35,7 @@
 
 #include "../shared/qaxtypes.h"
 
+QT_BEGIN_NAMESPACE
 
 /*
     \internal
@@ -4479,6 +4480,7 @@ void *qax_createObjectWrapper(int metaType, IUnknown *iface)
 
 /*!
     \fn const char *QAxBase::className() const
-
     \internal
 */
+
+QT_END_NAMESPACE

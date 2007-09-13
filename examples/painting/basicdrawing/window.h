@@ -16,10 +16,10 @@
 
 #include <QWidget>
 
-class QCheckBox;
-class QComboBox;
-class QLabel;
-class QSpinBox;
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QSpinBox)
 class RenderArea;
 
 class Window : public QWidget

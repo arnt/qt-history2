@@ -23,6 +23,8 @@
 
 #include <QtCore/QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 static QString getMessage(QScriptContextPrivate *context)
@@ -283,5 +285,7 @@ QScriptValueImpl Error::method_backtrace(QScriptContextPrivate *context, QScript
 }
 
 } } // namespace QSA::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

@@ -40,6 +40,13 @@
 #include "qmap.h"
 #include <private/qt_mac_p.h>
 
+#ifdef Q_WS_MAC32
+#include <QuickTime/QuickTime.h>
+#include "qlibrary.h"
+#endif
+
+QT_BEGIN_NAMESPACE
+
 extern CGImageRef qt_mac_createCGImageFromQImage(const QImage &img, const QImage **imagePtr = 0); // qpaintengine_mac.cpp
 
 typedef QList<QMacPasteboardMime*> MimeList;
@@ -378,8 +385,7 @@ QList<QByteArray> QMacPasteboardMimeHTMLText::convertFromMime(const QString &mim
 
 
 #ifdef Q_WS_MAC32
-#include <QuickTime/QuickTime.h>
-#include "qlibrary.h"
+
 typedef ComponentResult (*PtrGraphicsImportSetDataHandle)(GraphicsImportComponent, Handle);
 typedef ComponentResult (*PtrGraphicsImportCreateCGImage)(GraphicsImportComponent, CGImageRef*, UInt32);
 typedef ComponentResult (*PtrGraphicsExportSetInputCGImage)(GraphicsExportComponent, CGImageRef);
@@ -782,6 +788,7 @@ static bool qt_mac_openMimeRegistry(bool global, QIODevice::OpenMode mode, QFile
     }
     return file.open(mode);
 }
+
 static void qt_mac_loadMimeRegistry(QFile &file, QMap<QString, int> &registry, int &max)
 {
     file.reset();
@@ -801,7 +808,7 @@ bool QMacPasteboardMimeQt3Any::loadMimeRegistry()
         if(!qt_mac_openMimeRegistry(true, QIODevice::ReadWrite, library_file)) {
             QFile global;
             if(qt_mac_openMimeRegistry(true, QIODevice::ReadOnly, global)) {
-                ::qt_mac_loadMimeRegistry(global, mime_registry, current_max);
+                qt_mac_loadMimeRegistry(global, mime_registry, current_max);
                 global.close();
             }
             if(!qt_mac_openMimeRegistry(false, QIODevice::ReadWrite, library_file)) {
@@ -816,7 +823,7 @@ bool QMacPasteboardMimeQt3Any::loadMimeRegistry()
     if(!mime_registry_loaded.isNull() && mime_registry_loaded == fi.lastModified())
         return true;
     mime_registry_loaded = fi.lastModified();
-    ::qt_mac_loadMimeRegistry(library_file, mime_registry, current_max);
+    qt_mac_loadMimeRegistry(library_file, mime_registry, current_max);
     return true;
 }
 
@@ -1060,3 +1067,5 @@ QList<QMacPasteboardMime*> QMacPasteboardMime::all(uchar t)
   All subclasses must reimplement this pure virtual function.
 */
 
+
+QT_END_NAMESPACE

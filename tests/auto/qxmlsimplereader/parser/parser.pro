@@ -11,3 +11,6 @@ SOURCES += main.cpp parser.cpp
 
 CONFIG  += qt warn_on debug
 QT += xml
+
+DEFINES += QT_USE_USING_NAMESPACE
+

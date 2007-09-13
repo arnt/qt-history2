@@ -17,6 +17,8 @@
 
 #include "archiveextractor.h"
 
+QT_BEGIN_NAMESPACE
+
 QList<ArchiveExtractor *> ArchiveExtractor::extractors;
 
 ArchiveExtractor::ArchiveExtractor( const QStringList& extensions )
@@ -45,3 +47,5 @@ ArchiveExtractor *ArchiveExtractor::extractorForFileName(
     }
     return 0;
 }
+
+QT_END_NAMESPACE

@@ -16,6 +16,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 #define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_NOT_NATIVE
 
 inline bool QBasicAtomicInt::isReferenceCountingNative()
@@ -73,7 +75,9 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
 
 #if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <asm/fixed_code.h>
+QT_END_INCLUDE_NAMESPACE
 
 inline bool QBasicAtomicInt::ref()
 {
@@ -279,6 +283,8 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddRelease(qptrdiff valueTo
 {
     return fetchAndAddOrdered(valueToAdd);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

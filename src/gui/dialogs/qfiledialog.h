@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_FILEDIALOG
@@ -252,6 +254,8 @@ inline void QFileDialog::setDirectory(const QDir &adirectory)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFileDialog::Options)
 
 #endif // QT_NO_FILEDIALOG
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

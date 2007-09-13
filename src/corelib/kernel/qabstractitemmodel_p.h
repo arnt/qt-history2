@@ -29,6 +29,8 @@
 #include "private/qobject_p.h"
 #include "QtCore/qstack.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q_CORE_EXPORT QPersistentModelIndexData
 {
 public:
@@ -101,5 +103,7 @@ public:
 
     Qt::DropActions supportedDragActions;
 };
+
+QT_END_NAMESPACE
 
 #endif // QABSTRACTITEMMODEL_P_H

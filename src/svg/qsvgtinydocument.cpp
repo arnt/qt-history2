@@ -23,6 +23,8 @@
 #include "qstack.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 QSvgTinyDocument::QSvgTinyDocument()
     : QSvgStructureNode(0),
       m_animated(false),
@@ -313,3 +315,4 @@ void QSvgTinyDocument::setFramesPerSecond(int num)
     m_fps = num;
 }
 
+QT_END_NAMESPACE

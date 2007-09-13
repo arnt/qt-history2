@@ -22,6 +22,8 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QLayout>
 
+QT_BEGIN_NAMESPACE
+
 QDesignerDockWidget::QDesignerDockWidget(QWidget *parent)
     : QDockWidget(parent)
 {
@@ -105,3 +107,5 @@ QMainWindow *QDesignerDockWidget::findMainWindow() const
         return qobject_cast<QMainWindow*>(fw->mainContainer());
     return 0;
 }
+
+QT_END_NAMESPACE

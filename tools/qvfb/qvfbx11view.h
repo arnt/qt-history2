@@ -16,6 +16,8 @@
 
 #include "qvfbview.h"
 
+QT_BEGIN_NAMESPACE
+
 class X11KeyFaker;
 class QProcess;
 class QTemporaryFile;
@@ -85,5 +87,7 @@ private:
     bool shutdown;
     QString xserver;
 };
+
+QT_END_NAMESPACE
 
 #endif

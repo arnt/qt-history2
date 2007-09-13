@@ -21,6 +21,8 @@
 
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 QT_STATIC_CONST_IMPL Location Location::null;
 
 int Location::tabSize;
@@ -285,3 +287,5 @@ QString Location::top() const
 	str += " (etc.)";
     return str;
 }
+
+QT_END_NAMESPACE

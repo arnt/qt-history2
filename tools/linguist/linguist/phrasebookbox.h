@@ -19,6 +19,8 @@
 #include "phrasemodel.h"
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class PhraseBookBox : public QDialog, public Ui::PhraseBookBox
 {
     Q_OBJECT
@@ -50,5 +52,7 @@ private:
     PhraseBook pb;
     PhraseModel *phrMdl;
 };
+
+QT_END_NAMESPACE
 
 #endif

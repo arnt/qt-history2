@@ -16,7 +16,7 @@
 
 #include <QDialog>
 
-class QLineEdit;
+QT_DECLARE_CLASS(QLineEdit)
 class Button;
 
 class Calculator : public QDialog

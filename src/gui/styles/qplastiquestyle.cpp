@@ -63,6 +63,8 @@ static const int blueFrameWidth =  2;  // with of line edit focus frame
 #include <qvarlengtharray.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 // from windows style
 static const int windowsItemFrame        =  2; // menu item frame width
 static const int windowsSepHeight        =  2; // separator item height
@@ -6264,4 +6266,6 @@ void QPlastiqueStyle::timerEvent(QTimerEvent *event)
     event->ignore();
 }
 
-#endif // QT_NO_STYLE_PLASTIQUE
+QT_END_NAMESPACE
+
+#endif // !defined(QT_NO_STYLE_PLASTIQUE) || defined(QT_PLUGIN)

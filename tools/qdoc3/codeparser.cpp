@@ -19,6 +19,8 @@
 #include "node.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 #define COMMAND_COMPAT                  Doc::alias("compat")
 #define COMMAND_DEPRECATED              Doc::alias("deprecated") // ### don't document
 #define COMMAND_INGROUP                 Doc::alias("ingroup")
@@ -152,3 +154,5 @@ void CodeParser::processCommonMetaCommand(const Location &location, const QStrin
 	}
     }
 }
+
+QT_END_NAMESPACE

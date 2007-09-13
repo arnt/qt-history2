@@ -15,6 +15,8 @@
 #include <qscreentransformed_qws.h>
 #include <qstringlist.h>
 
+QT_BEGIN_NAMESPACE
+
 class GfxTransformedDriver : public QScreenDriverPlugin
 {
 public:
@@ -46,3 +48,5 @@ QScreen* GfxTransformedDriver::create(const QString& driver, int displayId)
 
 Q_EXPORT_STATIC_PLUGIN(GfxTransformedDriver)
 Q_EXPORT_PLUGIN2(qgfxtransformed, GfxTransformedDriver)
+
+QT_END_NAMESPACE

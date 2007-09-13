@@ -17,8 +17,8 @@
 #include <QMainWindow>
 
 class ImageModel;
-class QAction;
-class QTableView;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QTableView)
 
 class MainWindow : public QMainWindow
 {

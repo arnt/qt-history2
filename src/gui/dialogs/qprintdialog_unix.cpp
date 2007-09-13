@@ -60,6 +60,8 @@
 
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 class OptionTreeItem;
 
 struct QPrinterDescription {
@@ -1066,7 +1068,7 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
         ui.gbDestination->setTitle(QPrintDialog::tr("File"));
         QString fileName = q->printer()->outputFileName();
         if (fileName.isEmpty()) {
-            QString home = QString::fromLocal8Bit(::qgetenv("HOME").constData());
+            QString home = QString::fromLocal8Bit(qgetenv("HOME").constData());
             QString cur = QDir::currentPath();
             if (home.at(home.length()-1) != QLatin1Char('/'))
                 home += QLatin1Char('/');
@@ -1697,6 +1699,8 @@ void PPDOptionsEditor::cbChanged(int)
 }
 
 #endif
+
+QT_END_NAMESPACE
 
 #include "moc_qprintdialog.cpp"
 #include "qprintdialog_unix.moc"

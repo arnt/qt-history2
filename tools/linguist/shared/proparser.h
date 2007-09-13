@@ -16,6 +16,8 @@
 
 #include "profileevaluator.h"
 
+QT_BEGIN_NAMESPACE
+
 // Subclass it to intercept the logMessage method
 class ProFileTranslationsScanner : public ProFileEvaluator {
 public:
@@ -48,3 +50,5 @@ void removeDuplicates(QStringList *strings, bool alreadySorted = true);
 bool evaluateProFile(const QString &fileName, bool verbose, QMap<QByteArray, QStringList> *varMap);
 
 QStringList getListOfProfiles(const QStringList &proFiles, bool verbose);
+
+QT_END_NAMESPACE

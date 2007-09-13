@@ -33,6 +33,8 @@
 
 #ifndef QT_NO_DOCKWIDGET
 
+QT_BEGIN_NAMESPACE
+
 class QLayoutItem;
 class QWidget;
 class QLayoutItem;
@@ -247,6 +249,8 @@ public:
 
     QSet<QTabBar*> usedTabBars() const;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QDOCKWIDGET
 

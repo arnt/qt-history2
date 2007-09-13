@@ -17,6 +17,8 @@
 #include <qwidget.h>
 #include <qpixmap.h>
 
+QT_BEGIN_NAMESPACE
+
 class QAssistantClient;
 
 class QPixelTool : public QWidget
@@ -82,5 +84,7 @@ private:
 
     QAssistantClient *m_assistantClient;
 };
+
+QT_END_NAMESPACE
 
 #endif // QPIXELTOOL_H

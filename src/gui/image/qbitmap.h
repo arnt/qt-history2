@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QVariant;
@@ -68,6 +70,8 @@ inline QBitmap::QBitmap(const QSize &size, bool clear)
     if (clear) this->clear();
 }
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

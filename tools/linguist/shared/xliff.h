@@ -19,6 +19,8 @@
 #include <QtXml/QXmlDefaultHandler>
 #include <QtXml/QXmlParseException>
 
+QT_BEGIN_NAMESPACE
+
 class XLIFFHandler : public QXmlDefaultHandler
 {
 public:
@@ -70,4 +72,4 @@ private:
     QStack<int> m_contextStack;
 };
 
-
+QT_END_NAMESPACE

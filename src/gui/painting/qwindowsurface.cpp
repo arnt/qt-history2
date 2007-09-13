@@ -15,6 +15,8 @@
 #include <qwidget.h>
 #include <private/qbackingstore_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWindowSurfacePrivate
 {
 public:
@@ -219,3 +221,5 @@ QPoint QWindowSurface::offset(const QWidget *widget) const
   Returns the rectangle for \a widget in the coordinates of this
   window surface.
 */
+
+QT_END_NAMESPACE

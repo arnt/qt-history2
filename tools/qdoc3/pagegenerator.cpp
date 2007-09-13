@@ -21,6 +21,8 @@
 #include "pagegenerator.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 PageGenerator::PageGenerator()
 {
 }
@@ -133,3 +135,5 @@ void PageGenerator::generateInnerNode( const InnerNode *node,
 	++c;
     }
 }
+
+QT_END_NAMESPACE

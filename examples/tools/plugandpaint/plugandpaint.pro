@@ -18,3 +18,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/tools/plugandpaint
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS plugandpaint.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/plugandpaint
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -20,6 +20,8 @@
 #include <private/qwsdisplay_qws_p.h>
 #include <private/qwscommand_qws_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // TODO:
 // Must remove window decorations from the embedded window
 // Focus In/Out, Keyboard/Mouse...
@@ -190,5 +192,7 @@ void QWSEmbedWidget::showEvent(QShowEvent*)
     Q_D(QWSEmbedWidget);
     d->resize(rect().size());
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWSEMBEDWIDGET

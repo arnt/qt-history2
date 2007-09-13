@@ -8,3 +8,6 @@ include(../qnativesocketengine/qsocketengine.pri)
 
 } #exists
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

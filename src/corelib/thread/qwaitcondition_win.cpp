@@ -23,6 +23,8 @@
 #include <private/qmutex_p.h>
 #include <private/qreadwritelock_p.h>
 
+QT_BEGIN_NAMESPACE
+
 //***********************************************************************
 // QWaitConditionPrivate
 // **********************************************************************
@@ -200,3 +202,5 @@ void QWaitCondition::wakeAll()
         current->wokenUp = true;
     }
 }
+
+QT_END_NAMESPACE

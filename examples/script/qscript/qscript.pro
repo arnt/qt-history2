@@ -10,3 +10,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/script/qscript
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qscript.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/script/qscript
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

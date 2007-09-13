@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QTestTable;
 class QTestDataPrivate;
 
@@ -57,6 +59,8 @@ inline QTestData &operator<<(QTestData &data, const char * value)
     data.append(QMetaType::QString, &str);
     return data;
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

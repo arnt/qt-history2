@@ -12,3 +12,6 @@ CONFIG += console qtestlib qt3support
 # Input
 SOURCES += tst_qmessagebox.cpp 
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

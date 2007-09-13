@@ -21,6 +21,8 @@
 #include "qlayoutengine_p.h"
 #include "qlayout_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*
     Returns true if the \a widget can be added to the \a layout;
     otherwise returns false.
@@ -1470,3 +1472,4 @@ QVBoxLayout::~QVBoxLayout()
     Use spacing() instead.
 */
 
+QT_END_NAMESPACE

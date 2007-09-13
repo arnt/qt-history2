@@ -18,6 +18,8 @@
 
 #include "qtextnodeconstructor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 TextNodeConstructor::TextNodeConstructor(const Expression::Ptr &op) : SingleContainer(op)
@@ -78,3 +80,5 @@ TextNodeConstructor::accept(const ExpressionVisitor::Ptr &visitor) const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

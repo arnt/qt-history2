@@ -20,6 +20,8 @@
 #include "qrgb.h"
 #include "qstringlist.h"
 
+QT_BEGIN_NAMESPACE
+
 static inline int h2i(char hex)
 {
     if (hex >= '0' && hex <= '9')
@@ -256,7 +258,9 @@ static const int rgbTblSize = sizeof(rgbTbl) / sizeof(RGBData);
 
 #undef rgb
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <stdlib.h>
+QT_END_INCLUDE_NAMESPACE
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
@@ -349,3 +353,5 @@ QStringList qt_get_colornames()
     return QStringList();
 }
 #endif // QT_NO_COLORNAMES
+
+QT_END_NAMESPACE

@@ -3,3 +3,6 @@ SOURCES += tst_tessellator.cpp testtessellator.cpp oldtessellator.cpp utils.cpp 
 HEADERS += oldtessellator.h testtessellator.h utils.h XRenderFake.h simple.h qnum.h dataparser.h arc.h
 
 RESOURCES += datafiles.qrc
+
+DEFINES += QT_USE_USING_NAMESPACE
+

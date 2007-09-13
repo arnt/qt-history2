@@ -27,6 +27,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_NAMESPACE
+
 class QUnixSocketServerPrivate;
 class Q_GUI_EXPORT QUnixSocketServer : public QObject
 {
@@ -62,5 +64,7 @@ private:
     QUnixSocketServerPrivate * d;
 };
 
+
+QT_END_NAMESPACE
 #endif // QUNIXSOCKETSERVER_P_H
 

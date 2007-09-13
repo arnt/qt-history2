@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QIODevice;
@@ -306,6 +308,8 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QImage &);
 Q_GUI_EXPORT QT3_SUPPORT void bitBlt(QImage* dst, int dx, int dy, const QImage* src,
                                      int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::ImageConversionFlags flags = Qt::AutoColor);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Xml)
 
 #ifndef QT_NO_DOM
@@ -642,6 +644,8 @@ private:
 Q_XML_EXPORT QTextStream& operator<<(QTextStream&, const QDomNode&);
 
 #endif // QT_NO_DOM
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

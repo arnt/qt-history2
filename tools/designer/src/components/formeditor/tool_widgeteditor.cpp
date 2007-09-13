@@ -32,6 +32,8 @@ TRANSLATOR qdesigner_internal::WidgetEditorTool
 #include <QtGui/QCursor>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 WidgetEditorTool::WidgetEditorTool(FormWindow *formWindow)
@@ -296,3 +298,4 @@ void WidgetEditorTool::deactivated()
     m_formWindow->clearSelection();
 }
 
+QT_END_NAMESPACE

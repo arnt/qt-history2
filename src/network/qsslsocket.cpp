@@ -227,6 +227,8 @@
 #include <QtNetwork/qhostaddress.h>
 #include <QtNetwork/qhostinfo.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSslSocketGlobalData
 {
 public:
@@ -1660,6 +1662,8 @@ void QSslSocketPrivate::_q_bytesWrittenSlot(qint64 written)
 #endif
     emit q->bytesWritten(written);
 }
+
+QT_END_NAMESPACE
 
 // For private slots
 #define d d_ptr

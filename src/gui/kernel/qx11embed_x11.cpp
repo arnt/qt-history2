@@ -43,6 +43,8 @@
 #include <qdebug.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QX11EmbedWidget
 
@@ -1789,3 +1791,5 @@ void QX11EmbedContainer::discardClient()
 	d->rejectClient(d->client);
     }
 }
+
+QT_END_NAMESPACE

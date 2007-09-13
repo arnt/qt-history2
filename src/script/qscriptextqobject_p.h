@@ -43,6 +43,8 @@
 #include <QtCore/QVarLengthArray>
 #include <QtCore/QVector>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
 
 class ExtQObject: public Ecma::Core
@@ -407,6 +409,8 @@ private:
 };
 
 #endif // QT_NO_QOBJECT
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif // QSCRIPTEXTQOBJECT_P_H

@@ -21,8 +21,16 @@
 #include <qpainter.h>
 #include <qobject.h>
 #ifdef QAX_SERVER
-#include <qaxfactory.h>
-#include <qlibrary.h>
+#   include <qaxfactory.h>
+#   include <qlibrary.h>
+#else
+#   include <quuid.h>
+#   include <qaxobject.h>
+#endif
+
+QT_BEGIN_NAMESPACE
+
+#ifdef QAX_SERVER
 extern ITypeLib *qAxTypeLibrary;
 
 CLSID CLSID_QRect = { 0x34030f30, 0xe359, 0x4fe6, {0xab, 0x82, 0x39, 0x76, 0x6f, 0x5d, 0x91, 0xee } };
@@ -31,8 +39,6 @@ CLSID CLSID_QPoint = { 0x3be838a3, 0x3fac, 0xbfc4, {0x4c, 0x6c, 0x37, 0xc4, 0x4d
 
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
 #else
-#include <quuid.h>
-#include <qaxobject.h>
 extern void *qax_createObjectWrapper(int metaType, IUnknown *iface);
 #endif
 
@@ -1342,3 +1348,5 @@ void clearVARIANT(VARIANT *var)
         VariantClear(var);
     }
 }
+
+QT_END_NAMESPACE

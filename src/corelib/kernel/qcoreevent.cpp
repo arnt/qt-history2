@@ -18,6 +18,8 @@
 #include "qmutex.h"
 #include "qset.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QEvent
     \brief The QEvent class is the base class of all
@@ -304,7 +306,7 @@ public:
     QMutex mutex;
     QSet<int> set;
 };
-Q_GLOBAL_STATIC(QEventUserEventRegistration, userEventRegistration)
+Q_GLOBAL_STATIC(QEventUserEventRegistration, userEventRegistrationHelper)
 
 /*!
     \since 4.4
@@ -318,7 +320,8 @@ Q_GLOBAL_STATIC(QEventUserEventRegistration, userEventRegistration)
 */
 int QEvent::registerEventType(int hint)
 {
-    QEventUserEventRegistration *userEventRegistration = ::userEventRegistration();
+    QEventUserEventRegistration *userEventRegistration
+        = userEventRegistrationHelper();
     if (!userEventRegistration)
         return -1;
 
@@ -551,3 +554,5 @@ QDynamicPropertyChangeEvent::~QDynamicPropertyChangeEvent()
 
     \sa QObject::setProperty(), QObject::dynamicPropertyNames()
 */
+
+QT_END_NAMESPACE

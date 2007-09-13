@@ -26,6 +26,8 @@
 #include "qmessagebox.h"
 #include "qbitarray.h"
 
+QT_BEGIN_NAMESPACE
+
 //#define QT_DEBUG_DATAMANAGER
 
 class Q3SqlCursorManagerPrivate
@@ -935,5 +937,7 @@ QSql::Confirm Q3DataManager::confirmCancel(QWidget* parent, QSql::Op)
     return QSql::Yes;
 #endif // QT_NO_MESSAGEBOX
 }
+
+QT_END_NAMESPACE
 
 #endif

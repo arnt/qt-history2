@@ -382,7 +382,9 @@ void tst_QWidget::getSetCheck()
 }
 
 #ifdef Q_WS_X11
+QT_BEGIN_NAMESPACE
 extern void qt_x11_wait_for_window_manager( QWidget* w );
+QT_END_NAMESPACE
 #endif
 
 tst_QWidget::tst_QWidget()

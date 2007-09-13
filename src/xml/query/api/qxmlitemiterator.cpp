@@ -18,6 +18,8 @@
 #include "qxmlitemiterator_p.h"
 #include "qxmlitemiterator.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class QXmlItemIterator
   \brief
@@ -108,5 +110,7 @@ bool QXmlItemIterator::hasNext() const
     return d->next;
 
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

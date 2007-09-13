@@ -24,6 +24,8 @@
 #include <QtGui/QFont>
 #include <QtGui/QFontDatabase>
 
+QT_BEGIN_NAMESPACE
+
 struct Preferences
 {
     Preferences();
@@ -37,5 +39,7 @@ struct Preferences
     qdesigner_internal::PreviewConfigurationWidgetState m_previewConfigurationWidgetState;
     qdesigner_internal::PreviewConfiguration m_previewConfiguration;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_PREFERENCES_H

@@ -14,6 +14,8 @@
 #include "qstringmatcher.h"
 #include "qunicodetables_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static void bm_init_skiptable(const ushort *uc, int l, uint *skiptable, Qt::CaseSensitivity cs)
 {
     int i = 0;
@@ -227,3 +229,5 @@ int QStringMatcher::indexIn(const QString &str, int from) const
 
     \sa setCaseSensitivity()
 */
+
+QT_END_NAMESPACE

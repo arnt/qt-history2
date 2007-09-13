@@ -6,3 +6,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/tutorial
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS tutorial.pro README
 sources.path = $$[QT_INSTALL_EXAMPLES]/tutorial
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

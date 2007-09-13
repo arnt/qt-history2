@@ -16,6 +16,8 @@
 #include <mmintrin.h>
 #include <private/qdrawhelper_sse_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef _MM_SHUFFLE
 #define _MM_SHUFFLE(fp3,fp2,fp1,fp0) \
  (((fp3) << 6) | ((fp2) << 4) | ((fp1) << 2) | (fp0))
@@ -97,3 +99,5 @@ void qt_blend_color_argb_iwmmxt(int count, const QSpan *spans, void *userData)
 }
 
 #endif // QT_HAVE_IWMMXT
+
+QT_END_NAMESPACE

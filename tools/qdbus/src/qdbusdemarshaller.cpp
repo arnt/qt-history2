@@ -14,6 +14,8 @@
 #include "qdbusargument_p.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 template <typename T>
 static inline T qIterGet(DBusMessageIter *it)
 {
@@ -258,5 +260,7 @@ QDBusArgument QDBusDemarshaller::duplicate()
     d->message = dbus_message_ref(message);
 
     dbus_message_iter_next(&iterator);
+
+QT_END_NAMESPACE
     return QDBusArgumentPrivate::create(d);
 }

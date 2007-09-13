@@ -12,3 +12,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/stylesheet
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/stylesheet
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

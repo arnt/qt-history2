@@ -21,6 +21,8 @@
 #include <limits.h>
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QValidator
     \brief The QValidator class provides validation of input text.
@@ -927,4 +929,6 @@ void QRegExpValidator::setRegExp(const QRegExp& rx)
 
 #endif
 
-#endif
+QT_END_NAMESPACE
+
+#endif // QT_NO_VALIDATOR

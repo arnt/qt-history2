@@ -21,6 +21,8 @@
 #include "qsequencereceiver_p.h"
 #include "quntypedatomic_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 void AccelTree::printStats(const NamePool::Ptr &np) const
@@ -447,5 +449,7 @@ Item::Iterator::Ptr AccelTree::typedValue(const Node n) const
         }
     }
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

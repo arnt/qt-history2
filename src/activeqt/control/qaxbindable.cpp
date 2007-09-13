@@ -18,6 +18,8 @@
 #include <qt_windows.h> // for IUnknown
 #include "../shared/qaxtypes.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAxBindable
     \brief The QAxBindable class provides an interface between a
@@ -339,3 +341,5 @@ bool QAxBindable::writeData(QIODevice *sink)
     QPointer, since the QWidget can be destroyed by ActiveQt at any
     time.
 */
+
+QT_END_NAMESPACE

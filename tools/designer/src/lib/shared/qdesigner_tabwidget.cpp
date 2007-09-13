@@ -28,6 +28,8 @@
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 // Store tab widget as drag source
 class MyMimeData : public QMimeData
@@ -491,5 +493,7 @@ bool QTabWidgetPropertySheet::checkProperty(const QString &propertyName)
     }
     return true;
 }
+
+QT_END_NAMESPACE
 
 #include "qdesigner_tabwidget.moc" // required for MyMimeData

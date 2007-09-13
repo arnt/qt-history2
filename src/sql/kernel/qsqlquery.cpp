@@ -24,6 +24,8 @@
 #include "qvector.h"
 #include "qmap.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSqlQueryPrivate
 {
 public:
@@ -1153,3 +1155,5 @@ void QSqlQuery::finish()
         d->sqlResult->setActive(false);
     }
 }
+
+QT_END_NAMESPACE

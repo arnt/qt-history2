@@ -16,8 +16,8 @@
 
 #include <QWidget>
 
-class QVBoxLayout;
-class QSubWidget;
+QT_DECLARE_CLASS(QVBoxLayout)
+QT_DECLARE_CLASS(QSubWidget)
 
 class QParentWidget : public QWidget
 {

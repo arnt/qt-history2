@@ -20,6 +20,8 @@
 #include "qstyleoption.h"
 #include "qpaintengine.h"
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(QT_NO_QWS_DECORATION_STYLED) || defined(QT_PLUGIN)
 
 QDecorationStyled::QDecorationStyled()
@@ -279,3 +281,5 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
 }
 
 #endif // QT_NO_QWS_DECORATION_STYLED
+
+QT_END_NAMESPACE

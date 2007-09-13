@@ -18,6 +18,8 @@
 
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerWorkbench;
 
 class NewForm: public QDialog
@@ -49,5 +51,7 @@ private:
     QPushButton *m_recentButton;
     QString m_fileName;
 };
+
+QT_END_NAMESPACE
 
 #endif // NEWFORM_H

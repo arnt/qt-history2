@@ -28,6 +28,8 @@
 #include "private/qobject_p.h"
 #include "qstyle.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q_GUI_EXPORT QLayoutPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QLayout)
@@ -52,5 +54,7 @@ public:
     QRect rect;
     QWidget *menubar;
 };
+
+QT_END_NAMESPACE
 
 #endif // QLAYOUT_P_H

@@ -15,6 +15,13 @@
 
 #include <stdlib.h>
 
+#ifdef QT_QMAP_DEBUG
+# include <qstring.h>
+# include <qvector.h>
+#endif
+
+QT_BEGIN_NAMESPACE
+
 QMapData QMapData::shared_null = {
     &shared_null,
     { &shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -61,7 +68,7 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
 
     ++randomBits;
     if (level == 3 && !insertInOrder)
-        randomBits = ::qrand();
+        randomBits = qrand();
 
     if (level > topLevel) {
         Node *e = reinterpret_cast<Node *>(this);
@@ -99,8 +106,6 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
 }
 
 #ifdef QT_QMAP_DEBUG
-#include <qstring.h>
-#include <qvector.h>
 
 uint QMapData::adjust_ptr(Node *node)
 {
@@ -1742,3 +1747,5 @@ void QMapData::dump()
 
     Use remove() then insert().
 */
+
+QT_END_NAMESPACE

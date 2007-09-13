@@ -15,6 +15,8 @@
 
 #include <QtCore/QSet>
 
+QT_BEGIN_NAMESPACE
+
 static const QSet<QString> &qscriptKeywords() {
     static QSet<QString> keywords;
     if (keywords.empty()) {
@@ -434,3 +436,5 @@ void QScriptHighlighter::highlightKeyword(int currentPos, const QString &buffer)
     }
 }
 }
+
+QT_END_NAMESPACE

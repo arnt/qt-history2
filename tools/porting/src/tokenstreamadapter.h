@@ -20,6 +20,8 @@
 
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
+
 namespace TokenStreamAdapter {
 struct TokenStream
 {
@@ -44,7 +46,7 @@ struct TokenStream
     {
        if(index >= m_numTokens)
             return false;
-        ::Type type = m_tokenKindList.at(index);
+        QT_ADD_NAMESPACE(Type) type = m_tokenKindList.at(index);
         return (type == Token_whitespaces || type == 10 /*newline*/ ||
                 type == Token_comment || type == Token_preproc );
     }
@@ -116,5 +118,7 @@ private:
 };
 
 } //namespace TokenStreamAdapter
+
+QT_END_NAMESPACE
 
 #endif

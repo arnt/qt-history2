@@ -16,6 +16,8 @@
 
 #include "ui_previewwidget.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class PreviewWidget: public QWidget
@@ -30,5 +32,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // PREVIEWWIDGET_H

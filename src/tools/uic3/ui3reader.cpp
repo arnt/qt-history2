@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
 
 bool Ui3Reader::isMainWindow = false;
 
@@ -602,3 +603,5 @@ void Ui3Reader::setExtractImages(bool extract, const QString &qrcOutputFile)
     m_extractImages = extract;
     m_qrcOutputFile = qrcOutputFile;
 }
+
+QT_END_NAMESPACE

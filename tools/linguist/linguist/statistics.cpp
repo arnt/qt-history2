@@ -13,6 +13,8 @@
 
 #include "statistics.h"
 
+QT_BEGIN_NAMESPACE
+
 Statistics::Statistics(QWidget* parent, Qt::WindowFlags fl)
 : QDialog(parent, fl)
 {
@@ -34,3 +36,5 @@ void Statistics::updateStats(int sW,int sC,int sCS,int trW,int trC,int trCS)
     trChars->setText(QString::number(trC));
     trCharsSpc->setText(QString::number(trCS));
 }
+
+QT_END_NAMESPACE

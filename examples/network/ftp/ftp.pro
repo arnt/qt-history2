@@ -9,3 +9,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/network/ftp
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS ftp.pro images
 sources.path = $$[QT_INSTALL_EXAMPLES]/network/ftp
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

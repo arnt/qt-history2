@@ -35,6 +35,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QObject;
 class QWidget;
 class QLayout;
@@ -116,5 +118,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // WIDGETFACTORY_H

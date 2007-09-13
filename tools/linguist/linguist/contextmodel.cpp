@@ -15,6 +15,8 @@
 #include "messagemodel.h"
 #include "trwindow.h"
 
+QT_BEGIN_NAMESPACE
+
 static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
 
@@ -254,3 +256,5 @@ bool ContextModel::compare(const ContextItem *left, const ContextItem *right)
 
     return false;
 }
+
+QT_END_NAMESPACE

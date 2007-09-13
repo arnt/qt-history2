@@ -23,6 +23,8 @@ TRANSLATOR qdesigner_internal::SignalSlotEditorPlugin
 
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 SignalSlotEditorPlugin::SignalSlotEditorPlugin()
@@ -102,3 +104,5 @@ void SignalSlotEditorPlugin::activeFormWindowChanged(QDesignerFormWindowInterfac
 {
     m_action->setEnabled(formWindow != 0);
 }
+
+QT_END_NAMESPACE

@@ -28,6 +28,8 @@
 #include "QtCore/qmap.h"
 #include "private/qsqlquerymodel_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSqlTableModelPrivate: public QSqlQueryModelPrivate
 {
     Q_DECLARE_PUBLIC(QSqlTableModel)
@@ -81,5 +83,7 @@ public:
     typedef QMap<int, ModifiedRow> CacheMap;
     CacheMap cache;
 };
+
+QT_END_NAMESPACE
 
 #endif // QSQLTABLEMODEL_P_H

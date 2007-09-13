@@ -20,6 +20,9 @@
 #include <QtCore/qvariant.h>
 
 #include "QtTest/private/qtestlog_p.h"
+
+QT_BEGIN_NAMESPACE
+
 namespace QTest
 {
 
@@ -158,3 +161,4 @@ void QSignalDumper::clearIgnoredClasses()
         QTest::ignoreClasses()->clear();
 }
 
+QT_END_NAMESPACE

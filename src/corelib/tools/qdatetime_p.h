@@ -30,6 +30,10 @@
 #include "QtCore/qdatetime.h"
 #include "QtCore/qstringlist.h"
 #include "QtCore/qlist.h"
+#ifndef QT_BOOTSTRAPPED
+# include "QtCore/qvariant.h"
+#endif
+
 
 #define QDATETIMEEDIT_TIME_MIN QTime(0, 0, 0, 0)
 #define QDATETIMEEDIT_TIME_MAX QTime(23, 59, 59, 999)
@@ -41,6 +45,7 @@
 #define QDATETIMEEDIT_DATETIME_MAX QDateTime(QDATETIMEEDIT_DATE_MAX, QDATETIMEEDIT_TIME_MAX)
 #define QDATETIMEEDIT_DATE_INITIAL QDate(2000, 1, 1)
 
+QT_BEGIN_NAMESPACE
 
 class QDateTimePrivate
 {
@@ -70,7 +75,6 @@ public:
 };
 
 #ifndef QT_BOOTSTRAPPED
-#include "QtCore/qvariant.h"
 
 class Q_CORE_EXPORT QDateTimeParser
 {
@@ -242,5 +246,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QDateTimeParser::FieldInfo)
 
 
 #endif // QT_BOOTSTRAPPED
+
+QT_END_NAMESPACE
 
 #endif // QDATETIME_P_H

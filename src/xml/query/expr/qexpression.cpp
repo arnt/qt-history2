@@ -23,6 +23,8 @@
 
 #include "qexpression_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Expression::~Expression()
@@ -365,3 +367,5 @@ QString Expression::description() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

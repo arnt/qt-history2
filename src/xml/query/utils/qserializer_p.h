@@ -14,8 +14,6 @@
 #ifndef Patternist_Serializer_H
 #define Patternist_Serializer_H
 
-class QIODevice;
-
 #include <QPair>
 #include <QStack>
 #include <QTextCodec>
@@ -26,6 +24,10 @@ class QIODevice;
 #include "qsourcelocationreflection_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QIODevice;
 
 namespace Patternist
 {
@@ -165,6 +167,8 @@ namespace Patternist
         QHash<QName::Code, QByteArray>      m_nameCache;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

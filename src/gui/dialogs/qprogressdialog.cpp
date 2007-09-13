@@ -29,6 +29,8 @@
 #include <private/qdialog_p.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
 static const int defaultShowTime = 4000;
@@ -779,4 +781,6 @@ void QProgressDialog::forceShow()
     d->shown_once = true;
 }
 
-#endif
+QT_END_NAMESPACE
+
+#endif // QT_NO_PROGRESSDIALOG

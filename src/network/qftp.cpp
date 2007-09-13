@@ -29,6 +29,8 @@
 #include "qhash.h"
 #include "qtcpserver.h"
 
+QT_BEGIN_NAMESPACE
+
 class QFtpPI;
 
 /*
@@ -1192,7 +1194,9 @@ void QFtpPI::dtpConnectState(int s)
  *
  *********************************************************************/
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <private/qobject_p.h>
+QT_END_INCLUDE_NAMESPACE
 
 class QFtpPrivate : public QObjectPrivate
 {
@@ -2394,6 +2398,8 @@ QFtp::~QFtp()
     abort();
     close();
 }
+
+QT_END_NAMESPACE
 
 #include "qftp.moc"
 

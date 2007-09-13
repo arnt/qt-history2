@@ -27,6 +27,8 @@
 #include <qwindowsystem_qws.h>
 #include <qsocketnotifier.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWSUmKeyboardHandlerPrivate : public QObject
 {
     Q_OBJECT
@@ -105,6 +107,8 @@ QWSUmKeyboardHandler::~QWSUmKeyboardHandler()
 {
     delete d;
 }
+
+QT_END_NAMESPACE
 
 #include "qkbdum_qws.moc"
 

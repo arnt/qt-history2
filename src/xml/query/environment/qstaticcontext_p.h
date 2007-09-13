@@ -14,9 +14,6 @@
 #ifndef Patternist_StaticContext_H
 #define Patternist_StaticContext_H
 
-class QUrl;
-template<typename Key, typename T> class QHash;
-
 #include "qexternalvariableloader_p.h"
 #include "qitemtype_p.h"
 #include "qnamepool_p.h"
@@ -25,6 +22,11 @@ template<typename Key, typename T> class QHash;
 #include "qresourceloader_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QUrl;
+template<typename Key, typename T> class QHash;
 
 namespace Patternist
 {
@@ -256,6 +258,8 @@ namespace Patternist
         virtual LocationHash sourceLocations() const = 0;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

@@ -5,7 +5,6 @@
 #include <QtCore/QVector>
 #include "../global.h"
 
-DECLARE_POINTER_METATYPE(QXmlStreamReader)
 Q_DECLARE_METATYPE(QIODevice*)
 Q_DECLARE_METATYPE(QByteArray*)
 Q_DECLARE_METATYPE(QXmlStreamAttribute)
@@ -17,6 +16,9 @@ Q_DECLARE_METATYPE(QVector<QXmlStreamNamespaceDeclaration>)
 Q_DECLARE_METATYPE(QXmlStreamNotationDeclaration)
 Q_DECLARE_METATYPE(QVector<QXmlStreamNotationDeclaration>)
 Q_DECLARE_METATYPE(QStringRef)
+DECLARE_POINTER_METATYPE(QXmlStreamReader)
+
+QT_BEGIN_NAMESPACE
 
 static inline QScriptValue newXmlStreamReader(QScriptEngine *eng, QXmlStreamReader *reader)
 {
@@ -363,3 +365,5 @@ QScriptValue constructXmlStreamReaderClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

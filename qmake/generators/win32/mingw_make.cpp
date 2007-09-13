@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+QT_BEGIN_NAMESPACE
+
 MingwMakefileGenerator::MingwMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
     if (Option::shellPath.isEmpty())
@@ -402,3 +404,4 @@ QStringList &MingwMakefileGenerator::findDependencies(const QString &file)
     return aList;
 }
 
+QT_END_NAMESPACE

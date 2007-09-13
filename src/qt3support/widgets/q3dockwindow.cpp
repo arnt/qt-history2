@@ -34,6 +34,8 @@
 #include <qrubberband.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_WS_MAC
 static bool default_opaque = true;
 #else
@@ -2078,6 +2080,8 @@ void Q3DockWindow::contextMenuEvent(QContextMenuEvent *e)
     if (!o || ! ((Q3MainWindow*)o)->showDockMenu(e->globalPos()))
         e->ignore();
 }
+
+QT_END_NAMESPACE
 
 #include "q3dockwindow.moc"
 

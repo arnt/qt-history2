@@ -24,9 +24,11 @@
 #include <QtCore/QtDebug>
 
 #ifndef QT_NO_QOBJECT
-#include "qscriptextqobject_p.h"
-#include <QtCore/QMetaMethod>
+#   include "qscriptextqobject_p.h"
+#   include <QtCore/QMetaMethod>
 #endif
+
+QT_BEGIN_NAMESPACE
 
 namespace QScript { namespace Ecma {
 
@@ -395,5 +397,7 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

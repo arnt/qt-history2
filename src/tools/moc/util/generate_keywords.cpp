@@ -15,6 +15,8 @@
 #include <qbytearray.h>
 #include <qlist.h>
 
+QT_BEGIN_NAMESPACE
+
 struct Keyword
 {
     const char *lexem;
@@ -435,3 +437,5 @@ int main(int argc, char **)
         makeTable(keywords);
     return 0;
 }
+
+QT_END_NAMESPACE

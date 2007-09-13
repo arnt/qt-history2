@@ -23,6 +23,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 /*****************************************************************************
   QClipboard debug facilities
  *****************************************************************************/
@@ -568,3 +572,5 @@ QMacPasteboard::sync() const
 
 
 
+
+QT_END_NAMESPACE

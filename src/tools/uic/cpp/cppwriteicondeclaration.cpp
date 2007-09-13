@@ -18,6 +18,8 @@
 
 #include <QtCore/QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 namespace CPP {
 
 WriteIconDeclaration::WriteIconDeclaration(Uic *uic)
@@ -46,3 +48,5 @@ void WriteIconDeclaration::acceptImage(DomImage *image)
 }
 
 } // namespace CPP
+
+QT_END_NAMESPACE

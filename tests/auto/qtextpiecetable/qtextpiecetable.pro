@@ -4,3 +4,6 @@ HEADERS += ../qtextdocument/common.h
 
 !win32:DEFINES += QTEST_REDUCED_EXPORTS
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

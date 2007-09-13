@@ -18,8 +18,8 @@
 #include <QTextEdit>
 
 class ToolBar;
-class QMenu;
-class QSignalMapper;
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QSignalMapper)
 
 class MainWindow : public QMainWindow
 {

@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QDirPrivate;
@@ -226,6 +228,8 @@ class QDebug;
 Q_CORE_EXPORT QDebug operator<<(QDebug debug, QDir::Filters filters);
 Q_CORE_EXPORT QDebug operator<<(QDebug debug, const QDir &dir);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

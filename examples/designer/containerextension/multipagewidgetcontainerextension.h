@@ -16,7 +16,7 @@
 
 #include <QtDesigner/QDesignerContainerExtension>
 
-class QExtensionManager;
+QT_DECLARE_CLASS(QExtensionManager)
 class MultiPageWidget;
 
 class MultiPageWidgetContainerExtension: public QObject,

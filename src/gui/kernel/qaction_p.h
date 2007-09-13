@@ -29,6 +29,8 @@
 #include "QtGui/qmenu.h"
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_ACTION
 
 #ifdef QT3_SUPPORT
@@ -89,5 +91,7 @@ public:
 };
 
 #endif // QT_NO_ACTION
+
+QT_END_NAMESPACE
 
 #endif // QACTION_P_H

@@ -31,6 +31,8 @@
 #include <fcntl.h>
 #include <time.h>
 
+QT_BEGIN_NAMESPACE
+
 static int qfswd_fileChanged_pipe[2];
 static void (*qfswd_old_sigio_handler)(int) = 0;
 static void (*qfswd_old_sigio_action)(int, siginfo_t *, void *) = 0;
@@ -409,7 +411,8 @@ bool QDnotifyFileSystemWatcherEngine::Directory::File::updateInfo()
     }
 }
 
+QT_END_NAMESPACE
+
 #include "qfilesystemwatcher_dnotify.moc"
 
 #endif // QT_NO_FILESYSTEMWATCHER
-

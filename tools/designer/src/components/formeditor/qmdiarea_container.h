@@ -19,6 +19,8 @@
 
 #include <QtGui/QMdiArea>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QMdiAreaContainer: public QObject, public QDesignerContainerExtension
@@ -42,5 +44,7 @@ private:
 
 typedef ExtensionFactory<QDesignerContainerExtension,  QMdiArea,  QMdiAreaContainer> QMdiAreaContainerFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QMDIAREA_CONTAINER_H

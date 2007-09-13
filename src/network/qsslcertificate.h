@@ -35,7 +35,11 @@
 #include <QtCore/qregexp.h>
 #include <QtNetwork/qssl.h>
 
+typedef struct x509_st X509; // ### check if this works
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Network)
 
@@ -46,8 +50,6 @@ class QIODevice;
 class QSslKey;
 class QStringList;
 template <typename T, typename U> class QMultiMap;
-
-typedef struct x509_st X509; // ### check if this works
 
 class QSslCertificatePrivate;
 class Q_NETWORK_EXPORT QSslCertificate
@@ -114,6 +116,8 @@ Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, QSslCertificate::SubjectInfo in
 #endif
 
 #endif // QT_NO_OPENSSL
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

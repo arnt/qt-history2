@@ -18,6 +18,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QLine
     \ingroup multimedia
@@ -732,3 +734,5 @@ QDataStream &operator>>(QDataStream &stream, QLineF &line)
 }
 
 #endif // QT_NO_DATASTREAM
+
+QT_END_NAMESPACE

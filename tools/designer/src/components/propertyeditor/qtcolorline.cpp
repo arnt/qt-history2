@@ -18,6 +18,8 @@
 #include <QtGui/qdrawutil.h>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtColorLinePrivate
@@ -880,3 +882,5 @@ void QtColorLine::mouseReleaseEvent(QMouseEvent *event)
     d_ptr->mouseReleaseEvent(event);
 }
 }
+
+QT_END_NAMESPACE

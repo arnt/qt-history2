@@ -15,7 +15,9 @@
 #include <QDesktopWidget>
 
 #ifdef Q_WS_X11
+QT_BEGIN_NAMESPACE
 extern void qt_x11_wait_for_window_manager( QWidget* w );
+QT_END_NAMESPACE
 #endif
 
 class tst_QWindowSurface : public QObject

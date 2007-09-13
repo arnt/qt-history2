@@ -31,6 +31,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest
 {
     enum KeyAction { Press, Release, Click };
@@ -154,6 +156,8 @@ namespace QTest
     { keyEvent(Click, widget, key, modifier, delay); }
 
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

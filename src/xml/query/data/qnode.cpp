@@ -18,6 +18,8 @@
 
 #include "qitem_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /**
  * @file
  * @short Contains the implementation for Node. The definition is in qitem_p.h.
@@ -60,3 +62,5 @@ QString Node::axisName(const Axis axis)
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

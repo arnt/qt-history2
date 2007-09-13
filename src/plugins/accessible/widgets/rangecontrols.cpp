@@ -25,6 +25,8 @@
 #include <QDial>
 #include <private/qmath_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_ACCESSIBILITY
 extern QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 #ifndef QT_NO_SCROLLBAR
@@ -956,3 +958,5 @@ QDial *QAccessibleDial::dial() const
 #endif // QT_NO_DIAL
 
 #endif // QT_NO_ACCESSIBILITY
+
+QT_END_NAMESPACE

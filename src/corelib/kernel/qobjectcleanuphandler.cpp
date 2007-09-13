@@ -13,6 +13,8 @@
 
 #include "qobjectcleanuphandler.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QObjectCleanupHandler
     \brief The QObjectCleanupHandler class watches the lifetime of multiple QObjects.
@@ -114,3 +116,5 @@ void QObjectCleanupHandler::objectDestroyed(QObject *object)
 {
     remove(object);
 }
+
+QT_END_NAMESPACE

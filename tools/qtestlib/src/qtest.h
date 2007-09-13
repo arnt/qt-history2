@@ -32,6 +32,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest
 {
 
@@ -170,6 +172,7 @@ inline bool qCompare(QFlags<T> const &t1, int const &t2, const char *actual, con
 }
 
 }
+QT_END_NAMESPACE
 
 #define QTEST_APPLESS_MAIN(TestObject) \
 int main(int argc, char *argv[]) \

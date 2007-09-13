@@ -17,8 +17,8 @@
 #include <QGLWidget>
 
 class Helper;
-class QPaintEvent;
-class QWidget;
+QT_DECLARE_CLASS(QPaintEvent)
+QT_DECLARE_CLASS(QWidget)
 
 class GLWidget : public QGLWidget
 {

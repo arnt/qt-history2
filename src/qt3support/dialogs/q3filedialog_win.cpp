@@ -34,6 +34,7 @@
 #include <commdlg.h>
 #endif
 
+QT_BEGIN_NAMESPACE
 
 // Don't remove the lines below!
 //
@@ -715,5 +716,6 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
 #endif
 }
 
+QT_END_NAMESPACE
 
 #endif

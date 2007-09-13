@@ -25,6 +25,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3TextStreamPrivate;
@@ -259,6 +261,8 @@ Q_COMPAT_EXPORT Q3TextStream &endl( Q3TextStream &s );	// insert EOL ('\n')
 Q_COMPAT_EXPORT Q3TextStream &flush( Q3TextStream &s );	// flush output
 Q_COMPAT_EXPORT Q3TextStream &ws( Q3TextStream &s );	// eat whitespace on input
 Q_COMPAT_EXPORT Q3TextStream &reset( Q3TextStream &s );	// set default flags
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

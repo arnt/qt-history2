@@ -35,6 +35,8 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
+QT_BEGIN_NAMESPACE
+
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 #ifndef QT_NO_ITEMVIEWS
@@ -2031,5 +2033,7 @@ QAccessibleScrollArea::QAccessibleScrollArea(QWidget *widget)
     Q_ASSERT(qobject_cast<QScrollArea *>(widget));
 }
 #endif // QT_NO_SCROLLAREA
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_ACCESSIBILITY

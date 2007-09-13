@@ -34,6 +34,8 @@
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 QDesignerIntegration::QDesignerIntegration(QDesignerFormEditorInterface *core, QObject *parent)
@@ -323,3 +325,5 @@ void QDesignerIntegration::emitObjectNameChanged(QDesignerFormWindowInterface *f
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

@@ -14,3 +14,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/sql/drilldown
 sources.files = $$SOURCES *.h $$RESOURCES $$FORMS drilldown.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/sql/drilldown
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

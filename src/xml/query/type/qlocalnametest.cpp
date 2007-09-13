@@ -20,6 +20,8 @@
 
 #include "qlocalnametest_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 LocalNameTest::LocalNameTest(const ItemType::Ptr &primaryType,
@@ -62,3 +64,5 @@ bool LocalNameTest::operator==(const ItemType &other) const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

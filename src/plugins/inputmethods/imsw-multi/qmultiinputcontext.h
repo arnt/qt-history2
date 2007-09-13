@@ -38,6 +38,8 @@
 #include <QtCore/qpointer.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_NAMESPACE
+
 class QMultiInputContext : public QInputContext
 {
     Q_OBJECT
@@ -80,5 +82,7 @@ private:
 };
 
 #endif // Q_NO_IM
+
+QT_END_NAMESPACE
 
 #endif // QMULTIINPUTCONTEXT_H

@@ -26,6 +26,7 @@
 #include <QtGui/QStackedWidget>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
 
 namespace {
      QToolButton *createToolButton(QWidget *parent, Qt::ArrowType at, const QString &name) {
@@ -313,3 +314,5 @@ bool QStackedWidgetPropertySheet::checkProperty(const QString &propertyName)
 {
     return propertyName != QLatin1String(pagePropertyName);
 }
+
+QT_END_NAMESPACE

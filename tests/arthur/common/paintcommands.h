@@ -9,10 +9,10 @@
 #include <qpixmap.h>
 #include <qbrush.h>
 
-class QPainter;
-class QRegExp;
+QT_DECLARE_CLASS(QPainter)
+QT_DECLARE_CLASS(QRegExp)
 #ifndef QT_NO_OPENGL
-class QGLPixelBuffer;
+QT_DECLARE_CLASS(QGLPixelBuffer)
 #endif
 
 enum DeviceType {

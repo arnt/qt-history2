@@ -18,6 +18,8 @@
 
 #include "qtruthpredicate_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 TruthPredicate::TruthPredicate(const Expression::Ptr &sourceExpression,
@@ -40,3 +42,5 @@ ExpressionVisitorResult::Ptr TruthPredicate::accept(const ExpressionVisitor::Ptr
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

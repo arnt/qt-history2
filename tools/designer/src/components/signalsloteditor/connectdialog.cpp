@@ -25,6 +25,8 @@
 
 #include <QtGui/QPushButton>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     typedef QList<QListWidgetItem*> ListWidgetItems;
 }
@@ -273,3 +275,5 @@ void ConnectDialog::editSignalsSlots(QWidget *w, WidgetMode mode, int signalSlot
 }
 
 }
+
+QT_END_NAMESPACE

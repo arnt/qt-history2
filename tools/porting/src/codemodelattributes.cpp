@@ -14,6 +14,8 @@
 #include "codemodelattributes.h"
 #include "tokenengine.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace CodeModel;
 using namespace TokenEngine;
 
@@ -161,3 +163,5 @@ bool CodeModelAttributes::areAttributesEnabled(const TokenAttributes *attributes
     return (attributes->attribute(tstCreateAttributes) == tstTrue);
 }
 
+
+QT_END_NAMESPACE

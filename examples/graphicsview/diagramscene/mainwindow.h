@@ -18,19 +18,19 @@
 
 #include "diagramitem.h"
 
-class QAction;
-class QToolBox;
-class QSpinBox;
-class QComboBox;
-class QFontComboBox;
-class QButtonGroup;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QToolBox)
+QT_DECLARE_CLASS(QSpinBox)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QFontComboBox)
+QT_DECLARE_CLASS(QButtonGroup)
 class DiagramScene;
-class QLineEdit;
-class QGraphicsTextItem;
-class QFont;
-class QToolButton;
-class QAbstractButton;
-class QGraphicsView;
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QGraphicsTextItem)
+QT_DECLARE_CLASS(QFont)
+QT_DECLARE_CLASS(QToolButton)
+QT_DECLARE_CLASS(QAbstractButton)
+QT_DECLARE_CLASS(QGraphicsView)
 
 class MainWindow : public QMainWindow
 {

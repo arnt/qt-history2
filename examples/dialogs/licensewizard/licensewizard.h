@@ -16,10 +16,10 @@
 
 #include <QWizard>
 
-class QCheckBox;
-class QLabel;
-class QLineEdit;
-class QRadioButton;
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QRadioButton)
 
 class LicenseWizard : public QWizard
 {

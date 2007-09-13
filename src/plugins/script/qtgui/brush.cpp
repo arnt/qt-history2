@@ -17,6 +17,8 @@ Q_DECLARE_METATYPE(QPixmap*)
 Q_DECLARE_METATYPE(QImage*)
 Q_DECLARE_METATYPE(QBrush*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newBrush(QScriptEngine *eng, const QBrush &brush)
 {
     return eng->newVariant(qVariantFromValue(brush));
@@ -232,3 +234,5 @@ QScriptValue constructBrushClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

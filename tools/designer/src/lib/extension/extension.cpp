@@ -13,6 +13,8 @@
 
 #include <QtDesigner/extension.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAbstractExtensionFactory
 
@@ -162,3 +164,4 @@
    \sa Q_DECLARE_INTERFACE()
 */
 
+QT_END_NAMESPACE

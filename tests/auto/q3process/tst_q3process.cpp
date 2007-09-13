@@ -18,7 +18,7 @@
 #include <qdebug.h>
 
 
-class Q3Process;
+QT_DECLARE_CLASS(Q3Process)
 
 //TESTED_CLASS=
 //TESTED_FILES=corelib/kernel/q3process.h corelib/kernel/q3process.cpp

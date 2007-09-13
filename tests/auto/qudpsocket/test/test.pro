@@ -20,3 +20,6 @@ win32 {
 }
 
 TARGET = tst_qudpsocket
+
+DEFINES += QT_USE_USING_NAMESPACE
+

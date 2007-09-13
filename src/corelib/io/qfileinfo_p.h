@@ -27,6 +27,8 @@
 
 #include "qfileinfo.h"
 
+QT_BEGIN_NAMESPACE
+
 class QFileInfoPrivate
 {
 public:
@@ -109,5 +111,7 @@ public:
     void detach();
 };
 
+
+QT_END_NAMESPACE
 #endif
 

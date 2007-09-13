@@ -11,3 +11,5 @@ MOC_DIR	= tmp
 OBJECTS_DIR = tmp
 TARGET	= simple_lib
 DESTDIR	= ./
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -16,9 +16,9 @@
 
 #include <QGroupBox>
 
-class QDial;
-class QScrollBar;
-class QSlider;
+QT_DECLARE_CLASS(QDial)
+QT_DECLARE_CLASS(QScrollBar)
+QT_DECLARE_CLASS(QSlider)
 
 class SlidersGroup : public QGroupBox
 {

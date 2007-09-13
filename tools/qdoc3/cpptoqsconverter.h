@@ -22,6 +22,8 @@
 
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 class CppToQsConverter
 {
 public:
@@ -52,5 +54,7 @@ private:
     static QRegExp gulbrandsenRegExp;
     static int tabSize;
 };
+
+QT_END_NAMESPACE
 
 #endif

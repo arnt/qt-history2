@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 class QByteArray;
 
 class QSignalDumper
@@ -36,5 +40,7 @@ public:
     static void ignoreClass(const QByteArray &klass);
     static void clearIgnoredClasses();
 };
+
+QT_END_NAMESPACE
 
 #endif

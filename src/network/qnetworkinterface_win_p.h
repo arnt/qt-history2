@@ -29,6 +29,8 @@
 #include <windows.h>
 #include <time.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef GAA_FLAG_INCLUDE_ALL_INTERFACES
 # define GAA_FLAG_INCLUDE_ALL_INTERFACES 0x0100
 #endif
@@ -218,4 +220,7 @@ typedef struct _IP_ADAPTER_INFO {
   time_t LeaseExpires;
 } IP_ADAPTER_INFO, 
  *PIP_ADAPTER_INFO;
+
+QT_END_NAMESPACE
+
 #endif

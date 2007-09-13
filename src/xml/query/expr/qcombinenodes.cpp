@@ -22,6 +22,8 @@
 
 #include "qcombinenodes_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 CombineNodes::CombineNodes(const Expression::Ptr &operand1,
@@ -108,3 +110,5 @@ ExpressionVisitorResult::Ptr CombineNodes::accept(const ExpressionVisitor::Ptr &
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

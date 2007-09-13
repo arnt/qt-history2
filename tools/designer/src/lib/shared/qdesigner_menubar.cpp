@@ -39,6 +39,8 @@
 
 Q_DECLARE_METATYPE(QAction*)
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 namespace qdesigner_internal
@@ -926,3 +928,5 @@ void QDesignerMenuBar::updateCurrentAction(bool selectAction)
     oi->clearSelection();
     oi->selectObject(menu);
 }
+
+QT_END_NAMESPACE

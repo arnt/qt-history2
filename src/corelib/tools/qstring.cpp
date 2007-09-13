@@ -53,6 +53,7 @@
 #define ULLONG_MAX quint64_C(18446744073709551615)
 #endif
 
+QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_TEXTCODEC
 QTextCodec *QString::codecForCStrings;
@@ -3234,8 +3235,12 @@ const char *QString::latin1_helper() const
 
 #endif
 
+QT_END_NAMESPACE
+
 #ifdef Q_OS_WIN32
 #include "qt_windows.h"
+
+QT_BEGIN_NAMESPACE
 
 QByteArray qt_winQString2MB(const QString& s, int uclen)
 {
@@ -3317,7 +3322,12 @@ QString qt_winMB2QString(const char *mb, int mblen)
         delete [] wc;
     return s;
 }
+
+QT_END_NAMESPACE
+
 #endif // Q_OS_WIN32
+
+QT_BEGIN_NAMESPACE
 
 /*!
     Returns a QString initialized with the first \a size characters
@@ -5671,14 +5681,14 @@ QString QString::normalized(QString::NormalizationForm mode, QChar::UnicodeVersi
             }
         }
     }
-    s = ::decompose(s, mode < QString::NormalizationForm_KD, version);
+    s = decomposeHelper(s, mode < QString::NormalizationForm_KD, version);
 
-    s = ::canonicalOrder(s, version);
+    s = canonicalOrderHelper(s, version);
 
     if (mode == QString::NormalizationForm_D || mode == QString::NormalizationForm_KD)
         return s;
 
-    return ::compose(s);
+    return composeHelper(s);
 
 }
 
@@ -7419,3 +7429,5 @@ QStringRef QStringRef::appendTo(QString *string) const
     return QStringRef(string, pos, size());
 }
 
+
+QT_END_NAMESPACE

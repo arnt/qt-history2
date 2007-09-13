@@ -15,6 +15,8 @@
 
 #include <QtGui/QWorkspace>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 QWorkspaceContainer::QWorkspaceContainer(QWorkspace *widget, QObject *parent)
@@ -62,3 +64,5 @@ void QWorkspaceContainer::remove(int index)
     Q_UNUSED(index);
 }
 }
+
+QT_END_NAMESPACE

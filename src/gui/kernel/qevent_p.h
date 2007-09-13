@@ -14,6 +14,10 @@
 #ifndef QEVENT_P_H
 #define QEVENT_P_H
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -42,5 +46,7 @@ protected:
     quint32 nModifiers;
     friend class QKeyEvent;
 };
+
+QT_END_NAMESPACE
 
 #endif // QEVENT_P_H

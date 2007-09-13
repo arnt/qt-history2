@@ -21,6 +21,8 @@
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \since 4.3
   \class QScriptContext
@@ -360,5 +362,7 @@ QStringList QScriptContext::backtrace() const
     Q_D(const QScriptContext);
     return d->backtrace();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

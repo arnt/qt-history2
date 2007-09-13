@@ -20,6 +20,8 @@
 
 #include "qacceltreeresourceloader_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 static inline uint qHash(const QUrl &uri)
@@ -202,5 +204,7 @@ bool AccelTreeResourceLoader::isDocumentAvailable(const QUrl &uri)
 {
     return retrieveDocument(uri);
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

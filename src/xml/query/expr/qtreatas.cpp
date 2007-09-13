@@ -16,6 +16,8 @@
 
 #include "qtreatas_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 TreatAs::TreatAs(const Expression::Ptr &operand,
@@ -55,3 +57,5 @@ SequenceType::List TreatAs::expectedOperandTypes() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

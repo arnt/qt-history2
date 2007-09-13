@@ -27,6 +27,8 @@
 
 #include <private/qdrawhelper_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // the comp_func functions are implemented in qdrawhelper.cpp
 void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color, uint const_alpha);
 void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, uint const_alpha);
@@ -129,5 +131,7 @@ void qt_blend_color_argb_iwmmxt(int count, const QSpan *spans, void *userData);
 extern const CompositionFunction qt_functionForMode_IWMMXT[];
 extern const CompositionFunctionSolid qt_functionForModeSolid_IWMMXT[];
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QDRAWHELPER_X86_P_H

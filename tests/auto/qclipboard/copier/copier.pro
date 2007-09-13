@@ -6,3 +6,6 @@ CONFIG -= app_bundle
 
 # Input
 SOURCES += main.cpp
+
+DEFINES += QT_USE_USING_NAMESPACE
+

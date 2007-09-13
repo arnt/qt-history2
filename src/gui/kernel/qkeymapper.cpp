@@ -18,6 +18,8 @@
 #include "qkeymapper_p.h"
 #include <qwidget.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QKeyMapper QKeyMapper.h
     \since 4.2
@@ -87,3 +89,5 @@ QKeyMapperPrivate *qt_keymapper_private()
 }
 
 Q_GUI_EXPORT QList<int> qt_keymapper_possibleKeys(QKeyEvent *e) { return QKeyMapper::instance()->possibleKeys(e); }
+
+QT_END_NAMESPACE

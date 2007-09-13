@@ -21,6 +21,8 @@
 #include <qmutex.h>
 #include <private/qmutexpool_p.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QHOSTINFO_DEBUG
 
 // Older SDKs do not include the addrinfo struct declaration, so we
@@ -241,3 +243,5 @@ QString QHostInfo::localHostName()
     return QString::fromLocal8Bit(hostName);
 }
 
+
+QT_END_NAMESPACE

@@ -17,9 +17,9 @@
 #include <QObject>
 #include <QGraphicsScene>
 
-class QGraphicsSceneDragDropEvent;
+QT_DECLARE_CLASS(QGraphicsSceneDragDropEvent)
 class DiagramItem;
-class QGraphicsViewItem;
+QT_DECLARE_CLASS(QGraphicsViewItem)
 
 class DiagramScene : public QGraphicsScene
 {

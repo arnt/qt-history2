@@ -15,6 +15,8 @@
 
 #include "qnamespaceconstructor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 NamespaceConstructor::NamespaceConstructor(const NamespaceBinding nb) : m_binding(nb)
@@ -50,3 +52,5 @@ ExpressionVisitorResult::Ptr NamespaceConstructor::accept(const ExpressionVisito
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

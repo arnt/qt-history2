@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_OS_WIN
 #ifdef VIEW3D_LIBRARY
 # define VIEW3D_EXPORT
@@ -27,3 +29,5 @@
 #endif
 
 #endif // VIEW3D_GLOBAL_H
+
+QT_END_NAMESPACE

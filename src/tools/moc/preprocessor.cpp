@@ -13,12 +13,15 @@
 
 #include "preprocessor.h"
 #include "utils.h"
-#include "keywords.cpp"
-#include "ppkeywords.cpp"
 #include <QStringList>
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
+
+QT_BEGIN_NAMESPACE
+
+#include "ppkeywords.cpp"
+#include "keywords.cpp"
 
 // transform \r\n into \n
 // \r into \n (os9 style)
@@ -913,3 +916,4 @@ void Preprocessor::until(Token t)
         ;
 }
 
+QT_END_NAMESPACE

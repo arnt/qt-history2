@@ -18,6 +18,8 @@
 #include <QtDesigner/QDesignerLayoutDecorationExtension>
 #include <QtDesigner/default_extensionfactory.h>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -34,5 +36,6 @@ protected:
 
 }  // namespace qdesigner_internal
 
+QT_END_NAMESPACE
 
 #endif // DEFAULT_LAYOUTDECORATION_H

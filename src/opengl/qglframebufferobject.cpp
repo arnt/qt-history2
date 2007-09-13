@@ -20,6 +20,8 @@
 #include <qlibrary.h>
 #include <qimage.h>
 
+QT_BEGIN_NAMESPACE
+
 // #define DEPTH_BUFFER
 #define QGL_FUNC_CONTEXT QGLContext *ctx = d_ptr->ctx;
 
@@ -599,3 +601,5 @@ QGLFramebufferObject::Attachment QGLFramebufferObject::attachment() const
         return d->fbo_attachment;
     return NoAttachment;
 }
+
+QT_END_NAMESPACE

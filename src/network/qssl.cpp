@@ -28,6 +28,8 @@
 
 #include "qsslkey.h"
 
+QT_BEGIN_NAMESPACE
+
 /*! \namespace QSsl
 
     \brief The QSsl namespace declares enums common to all SSL classes in QtNetwork.
@@ -91,3 +93,5 @@
     \value AnyProtocol The socket understands SSLv2, SSLv3, and TLSv1. This
     value is used by QSslSocket only.
 */
+
+QT_END_NAMESPACE

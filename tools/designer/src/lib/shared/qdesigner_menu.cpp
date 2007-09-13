@@ -41,6 +41,8 @@
 
 Q_DECLARE_METATYPE(QAction*)
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 QDesignerMenu::QDesignerMenu(QWidget *parent) :
@@ -1330,4 +1332,4 @@ void QDesignerMenu::keyReleaseEvent(QKeyEvent *event)
     event->ignore();
 }
 
-
+QT_END_NAMESPACE

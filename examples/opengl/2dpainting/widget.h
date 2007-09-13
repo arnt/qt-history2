@@ -17,7 +17,7 @@
 #include <QWidget>
 
 class Helper;
-class QPaintEvent;
+QT_DECLARE_CLASS(QPaintEvent)
 
 class Widget : public QWidget
 {

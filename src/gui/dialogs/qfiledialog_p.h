@@ -52,6 +52,8 @@
 #include <unistd.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class QFileDialogListView;
 class QFileDialogTreeView;
 class QFileDialogLineEdit;
@@ -290,6 +292,8 @@ public:
 };
 #endif // QT_NO_COMPLETER
 
-#endif
+QT_END_NAMESPACE
 
-#endif
+#endif // QT_NO_FILEDIALOG
+
+#endif // QFILEDIALOG_P_H

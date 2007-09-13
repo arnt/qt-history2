@@ -17,6 +17,8 @@
 #include <QMainWindow>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
+
 class QVFbAbstractView;
 class QVFbRateDialog;
 class QPopupMenu;
@@ -115,5 +117,7 @@ private slots:
     void setB400(int n);
     void updateGammaLabels();
 };
+
+QT_END_NAMESPACE
 
 #endif

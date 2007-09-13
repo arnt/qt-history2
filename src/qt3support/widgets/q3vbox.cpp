@@ -14,6 +14,8 @@
 
 #include "q3vbox.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3VBox qvbox.h
     \brief The Q3VBox widget provides vertical geometry management of
@@ -38,3 +40,5 @@ Q3VBox::Q3VBox( QWidget *parent, const char *name, Qt::WindowFlags f )
     :Q3HBox( false, parent, name, f )
 {
 }
+
+QT_END_NAMESPACE

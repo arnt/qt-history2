@@ -21,6 +21,7 @@
 #include <QtCore/QMap>
 #include <QtGui/QBrush>
 
+QT_BEGIN_NAMESPACE
 
 namespace qdesigner_internal {
 
@@ -54,5 +55,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif

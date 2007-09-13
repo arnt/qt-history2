@@ -9,3 +9,6 @@ DEFINES	+= QSYSTEMSEMAPHORE_DEBUG
 
 SOURCES		+= tst_qsystemsemaphore.cpp 
 TARGET		= tst_qsystemsemaphore
+
+DEFINES += QT_USE_USING_NAMESPACE
+

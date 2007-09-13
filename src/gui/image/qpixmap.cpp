@@ -43,6 +43,8 @@
 # include <private/qt_x11_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 // ### Qt 5: remove
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
@@ -1407,3 +1409,5 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
     \fn DataPtr &QPixmap::data_ptr()
     \internal
 */
+
+QT_END_NAMESPACE

@@ -20,6 +20,8 @@ TRANSLATOR qdesigner_internal::QtGradientEditor
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 namespace qdesigner_internal {
@@ -416,5 +418,7 @@ QGradient QtGradientEditor::gradient() const
     delete gradient;
     return gr;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtgradienteditor.cpp"

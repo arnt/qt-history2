@@ -8,6 +8,8 @@
 Q_DECLARE_METATYPE(QEvent*)
 DECLARE_POINTER_METATYPE(QPaintEvent)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newPaintEvent(QScriptEngine *eng, QPaintEvent *pe)
 {
     return QScript::wrapPointer(eng, pe);
@@ -51,3 +53,5 @@ QScriptValue constructPaintEventClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Sql)
 
 class QVariant;
@@ -91,6 +93,8 @@ public:
 private:
     QSqlQueryPrivate* d;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

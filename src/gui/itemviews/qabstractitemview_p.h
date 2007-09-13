@@ -40,6 +40,8 @@
 
 #ifndef QT_NO_ITEMVIEWS
 
+QT_BEGIN_NAMESPACE
+
 typedef QList<QPair<QPersistentModelIndex, QPointer<QWidget> > > _q_abstractitemview_editor_container;
 typedef _q_abstractitemview_editor_container::const_iterator _q_abstractitemview_editor_const_iterator;
 typedef _q_abstractitemview_editor_container::iterator _q_abstractitemview_editor_iterator;
@@ -325,7 +327,9 @@ public:
     bool wrapItemText;
 };
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qvector.h>
+QT_END_INCLUDE_NAMESPACE
 
 template <typename T>
 inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int end)
@@ -340,6 +344,8 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
     }
     return i;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_ITEMVIEWS
 

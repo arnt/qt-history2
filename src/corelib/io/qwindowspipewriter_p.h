@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 #define SLEEPMIN 10
@@ -106,7 +108,8 @@ private:
     bool hasWritten;
 };
 
+QT_END_NAMESPACE
+
 QT_END_HEADER
 
 #endif // QT_NO_PROCESS
-

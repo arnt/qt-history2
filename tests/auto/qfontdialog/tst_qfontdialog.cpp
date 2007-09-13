@@ -26,7 +26,7 @@
 //TESTED_CLASS=
 //TESTED_FILES=gui/dialogs/qfontdialog.h gui/dialogs/qfontdialog.cpp
 
-class QtTestEventThread;
+QT_DECLARE_CLASS(QtTestEventThread)
 
 class tst_QFontDialog : public QObject
 {

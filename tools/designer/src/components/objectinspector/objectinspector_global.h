@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_OS_WIN
 #ifdef QT_OBJECTINSPECTOR_LIBRARY
 # define QT_OBJECTINSPECTOR_EXPORT
@@ -27,3 +29,5 @@
 #endif
 
 #endif // OBJECTINSPECTOR_GLOBAL_H
+
+QT_END_NAMESPACE

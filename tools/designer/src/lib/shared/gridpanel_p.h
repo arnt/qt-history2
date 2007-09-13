@@ -29,6 +29,8 @@
 
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class Grid;
@@ -63,5 +65,9 @@ private slots:
 private:
     Ui::GridPanel *m_ui;
 };
-}
+
+} // qdesigner_internal
+
+QT_END_NAMESPACE
+
 #endif // GRIDPANEL_H

@@ -19,6 +19,8 @@
 #include <qfileinfo.h>
 #include <qregexp.h>
 
+QT_BEGIN_NAMESPACE
+
 QString project_builtin_regx() //calculate the builtin regular expression..
 {
     QString ret;
@@ -470,3 +472,5 @@ ProjectGenerator::fixPathToQmake(const QString &file)
         ret = ret.replace(Option::dir_sep, QLatin1String("/"));
     return ret;
 }
+
+QT_END_NAMESPACE

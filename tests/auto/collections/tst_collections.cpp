@@ -153,7 +153,9 @@ struct Movable {
 };
 
 int Movable::count = 0;
+QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(Movable, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE
 
 
 struct Pod {

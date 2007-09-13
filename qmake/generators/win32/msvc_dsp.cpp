@@ -19,6 +19,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 DspMakefileGenerator::DspMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
 }
@@ -1172,3 +1174,5 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
 
     return ret;
 }
+
+QT_END_NAMESPACE

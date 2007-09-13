@@ -30,6 +30,8 @@ TRANSLATOR qdesigner_internal::ListWidgetTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 ListWidgetTaskMenu::ListWidgetTaskMenu(QListWidget *button, QObject *parent)
@@ -88,3 +90,4 @@ void ListWidgetTaskMenu::updateSelection()
         m_editor->deleteLater();
 }
 
+QT_END_NAMESPACE

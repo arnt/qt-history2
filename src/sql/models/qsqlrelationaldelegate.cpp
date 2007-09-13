@@ -13,6 +13,8 @@
 
 #include "qglobal.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QSqlRelationalDelegate
     \brief The QSqlRelationalDelegate class provides a delegate that is used to
@@ -69,3 +71,5 @@
                                                   const QModelIndex &index) const
     \reimp
 */
+
+QT_END_NAMESPACE

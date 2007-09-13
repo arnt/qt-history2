@@ -15,6 +15,8 @@
 
 #include "qanysimpletype_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 AnySimpleType::AnySimpleType()
@@ -51,3 +53,5 @@ SchemaType::DerivationMethod AnySimpleType::derivationMethod() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

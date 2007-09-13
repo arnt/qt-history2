@@ -17,6 +17,8 @@
 
 #include "qfocus_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Focus::Focus(const DynamicContext::Ptr &prevContext) : DelegatingDynamicContext(prevContext),
@@ -63,3 +65,5 @@ Item::Iterator::Ptr Focus::focusIterator() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

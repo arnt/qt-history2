@@ -30,6 +30,8 @@
 #define QT_POPEN popen
 #endif
 
+QT_BEGIN_NAMESPACE
+
 QString loadFile( const QString &fileName )
 {
     QFile file( fileName );
@@ -159,3 +161,5 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
         }
     return tagMap;
 }
+
+QT_END_NAMESPACE

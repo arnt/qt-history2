@@ -29,6 +29,8 @@
 #include <qrect.h>
 #include <qmap.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 class QTimer;
 class QTime;
@@ -66,5 +68,7 @@ private:
     QTimer *m_timer;
     QTime *m_time;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWIDGET_ANIMATOR_P_H

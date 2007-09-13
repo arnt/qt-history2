@@ -28,6 +28,8 @@
 #include <QScrollArea>
 #include <QTextCharFormat>
 
+QT_BEGIN_NAMESPACE
+
 template <typename T> class QList;
 class QSplitter;
 class QDockWidget;
@@ -333,5 +335,7 @@ private:
     bool clipboardEmpty;
     bool doGuesses;
 };
+
+QT_END_NAMESPACE
 
 #endif

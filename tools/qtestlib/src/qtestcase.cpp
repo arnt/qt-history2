@@ -38,6 +38,7 @@
 #include <time.h>
 #endif
 
+QT_BEGIN_NAMESPACE
 
 /*!
    \namespace QTest
@@ -722,7 +723,7 @@ int qt_snprintf(char *str, int size, const char *format, ...)
     int res = 0;
 
     va_start(ap, format);
-    ::qvsnprintf(str, size, format, ap);
+    qvsnprintf(str, size, format, ap);
     va_end(ap);
     str[size - 1] = '\0';
 
@@ -738,7 +739,7 @@ int qt_snprintf(char *str, int size, const char *format, ...)
 bool Q_TESTLIB_EXPORT defaultKeyVerbose()
 {
     if (keyVerbose == -1) {
-        keyVerbose = ::qgetenv("QTEST_KEYEVENT_VERBOSE").constData() ? 1 : 0;
+        keyVerbose = qgetenv("QTEST_KEYEVENT_VERBOSE").constData() ? 1 : 0;
     }
     return keyVerbose == 1;
 }
@@ -747,7 +748,7 @@ int defaultEventDelay()
 {
     if (eventDelay == -1) {
         if (qgetenv("QTEST_EVENT_DELAY").constData())
-            eventDelay = atoi(::qgetenv("QTEST_EVENT_DELAY"));
+            eventDelay = atoi(qgetenv("QTEST_EVENT_DELAY"));
         else
             eventDelay = 0;
     }
@@ -757,8 +758,8 @@ int defaultEventDelay()
 int Q_TESTLIB_EXPORT defaultMouseDelay()
 {
     if (mouseDelay == -1) {
-        if (::qgetenv("QTEST_MOUSEEVENT_DELAY").constData())
-            mouseDelay = atoi((::qgetenv("QTEST_MOUSEEVENT_DELAY")));
+        if (qgetenv("QTEST_MOUSEEVENT_DELAY").constData())
+            mouseDelay = atoi((qgetenv("QTEST_MOUSEEVENT_DELAY")));
         else
             mouseDelay = defaultEventDelay();
     }
@@ -768,7 +769,7 @@ int Q_TESTLIB_EXPORT defaultMouseDelay()
 int Q_TESTLIB_EXPORT defaultKeyDelay()
 {
     if (keyDelay == -1) {
-        if (::qgetenv("QTEST_KEYEVENT_DELAY").constData())
+        if (qgetenv("QTEST_KEYEVENT_DELAY").constData())
             keyDelay = atoi(qgetenv("QTEST_KEYEVENT_DELAY").constData());
         else
             keyDelay = defaultEventDelay();
@@ -1718,3 +1719,5 @@ bool QTest::compare_string_helper(const char *t1, const char *t2, const char *ac
 /*! \fn int QTest::qt_snprintf(char *str, int size, const char *format, ...)
     \internal
 */
+
+QT_END_NAMESPACE

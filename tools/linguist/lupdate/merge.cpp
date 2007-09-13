@@ -16,6 +16,8 @@
 #include "simtexth.h"
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 // defined in numberh.cpp
 extern int applyNumberHeuristic( MetaTranslator *tor );
 // defined in sametexth.cpp
@@ -177,3 +179,5 @@ void lupdateApplication::merge( const MetaTranslator *tor, const MetaTranslator 
             Console::out(tr("    Similar-text heuristic provided %n translation(s)\n", 0, similarTextHeuristicCount));
     }
 }
+
+QT_END_NAMESPACE

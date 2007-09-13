@@ -26,6 +26,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QAuthDevice;
@@ -139,6 +141,8 @@ private:
     friend class QAuthDevice;
     Q_DECLARE_PRIVATE(QTransportAuth)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 #endif // QT_NO_SXE

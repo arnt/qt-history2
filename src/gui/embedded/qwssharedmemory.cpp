@@ -17,6 +17,7 @@
 
 #include <sys/shm.h>
 
+QT_BEGIN_NAMESPACE
 
 QWSSharedMemory::QWSSharedMemory()
     : shmBase(0), shmSize(0), character(0),  shmId(-1), key(-1)
@@ -150,5 +151,7 @@ bool QWSSharedMemory::attach ()
   return (long)shmBase != 0;
 }
 
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_MULTIPROCESS

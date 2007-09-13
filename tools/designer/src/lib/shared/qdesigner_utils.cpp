@@ -28,6 +28,8 @@
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal
 {
     QDESIGNER_SHARED_EXPORT void designerWarning(const QString &message)
@@ -256,3 +258,5 @@ namespace qdesigner_internal
         return qname;
     }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

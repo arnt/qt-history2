@@ -22,3 +22,6 @@ contains(QT_CONFIG, qdbus){
     DEFINES += WITH_DBUS
     CONFIG += qdbus
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -27,6 +27,8 @@
 
 #include <qscreen_qws.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_QWS_MULTISCREEN
 
 class QMultiScreenPrivate;
@@ -77,5 +79,7 @@ private:
     QMultiScreenPrivate *d_ptr;
 };
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_QWS_MULTISCREEN
 #endif // QMULTISCREEN_QWS_P_H

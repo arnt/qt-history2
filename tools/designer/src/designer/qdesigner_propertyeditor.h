@@ -16,6 +16,8 @@
 
 #include "qdesigner_toolwindow.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerWorkbench;
 
 class QDesignerPropertyEditor: public QDesignerToolWindow
@@ -30,5 +32,7 @@ public:
 protected:
     virtual void showEvent(QShowEvent *event);
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_PROPERTYEDITOR_H

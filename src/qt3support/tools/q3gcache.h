@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3CList;					// internal classes
@@ -99,6 +101,8 @@ protected:
 protected:
     Q3CListIt *it;				// iterator on cache list
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

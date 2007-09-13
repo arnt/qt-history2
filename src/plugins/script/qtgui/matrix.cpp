@@ -14,6 +14,8 @@ Q_DECLARE_METATYPE(QPolygonF)
 Q_DECLARE_METATYPE(QRegion)
 Q_DECLARE_METATYPE(QRegion*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newMatrix(QScriptEngine *eng, const QMatrix &matrix)
 {
     return eng->newVariant(qVariantFromValue(matrix));
@@ -246,3 +248,5 @@ QScriptValue constructMatrixClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

@@ -21,6 +21,8 @@
 #include "private/qobject_p.h"
 
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QSvgRenderer
     \ingroup multimedia
@@ -419,5 +421,7 @@ QMatrix QSvgRenderer::matrixForElement(const QString &id) const
         mat = d->render->matrixForElement(id);
     return mat;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qsvgrenderer.cpp"

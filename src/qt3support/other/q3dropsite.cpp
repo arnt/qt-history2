@@ -17,6 +17,7 @@
 
 #include "qwidget.h"
 
+QT_BEGIN_NAMESPACE
 
 /*!
   \class Q3DropSite qdropsite.h
@@ -47,5 +48,7 @@ Q3DropSite::Q3DropSite(QWidget* self)
 Q3DropSite::~Q3DropSite()
 {
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DRAGANDDROP

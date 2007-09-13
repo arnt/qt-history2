@@ -20,6 +20,8 @@
 #include <QtGui/QTableWidget>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QLineEdit;
 class QDesignerFormWindowInterface;
 
@@ -49,5 +51,7 @@ private:
 
 typedef ExtensionFactory<QDesignerTaskMenuExtension, QTableWidget, TableWidgetTaskMenu> TableWidgetTaskMenuFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // TABLEWIDGET_TASKMENU_H

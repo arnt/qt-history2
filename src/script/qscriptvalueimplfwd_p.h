@@ -24,6 +24,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qshareddata.h>
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -193,5 +195,8 @@ public:
     QScriptClassInfo *m_class;
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
-#endif
+
+#endif // QSCRIPTVALUEIMPLFWD_P_H

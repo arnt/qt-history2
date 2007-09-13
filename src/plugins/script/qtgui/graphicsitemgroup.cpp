@@ -6,6 +6,8 @@
 
 DECLARE_POINTER_METATYPE(QGraphicsItemGroup)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
     return QScript::wrapGVPointer(
@@ -46,3 +48,5 @@ QScriptValue constructGraphicsItemGroupClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

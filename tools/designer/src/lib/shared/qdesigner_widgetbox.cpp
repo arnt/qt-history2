@@ -17,6 +17,8 @@ TRANSLATOR qdesigner_internal::QDesignerWidgetBox
 
 #include "qdesigner_widgetbox_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 QDesignerWidgetBox::QDesignerWidgetBox(QWidget *parent, Qt::WindowFlags flags)
     : QDesignerWidgetBoxInterface(parent, flags),
@@ -34,4 +36,7 @@ void QDesignerWidgetBox::setLoadMode(LoadMode lm)
 {
      m_loadMode = lm;
 }
+
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE

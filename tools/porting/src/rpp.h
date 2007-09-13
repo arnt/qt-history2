@@ -27,6 +27,8 @@
 #include <QMultiMap>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace Rpp
 {
 
@@ -1036,5 +1038,7 @@ T *createNode(TypedPool<Item> *memPool)
 QByteArray visitGetText(Item *item);
 
 } // namespace Rpp
+
+QT_END_NAMESPACE
 
 #endif

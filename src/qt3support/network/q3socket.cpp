@@ -24,6 +24,8 @@
 #include <errno.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 //#define Q3SOCKET_DEBUG
 
 /*
@@ -1476,5 +1478,7 @@ Q_ULONG Q3Socket::readBufferSize() const
     \fn bool Q3Socket::isSequential() const
     \internal
 */
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_NETWORK

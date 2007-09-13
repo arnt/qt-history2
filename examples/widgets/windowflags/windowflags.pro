@@ -9,3 +9,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/windowflags
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS windowflags.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/windowflags
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

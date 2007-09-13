@@ -15,6 +15,8 @@
 #include <qscreenvnc_qws.h>
 #include <qstringlist.h>
 
+QT_BEGIN_NAMESPACE
+
 class GfxVncDriver : public QScreenDriverPlugin
 {
 public:
@@ -46,3 +48,5 @@ QScreen* GfxVncDriver::create(const QString& driver, int displayId)
 
 Q_EXPORT_STATIC_PLUGIN(GfxVncDriver)
 Q_EXPORT_PLUGIN2(qgfxvnc, GfxVncDriver)
+
+QT_END_NAMESPACE

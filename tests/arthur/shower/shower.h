@@ -7,9 +7,9 @@
 #include <QStringList>
 #include <QSize>
 
-class QSvgRenderer;
-class QPaintEvent;
-class QEngine;
+QT_DECLARE_CLASS(QSvgRenderer)
+QT_DECLARE_CLASS(QPaintEvent)
+QT_DECLARE_CLASS(QEngine)
 
 class Shower : public QWidget
 {

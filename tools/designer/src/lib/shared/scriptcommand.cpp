@@ -17,6 +17,8 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 ScriptCommand::ScriptCommand(QDesignerFormWindowInterface *formWindow) :
@@ -65,4 +67,7 @@ void ScriptCommand::undo()
             metaDataBase->metaDataBaseItem(it->first)->setScript(it->second);
     }
 }
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

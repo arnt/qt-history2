@@ -15,6 +15,8 @@
 
 #include <private/qdrawhelper_mmx_p.h>
 
+QT_BEGIN_NAMESPACE
+
 const CompositionFunctionSolid qt_functionForModeSolid_MMX[] = {
     comp_func_solid_SourceOver<QMMXIntrinsics>,
     comp_func_solid_DestinationOver<QMMXIntrinsics>,
@@ -76,3 +78,5 @@ void qt_blend_color_argb_mmx(int count, const QSpan *spans, void *userData)
 }
 
 #endif // QT_HAVE_MMX
+
+QT_END_NAMESPACE

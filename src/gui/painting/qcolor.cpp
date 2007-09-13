@@ -32,6 +32,7 @@ static bool allowX11ColorNames = false;
 #include <stdio.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
 
 /*!
     \class QColor
@@ -2224,3 +2225,5 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
 
     \sa QColor::rgb(), QColor::rgba()
 */
+
+QT_END_NAMESPACE

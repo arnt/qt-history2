@@ -28,6 +28,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 #define PMDEBUG if(0) qDebug
 
 /*
@@ -1512,3 +1514,4 @@ void QTextDocumentPrivate::ensureMaximumBlockCount()
     compressPieceTable();
 }
 
+QT_END_NAMESPACE

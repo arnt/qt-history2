@@ -29,6 +29,8 @@
 #include "private/qwidget_p.h"
 #include "qstyle.h"
 
+QT_BEGIN_NAMESPACE
+
 class QAbstractSliderPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractSlider)
@@ -67,5 +69,7 @@ public:
         q->setSliderPosition(position);
     }
 };
+
+QT_END_NAMESPACE
 
 #endif // QABSTRACTSLIDER_P_H

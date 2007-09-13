@@ -24,6 +24,8 @@ TRANSLATOR qdesigner_internal::TabOrderEditorPlugin
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 TabOrderEditorPlugin::TabOrderEditorPlugin()
@@ -102,3 +104,4 @@ QAction *TabOrderEditorPlugin::action() const
     return m_action;
 }
 
+QT_END_NAMESPACE

@@ -18,6 +18,8 @@
 
 #include "qerrorfn_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Item ErrorFN::evaluateSingleton(const DynamicContext::Ptr &context) const
@@ -81,3 +83,5 @@ FunctionSignature::Ptr ErrorFN::signature() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

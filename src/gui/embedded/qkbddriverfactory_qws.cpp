@@ -27,6 +27,8 @@
 #include "private/qfactoryloader_p.h"
 #include "qkbddriverplugin_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
@@ -157,5 +159,7 @@ QStringList QKbdDriverFactory::keys()
 
     return list;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_KEYBOARD

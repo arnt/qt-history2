@@ -24,6 +24,8 @@
 
 #include <QtCore/QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
 
 class Compare : protected AST::Visitor
@@ -2021,5 +2023,7 @@ Compiler::Loop *Compiler::findLoop(QScriptNameIdImpl *name)
 
 
 } // namespace QScript
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

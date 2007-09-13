@@ -24,6 +24,8 @@
 #include <QtGui/QFont>
 #include <QtGui/QFontDatabase>
 
+QT_BEGIN_NAMESPACE
+
 class Profile;
 
 struct FontSettings
@@ -129,5 +131,7 @@ private:
     bool rebuildDocs;
     FontSettings m_fontSettings;
 };
+
+QT_END_NAMESPACE
 
 #endif // CONFIG_H

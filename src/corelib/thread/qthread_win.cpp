@@ -31,6 +31,8 @@
 #include <process.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 void qt_watch_adopted_thread(const HANDLE adoptedThreadHandle, QThread *qthread);
 void qt_adopted_thread_watcher_function(void *);
 
@@ -509,3 +511,5 @@ void QThread::setPriority(Priority priority)
         qErrnoWarning("QThread::setPriority: Failed to set thread priority");
     }
 }
+
+QT_END_NAMESPACE

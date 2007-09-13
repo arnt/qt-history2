@@ -32,6 +32,12 @@
 #include <crtdbg.h>
 #endif
 
+#ifdef Q_CC_MWERKS
+#include <CoreServices/CoreServices.h>
+#endif
+
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QFlag
     \brief The QFlag class is a helper data type for QFlags.
@@ -1586,8 +1592,10 @@ const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian
 
 #if !defined(QWS) && defined(Q_OS_MAC)
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "private/qcore_mac_p.h"
 #include "qnamespace.h"
+QT_END_INCLUDE_NAMESPACE
 
 Q_CORE_EXPORT OSErr qt_mac_create_fsref(const QString &file, FSRef *fsref)
 {
@@ -1648,9 +1656,12 @@ static QSysInfo::MacVersion macVersion()
     return QSysInfo::MV_Unknown;
 }
 const QSysInfo::MacVersion QSysInfo::MacintoshVersion = macVersion();
+
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN) || defined(Q_OS_TEMP)
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qt_windows.h"
+QT_END_INCLUDE_NAMESPACE
 
 static QSysInfo::WinVersion winVersion()
 {
@@ -1949,7 +1960,6 @@ static QtMsgHandler handler = 0;                // pointer to debug handler
 static const int QT_BUFFER_LENGTH = 8192;       // internal buffer length
 
 #ifdef Q_CC_MWERKS
-#include <CoreServices/CoreServices.h>
 extern bool qt_is_gui_used;
 static void mac_default_handler(const char *msg)
 {
@@ -1962,6 +1972,7 @@ static void mac_default_handler(const char *msg)
     }
 }
 #endif // Q_CC_MWERKS
+
 
 
 QString qt_error_string(int errorCode)
@@ -2031,6 +2042,7 @@ QString qt_error_string(int errorCode)
         ret = QString::fromLatin1(s);
     return ret.trimmed();
 }
+
 
 /*!
     \fn QtMsgHandler qInstallMsgHandler(QtMsgHandler handler)
@@ -2396,6 +2408,7 @@ typedef uint SeedStorageType;
 
 typedef QThreadStorage<SeedStorageType *> SeedStorage;
 Q_GLOBAL_STATIC(SeedStorage, randTLS)  // Thread Local Storage for seed value
+
 #endif
 
 /*!
@@ -2728,7 +2741,10 @@ int qrand()
 */
 
 #if defined(QT3_SUPPORT) && !defined(QT_NO_SETTINGS)
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qlibraryinfo.h>
+QT_END_INCLUDE_NAMESPACE
+
 static const char *qInstallLocation(QLibraryInfo::LibraryLocation loc)
 {
     static QByteArray ret;
@@ -2814,6 +2830,8 @@ bool QInternal::activateCallbacks(Callback cb, void **parameters)
     return false;
 }
 
+void qt_set_current_thread_to_main_thread();
+
 bool QInternal::callFunction(InternalFunction func, void **args)
 {
     Q_ASSERT_X(func >= 0,
@@ -2832,7 +2850,6 @@ bool QInternal::callFunction(InternalFunction func, void **args)
         QThreadData::get2((QThread *) *args)->deref();
         return true;
     case QInternal::SetCurrentThreadToMainThread:
-        extern void qt_set_current_thread_to_main_thread();
         qt_set_current_thread_to_main_thread();
         return true;
     default:
@@ -2955,3 +2972,129 @@ bool QInternal::callFunction(InternalFunction func, void **args)
     \l{http://www.aristeia.com/publications.html}{"C++ and the perils of Double-Checked Locking"}
     by Scott Meyers and Andrei Alexandrescu.
 */
+
+/*!
+    \macro QT_NAMESPACE
+    \internal
+
+    If this macro is defined to \a ns all Qt classes are put in a namespace 
+    called \a ns. Also, moc will output code putting metaobjects etc.
+    into namespace \a ns.
+
+    \sa QT_BEGIN_NAMESPACE, QT_END_NAMESPACE,
+    QT_ADD_NAMESPACE, QT_USE_NAMESPACE,
+    QT_BEGIN_INCLUDE_NAMESPACE, QT_END_INCLUDE_NAMESPACE,
+    QT_BEGIN_MOC_NAMESPACE, QT_END_MOC_NAMESPACE,
+*/
+
+/*!
+    \macro QT_ADD_NAMESPACE(identifier) 
+    \internal
+
+    This macro qualifies \a identifier with the full namespace.
+    It expands to ::QT_NAMESPACE::identifier if QT_NAMESPACE is defined
+    and only identifier otherwise.
+
+    \sa QT_NAMESPACE
+*/
+
+/*!
+    \macro QT_USE_NAMESPACE
+    \internal
+
+    This macro expands to using QT_NAMESPACE if QT_NAMESPACE is defined
+    and nothing otherwise.
+
+    \sa QT_NAMESPACE
+*/
+
+/*!
+    \macro QT_BEGIN_NAMESPACE
+    \internal
+
+    This macro expands to  \a namespace QT_NAMESPACE {  if QT_NAMESPACE is
+    defined and nothing otherwise. If should always appear on
+    file scope and be followed
+    by QT_END_NAMESPACE of the same logical level with respect
+    to preprocessor conditionals in the same file.
+
+    As a rule of thumb, QT_BEGIN_NAMESPACE should appear in all Qt header
+    and Qt source files after the last #include line and before the first
+    declaration. In Qt headers using QT_BEGIN_HEADER, QT_BEGIN_NAMESPACE
+    follows QT_BEGIN_HEADER immediately.
+
+    If that rule can't be followed because e.g. #include lines and
+    declarations are wildly mixed, place QT_BEGIN_NAMESPACE before
+    the first declaration and wrap the #include lines in 
+    QT_BEGIN_INCLUDE_NAMESPACE and QT_END_INCLUDE_NAMESPACE.
+
+    When using the QT_NAMESPACE feature in user code
+    (e.g. when building plugins statically linked to Qt) where
+    the user code is not intended to go into the QT_NAMESPACE
+    namespace, all forward declarations of Qt classes need to
+    be wrapped in QT_BEGIN_NAMESPACE and QT_END_NAMESPACE.
+    After that, a QT_USE_NAMESPACE should follow. 
+    No further changes should be needed.
+
+    \sa QT_NAMESPACE
+*/
+
+/*!
+    \macro QT_END_NAMESPACE 
+    \internal
+
+    This macro expands to \a } if QT_NAMESPACE is defined
+    and nothing otherwise. It is used to cancel the effect of
+    QT_BEGIN_NAMESPACE.
+
+    If a source file ends with #include'ing a moc file,
+    QT_END_NAMESPACE should be placed before that #include.
+
+    \sa QT_NAMESPACE
+*/
+
+/*!
+    \macro QT_BEGIN_INCLUDE_NAMESPACE 
+    \internal
+    
+    This macro is equivalent to QT_END_NAMESPACE (sic!). 
+    It only serves as syntactic sugar and is intended 
+    to be used before #include lines within a 
+    QT_BEGIN_NAMESPACE ... QT_END_NAMESPACE block.
+
+    \sa QT_NAMESPACE
+*/
+
+/*!
+    \macro QT_END_INCLUDE_NAMESPACE 
+    \internal
+
+    This macro is equivalent to QT_BEGIN_NAMESPACE (sic!). 
+    It only serves as syntactic sugar and is intended 
+    to be used after #include lines within a 
+    QT_BEGIN_NAMESPACE ... QT_END_NAMESPACE block.
+
+    \sa QT_NAMESPACE
+*/
+
+/*!
+    \macro QT_BEGIN_MOC_NAMESPACE 
+    \internal
+
+    This macro is output by moc at the beginning of
+    moc files. It is equivalent to QT_USE_NAMESPACE.
+
+    \sa QT_NAMESPACE
+*/
+
+/*!
+    \macro QT_END_MOC_NAMESPACE
+    \internal
+
+    This macro is output by moc at the beginning of
+    moc files. It expands to nothing.
+
+    \sa QT_NAMESPACE
+*/
+
+QT_END_NAMESPACE

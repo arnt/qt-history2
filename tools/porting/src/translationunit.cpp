@@ -13,6 +13,8 @@
 
 #include "translationunit.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace TokenEngine;
 using namespace CodeModel;
 using namespace TokenStreamAdapter;
@@ -53,7 +55,7 @@ TranslationUnit TranslationUnitAnalyzer::analyze
     translationUnit.setCodeModel(codeModel);
 
     // run lexical analysis
-    QVector< ::Type> typeList = lexer.lex(translationUnitTokens);
+    QVector<QT_ADD_NAMESPACE(Type)> typeList = lexer.lex(translationUnitTokens);
     TokenStreamAdapter::TokenStream tokenStream(translationUnitTokens, typeList);
 
     Semantic semantic(codeModel, &tokenStream, translationUnit.codeModelMemoryPool());
@@ -68,3 +70,5 @@ TranslationUnit TranslationUnitAnalyzer::analyze
 
     return translationUnit;
 }
+
+QT_END_NAMESPACE

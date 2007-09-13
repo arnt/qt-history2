@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(ActiveQt)
 
 class QAxObject : public QObject, public QAxBase
@@ -68,6 +70,8 @@ template <> inline QAxObject *qobject_cast<QAxObject*>(QObject *o)
     void *result = o ? o->qt_metacast("QAxObject") : 0;
     return (QAxObject*)(result);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -16,10 +16,10 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QActionGroup;
-class QMenu;
-class QStatusBar;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QActionGroup)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QStatusBar)
 class TabletCanvas;
 
 class MainWindow : public QMainWindow

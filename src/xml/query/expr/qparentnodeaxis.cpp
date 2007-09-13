@@ -16,6 +16,8 @@
 
 #include "qparentnodeaxis_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ParentNodeAxis::ParentNodeAxis()
@@ -50,3 +52,5 @@ SequenceType::Ptr ParentNodeAxis::staticType() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

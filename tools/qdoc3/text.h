@@ -20,6 +20,8 @@
 
 #include "atom.h"
 
+QT_BEGIN_NAMESPACE
+
 class Text
 {
 public:
@@ -69,5 +71,7 @@ inline bool operator>(const Text &text1, const Text &text2)
 { return Text::compare(text1, text2) > 0; }
 inline bool operator>=(const Text &text1, const Text &text2)
 { return Text::compare(text1, text2) >= 0; }
+
+QT_END_NAMESPACE
 
 #endif

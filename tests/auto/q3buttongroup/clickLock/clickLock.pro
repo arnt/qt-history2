@@ -9,3 +9,6 @@ INCLUDEPATH += .
 
 # Input
 SOURCES += main.cpp
+
+DEFINES += QT_USE_USING_NAMESPACE
+

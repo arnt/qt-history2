@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef USE_LEXEM_STORE
 Symbol::LexemStore Symbol::lexemStore;
 #endif
@@ -48,4 +50,4 @@ void Parser::warning(const char *msg) {
                 currentFilenames.top().constData(), qMax(0, index > 0 ? symbol().lineNum : 0), msg);
 }
 
-
+QT_END_NAMESPACE

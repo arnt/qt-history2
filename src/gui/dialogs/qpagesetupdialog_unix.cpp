@@ -25,6 +25,8 @@
 
 #ifndef QT_NO_PRINTDIALOG
 
+QT_BEGIN_NAMESPACE
+
 // Disabled untill we have support for papersources on unix
 // #define PSD_ENABLE_PAPERSOURCE
 
@@ -209,5 +211,7 @@ int QPageSetupDialog::exec()
     Returns the printer that was passed to the QPageSetupDialog
     constructor.
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTDIALOG

@@ -14,9 +14,6 @@
 #ifndef Patternist_DynamicContext_H
 #define Patternist_DynamicContext_H
 
-class QDateTime;
-template<typename T> class QVector;
-
 #include "qcachecells_p.h"
 #include "qexternalvariableloader_p.h"
 #include "qitem_p.h"
@@ -28,6 +25,11 @@ template<typename T> class QVector;
 #include "qresourceloader_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QDateTime;
+template<typename T> class QVector;
 
 namespace Patternist
 {
@@ -105,6 +107,8 @@ namespace Patternist
         virtual void addNodeModel(const NodeModel::Ptr &nm) = 0;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

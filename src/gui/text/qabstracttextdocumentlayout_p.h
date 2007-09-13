@@ -28,6 +28,8 @@
 #include "private/qobject_p.h"
 #include "QtCore/qhash.h"
 
+QT_BEGIN_NAMESPACE
+
 struct QTextObjectHandler
 {
     QTextObjectHandler() : iface(0) {}
@@ -64,5 +66,7 @@ public:
     QTextDocument *document;
     QTextDocumentPrivate *docPrivate;
 };
+
+QT_END_NAMESPACE
 
 #endif // QABSTRACTTEXTDOCUMENTLAYOUT_P_H

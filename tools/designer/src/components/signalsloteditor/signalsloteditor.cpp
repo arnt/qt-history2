@@ -29,6 +29,8 @@
 
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 /*******************************************************************************
@@ -446,3 +448,5 @@ void SignalSlotEditor::addEmptyConnection()
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

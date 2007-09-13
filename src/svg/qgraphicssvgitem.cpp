@@ -22,6 +22,8 @@
 
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QGraphicsSvgItemPrivate : public QObjectPrivate
 {
 public:
@@ -421,6 +423,7 @@ bool QGraphicsSvgItem::isCachingEnabled() const
     return d->cached;
 }
 
+QT_END_NAMESPACE
 
 #include "moc_qgraphicssvgitem.cpp"
 

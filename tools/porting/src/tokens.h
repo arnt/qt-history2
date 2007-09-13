@@ -15,6 +15,10 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
+#include <qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 enum Type
 {
     Token_eof = 0,
@@ -148,5 +152,7 @@ enum Type
     Token_directive_pragma,
     Token_defined
 };
+
+QT_END_NAMESPACE
 
 #endif

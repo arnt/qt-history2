@@ -23,6 +23,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QSPINBOX_QSBDEBUG
 #ifdef QSPINBOX_QSBDEBUG
 #  define QSBDEBUG qDebug
@@ -1514,5 +1516,7 @@ bool QSpinBox::event(QEvent *event)
         d->setLayoutItemMargins(QStyle::SE_SpinBoxLayoutItem);
     return QAbstractSpinBox::event(event);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SPINBOX

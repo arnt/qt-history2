@@ -18,7 +18,7 @@
 
 //TESTED_FILES=
 
-class QTextDocument;
+QT_DECLARE_CLASS(QTextDocument)
 
 class tst_QTextTable : public QObject
 {

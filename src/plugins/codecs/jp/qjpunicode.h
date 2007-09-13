@@ -45,6 +45,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 class QJpUnicodeConv {
 public:
     virtual ~QJpUnicodeConv() {}
@@ -138,5 +140,7 @@ protected:
 private:
     int rule;
 };
+
+QT_END_NAMESPACE
 
 #endif // QJPUNICODE_H

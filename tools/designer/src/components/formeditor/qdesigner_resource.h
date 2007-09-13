@@ -21,6 +21,8 @@
 #include <QtCore/QStack>
 #include <QtCore/QList>
 
+QT_BEGIN_NAMESPACE
+
 class DomCustomWidget;
 class DomCustomWidgets;
 
@@ -131,5 +133,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_RESOURCE_H

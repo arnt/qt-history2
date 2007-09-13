@@ -8,6 +8,8 @@ Q_DECLARE_METATYPE(QXmlStreamEntityDeclaration)
 Q_DECLARE_METATYPE(QXmlStreamEntityDeclaration*)
 Q_DECLARE_METATYPE(QStringRef)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newXmlStreamEntityDeclaration(QScriptEngine *eng, const QXmlStreamEntityDeclaration &decl)
 {
     return eng->newVariant(qVariantFromValue(decl));
@@ -84,3 +86,5 @@ QScriptValue constructXmlStreamEntityDeclarationClass(QScriptEngine *eng)
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
     return ctorFun;
 }
+
+QT_END_NAMESPACE

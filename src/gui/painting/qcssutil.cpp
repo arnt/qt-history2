@@ -16,6 +16,8 @@
 #include "qpainter.h"
 #include "private/qmath_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace QCss;
 
 static QPen qPenFromStyle(const QBrush& b, qreal width, BorderStyle s)
@@ -371,3 +373,4 @@ void qDrawBorder(QPainter *p, const QRect &rect, const QCss::BorderStyle *styles
     }
 }
 
+QT_END_NAMESPACE

@@ -20,7 +20,7 @@
 
 #include <qtextcursor.h>
 
-class QTextDocument;
+QT_DECLARE_CLASS(QTextDocument)
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/text/qtextdocumentfragment.h gui/text/qtextdocumentfragment.cpp gui/text/qtexthtmlparser.cpp gui/text/qtexthtmlparser_p.h

@@ -10,3 +10,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/script/context2d
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS context2d.pro scripts
 sources.path = $$[QT_INSTALL_EXAMPLES]/script/context2d
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

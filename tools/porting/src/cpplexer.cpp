@@ -16,6 +16,8 @@
 #include <QChar>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace TokenEngine;
 
 CppLexer::CppLexer()
@@ -1262,3 +1264,5 @@ void CppLexer::scanOperator(int *kind)
 
     *kind = m_buffer[m_ptr++];
 }
+
+QT_END_NAMESPACE

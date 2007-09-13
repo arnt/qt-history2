@@ -26,6 +26,8 @@
 #include <qdebug.h>
 #include <qpainterpath.h>
 
+QT_BEGIN_NAMESPACE
+
 #define ANIMATION_DURATION_MSEC 150
 
 /*!
@@ -1084,7 +1086,8 @@ void QColumnViewDelegate::paint(QPainter *painter,
     }
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qcolumnview.cpp"
 
 #endif // QT_NO_COLUMNVIEW
-

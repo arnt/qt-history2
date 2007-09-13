@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -137,5 +139,8 @@ inline void QScriptObject::reset()
     m_data = 0;
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif

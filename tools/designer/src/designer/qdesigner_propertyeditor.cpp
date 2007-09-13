@@ -21,6 +21,8 @@
 
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 QDesignerPropertyEditor::QDesignerPropertyEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
@@ -61,3 +63,4 @@ void QDesignerPropertyEditor::showEvent(QShowEvent *event)
     QDesignerToolWindow::showEvent(event);
 }
 
+QT_END_NAMESPACE

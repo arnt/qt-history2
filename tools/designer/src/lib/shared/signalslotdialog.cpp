@@ -36,6 +36,8 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 // Regexp to match a function signature, arguments potentially
 // with namespace colons.
 static const char *signatureRegExp = "^[\\w+_]+\\(([\\w+:]\\*?,?)*\\)$";
@@ -495,5 +497,6 @@ bool SignalSlotDialog::editPromotedClass(QDesignerFormEditorInterface *core, con
     return true;
 }
 
-
 }
+
+QT_END_NAMESPACE

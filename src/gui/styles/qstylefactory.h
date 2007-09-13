@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QStyle;
@@ -28,6 +30,8 @@ public:
     static QStringList keys();
     static QStyle *create(const QString&);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

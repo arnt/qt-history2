@@ -24,10 +24,6 @@
 
 //TESTED_FILES=gui/text/qtextdocument_p.cpp gui/text/qtextdocument_p.h
 
-class QTextDocument;
-class QTextDocumentPrivate;
-class QTestDocumentLayout;
-
 class tst_QTextPieceTable : public QObject
 {
     Q_OBJECT

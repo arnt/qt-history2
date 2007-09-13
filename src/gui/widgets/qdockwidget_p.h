@@ -32,6 +32,8 @@
 
 #ifndef QT_NO_DOCKWIDGET
 
+QT_BEGIN_NAMESPACE
+
 class QGridLayout;
 class QWidgetResizeHandler;
 class QRubberBand;
@@ -167,6 +169,8 @@ inline QDockWidgetLayout *QDockWidgetItem::dockWidgetLayout() const
         return qobject_cast<QDockWidgetLayout*>(w->layout());
     return 0;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DOCKWIDGET
 

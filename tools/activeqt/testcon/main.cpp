@@ -23,6 +23,8 @@ QAXFACTORY_DEFAULT(MainWindow,
 		   QLatin1String("{4a43e44d-9d1d-47e5-a1e5-58fe6f7be0a4}"),
 		   QLatin1String("{16ee5998-77d2-412f-ad91-8596e29f123f}"))
 
+QT_USE_NAMESPACE
+
 int main( int argc, char **argv ) 
 {
     QApplication app( argc, argv );

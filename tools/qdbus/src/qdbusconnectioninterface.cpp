@@ -23,6 +23,8 @@
 
 #include <dbus/dbus.h>          // for the DBUS_* constants
 
+QT_BEGIN_NAMESPACE
+
 /*
  * Implementation of interface class QDBusConnectionInterface
  */
@@ -367,5 +369,7 @@ void QDBusConnectionInterface::disconnectNotify(const char *signalName)
   QDBusConnection::callWithCallback(). \a error specifies the error.
   \a call is the message that couldn't be delivered.
 
+
+QT_END_NAMESPACE
   \sa QDBusConnection::callWithCallback()
  */

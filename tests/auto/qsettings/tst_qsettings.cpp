@@ -32,8 +32,8 @@
 
 //TESTED_FILES=
 
-class QSettings;
-class QSettings;
+QT_DECLARE_CLASS(QSettings)
+QT_DECLARE_CLASS(QSettings)
 
 class tst_QSettings : public QObject
 {

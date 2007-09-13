@@ -21,6 +21,8 @@
 #include "qnamepool_p.h"
 #include "qprimitives_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /**
  * @file
  * @short Contains functions used for formatting arguments, such as keywords and paths,
@@ -155,5 +157,7 @@ namespace Patternist
 #error "Patternist use exceptions and cannot be built without."
 #endif
 
+
+QT_END_NAMESPACE
 #endif
 // vim: et:ts=4:sw=4:sts=4

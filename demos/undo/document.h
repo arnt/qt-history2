@@ -16,8 +16,8 @@
 
 #include <QWidget>
 
-class QUndoStack;
-class QTextStream;
+QT_DECLARE_CLASS(QUndoStack)
+QT_DECLARE_CLASS(QTextStream)
 
 class Shape
 {

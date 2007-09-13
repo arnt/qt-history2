@@ -37,6 +37,8 @@
 #include "private/qwidget_p.h"
 #include "private/qdatetime_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QVariant operator+(const QVariant &arg1, const QVariant &arg2);
 QVariant operator-(const QVariant &arg1, const QVariant &arg2);
 QVariant operator*(const QVariant &arg1, double multiplier);
@@ -131,6 +133,8 @@ private:
     QAbstractSpinBox *qptr;
     QAbstractSpinBoxPrivate *dptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SPINBOX
 

@@ -18,6 +18,8 @@
 #include "ui_mainwindow.h"
 #include "qpf2.h"
 
+QT_BEGIN_NAMESPACE
+
 class QListWidgetItem;
 
 class MainWindow : public QMainWindow, Ui::MainWindow
@@ -44,5 +46,7 @@ private:
 private:
     QList<QPF::CharacterRange> sampleFileRanges;
 };
+
+QT_END_NAMESPACE
 
 #endif // MAINWINDOW_H

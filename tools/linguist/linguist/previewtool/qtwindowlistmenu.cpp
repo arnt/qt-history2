@@ -23,6 +23,8 @@
 
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 
 /*!
     \class QtWindowListMenu
@@ -415,3 +417,4 @@ void QtWindowListMenu::setCloseAllIcon(const QIcon &icon)
     m_close_all_action->setIcon(icon);
 }
 
+QT_END_NAMESPACE

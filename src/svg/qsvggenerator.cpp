@@ -24,6 +24,7 @@
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
 
 static void translate_color(const QColor &color, QString *color_string,
                             QString *opacity_string)
@@ -847,3 +848,5 @@ void QSvgPaintEngine::drawTextItem(const QPointF &pt, const QTextItem &textItem)
                << "</text>"
                << endl;
 }
+
+QT_END_NAMESPACE

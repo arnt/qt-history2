@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QImage;
@@ -112,6 +114,8 @@ public:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QImageIOPlugin::Capabilities)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

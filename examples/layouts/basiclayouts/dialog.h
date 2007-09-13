@@ -16,15 +16,15 @@
 
 #include <QDialog>
 
-class QAction;
-class QDialogButtonBox;
-class QGroupBox;
-class QLabel;
-class QLineEdit;
-class QMenu;
-class QMenuBar;
-class QPushButton;
-class QTextEdit;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QMenuBar)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTextEdit)
 
 class Dialog : public QDialog
 {

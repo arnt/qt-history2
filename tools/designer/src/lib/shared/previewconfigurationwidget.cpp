@@ -37,10 +37,14 @@
 
 // #define DEFAULT_SKINS_FROM_RESOURCE
 #ifdef DEFAULT_SKINS_FROM_RESOURCE
+QT_BEGIN_NAMESPACE
 static const char *skinResourcePathC = ":/skins/";
+QT_END_NAMESPACE
 #else
 #  include <QtCore/QLibraryInfo>
 #endif
+
+QT_BEGIN_NAMESPACE
 
 static const char *skinExtensionC = ".skin";
 static const char *enabledKey = "Enabled";
@@ -389,3 +393,5 @@ void PreviewConfigurationWidget::slotSkinChanged(int index)
     m_impl->slotSkinChanged(index);
 }
 }
+
+QT_END_NAMESPACE

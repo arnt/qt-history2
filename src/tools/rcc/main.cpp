@@ -17,6 +17,8 @@
 #include <QFile>
 #include <QDir>
 
+QT_BEGIN_NAMESPACE
+
 // Some static globals
 static bool writeBinary = false;
 static QString initName;
@@ -92,7 +94,7 @@ int showHelp(const QString &argv0, const QString &error)
 }
 
 
-int main(int argc, char *argv[])
+int runRcc(int argc, char *argv[])
 {
     QString outFilename;
     bool helpRequested = false, list = false;
@@ -167,4 +169,11 @@ int main(int argc, char *argv[])
     if (!files.size() || !errorMsg.isEmpty() || helpRequested)
         return showHelp(args[0], errorMsg);
     return int(!processResourceFile(files, outFilename, list));
+}
+
+QT_END_NAMESPACE
+
+int main(int argc, char *argv[])
+{
+    return QT_ADD_NAMESPACE(runRcc)(argc, argv);
 }

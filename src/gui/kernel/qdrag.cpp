@@ -19,6 +19,8 @@
 
 #ifndef QT_NO_DRAGANDDROP
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDrag
     \brief The QDrag class provides support for MIME-based drag and drop data
@@ -321,5 +323,7 @@ void QDrag::setDragCursor(const QPixmap &cursor, Qt::DropAction action)
 
     \sa target(), actionChanged()
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DRAGANDDROP

@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QTimer : public QObject
@@ -76,6 +78,8 @@ private:
 };
 
 inline void QTimer::setSingleShot(bool asingleShot) { single = asingleShot; }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

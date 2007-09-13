@@ -28,10 +28,14 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qstringlist.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_OS_WIN32
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "QtCore/qvector.h"
 #include "qt_windows.h"
+QT_END_INCLUDE_NAMESPACE
 
 // template implementation of the parsing algorithm
 // this is used from qcoreapplication_win.cpp and the tools (rcc, uic...)
@@ -133,5 +137,7 @@ static inline QStringList qCmdLineArgs(int argc, char *argv[])
 }
 
 #endif // Q_OS_WIN
+
+QT_END_NAMESPACE
 
 #endif // QCORECMDLINEARGS_WIN_P_H

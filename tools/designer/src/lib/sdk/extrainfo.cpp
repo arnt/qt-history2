@@ -13,6 +13,8 @@
 
 #include "extrainfo.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerExtraInfoExtension
     \brief The QDesignerExtraInfoExtension class provides extra information about a widget in
@@ -82,3 +84,5 @@ void QDesignerExtraInfoExtension::setWorkingDirectory(const QString &workingDire
     Loads extra information about the specified \a widget, and returns true if successful;
     otherwise returns false.
 */
+
+QT_END_NAMESPACE

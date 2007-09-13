@@ -7,6 +7,8 @@
 
 Q_DECLARE_METATYPE(QIODevice*)
 
+QT_BEGIN_NAMESPACE
+
 class IODeviceConstructor : public QObject,
                             public QScriptable
 {
@@ -213,5 +215,7 @@ QScriptValue constructIODeviceClass(QScriptEngine *eng)
     proto.setProperty("constructor", ctor);
     return ctor;
 }
+
+QT_END_NAMESPACE
 
 #include "iodevice.moc"

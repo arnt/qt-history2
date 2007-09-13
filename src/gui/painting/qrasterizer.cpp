@@ -20,6 +20,8 @@
 #include <private/qdatabuffer_p.h>
 #include <private/qdrawhelper_p.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef int Q16Dot16;
 #define Q16Dot16ToFloat(i) ((i)/65536.)
 #define FloatToQ16Dot16(i) (int)((i) * 65536.)
@@ -1139,3 +1141,5 @@ void QRasterizer::rasterize(const QPainterPath &path, Qt::FillRule fillRule)
 
     d->scanConverter.end();
 }
+
+QT_END_NAMESPACE

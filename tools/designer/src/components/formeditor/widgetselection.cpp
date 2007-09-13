@@ -38,6 +38,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 #define NO_TOPWIDGET
 
 
@@ -708,5 +710,7 @@ bool WidgetSelection::eventFilter(QObject *object, QEvent *event)
 }
 
 }
+
+QT_END_NAMESPACE
 
 #include "widgetselection.moc"

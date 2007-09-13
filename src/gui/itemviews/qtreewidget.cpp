@@ -24,6 +24,8 @@
 #include <private/qtreewidget_p.h>
 #include <private/qtreewidgetitemiterator_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QPair<QTreeWidgetItem*,int>&,const QPair<QTreeWidgetItem*,int>&);
 
@@ -1281,7 +1283,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
                 |Qt::ItemIsDropEnabled)
 {
     if (view && view->model()) {
-        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        QTreeModel *model = qobject_cast<QTreeModel*>(view->model());
         model->rootItem->addChild(this);
         values.reserve(model->headerItem->columnCount());
 
@@ -1309,7 +1311,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, 
     for (int i = 0; i < strings.count(); ++i)
         setText(i, strings.at(i));
     if (view && view->model()) {
-        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        QTreeModel *model = qobject_cast<QTreeModel*>(view->model());
         model->rootItem->addChild(this);
         values.reserve(model->headerItem->columnCount());
         model->executePendingSort();
@@ -1333,7 +1335,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int 
                 |Qt::ItemIsDropEnabled)
 {
     if (view) {
-        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        QTreeModel *model = qobject_cast<QTreeModel*>(view->model());
         if (model) {
             int i = model->rootItem->indexOfChild(after) + 1;
             model->rootItem->insertChild(i, this);
@@ -1359,7 +1361,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
     if (parent)
         parent->addChild(this);
      if (view) {
-        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        QTreeModel *model = qobject_cast<QTreeModel*>(view->model());
         if (model) {
             model->executePendingSort();
         }
@@ -1385,7 +1387,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &str
     if (parent)
         parent->addChild(this);
      if (view) {
-        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        QTreeModel *model = qobject_cast<QTreeModel*>(view->model());
         if (model) {
             model->executePendingSort();
         }
@@ -1413,7 +1415,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
         parent->insertChild(i, this);
     }
     if (view) {
-        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        QTreeModel *model = qobject_cast<QTreeModel*>(view->model());
         if (model) {
             model->executePendingSort();
         }
@@ -1426,7 +1428,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
 
 QTreeWidgetItem::~QTreeWidgetItem()
 {
-    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+    QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0);
     if (par) {
         int i = par->children.indexOf(this);
         if (i >= 0) {
@@ -1518,7 +1520,7 @@ void QTreeWidgetItem::setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPol
     if (d->policy == policy)
         return;
     d->policy = policy;
-    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
+    if (QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0))
         view->update(model->index(this, 0));
 }
 
@@ -1627,7 +1629,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     if (column < 0)
         return;
 
-    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+    QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0);
     switch (role) {
     case Qt::EditRole:
     case Qt::DisplayRole: {
@@ -1826,7 +1828,7 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
     if (index < 0 || index > children.count() || child == 0 || child->view != 0 || child->par != 0)
         return;
 
-    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0)) {
+    if (QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0)) {
         if (model->rootItem == this)
             child->par = 0;
         else
@@ -1873,7 +1875,7 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
     // we move this outside the check of the index to allow executing
     // pending sorts from inline functions, using this function (hack)
-    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+    QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0);
     if (model) {
         // This will trigger a layoutChanged signal, thus we might want to optimize
         // this function by not emitting the rowsRemoved signal etc to the view.
@@ -1926,7 +1928,7 @@ void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &c
             insertChild(index, children.at(n));
         return;
     }
-    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+    QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0);
     QStack<QTreeWidgetItem*> stack;
     QList<QTreeWidgetItem*> itemsToInsert;
     for (int n = 0; n < children.count(); ++n) {
@@ -1972,7 +1974,7 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
 {
     QList<QTreeWidgetItem*> removed;
     if (children.count() > 0) {
-        QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+        QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0);
         if (model) {
             // This will trigger a layoutChanged signal, thus we might want to optimize
             // this function by not emitting the rowsRemoved signal etc to the view.
@@ -2010,7 +2012,7 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
 */
 void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 {
-    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+    QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0);
     if (!model)
         return;
     model->sortItems(&children, column, order);
@@ -2061,7 +2063,7 @@ QVariant QTreeWidgetItem::childrenCheckState(int column) const
 */
 void QTreeWidgetItem::itemChanged()
 {
-    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
+    if (QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0))
         model->itemChanged(this);
 }
 
@@ -2070,7 +2072,7 @@ void QTreeWidgetItem::itemChanged()
 */
 void QTreeWidgetItem::executePendingSort() const
 {
-    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
+    if (QTreeModel *model = (view ? qobject_cast<QTreeModel*>(view->model()) : 0))
         model->executePendingSort();
 }
 
@@ -2114,7 +2116,7 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate() {}
     inline QTreeModel *model() const
-        { return ::qobject_cast<QTreeModel*>(q_func()->model()); }
+        { return qobject_cast<QTreeModel*>(q_func()->model()); }
     inline QModelIndex index(const QTreeWidgetItem *item, int column = 0) const
         { return model()->index(item, column); }
     inline QTreeWidgetItem *item(const QModelIndex &index) const
@@ -3331,5 +3333,8 @@ bool QTreeWidget::event(QEvent *e)
     return QTreeView::event(e);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qtreewidget.cpp"
+
 #endif // QT_NO_TREEWIDGET

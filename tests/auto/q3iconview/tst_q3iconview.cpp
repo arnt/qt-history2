@@ -14,7 +14,7 @@
 
 //TESTED_FILES=
 
-class Q3IconView;
+QT_DECLARE_CLASS(Q3IconView)
 
 class tst_Q3IconView : public QObject
 {

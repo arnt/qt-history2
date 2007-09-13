@@ -19,6 +19,8 @@
 #include <QImage>
 #include <QPixmap>
 
+QT_BEGIN_NAMESPACE
+
 /*
  *  Constructs a MainWindowBase as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.
@@ -213,3 +215,5 @@ void MainWindowBase::upSubstitute()
 {
     qWarning("MainWindowBase::upSubstitute(): Not implemented yet");
 }
+
+QT_END_NAMESPACE

@@ -22,6 +22,8 @@
 #include <qapplication.h>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 // Uncommend, to show debugging information for the keymapper
 //#define DEBUG_KEYMAPPER
 
@@ -729,6 +731,8 @@ bool QKeyMapperPrivate::isADeadKey(unsigned int vk_key, unsigned int modifiers)
     return false;
 }
 
+extern bool qt_use_rtl_extensions;
+
 QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
 {
     QList<int> result;
@@ -827,7 +831,6 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
 
     else {
         // handle Directionality changes (BiDi) with RTL extensions
-        extern bool qt_use_rtl_extensions;
         if (qt_use_rtl_extensions) {
             static int dirStatus = 0;
             if (!dirStatus && state == Qt::ControlModifier
@@ -1161,3 +1164,5 @@ bool QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
 
     return e.isAccepted();
 }
+
+QT_END_NAMESPACE

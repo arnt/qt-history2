@@ -28,6 +28,8 @@
 #include "private/qframe_p.h"
 #include "qrubberband.h"
 
+QT_BEGIN_NAMESPACE
+
 static const uint Default = 2;
 
 class QSplitterLayoutStruct
@@ -110,5 +112,7 @@ public:
     bool hover;
     int mouseOffset;
 };
+
+QT_END_NAMESPACE
 
 #endif

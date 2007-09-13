@@ -53,15 +53,16 @@
 #define ACCEL_KEY(k) QString()
 #endif
 
-#ifdef Q_WS_MAC
-extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
-#endif
-
 #include <limits.h>
 
 #define verticalMargin 1
 #define horizontalMargin 2
 
+QT_BEGIN_NAMESPACE
+
+#ifdef Q_WS_MAC
+extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
+#endif
 
 /*!
     Initialize \a option with the values from this QLineEdit. This method
@@ -2495,6 +2496,10 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent *event)
   The popup menu's ownership is transferred to the caller.
 */
 
+#if defined(Q_WS_WIN)
+    extern bool qt_use_rtl_extensions;
+#endif
+
 QMenu *QLineEdit::createStandardContextMenu()
 {
     Q_D(QLineEdit);
@@ -2555,7 +2560,6 @@ QMenu *QLineEdit::createStandardContextMenu()
 #endif
 
 #if defined(Q_WS_WIN)
-    extern bool qt_use_rtl_extensions;
     if (!d->readOnly && qt_use_rtl_extensions) {
 #else
     if (!d->readOnly) {
@@ -3488,6 +3492,8 @@ void QLineEditPrivate::redo() {
     \fn int QLineEdit::midLineWidth() const
     \internal
 */
+
+QT_END_NAMESPACE
 
 #include "moc_qlineedit.cpp"
 

@@ -23,6 +23,8 @@
 #  include <arpa/inet.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #define QT_ENSURE_PARSED(a) \
     do { \
         if (!(a)->d->isParsed) \
@@ -794,3 +796,5 @@ QDataStream &operator>>(QDataStream &in, QHostAddress &address)
 }
 
 #endif //QT_NO_DATASTREAM
+
+QT_END_NAMESPACE

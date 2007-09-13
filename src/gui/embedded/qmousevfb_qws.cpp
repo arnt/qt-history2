@@ -27,6 +27,8 @@
 #include <qapplication.h>
 #include <qtimer.h>
 
+QT_BEGIN_NAMESPACE
+
 QVFbMouseHandler::QVFbMouseHandler(const QString &driver, const QString &device)
     : QObject(), QWSMouseHandler(driver, device)
 {
@@ -96,5 +98,7 @@ void QVFbMouseHandler::readMouseData()
         mouseBuf[i] = mouseBuf[idx+i];
     mouseIdx = surplus;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_MOUSE_QVFB

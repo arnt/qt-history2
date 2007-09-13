@@ -22,6 +22,7 @@
 
 #include "qxmlstream_p.h"
 
+QT_BEGIN_NAMESPACE
 
 /*!
     \enum QXmlStreamReader::TokenType
@@ -3515,3 +3516,5 @@ void QXmlStreamWriter::writeCurrentToken(const QXmlStreamReader &reader)
         break;
     }
 }
+
+QT_END_NAMESPACE

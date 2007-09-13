@@ -17,10 +17,10 @@
 #include <QGraphicsTextItem>
 #include <QPen>
 
-class QFocusEvent;
-class QGraphicsItem;
-class QGraphicsScene;
-class QGraphicsSceneMouseEvent;
+QT_DECLARE_CLASS(QFocusEvent)
+QT_DECLARE_CLASS(QGraphicsItem)
+QT_DECLARE_CLASS(QGraphicsScene)
+QT_DECLARE_CLASS(QGraphicsSceneMouseEvent)
 
 class DiagramTextItem : public QGraphicsTextItem
 {

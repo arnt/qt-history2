@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_UNDOCOMMAND
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QUndoCommand
     \brief The QUndoCommand class is the base class of all commands stored on a QUndoStack.
@@ -1140,5 +1142,7 @@ bool QUndoStack::isActive() const
     used to enable or disable the redo action returned by createRedoAction().
     \a canUndo specifies the new value.
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_UNDOSTACK

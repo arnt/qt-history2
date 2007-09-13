@@ -31,6 +31,8 @@
 
 #include <QtCore/QSet>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ext {
 
 class EnumerationClassData: public QScriptClassData
@@ -90,6 +92,8 @@ protected:
 };
 
 } } // namespace QScript::Ext
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif

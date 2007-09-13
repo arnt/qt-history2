@@ -31,6 +31,8 @@
 #include "qtimer.h"
 #include "qpointer.h"
 
+QT_BEGIN_NAMESPACE
+
 //#define QT_DEBUG_DATATABLE
 
 class Q3DataTablePrivate
@@ -2306,3 +2308,5 @@ void  Q3DataTable::selectRow(int row)
 */
 
 #endif
+
+QT_END_NAMESPACE

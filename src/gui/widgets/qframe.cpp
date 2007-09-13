@@ -22,6 +22,8 @@
 
 #include "qframe_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QFramePrivate::QFramePrivate()
     : frect(QRect(0, 0, 0, 0)),
       frameStyle(QFrame::NoFrame | QFrame::Plain),
@@ -631,3 +633,5 @@ bool QFrame::event(QEvent *e)
         d_func()->updateFrameWidth();
     return QWidget::event(e);
 }
+
+QT_END_NAMESPACE

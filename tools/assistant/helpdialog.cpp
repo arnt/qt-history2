@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 enum
 {
     LinkRole = Qt::UserRole + 1000
@@ -1294,3 +1296,5 @@ QString HelpDialog::removeAnchorFromLink(const QString &link)
 	}
 	return link.left(i);
 }
+
+QT_END_NAMESPACE

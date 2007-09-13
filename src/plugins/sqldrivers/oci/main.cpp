@@ -15,6 +15,8 @@
 #include <qstringlist.h>
 #include "../../../sql/drivers/oci/qsql_oci.h"
 
+QT_BEGIN_NAMESPACE
+
 class QOCIDriverPlugin : public QSqlDriverPlugin
 {
 public:
@@ -48,3 +50,5 @@ QStringList QOCIDriverPlugin::keys() const
 
 Q_EXPORT_STATIC_PLUGIN(QOCIDriverPlugin)
 Q_EXPORT_PLUGIN2(qsqloci, QOCIDriverPlugin)
+
+QT_END_NAMESPACE

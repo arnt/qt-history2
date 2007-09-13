@@ -70,6 +70,8 @@
 
 #include "../shared/qaxtypes.h"
 
+QT_BEGIN_NAMESPACE
+
 /*  \class QAxHostWidget
     \brief The QAxHostWidget class is the actual container widget.
 
@@ -2113,3 +2115,5 @@ bool QAxWidget::translateKeyEvent(int message, int keycode) const
 
     return translate;
 }
+
+QT_END_NAMESPACE

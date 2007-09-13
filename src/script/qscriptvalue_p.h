@@ -16,6 +16,8 @@
 
 #include "qscriptvaluefwd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_SCRIPT
 
 //
@@ -68,5 +70,8 @@ inline QScriptValueImplList QScriptValuePrivate::toImplList(const QScriptValueLi
     return result;
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif

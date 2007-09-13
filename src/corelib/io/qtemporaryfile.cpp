@@ -29,11 +29,13 @@
 #include <sys/types.h>
 
 #ifdef Q_OS_WIN
-#include <process.h>
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-#include <share.h>
+# include <process.h>
+# if defined(_MSC_VER) && _MSC_VER >= 1400
+#  include <share.h>
+# endif
 #endif
-#endif
+
+QT_BEGIN_NAMESPACE
 
 /*
  * Copyright (c) 1987, 1993
@@ -610,3 +612,5 @@ bool QTemporaryFile::open(OpenMode flags)
     }
     return false;
 }
+
+QT_END_NAMESPACE

@@ -13,3 +13,4 @@ RESOURCES += validators.qrc
 # Input
 SOURCES += main.cpp ledwidget.cpp localeselector.cpp
 HEADERS += ledwidget.h localeselector.h
+DEFINES += QT_USE_USING_NAMESPACE

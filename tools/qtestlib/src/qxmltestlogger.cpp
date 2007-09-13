@@ -18,6 +18,8 @@
 #include "QtTest/private/qxmltestlogger_p.h"
 #include "QtTest/private/qtestresult_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest {
 
     static const char* xmlMessageType2String(QAbstractTestLogger::MessageTypes type)
@@ -212,3 +214,4 @@ void QXmlTestLogger::addMessage(MessageTypes type, const char *message,
     outputString(buf);
 }
 
+QT_END_NAMESPACE

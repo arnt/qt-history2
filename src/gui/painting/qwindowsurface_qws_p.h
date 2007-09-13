@@ -31,6 +31,8 @@
 #include <qdirectpainter_qws.h>
 #include <private/qwssharedmemory_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QScreen;
 class QWSWindowSurfacePrivate;
 
@@ -280,5 +282,7 @@ private:
 };
 
 #endif // QT_NO_DIRECTPAINTER
+
+QT_END_NAMESPACE
 
 #endif // QWINDOWSURFACE_QWS_P_H

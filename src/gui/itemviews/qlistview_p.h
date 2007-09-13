@@ -34,6 +34,8 @@
 
 #ifndef QT_NO_LISTVIEW
 
+QT_BEGIN_NAMESPACE
+
 class QListViewItem
 {
     friend class QListViewPrivate;
@@ -396,6 +398,8 @@ inline void QCommonListViewBase::clearIntersections() const { dd->intersectVecto
 inline void QCommonListViewBase::appendToIntersections(const QModelIndex &idx) const { dd->intersectVector.append(idx); }
 
 inline bool QCommonListViewBase::isRightToLeft() const { return qq->isRightToLeft(); }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_LISTVIEW
 

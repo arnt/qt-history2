@@ -22,6 +22,8 @@
 #include <QtGui/QFont>
 #include <QtGui/QFontMetrics>
 
+QT_BEGIN_NAMESPACE
+
 class QUndoStack;
 class QDesignerFormWindowInterface;
 
@@ -70,5 +72,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif

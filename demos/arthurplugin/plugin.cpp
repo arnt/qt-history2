@@ -25,7 +25,8 @@
 #include "hoverpoints.h"
 #include "composition.h"
 
-class QDesignerFormEditorInterface;
+QT_DECLARE_CLASS(QDesignerFormEditorInterface)
+
 class PathDeformRendererEx : public PathDeformRenderer
 {
     Q_OBJECT

@@ -41,6 +41,8 @@
 
 #include  "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 /******************************************************************************
 ** QToolBarPrivate
 */
@@ -1139,6 +1141,8 @@ void QToolBar::resizeEvent(QResizeEvent *event) // ### remove me in 5.0
     QWidget::resizeEvent(event);
 }
 
+QT_END_NAMESPACE
 
 #include "moc_qtoolbar.cpp"
+
 #endif // QT_NO_TOOLBAR

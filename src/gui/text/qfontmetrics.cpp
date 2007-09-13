@@ -23,6 +23,11 @@
 
 #ifdef Q_WS_X11
 #include "qx11info_x11.h"
+#endif
+
+QT_BEGIN_NAMESPACE
+
+#ifdef Q_WS_X11
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 #endif
 
@@ -1704,3 +1709,5 @@ qreal QFontMetricsF::lineWidth() const
         QRect rect = boundingRect(text.left(len));
     \endcode
 */
+
+QT_END_NAMESPACE

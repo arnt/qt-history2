@@ -20,6 +20,8 @@
 
 #include "../global.h"
 
+QT_BEGIN_NAMESPACE
+
 QScriptValue constructXmlStreamAttributeClass(QScriptEngine *eng);
 QScriptValue constructXmlStreamEntityDeclarationClass(QScriptEngine *eng);
 QScriptValue constructXmlStreamNamespaceDeclarationClass(QScriptEngine *eng);
@@ -58,3 +60,5 @@ void QtXmlScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
 
 Q_EXPORT_STATIC_PLUGIN(QtXmlScriptPlugin)
 Q_EXPORT_PLUGIN2(qtscriptxml, QtXmlScriptPlugin)
+
+QT_END_NAMESPACE

@@ -26,6 +26,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QRegExp;
@@ -200,6 +202,8 @@ inline QDataStream &operator<<(QDataStream &out, const QStringList &list)
     return operator<<(out, static_cast<const QList<QString> &>(list));
 }
 #endif // QT_NO_DATASTREAM
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

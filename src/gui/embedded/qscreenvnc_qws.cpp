@@ -31,6 +31,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QT_QWS_VNC_DEBUG
 
 extern QString qws_qtePipeFilename();
@@ -2190,6 +2192,6 @@ QRegion QVNCScreen::region() const
     return QScreen::region();
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_QWS_VNC
-
-

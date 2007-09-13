@@ -20,6 +20,8 @@
 #include <private/qt_x11_p.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 inline static bool launch(const QUrl &url, const QString &client)
 {
     return (QProcess::startDetached(client + QLatin1Char(' ') + QString::fromLatin1(url.toEncoded().constData())));
@@ -221,5 +223,7 @@ QString QDesktopServices::displayName(const Location type)
     return QString();
 }
 */
-#endif // QT_NO_DESKTOPSERVICES
 
+QT_END_NAMESPACE
+
+#endif // QT_NO_DESKTOPSERVICES

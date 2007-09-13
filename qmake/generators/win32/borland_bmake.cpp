@@ -17,6 +17,7 @@
 #include <qregexp.h>
 #include <time.h>
 
+QT_BEGIN_NAMESPACE
 
 BorlandMakefileGenerator::BorlandMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
@@ -144,3 +145,5 @@ void BorlandMakefileGenerator::writeCleanParts(QTextStream &t)
       << "\n\t-$(DEL_FILE) $(DESTDIR_TARGET)"
       << endl << endl;
 }
+
+QT_END_NAMESPACE

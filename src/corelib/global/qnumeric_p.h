@@ -27,6 +27,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_BEGIN_NAMESPACE
+
 static const unsigned char qt_be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
 static const unsigned char qt_le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
 static const unsigned char qt_armfpa_inf_bytes[] = { 0, 0, 0xf0, 0x7f, 0, 0, 0, 0 };
@@ -136,5 +138,7 @@ static inline bool qt_is_finite(float d)
         return (ch[3] & 0x7f) != 0x7f || (ch[2] & 0x80) != 0x80;
     }
 }
+
+QT_END_NAMESPACE
 
 #endif // QNUMERIC_P_H

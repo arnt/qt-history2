@@ -45,6 +45,8 @@
 #include "Qt3Support/q3stylesheet.h"
 #include "Qt3Support/q3mimefactory.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_RICHTEXT
 
 class Q3TextDocument;
@@ -2065,5 +2067,7 @@ inline int Q3TextStringChar::descent() const
 }
 
 #endif // QT_NO_RICHTEXT
+
+QT_END_NAMESPACE
 
 #endif // Q3RICHTEXT_P_H

@@ -20,6 +20,8 @@
 #include "qline.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 const uchar *qt_patternForBrush(int brushStyle, bool invert)
 {
     Q_ASSERT(brushStyle > Qt::SolidPattern && brushStyle < Qt::LinearGradientPattern);
@@ -1991,3 +1993,5 @@ void QConicalGradient::setAngle(qreal angle)
 
     \sa setTransform()
 */
+
+QT_END_NAMESPACE

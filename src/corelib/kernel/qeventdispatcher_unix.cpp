@@ -30,6 +30,8 @@
 #  include <sys/times.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 Q_CORE_EXPORT bool qt_disable_lowpriority_timers=false;
 
 /*****************************************************************************
@@ -912,3 +914,5 @@ void QCoreApplication::watchUnixSignal(int sig, bool watch)
         sigaction(sig, &sa, 0);
     }
 }
+
+QT_END_NAMESPACE

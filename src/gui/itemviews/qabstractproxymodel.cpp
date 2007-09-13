@@ -18,6 +18,8 @@
 #include "qitemselectionmodel.h"
 #include <private/qabstractproxymodel_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \since 4.1
     \class QAbstractProxyModel
@@ -201,5 +203,8 @@ Qt::ItemFlags QAbstractProxyModel::flags(const QModelIndex &index) const
     return d->model->flags(mapToSource(index));
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qabstractproxymodel.cpp"
+
 #endif // QT_NO_PROXYMODEL

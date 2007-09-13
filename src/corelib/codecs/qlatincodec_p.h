@@ -27,6 +27,8 @@
 
 #include "QtCore/qtextcodec.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TEXTCODEC
 
 class QLatin1Codec : public QTextCodec
@@ -58,5 +60,7 @@ public:
 };
 
 #endif // QT_NO_TEXTCODEC
+
+QT_END_NAMESPACE
 
 #endif // QLATINCODEC_P_H

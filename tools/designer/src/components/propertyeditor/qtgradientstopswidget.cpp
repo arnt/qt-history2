@@ -26,6 +26,8 @@ TRANSLATOR qdesigner_internal::QtGradientStopsWidget
 #include <QtGui/QMenu>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtGradientStopsWidgetPrivate
@@ -851,5 +853,7 @@ double QtGradientStopsWidget::zoom() const
     return d_ptr->m_zoom;
 }
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtgradientstopswidget.cpp"

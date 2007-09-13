@@ -20,6 +20,8 @@
 #include <qdesigner_taskmenu_p.h>
 #include <extensionfactory_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QLineEdit;
 class QDesignerFormWindowInterface;
 
@@ -49,5 +51,7 @@ private:
 
 typedef ExtensionFactory<QDesignerTaskMenuExtension, QListWidget, ListWidgetTaskMenu> ListWidgetTaskMenuFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // LISTWIDGET_TASKMENU_H

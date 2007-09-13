@@ -32,6 +32,71 @@
 #include <QtCore/qconfig.h>
 #endif
 
+#ifdef __cplusplus
+
+#ifndef QT_NAMESPACE /* user namespace */
+
+# define QT_ADD_NAMESPACE(name) ::name
+# define QT_USE_NAMESPACE
+# define QT_BEGIN_NAMESPACE
+# define QT_END_NAMESPACE
+# define QT_BEGIN_INCLUDE_NAMESPACE
+# define QT_END_INCLUDE_NAMESPACE
+# define QT_BEGIN_MOC_NAMESPACE
+# define QT_END_MOC_NAMESPACE
+# define QT_DECLARE_CLASS(name) class name;
+# define QT_MANGLE_NAMESPACE(name) name
+
+#else /* user namespace */
+
+# define QT_ADD_NAMESPACE(name) ::QT_NAMESPACE::name
+# define QT_USE_NAMESPACE using namespace ::QT_NAMESPACE;
+# define QT_BEGIN_NAMESPACE namespace QT_NAMESPACE {
+# define QT_END_NAMESPACE }
+# define QT_BEGIN_INCLUDE_NAMESPACE }
+# define QT_END_INCLUDE_NAMESPACE namespace QT_NAMESPACE {
+# define QT_BEGIN_MOC_NAMESPACE QT_USE_NAMESPACE
+# define QT_END_MOC_NAMESPACE
+# define QT_DECLARE_CLASS(name) \
+    QT_BEGIN_NAMESPACE class name; QT_END_NAMESPACE \
+    using QT_ADD_NAMESPACE(name);
+
+# define QT_MANGLE_NAMESPACE0(x) x
+# define QT_MANGLE_NAMESPACE1(a, b) a##_##b
+# define QT_MANGLE_NAMESPACE2(a, b) QT_MANGLE_NAMESPACE1(a,b)
+# define QT_MANGLE_NAMESPACE(name) QT_MANGLE_NAMESPACE2( \
+        QT_MANGLE_NAMESPACE0(name), QT_MANGLE_NAMESPACE0(QT_NAMESPACE))
+
+namespace QT_NAMESPACE {}
+
+# ifdef QT_USE_USING_NAMESPACE
+   QT_USE_NAMESPACE
+# endif
+
+#endif /* user namespace */
+
+#else /* __cplusplus */
+
+# define QT_BEGIN_NAMESPACE
+# define QT_END_NAMESPACE
+# define QT_USE_NAMESPACE
+# define QT_BEGIN_INCLUDE_NAMESPACE
+# define QT_END_INCLUDE_NAMESPACE
+
+#endif /* __cplusplus */
+
+#if defined(Q_OS_MAC) && !defined(Q_CC_INTEL)
+#define QT_BEGIN_HEADER extern "C++" {
+#define QT_END_HEADER }
+#define QT_BEGIN_INCLUDE_HEADER }
+#define QT_END_INCLUDE_HEADER extern "C++" {
+#else
+#define QT_BEGIN_HEADER
+#define QT_END_HEADER
+#define QT_BEGIN_INCLUDE_HEADER 
+#define QT_END_INCLUDE_HEADER extern "C++" 
+#endif
+
 /*
    The operating system, must be one of: (Q_OS_x)
 
@@ -167,6 +232,25 @@
 #  define QT_LARGEFILE_SUPPORT 64
 #endif
 
+#ifdef Q_OS_DARWIN
+#  ifdef MAC_OS_X_VERSION_MIN_REQUIRED
+#    undef MAC_OS_X_VERSION_MIN_REQUIRED
+#  endif
+#  define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_3
+#  include <AvailabilityMacros.h>
+#  if !defined(MAC_OS_X_VERSION_10_3)
+#     define MAC_OS_X_VERSION_10_3 MAC_OS_X_VERSION_10_2 + 1
+#  endif
+#  if !defined(MAC_OS_X_VERSION_10_4)
+#       define MAC_OS_X_VERSION_10_4 MAC_OS_X_VERSION_10_3 + 1
+#  endif
+#  if !defined(MAC_OS_X_VERSION_10_5)
+#       define MAC_OS_X_VERSION_10_5 MAC_OS_X_VERSION_10_4 + 1
+#  endif
+#  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5)
+#    error "This version of Mac OS X is unsupported"
+#  endif
+#endif
 
 /*
    The compiler, must be one of: (Q_CC_x)
@@ -510,17 +594,19 @@
 #endif
 
 #ifndef Q_CONSTRUCTOR_FUNCTION
-# define Q_CONSTRUCTOR_FUNCTION(AFUNC) \
+# define Q_CONSTRUCTOR_FUNCTION0(AFUNC) \
    static const int AFUNC ## __init_variable__ = AFUNC();
+# define Q_CONSTRUCTOR_FUNCTION(AFUNC) Q_CONSTRUCTOR_FUNCTION0(AFUNC)
 #endif
 
 #ifndef Q_DESTRUCTOR_FUNCTION
-# define Q_DESTRUCTOR_FUNCTION(AFUNC) \
+# define Q_DESTRUCTOR_FUNCTION0(AFUNC) \
     class AFUNC ## __dest_class__ { \
     public: \
        inline AFUNC ## __dest_class__() { } \
        inline ~ AFUNC ## __dest_class__() { AFUNC(); } \
     } AFUNC ## __dest_instance__;
+# define Q_DESTRUCTOR_FUNCTION(AFUNC) Q_DESTRUCTOR_FUNCTION0(AFUNC)
 #endif
 
 #ifndef Q_REQUIRED_RESULT
@@ -575,6 +661,9 @@
 #  define Q_WS_WIN
 #endif
 
+QT_BEGIN_HEADER
+QT_BEGIN_NAMESPACE
+
 /*
    Size-dependent types (architechture-dependent byte order)
 
@@ -611,11 +700,11 @@ typedef quint64 qulonglong;
 #endif
 
 #define Q_INIT_RESOURCE(name) \
-    do { extern int qInitResources_ ## name ();       \
-        qInitResources_ ## name (); } while (0)
+    do { extern int QT_MANGLE_NAMESPACE(qInitResources_ ## name) ();       \
+        QT_MANGLE_NAMESPACE(qInitResources_ ## name) (); } while (0)
 #define Q_CLEANUP_RESOURCE(name) \
-    do { extern int qCleanupResources_ ## name ();    \
-        qCleanupResources_ ## name (); } while (0)
+    do { extern int QT_MANGLE_NAMESPACE(qCleanupResources_ ## name) ();    \
+        QT_MANGLE_NAMESPACE(qCleanupResources_ ## name) (); } while (0)
 
 #if defined(__cplusplus)
 
@@ -641,10 +730,12 @@ typedef QIntForType<void *>::Type qptrdiff;
    Useful type definitions for Qt
 */
 
+QT_BEGIN_INCLUDE_NAMESPACE
 typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
+QT_END_INCLUDE_NAMESPACE
 
 #if defined(Q_NO_BOOL_TYPE)
 #error "Compiler doesn't support the bool type"
@@ -661,15 +752,6 @@ typedef unsigned long ulong;
 #  endif
 #endif
 
-#if defined(Q_OS_MAC) && !defined(Q_CC_INTEL)
-#define QT_BEGIN_HEADER extern "C++" {
-#define QT_END_HEADER }
-#else
-#define QT_BEGIN_HEADER
-#define QT_END_HEADER
-#endif
-
-QT_BEGIN_HEADER
 /*
    Proper for-scoping in VC++6 and MIPSpro CC
 */
@@ -874,26 +956,6 @@ typedef unsigned long Q_ULONG;      /* word up to 64 bit unsigned */
 */
 
 class QDataStream;
-
-#ifdef Q_OS_DARWIN
-#  ifdef MAC_OS_X_VERSION_MIN_REQUIRED
-#    undef MAC_OS_X_VERSION_MIN_REQUIRED
-#  endif
-#  define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_3
-#  include <AvailabilityMacros.h>
-#  if !defined(MAC_OS_X_VERSION_10_3)
-#     define MAC_OS_X_VERSION_10_3 MAC_OS_X_VERSION_10_2 + 1
-#  endif
-#  if !defined(MAC_OS_X_VERSION_10_4)
-#       define MAC_OS_X_VERSION_10_4 MAC_OS_X_VERSION_10_3 + 1
-#  endif
-#  if !defined(MAC_OS_X_VERSION_10_5)
-#       define MAC_OS_X_VERSION_10_5 MAC_OS_X_VERSION_10_4 + 1
-#  endif
-#  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5)
-#    error "This version of Mac OS X is unsupported"
-#  endif
-#endif
 
 #ifndef QT_BUILD_KEY
 #define QT_BUILD_KEY "unspecified"
@@ -2038,6 +2100,7 @@ QT_LICENSED_MODULE(ActiveQt)
 #define QT_MODULE(x) \
     typedef QtValidLicenseFor##x##Module Qt##x##Module;
 
+QT_END_NAMESPACE
 QT_END_HEADER
 
 #endif /* __cplusplus */

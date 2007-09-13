@@ -17,6 +17,8 @@
 
 #include "qcachingiterator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 CachingIterator::CachingIterator(ItemSequenceCacheCell::Vector &cacheCells,
@@ -107,3 +109,5 @@ Item::Iterator::Ptr CachingIterator::copy() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

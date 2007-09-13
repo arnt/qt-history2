@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QTextDocument;
@@ -71,6 +73,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_reformatBlocks(int from, int charsRemoved, int charsAdded))
     Q_PRIVATE_SLOT(d_func(), void _q_delayedRehighlight())
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

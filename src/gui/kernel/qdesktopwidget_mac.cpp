@@ -16,6 +16,10 @@
 #include <private/qt_mac_p.h>
 #include "qwidget_p.h"
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 /*****************************************************************************
   Externals
  *****************************************************************************/
@@ -196,3 +200,5 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
             emit resized(i);
     }
 }
+
+QT_END_NAMESPACE

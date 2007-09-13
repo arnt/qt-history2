@@ -53,9 +53,6 @@
 
 #include <stdlib.h>
 
-extern void qt_call_post_routines();
-
-
 #include "qapplication_p.h"
 #include "qwidget_p.h"
 
@@ -63,6 +60,18 @@ extern void qt_call_post_routines();
 
 //#define SUPPRESS_POPUP_FOCUS_CHANGE //(Workaround for Qtopia 4.3)
 //#define ALIEN_DEBUG
+
+static void initResources()
+{
+    Q_INIT_RESOURCE(qstyle);
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
+    Q_INIT_RESOURCE(qpaintengine_d3d);
+#endif
+}
+
+QT_BEGIN_NAMESPACE
+
+extern void qt_call_post_routines();
 
 int QApplicationPrivate::app_compile_version = 0x040000; //we don't know exactly, but it's at least 4.0.0
 
@@ -677,10 +686,7 @@ void QApplicationPrivate::construct(
 #endif
                                     )
 {
-    Q_INIT_RESOURCE(qstyle);
-#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
-    Q_INIT_RESOURCE(qpaintengine_d3d);
-#endif
+    initResources();
 
     qt_is_gui_used = (qt_appType != QApplication::Tty);
     process_cmdline();
@@ -4476,5 +4482,7 @@ Qt::LayoutDirection QApplication::keyboardInputDirection()
         return Qt::LeftToRight;
     return qt_keymapper_private()->keyboardInputDirection;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qapplication.cpp"

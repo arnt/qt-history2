@@ -27,6 +27,8 @@
 
 #include <QtTest/private/qabstracttestlogger_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPlainTestLogger : public QAbstractTestLogger
 {
 public:
@@ -45,5 +47,7 @@ public:
     void addMessage(MessageTypes type, const char *message,
                     const char *file = 0, int line = 0);
 };
+
+QT_END_NAMESPACE
 
 #endif

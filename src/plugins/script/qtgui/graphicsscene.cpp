@@ -23,6 +23,8 @@ Q_DECLARE_METATYPE(QPainter*)
 Q_DECLARE_METATYPE(QGraphicsView*)
 Q_DECLARE_METATYPE(QList<QGraphicsView*>)
 
+QT_BEGIN_NAMESPACE
+
 /////////////////////////////////////////////////////////////
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
@@ -562,3 +564,5 @@ QScriptValue constructGraphicsSceneClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

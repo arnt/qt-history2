@@ -21,6 +21,8 @@
 #include <QtCore/qtextcodec.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TEXTCODEC
 
 class QBig5Codec : public QTextCodec {
@@ -88,5 +90,7 @@ public:
 #endif // Q_WS_X11
 
 #endif // QT_NO_TEXTCODEC
+
+QT_END_NAMESPACE
 
 #endif // QBIG5CODEC_H

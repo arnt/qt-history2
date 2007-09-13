@@ -22,6 +22,8 @@
 #define BUILDSMETATYPE 1
 #define SUBDIRSMETATYPE 2
 
+QT_BEGIN_NAMESPACE
+
 MetaMakefileGenerator::~MetaMakefileGenerator()
 {
     if(own_project)
@@ -387,6 +389,7 @@ SubdirsMetaMakefileGenerator::~SubdirsMetaMakefileGenerator()
 }
 
 //Factory things
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "unixmake.h"
 #include "mingw_make.h"
 #include "projectgenerator.h"
@@ -395,6 +398,7 @@ SubdirsMetaMakefileGenerator::~SubdirsMetaMakefileGenerator()
 #include "borland_bmake.h"
 #include "msvc_dsp.h"
 #include "msvc_vcproj.h"
+QT_END_INCLUDE_NAMESPACE
 
 MakefileGenerator *
 MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj, bool noIO)
@@ -454,3 +458,5 @@ MetaMakefileGenerator::createMetaGenerator(QMakeProject *proj, const QString &na
     ret->init();
     return ret;
 }
+
+QT_END_NAMESPACE

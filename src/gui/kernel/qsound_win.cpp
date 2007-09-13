@@ -23,6 +23,8 @@
 
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
 class QAuServerWindows : public QAuServer {
     Q_OBJECT
 
@@ -176,6 +178,8 @@ QAuServer* qt_new_audio_server()
 {
     return new QAuServerWindows(qApp);
 }
+
+QT_END_NAMESPACE
 
 #include "qsound_win.moc"
 

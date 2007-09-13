@@ -17,3 +17,5 @@ target.path = $$[QT_INSTALL_DEMOS]/affine
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.html *.jpg
 sources.path = $$[QT_INSTALL_DEMOS]/affine
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE

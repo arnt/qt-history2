@@ -30,6 +30,8 @@
 #include "QtGui/qdialog.h"
 #include "QtGui/qpushbutton.h"
 
+QT_BEGIN_NAMESPACE
+
 class QEventLoop;
 class QSizeGrip;
 
@@ -69,5 +71,7 @@ public:
 
     QEventLoop *eventLoop;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDIALOG_P_H

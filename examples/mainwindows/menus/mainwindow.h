@@ -16,10 +16,10 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QActionGroup;
-class QLabel;
-class QMenu;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QActionGroup)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QMenu)
 
 class MainWindow : public QMainWindow
 {

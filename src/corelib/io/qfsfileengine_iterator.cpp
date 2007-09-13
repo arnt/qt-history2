@@ -14,6 +14,8 @@
 #include "qfsfileengine_iterator_p.h"
 #include "qvariant.h"
 
+QT_BEGIN_NAMESPACE
+
 QFSFileEngineIterator::QFSFileEngineIterator(QDir::Filters filters, const QStringList &filterNames)
     : QAbstractFileEngineIterator(filters, filterNames)
 {
@@ -43,3 +45,5 @@ QFileInfo QFSFileEngineIterator::currentFileInfo() const
 {
     return QAbstractFileEngineIterator::currentFileInfo();
 }
+
+QT_END_NAMESPACE

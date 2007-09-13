@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+QT_BEGIN_NAMESPACE
+
 class Node;
 class Tree;
 
@@ -50,5 +52,7 @@ private:
     QSet<QString> filterAttributes;
     QHash<QString, QSet<QString> > customFilters;
 };
+
+QT_END_NAMESPACE
 
 #endif

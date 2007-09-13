@@ -22,6 +22,8 @@
 #include "qsequencetype_p.h"
 #include "qvariableloader_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class VariantListIterator : public Patternist::ListIteratorPlatform<QVariant, Patternist::Item, VariantListIterator>
 {
 public:
@@ -101,5 +103,7 @@ Patternist::Item VariableLoader::evaluateSingleton(const Patternist::QName name,
 {
     return Patternist::AtomicValue::toXDM(m_bindingHash.value(name), m_nodeModel.get());
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

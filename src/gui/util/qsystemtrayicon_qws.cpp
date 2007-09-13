@@ -15,6 +15,8 @@
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
+QT_BEGIN_NAMESPACE
+
 void QSystemTrayIconPrivate::install_sys()
 {
 }
@@ -55,5 +57,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &message,
     Q_UNUSED(icon);
     Q_UNUSED(msecs);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SYSTEMTRAYICON

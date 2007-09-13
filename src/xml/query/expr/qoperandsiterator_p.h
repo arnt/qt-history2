@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -105,6 +107,8 @@ namespace Patternist
     };
 }
 
+
+QT_END_NAMESPACE
 // vim: et:ts=4:sw=4:sts=4
 QT_END_HEADER 
 

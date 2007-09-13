@@ -120,6 +120,8 @@
 #include "qmutex.h"
 #include "qatomic.h"
 
+QT_BEGIN_NAMESPACE
+
 class QGlobalNetworkProxy
 {
 public:
@@ -400,3 +402,5 @@ QNetworkProxy QNetworkProxy::applicationProxy()
 }
 
 #endif // QT_NO_NETWORKPROXY
+
+QT_END_NAMESPACE

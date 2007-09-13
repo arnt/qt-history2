@@ -6,3 +6,6 @@ contains(QT_CONFIG,qdbus): {
 } else {
 	SOURCES += ../qdbusmarshall/dummy.cpp
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

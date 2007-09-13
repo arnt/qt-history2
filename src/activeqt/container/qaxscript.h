@@ -16,7 +16,11 @@
 
 #include <ActiveQt/qaxobject.h>
 
+struct IActiveScript;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(ActiveQt)
 
@@ -26,7 +30,6 @@ class QAxScriptSite;
 class QAxScriptEngine;
 class QAxScriptManager;
 class QAxScriptManagerPrivate;
-struct IActiveScript;
 
 class QAxScriptEngine : public QAxObject
 {
@@ -196,9 +199,10 @@ inline QString QAxScriptEngine::scriptLanguage() const
 
 // QAxScriptManager inlines
 
+extern QAxBase *qax_create_object_wrapper(QObject*);
+
 inline void QAxScriptManager::addObject(QObject *object)
 {
-    extern QAxBase *qax_create_object_wrapper(QObject*);
     QAxBase *wrapper = qax_create_object_wrapper(object);
     if (!wrapper) {
         qWarning("QAxScriptMananger::addObject: Class %s not exposed through the QAxFactory", 
@@ -207,6 +211,8 @@ inline void QAxScriptManager::addObject(QObject *object)
     }
     addObject(wrapper);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

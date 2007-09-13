@@ -20,6 +20,8 @@
 #include "rpp.h"
 #include <QByteArray>
 
+QT_BEGIN_NAMESPACE
+
 namespace Rpp {
 
 class ExpressionBuilder
@@ -71,5 +73,7 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

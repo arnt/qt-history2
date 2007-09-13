@@ -17,6 +17,8 @@
 #include <QString>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
+
 class Phrase
 {
 public:
@@ -58,5 +60,7 @@ public:
 private:
     QString fn;
 };
+
+QT_END_NAMESPACE
 
 #endif

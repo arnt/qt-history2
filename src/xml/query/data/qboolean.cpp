@@ -20,6 +20,8 @@
 
 #include "qboolean_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 bool Boolean::evaluateEBV(const Item::Iterator::Ptr &it,
@@ -105,3 +107,5 @@ ItemType::Ptr Boolean::type() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

@@ -37,6 +37,8 @@
 
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 static QWidget *last_target = 0;
 
 class QDragMime;
@@ -1554,3 +1556,5 @@ bool Q3ColorDrag::decode(QMimeSource *e, QColor &col)
     col.setRgb(r, g, b, a);
     return true;
 }
+
+QT_END_NAMESPACE

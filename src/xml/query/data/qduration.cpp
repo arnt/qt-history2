@@ -17,6 +17,8 @@
 
 #include "qduration_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Duration::Duration(const bool isPositiveP,
@@ -221,3 +223,5 @@ ItemType::Ptr Duration::type() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

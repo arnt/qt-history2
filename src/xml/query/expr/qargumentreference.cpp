@@ -16,6 +16,8 @@
 
 #include "qargumentreference_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ArgumentReference::ArgumentReference(const SequenceType::Ptr &sourceType,
@@ -55,3 +57,5 @@ ExpressionVisitorResult::Ptr ArgumentReference::accept(const ExpressionVisitor::
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

@@ -31,6 +31,10 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
+class QString; // FIXME: fool syncqt
+
 class QDESIGNER_SDK_EXPORT QDesignerScriptExtension
 {
 public:
@@ -43,6 +47,8 @@ public:
 
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerScriptExtension, "com.trolltech.Qt.Designer.Script")
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

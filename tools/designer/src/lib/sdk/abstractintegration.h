@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 
 class QDESIGNER_SDK_EXPORT QDesignerIntegrationInterface: public QObject
@@ -38,6 +40,8 @@ private:
 
 inline QDesignerFormEditorInterface *QDesignerIntegrationInterface::core() const
 { return m_core; }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

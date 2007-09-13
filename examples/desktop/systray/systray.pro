@@ -8,3 +8,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/desktop/systray
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS systray.pro resources
 sources.path = $$[QT_INSTALL_EXAMPLES]/desktop/systray
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

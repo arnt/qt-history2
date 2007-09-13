@@ -23,6 +23,8 @@
 
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
 extern QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint type = 0);
 QAxObject *ax_mainWindow = 0;
 
@@ -33,6 +35,10 @@ static void redirectDebugOutput(QtMsgType type, const char*msg)
     Q_UNUSED(type);
     debuglog->append(QLatin1String(msg));
 }
+
+QT_END_NAMESPACE
+
+QT_USE_NAMESPACE
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -423,5 +429,6 @@ void MainWindow::logMacro(int code, const QString &description, int sourcePositi
 	message += tr(" at position ") + QString::number(sourcePosition);
     if (!sourceText.isEmpty())
 	message += QLatin1String(" '") + sourceText + QLatin1String("'");
+
     logMacros->append(message);
 }

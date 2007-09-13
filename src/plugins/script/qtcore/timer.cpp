@@ -7,6 +7,8 @@
 
 Q_DECLARE_METATYPE(QTimer*)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newTimer(QScriptEngine *eng, QTimer *timer)
 {
     return eng->newQObject(timer, QScriptEngine::AutoOwnership);
@@ -32,3 +34,5 @@ QScriptValue constructTimerClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

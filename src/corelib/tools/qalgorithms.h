@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 /*
@@ -527,6 +529,8 @@ Q_OUTOFLINE_TEMPLATE RandomAccessIterator qBinaryFindHelper(RandomAccessIterator
 }
 
 } //namespace QAlgorithmsPrivate
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

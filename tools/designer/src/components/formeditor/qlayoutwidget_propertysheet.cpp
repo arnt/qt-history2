@@ -20,6 +20,8 @@
 
 #include <QtGui/QLayout>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 QLayoutWidgetPropertySheet::QLayoutWidgetPropertySheet(QLayoutWidget *object, QObject *parent)
@@ -49,3 +51,5 @@ bool QLayoutWidgetPropertySheet::dynamicPropertiesAllowed() const
 {
     return false;
 }
+
+QT_END_NAMESPACE

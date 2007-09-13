@@ -29,6 +29,8 @@ TRANSLATOR qdesigner_internal::LineEditTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 LineEditTaskMenu::LineEditTaskMenu(QLineEdit *lineEdit, QObject *parent)
@@ -89,3 +91,4 @@ void LineEditTaskMenu::updateSelection()
         m_editor->deleteLater();
 }
 
+QT_END_NAMESPACE

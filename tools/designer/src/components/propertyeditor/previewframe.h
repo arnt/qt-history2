@@ -17,6 +17,8 @@
 #include <QtGui/QFrame>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QMdiArea;
 class QMdiSubWindow;
 
@@ -40,5 +42,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif

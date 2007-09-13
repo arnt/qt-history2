@@ -47,6 +47,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 class QComboBoxListView : public QListView
 {
     Q_OBJECT
@@ -319,6 +321,8 @@ public:
     QPointer<QCompleter> completer;
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_COMBOBOX
 

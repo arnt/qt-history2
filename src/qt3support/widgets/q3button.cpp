@@ -14,6 +14,8 @@
 #include "q3button.h"
 #include "qpainter.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3Button qbutton.h
     \brief The Q3Button class is a compatibility base class of button
@@ -93,3 +95,5 @@ void Q3Button::drawButton( QPainter * )
 void Q3Button::drawButtonLabel( QPainter * )
 {
 }
+
+QT_END_NAMESPACE

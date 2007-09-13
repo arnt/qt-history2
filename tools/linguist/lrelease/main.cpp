@@ -24,6 +24,8 @@
 #include <QStringList>
 #include <errno.h>
 
+QT_USE_NAMESPACE
+
 typedef QList<MetaTranslatorMessage> TML;
 
 static void printUsage()

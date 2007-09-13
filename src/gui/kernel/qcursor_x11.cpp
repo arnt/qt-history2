@@ -28,6 +28,8 @@
 
 #include "qx11info_x11.h"
 
+QT_BEGIN_NAMESPACE
+
 // Define QT_USE_APPROXIMATE_CURSORS when compiling if you REALLY want to
 // use the ugly X11 cursors.
 
@@ -574,3 +576,5 @@ void QCursorData::update()
         XFixesSetCursorName(dpy, hcurs, cursorNames[cshape]);
 #endif /* ! QT_NO_XFIXES */
 }
+
+QT_END_NAMESPACE

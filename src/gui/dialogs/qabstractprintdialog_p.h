@@ -31,6 +31,8 @@
 
 #include "QtGui/qabstractprintdialog.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPrinter;
 class QPrinterPrivate;
 
@@ -48,5 +50,7 @@ public:
 };
 
 #endif // QT_NO_PRINTDIALOG
+
+QT_END_NAMESPACE
 
 #endif // QABSTRACTPRINTDIALOG_P_H

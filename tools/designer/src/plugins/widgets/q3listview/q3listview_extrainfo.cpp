@@ -20,6 +20,8 @@
 #include <Qt3Support/Q3ListView>
 #include <Qt3Support/Q3Header>
 
+QT_BEGIN_NAMESPACE
+
 inline QHash<QString, DomProperty *> propertyMap(const QList<DomProperty *> &properties) // ### remove me
 {
     QHash<QString, DomProperty *> map;
@@ -170,3 +172,5 @@ QObject *Q3ListViewExtraInfoFactory::createExtension(QObject *object, const QStr
 
     return 0;
 }
+
+QT_END_NAMESPACE

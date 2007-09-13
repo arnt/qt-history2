@@ -20,6 +20,8 @@
 #include <qstringlist.h>
 #include <q3toolbar.h>
 
+QT_BEGIN_NAMESPACE
+
 class CompatAccessibleFactory : public QAccessiblePlugin
 {
 public:
@@ -96,3 +98,5 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
 
 Q_EXPORT_STATIC_PLUGIN(CompatAccessibleFactory)
 Q_EXPORT_PLUGIN2(qtaccessiblecompatwidgets, CompatAccessibleFactory)
+
+QT_END_NAMESPACE

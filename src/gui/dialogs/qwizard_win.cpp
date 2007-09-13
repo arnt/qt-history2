@@ -36,6 +36,8 @@
 
 #include <uxtheme.h>
 
+QT_BEGIN_NAMESPACE
+
 //DWM related
 typedef struct  {       //MARGINS       
     int cxLeftWidth;    // width of left border that retains its size
@@ -614,5 +616,8 @@ int QVistaHelper::titleOffset()
     return leftMargin() + iconOffset;
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_STYLE_WINDOWSVISTA
+
 #endif // QT_NO_WIZARD

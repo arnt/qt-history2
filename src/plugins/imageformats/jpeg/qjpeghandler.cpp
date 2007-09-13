@@ -44,6 +44,8 @@ extern "C" {
 #endif
 }
 
+QT_BEGIN_NAMESPACE
+
 //#define QT_NO_IMAGE_SMOOTHSCALE
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
 class QImageSmoothScalerPrivate;
@@ -1115,3 +1117,5 @@ QByteArray QJpegHandler::name() const
 {
     return "jpeg";
 }
+
+QT_END_NAMESPACE

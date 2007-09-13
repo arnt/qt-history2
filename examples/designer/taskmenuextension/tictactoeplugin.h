@@ -16,8 +16,8 @@
 
 #include <QDesignerCustomWidgetInterface>
 
-class QIcon;
-class QWidget;
+QT_DECLARE_CLASS(QIcon)
+QT_DECLARE_CLASS(QWidget)
 
 class TicTacToePlugin : public QObject, public QDesignerCustomWidgetInterface
 {

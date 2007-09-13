@@ -8,3 +8,6 @@ SOURCES=\
     test_file.cpp\
     main.cpp
 CONFIG -= debug_and_release_target
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -10,3 +10,6 @@ win32 {
   }
 }
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

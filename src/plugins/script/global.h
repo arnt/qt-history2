@@ -15,6 +15,8 @@
 
 #include <QtCore/QSharedData>
 
+QT_BEGIN_NAMESPACE
+
 #define QSCRIPT_VOID
 
 #define DECLARE_SELF(Class, __fn__) \
@@ -331,5 +333,7 @@ inline QScriptValue wrapGVPointer(QScriptEngine *eng, T *item)
 } // namespace QScript
 
 #endif // QGRAPHICSITEM_H
+
+QT_END_NAMESPACE
 
 #endif // QTSCRIPTEXTENSIONS_GLOBAL_H

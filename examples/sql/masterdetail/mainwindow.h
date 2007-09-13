@@ -18,13 +18,13 @@
 #include <QMainWindow>
 #include <QModelIndex>
 
-class QComboBox;
-class QFile;
-class QGroupBox;
-class QLabel;
-class QListWidget;
-class QSqlRelationalTableModel;
-class QTableView;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QFile)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QListWidget)
+QT_DECLARE_CLASS(QSqlRelationalTableModel)
+QT_DECLARE_CLASS(QTableView)
 
 class MainWindow : public QMainWindow
 {

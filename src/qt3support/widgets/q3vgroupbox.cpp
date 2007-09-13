@@ -13,6 +13,8 @@
 
 #include "q3vgroupbox.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3VGroupBox
 
@@ -58,3 +60,5 @@ Q3VGroupBox::Q3VGroupBox( const QString &title, QWidget *parent,
 Q3VGroupBox::~Q3VGroupBox()
 {
 }
+
+QT_END_NAMESPACE

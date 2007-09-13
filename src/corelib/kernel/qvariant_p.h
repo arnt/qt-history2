@@ -28,6 +28,10 @@
 // takes a type, returns the internal void* pointer cast
 // to a pointer of the input type
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_CC_SUN // Sun CC picks the wrong overload, so introduce awful hack
 
 template <typename T>
@@ -86,5 +90,7 @@ inline void v_clear(QVariant::Private *d, T* = 0)
         v_cast<T>(d)->~T();
     }
 }
+
+QT_END_NAMESPACE
 
 #endif // QVARIANT_P_H

@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/linguist/arrowpad
 sources.files = $$SOURCES $$HEADERS *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/linguist/arrowpad
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

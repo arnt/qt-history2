@@ -20,6 +20,8 @@
 
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -66,5 +68,7 @@ int main(int argc, char *argv[])
     QDBusServer server(serverAddress, 0);
 
     return app.exec();
+
+QT_END_NAMESPACE
 }
 

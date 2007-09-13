@@ -32,8 +32,12 @@
 #include "qwidgetanimator_p.h"
 #ifdef Q_WS_MAC
 #include <private/qt_mac_p.h>
+QT_BEGIN_NAMESPACE
 extern WindowRef qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
+QT_END_NAMESPACE
 #endif
+
+QT_BEGIN_NAMESPACE
 
 class QMainWindowPrivate : public QWidgetPrivate
 {
@@ -1348,5 +1352,7 @@ QMenu *QMainWindow::createPopupMenu()
     return menu;
 }
 #endif // QT_NO_MENU
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_MAINWINDOW

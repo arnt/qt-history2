@@ -19,6 +19,8 @@
 
 #include "qdynamiccontextstore_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 DynamicContextStore::DynamicContextStore(const Expression::Ptr &operand,
@@ -66,3 +68,5 @@ const SourceLocationReflection *DynamicContextStore::actualReflection() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

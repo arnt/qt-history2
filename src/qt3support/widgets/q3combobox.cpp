@@ -40,6 +40,8 @@
 #include "qaccessible.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3ComboBox q3combobox.h
     \brief The Q3ComboBox widget is a combined button and popup list.
@@ -2326,5 +2328,7 @@ void Q3ComboBox::hide()
     else if (d->popup())
 	d->popup()->hide();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_COMBOBOX

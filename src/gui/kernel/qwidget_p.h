@@ -47,6 +47,8 @@
 #include "QtGui/qscreen_qws.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #if defined(Q_WS_QWS) || defined(Q_WS_X11)
 //#define Q_WIDGET_USE_DIRTYLIST
 #endif
@@ -520,5 +522,7 @@ inline QWidgetBackingStore *QWidgetPrivate::maybeBackingStore() const
     return x ? x->backingStore : 0;
 }
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QWIDGET_P_H

@@ -29,6 +29,8 @@
 
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerDialogGuiInterface;
 
 class QTextEdit;
@@ -54,5 +56,7 @@ namespace qdesigner_internal {
         QTextEdit *m_textEdit;
     };
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // SCRIPTDIALOG_H

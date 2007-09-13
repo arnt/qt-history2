@@ -14,3 +14,6 @@ QT += xml opengl svg qt3support
 # Input
 HEADERS += performancediff.h
 SOURCES += main.cpp performancediff.cpp
+
+DEFINES += QT_USE_USING_NAMESPACE
+

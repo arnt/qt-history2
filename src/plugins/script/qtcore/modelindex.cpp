@@ -7,6 +7,8 @@
 Q_DECLARE_METATYPE(QModelIndex)
 Q_DECLARE_METATYPE(QModelIndex*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newModelIndex(QScriptEngine *eng, const QModelIndex &index)
 {
     return eng->newVariant(qVariantFromValue(index));
@@ -146,3 +148,5 @@ QScriptValue constructModelIndexClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

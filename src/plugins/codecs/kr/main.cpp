@@ -17,6 +17,8 @@
 
 #include "qeuckrcodec.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TEXTCODECPLUGIN
 
 class KRTextCodecs : public QTextCodecPlugin
@@ -97,3 +99,5 @@ Q_EXPORT_STATIC_PLUGIN(KRTextCodecs);
 Q_EXPORT_PLUGIN2(qkrcodecs, KRTextCodecs);
 
 #endif // QT_NO_TEXTCODECPLUGIN
+
+QT_END_NAMESPACE

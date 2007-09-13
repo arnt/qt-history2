@@ -36,6 +36,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QToolBar>
 
+QT_BEGIN_NAMESPACE
+
 // #define SIMULATE_JAMBI
 #ifdef SIMULATE_JAMBI
 static const char *enumSeparatorC = ".";
@@ -1123,3 +1125,4 @@ void QDesignerAbstractPropertySheetFactory::objectDestroyed(QObject *object)
     m_impl->m_extended.remove(object);
 }
 
+QT_END_NAMESPACE

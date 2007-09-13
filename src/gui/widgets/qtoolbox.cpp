@@ -28,6 +28,8 @@
 
 #include "qframe_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QToolBoxButton : public QAbstractButton
 {
     Q_OBJECT
@@ -54,8 +56,6 @@ private:
     bool selected;
     int indexInPage;
 };
-
-#include "qtoolbox.moc"
 
 
 class QToolBoxPrivate : public QFramePrivate
@@ -381,7 +381,7 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIcon &icon, const QS
 void QToolBoxPrivate::_q_buttonClicked()
 {
     Q_Q(QToolBox);
-    QToolBoxButton *tb = ::qobject_cast<QToolBoxButton*>(q->sender());
+    QToolBoxButton *tb = qobject_cast<QToolBoxButton*>(q->sender());
     QWidget* item = 0;
     for (QToolBoxPrivate::PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i)
         if ((*i).button == tb) {
@@ -780,6 +780,9 @@ bool QToolBox::event(QEvent *e)
     return QFrame::event(e);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qtoolbox.cpp"
+#include "qtoolbox.moc"
 
 #endif //QT_NO_TOOLBOX

@@ -34,6 +34,8 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qthread.h>
 
+QT_BEGIN_NAMESPACE
+
 class QFileSystemWatcherEngine : public QThread
 {
     Q_OBJECT
@@ -84,5 +86,7 @@ public:
     void _q_directoryChanged(const QString &path, bool removed);
 };
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_FILESYSTEMWATCHER
 #endif // QFILESYSTEMWATCHER_P_H

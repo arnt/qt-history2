@@ -37,6 +37,8 @@
 #include <QTextObject>
 #include <QFileDialog>
 
+QT_BEGIN_NAMESPACE
+
 QList<MainWindow*> MainWindow::windows;
 
 #if defined(Q_WS_WIN)
@@ -801,3 +803,5 @@ void MainWindow::updateApplicationFontSettings(FontSettings &settings)
             browser->setFont(font);
     }
 }
+
+QT_END_NAMESPACE

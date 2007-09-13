@@ -24,7 +24,7 @@
 
 class TstWidget;
 class TstDialog;
-class QPushButton;
+QT_DECLARE_CLASS(QPushButton)
 
 class tst_qmouseevent_modal : public QObject
 {

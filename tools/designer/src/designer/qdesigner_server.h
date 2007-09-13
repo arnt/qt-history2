@@ -16,6 +16,8 @@
 
 #include <QtCore/QObject>
 
+QT_BEGIN_NAMESPACE
+
 class QTcpServer;
 class QTcpSocket;
 
@@ -53,5 +55,7 @@ private slots:
 private:
     QTcpSocket *m_socket;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_SERVER_H

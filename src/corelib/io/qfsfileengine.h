@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QFSFileEnginePrivate;
@@ -79,6 +81,8 @@ public:
 protected:
     QFSFileEngine(QFSFileEnginePrivate &dd);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

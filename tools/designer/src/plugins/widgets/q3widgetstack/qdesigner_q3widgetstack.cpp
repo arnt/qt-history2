@@ -22,6 +22,8 @@
 #include <QtCore/QEvent>
 #include <QtGui/QToolButton>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     QToolButton *createToolButton(QWidget *parent, Qt::ArrowType at, const QString &name) {
          QToolButton *rc =  new QToolButton();
@@ -184,3 +186,5 @@ void QDesignerQ3WidgetStack::slotCurrentChanged(int index)
         }
     }
 }
+
+QT_END_NAMESPACE

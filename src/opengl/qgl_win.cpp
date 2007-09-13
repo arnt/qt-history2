@@ -21,6 +21,7 @@
 #include <qcolormap.h>
 #include <qvarlengtharray.h>
 #include <qdebug.h>
+#include <qcolor.h>
 
 #include <windows.h>
 
@@ -93,6 +94,8 @@ typedef bool (APIENTRY *PFNWGLCHOOSEPIXELFORMATARB)(HDC hdc,
 #define WGL_TYPE_COLORINDEX_ARB        0x202C
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class QGLCmapPrivate
 {
 public:
@@ -119,11 +122,6 @@ public:
 ** Definition of QColorMap class
 **
 ****************************************************************************/
-
-#ifndef QGLCMAP_H
-#define QGLCMAP_H
-
-#include <qcolor.h>
 
 class QGLCmapPrivate;
 
@@ -156,8 +154,6 @@ private:
     void detach();
     QGLCmapPrivate* d;
 };
-
-#endif
 
 
 QGLCmap::QGLCmap(int maxSize) // add a bool prealloc?
@@ -1467,3 +1463,5 @@ void QGLExtensions::init()
     QGLTempContext temp_ctx;
     init_extensions();
 }
+
+QT_END_NAMESPACE

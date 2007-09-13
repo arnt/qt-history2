@@ -31,6 +31,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QList>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerFormEditorInterface;
 
@@ -108,5 +110,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // PROMOTIONTASKMENU_H

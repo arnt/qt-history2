@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Xml)
 
 class QSourceLocationPrivate;
@@ -59,6 +61,8 @@ QDebug &operator<<(QDebug debug, const QSourceLocation &sourceLocation);
 #endif
 
 Q_DECLARE_TYPEINFO(QSourceLocation, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

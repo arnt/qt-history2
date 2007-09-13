@@ -24,6 +24,8 @@
 typedef float CGFloat;  // Should only not be defined on 32-bit platforms
 #endif
 
+QT_USE_NAMESPACE
+
 @class QNSColorPickerResponder;
 
 @interface QNSColorPickerResponder : NSObject {
@@ -87,6 +89,8 @@ typedef float CGFloat;  // Should only not be defined on 32-bit platforms
     return tmpQColor.rgba();
 }
 @end
+
+QT_BEGIN_NAMESPACE
 
 QRgb macGetRgba(QRgb initial, bool needAlpha, bool *ok, QWidget *parent)
 {
@@ -153,4 +157,7 @@ QColor macGetColor(const QColor &initial, QWidget *parent)
         ret = QColor(rgb);
     return ret;
 }
+
+QT_END_NAMESPACE
+
 #endif

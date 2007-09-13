@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 template<class type>
@@ -106,6 +108,8 @@ Q_OUTOFLINE_TEMPLATE Q3MemArray<type>::operator QVector<type>() const
         vector.append(at(i));
     return vector;
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -14,3 +14,5 @@ target.path = $$[QT_INSTALL_DEMOS]/undo
 sources.files = $$SOURCES $$HEADERS *.pro $$RESOURCES
 sources.path = $$[QT_INSTALL_DEMOS]/undo
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE

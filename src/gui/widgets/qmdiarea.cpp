@@ -136,6 +136,8 @@
 #include <private/qmath_p.h>
 #include <private/qlayoutengine_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // Asserts in debug mode, gives warning otherwise.
 static bool sanityCheck(const QMdiSubWindow * const child, const char *where)
 {
@@ -1880,6 +1882,8 @@ void QMdiArea::setupViewport(QWidget *viewport)
         child->setParent(viewport, child->windowFlags());
     }
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qmdiarea.cpp"
 

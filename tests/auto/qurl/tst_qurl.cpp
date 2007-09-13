@@ -2919,7 +2919,9 @@ void tst_QUrl::nameprep_testsuite_data()
         << QString() << 0 << 0;
 }
 
+QT_BEGIN_NAMESPACE
 extern QString qt_nameprep(const QString &source);
+QT_END_NAMESPACE
 
 void tst_QUrl::nameprep_testsuite()
 {

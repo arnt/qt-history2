@@ -26,6 +26,8 @@
 #include <QtCore/QSysInfo>
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 Math::Math(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo):
@@ -284,5 +286,7 @@ QScriptValueImpl Math::method_tan(QScriptContextPrivate *context,
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

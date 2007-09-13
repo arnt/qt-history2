@@ -17,6 +17,8 @@
 #include <QDir>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 FileWriter *FileWriter::theInstance  = 0;
 
 FileWriter *FileWriter::instance()
@@ -117,3 +119,5 @@ QByteArray detectLineEndings(const QByteArray &array)
         return "\n";
     }
 }
+
+QT_END_NAMESPACE

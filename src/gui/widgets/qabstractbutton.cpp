@@ -23,6 +23,8 @@
 #include "qaccessible.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #define AUTO_REPEAT_DELAY  300
 #define AUTO_REPEAT_INTERVAL 100
 
@@ -347,7 +349,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
     bool exclusive = autoExclusive;
 #endif
     QWidget *f = qApp->focusWidget();
-    QAbstractButton *fb = ::qobject_cast<QAbstractButton *>(f);
+    QAbstractButton *fb = qobject_cast<QAbstractButton *>(f);
     if (!fb || !buttonList.contains(fb))
         return;
 
@@ -1416,5 +1418,6 @@ QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WindowFl
 
     Use shortcut() instead.
 */
-
 #endif
+
+QT_END_NAMESPACE

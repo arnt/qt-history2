@@ -18,6 +18,8 @@
 #include <QtGui/QLabel>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal {
 #endif
@@ -206,3 +208,5 @@ const QFormBuilderStrings &QFormBuilderStrings::instance()
 #ifdef QFORMINTERNAL_NAMESPACE
 } // namespace QFormInternal
 #endif
+
+QT_END_NAMESPACE

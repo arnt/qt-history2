@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 struct Q_CORE_EXPORT QFactoryInterface
@@ -27,7 +29,10 @@ struct Q_CORE_EXPORT QFactoryInterface
     virtual QStringList keys() const = 0;
 };
 
+
 Q_DECLARE_INTERFACE(QFactoryInterface, "com.trolltech.Qt.QFactoryInterface")
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

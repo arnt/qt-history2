@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 class QString;
 class QChar;
 class QXmlCharRange;
@@ -53,5 +57,7 @@ private:
     static bool isIdeographic(const QChar c);
     static bool isCombiningChar(const QChar c);
 };
+
+QT_END_NAMESPACE
 
 #endif

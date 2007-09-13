@@ -20,7 +20,7 @@
 
 #include "tetrixpiece.h"
 
-class QLabel;
+QT_DECLARE_CLASS(QLabel)
 
 class TetrixBoard : public QFrame
 {

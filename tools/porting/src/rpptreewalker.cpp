@@ -13,6 +13,8 @@
 
 #include "rpptreewalker.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace Rpp {
 
 void RppTreeWalker::evaluateItem(const Item *item)
@@ -132,3 +134,5 @@ void RppTreeWalker::evaluateElseDirective(const ElseDirective *directive)
 }
 
 }
+
+QT_END_NAMESPACE

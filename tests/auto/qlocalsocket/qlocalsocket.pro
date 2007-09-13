@@ -1,2 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS = lackey test
+
+DEFINES += QT_USE_USING_NAMESPACE
+

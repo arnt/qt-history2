@@ -14,6 +14,8 @@
 #include <qmousedriverplugin_qws.h>
 #include <qmousetslib_qws.h>
 
+QT_BEGIN_NAMESPACE
+
 class TslibMouseDriver : public QMouseDriverPlugin
 {
 public:
@@ -43,3 +45,5 @@ QWSMouseHandler* TslibMouseDriver::create(const QString &driver,
 
 Q_EXPORT_STATIC_PLUGIN(TslibMouseDriver)
 Q_EXPORT_PLUGIN2(qwstslibmousehandler, TslibMouseDriver)
+
+QT_END_NAMESPACE

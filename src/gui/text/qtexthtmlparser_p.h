@@ -35,6 +35,8 @@
 #include "private/qtextdocument_p.h"
 #include "private/qcssparser_p.h"
 
+QT_BEGIN_NAMESPACE
+
 enum QTextHTMLElements {
     Html_unknown = -1,
     Html_qt = 0,
@@ -283,5 +285,7 @@ protected:
     QVector<QCss::StyleSheet> inlineStyleSheets;
     const QTextDocument *resourceProvider;
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTHTMLPARSER_P_H

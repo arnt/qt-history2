@@ -18,6 +18,8 @@
 
 #include <QtXml/QDomDocument>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class BrushManagerProxyPrivate
@@ -227,5 +229,7 @@ void BrushManagerProxy::setBrushManager(QtBrushManager *manager)
         }
     }
 }
+
+QT_END_NAMESPACE
 
 #include "moc_brushmanagerproxy.cpp"

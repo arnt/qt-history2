@@ -33,6 +33,8 @@
 
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QSPLITTER_DEBUG
 
 /*!
@@ -1775,5 +1777,7 @@ QTextStream& operator>>(QTextStream& ts, QSplitter& splitter)
 }
 #endif // QT_NO_TEXTSTREAM
 //#endif // QT3_SUPPORT
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SPLITTER

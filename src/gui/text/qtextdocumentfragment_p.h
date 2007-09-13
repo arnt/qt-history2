@@ -36,6 +36,8 @@
 #include "QtCore/qvarlengtharray.h"
 #include "QtCore/qdatastream.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTextDocumentFragmentPrivate;
 
 class QTextCopyHelper
@@ -189,5 +191,7 @@ private:
     int currentNodeIdx;
     const QTextHtmlParserNode *currentNode;
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

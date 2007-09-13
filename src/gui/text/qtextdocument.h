@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QTextFormatCollection;
@@ -237,6 +239,8 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextDocument::FindFlags)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

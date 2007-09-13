@@ -24,6 +24,8 @@
 #include <QList>
 #include <QByteArray>
 
+QT_BEGIN_NAMESPACE
+
 class Semantic: public QObject, public TreeWalker
 {
 Q_OBJECT
@@ -95,5 +97,7 @@ private:
     Semantic(const Semantic &source);
     void operator = (const Semantic &source);
 };
+
+QT_END_NAMESPACE
 
 #endif // SEMANTIC_H

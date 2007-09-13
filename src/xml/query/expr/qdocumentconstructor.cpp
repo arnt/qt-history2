@@ -17,6 +17,8 @@
 
 #include "qdocumentconstructor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 DocumentConstructor::DocumentConstructor(const Expression::Ptr &op) : SingleContainer(op)
@@ -81,3 +83,5 @@ DocumentConstructor::accept(const ExpressionVisitor::Ptr &visitor) const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

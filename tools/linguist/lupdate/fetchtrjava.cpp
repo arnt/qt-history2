@@ -24,6 +24,8 @@
 
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 enum { Tok_Eof, Tok_class, Tok_return, Tok_tr,
        Tok_translate, Tok_Ident, Tok_Package,
        Tok_Comment, Tok_String, Tok_Colon, Tok_Dot,
@@ -590,3 +592,5 @@ void lupdateApplication::fetchtr_java( const QString &fileName, MetaTranslator *
     
     delete( yyInTextStream );
 }
+
+QT_END_NAMESPACE

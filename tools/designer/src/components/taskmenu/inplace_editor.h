@@ -17,6 +17,8 @@
 #include <textpropertyeditor_p.h>
 #include "inplace_widget_helper.h"
 
+QT_BEGIN_NAMESPACE
+
 
 class QDesignerFormWindowInterface;
 
@@ -36,5 +38,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // INPLACE_EDITOR_H

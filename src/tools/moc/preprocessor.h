@@ -19,6 +19,8 @@
 #include <QSet>
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 struct Macro
 {
     Symbols symbols;
@@ -67,5 +69,6 @@ private:
     void preprocess(const QByteArray &filename, Symbols &preprocessed);
 };
 
+QT_END_NAMESPACE
 
 #endif // PREPROCESSOR_H

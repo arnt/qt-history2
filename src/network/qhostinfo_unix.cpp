@@ -30,8 +30,12 @@ extern "C" {
 
 #if defined (QT_NO_GETADDRINFO)
 #include <qmutex.h>
+QT_BEGIN_NAMESPACE
 Q_GLOBAL_STATIC(QMutex, getHostByNameMutex)
+QT_END_NAMESPACE
 #endif
+
+QT_BEGIN_NAMESPACE
 
 // Almost always the same. If not, specify in qplatformdefs.h.
 #if !defined(QT_SOCKOPTLEN_T)
@@ -238,3 +242,5 @@ QString QHostInfo::localHostName()
     hostName[sizeof(hostName) - 1] = '\0';
     return QString::fromLocal8Bit(hostName);
 }
+
+QT_END_NAMESPACE

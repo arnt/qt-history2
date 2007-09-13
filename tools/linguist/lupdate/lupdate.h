@@ -1,7 +1,12 @@
+#ifndef QT_LUPDATE_H
+#define QT_LUPDATE_H
+
 #include "metatranslator.h"
 #include "qconsole.h"
 #include <QtCore>
 #include <stdio.h>
+
+QT_BEGIN_NAMESPACE
 
 class lupdateApplication : public QCoreApplication
 {
@@ -38,6 +43,8 @@ public:
 
 private:
     const char *m_defaultExtensions;
-
 };
 
+QT_END_NAMESPACE
+
+#endif // QT_LUPDATE_H

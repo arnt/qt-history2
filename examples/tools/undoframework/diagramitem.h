@@ -16,10 +16,10 @@
 
 #include <QGraphicsPolygonItem>
 
-class QGraphicsItem;
-class QGraphicsScene;
-class QGraphicsSceneMouseEvent;
-class QPointF;
+QT_DECLARE_CLASS(QGraphicsItem)
+QT_DECLARE_CLASS(QGraphicsScene)
+QT_DECLARE_CLASS(QGraphicsSceneMouseEvent)
+QT_DECLARE_CLASS(QPointF)
 
 class DiagramItem : public QGraphicsPolygonItem
 {

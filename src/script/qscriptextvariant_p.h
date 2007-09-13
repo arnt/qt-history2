@@ -29,6 +29,8 @@
 
 #include "qscriptecmacore_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_SCRIPT
 
 namespace QScript { namespace Ext {
@@ -69,5 +71,8 @@ protected:
 
 } } // namespace QScript::Ext
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif // QSCRIPTEXTVARIANT_P_H

@@ -17,8 +17,8 @@
 #include <QDesignerTaskMenuExtension>
 #include <QExtensionFactory>
 
-class QAction;
-class QExtensionManager;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QExtensionManager)
 class TicTacToe;
 
 class TicTacToeTaskMenu : public QObject, public QDesignerTaskMenuExtension

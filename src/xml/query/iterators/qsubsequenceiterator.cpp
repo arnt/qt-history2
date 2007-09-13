@@ -17,6 +17,8 @@
 
 #include "qsubsequenceiterator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 SubsequenceIterator::SubsequenceIterator(const Item::Iterator::Ptr &iterator,
@@ -81,3 +83,5 @@ Item::Iterator::Ptr SubsequenceIterator::copy() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

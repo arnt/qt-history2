@@ -16,6 +16,8 @@
 
 #include "ui_listwidgeteditor.h"
 
+QT_BEGIN_NAMESPACE
+
 class QListWidget;
 class QComboBox;
 class QDesignerFormWindowInterface;
@@ -54,5 +56,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // LISTWIDGETEDITOR_H

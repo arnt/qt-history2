@@ -16,11 +16,11 @@
 
 #include <QtGui/qwidget.h>
 
-class QGraphicsScene;
-class QGraphicsView;
-class QLabel;
-class QSlider;
-class QSplitter;
+QT_DECLARE_CLASS(QGraphicsScene)
+QT_DECLARE_CLASS(QGraphicsView)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QSlider)
+QT_DECLARE_CLASS(QSplitter)
 
 class MainWindow : public QWidget
 {

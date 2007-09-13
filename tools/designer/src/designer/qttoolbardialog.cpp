@@ -22,9 +22,9 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
 
+QT_BEGIN_NAMESPACE
 
 class QtFullToolBarManagerPrivate;
-
 
 class QtFullToolBarManager : public QObject
 {
@@ -1851,6 +1851,8 @@ void QtToolBarDialog::hideEvent(QHideEvent *event)
     if (!event->spontaneous())
         d_ptr->clearOld();
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qttoolbardialog.cpp"
 #include "qttoolbardialog.moc"

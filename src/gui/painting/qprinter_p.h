@@ -34,6 +34,8 @@
 #include "QtGui/qprintdialog.h"
 #include "QtCore/qpointer.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPrintEngine;
 
 class QPrinterPrivate
@@ -72,6 +74,8 @@ public:
 
     bool use_default_engine;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER
 

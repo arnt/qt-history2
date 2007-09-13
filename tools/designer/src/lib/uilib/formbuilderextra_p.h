@@ -35,6 +35,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+
 class QObject;
 class QVariant;
 class QWidget;
@@ -142,5 +144,7 @@ struct QFormBuilderStrings {
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_NAMESPACE
 
 #endif // ABSTRACTFORMBUILDERPRIVATE_H

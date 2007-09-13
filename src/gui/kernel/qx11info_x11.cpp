@@ -16,6 +16,8 @@
 #include "qx11info_x11.h"
 #include "qt_x11_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QX11Info
     \brief The QX11Info class provides information about the X display
@@ -506,3 +508,5 @@ bool QX11Info::isCompositingManagerRunning()
 {
     return X11 ? X11->compositingManagerRunning : false;
 }
+
+QT_END_NAMESPACE

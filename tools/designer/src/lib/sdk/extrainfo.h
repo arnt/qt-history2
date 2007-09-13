@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class DomWidget;
 class DomUI;
 class QWidget;
@@ -47,6 +49,7 @@ private:
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerExtraInfoExtension, "com.trolltech.Qt.Designer.ExtraInfo.2")
 
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

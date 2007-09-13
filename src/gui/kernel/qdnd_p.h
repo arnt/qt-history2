@@ -43,6 +43,8 @@
 
 #ifndef QT_NO_DRAGANDDROP
 
+QT_BEGIN_NAMESPACE
+
 class QEventLoop;
 
 class QDragPrivate : public QObjectPrivate
@@ -270,6 +272,8 @@ private:
 };
 
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DRAGANDDROP
 

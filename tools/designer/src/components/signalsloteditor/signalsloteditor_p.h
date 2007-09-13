@@ -33,6 +33,8 @@
 
 #include <connectionedit_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerFormEditorInterface;
 class DomConnection;
@@ -102,5 +104,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // SIGNALSLOTEDITOR_P_H

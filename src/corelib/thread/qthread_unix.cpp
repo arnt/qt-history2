@@ -40,6 +40,7 @@
 #   undef qDebug
 # endif
 # include <CoreServices/CoreServices.h>
+
 # ifdef old_qDebug
 #   undef qDebug
 #   define qDebug QT_NO_QDEBUG_MACRO
@@ -48,6 +49,8 @@
 #endif
 
 #ifndef QT_NO_THREAD
+
+QT_BEGIN_NAMESPACE
 
 static pthread_once_t current_thread_data_once = PTHREAD_ONCE_INIT;
 static pthread_key_t current_thread_data_key;
@@ -616,5 +619,7 @@ void QThread::setPriority(Priority priority)
     pthread_setschedparam(d->thread_id, sched_policy, &param);
 #endif
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_THREAD

@@ -21,6 +21,8 @@
 #include <QtCore/QMap>
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 #if 0
 // pragma for syncqt, don't remove.
 
@@ -77,6 +79,8 @@ private:
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

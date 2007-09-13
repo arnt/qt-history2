@@ -18,12 +18,16 @@
 #include <QtCore/qstringlist.h>
 
 #if !defined(Q_OS_WIN32) || defined(qdoc)
+QT_BEGIN_NAMESPACE
 typedef qint64 Q_PID;
+QT_END_NAMESPACE
 #else
 typedef struct _PROCESS_INFORMATION *Q_PID;
 #endif
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Core)
 
@@ -162,6 +166,8 @@ private:
 };
 
 #endif // QT_NO_PROCESS
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

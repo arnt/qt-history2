@@ -22,6 +22,8 @@
 #include <QX11Info>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 void fn_quit_qvfb(int)
 {
     // pretend that we have quit normally
@@ -37,7 +39,7 @@ void usage( const char *app )
 }
 int qvfb_protocol = 0;
 
-int main( int argc, char *argv[] )
+int runQVfb( int argc, char *argv[] )
 {
     Q_INIT_RESOURCE(qvfb);
 
@@ -116,4 +118,11 @@ int main( int argc, char *argv[] )
     mw.show();
 
     return app.exec();
+}
+
+QT_END_NAMESPACE
+
+int main( int argc, char *argv[] )
+{
+    return QT_ADD_NAMESPACE(runQVfb)(argc, argv);
 }

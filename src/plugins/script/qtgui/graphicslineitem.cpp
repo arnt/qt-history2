@@ -7,6 +7,8 @@
 
 DECLARE_POINTER_METATYPE(QGraphicsLineItem)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
     if (ctx->argumentCount() >= 4) {
@@ -80,3 +82,5 @@ QScriptValue constructGraphicsLineItemClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

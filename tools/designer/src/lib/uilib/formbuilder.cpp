@@ -18,6 +18,8 @@
 
 #include <QtGui/QtGui>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal {
 #endif
@@ -520,3 +522,5 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
 #ifdef QFORMINTERNAL_NAMESPACE
 } // namespace QFormInternal
 #endif
+
+QT_END_NAMESPACE

@@ -13,6 +13,8 @@
 
 #include "qextensionmanager.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QExtensionManager
 
@@ -154,3 +156,5 @@ QObject *QExtensionManager::extension(QObject *object, const QString &iid) const
 
     return 0;
 }
+
+QT_END_NAMESPACE

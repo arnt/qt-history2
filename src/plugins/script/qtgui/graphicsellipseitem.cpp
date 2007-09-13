@@ -4,8 +4,10 @@
 #include <QtGui/QGraphicsEllipseItem>
 #include "../global.h"
 
-DECLARE_POINTER_METATYPE(QGraphicsEllipseItem)
 Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
+DECLARE_POINTER_METATYPE(QGraphicsEllipseItem)
+
+QT_BEGIN_NAMESPACE
 
 DECLARE_GET_SET_METHODS(QGraphicsEllipseItem, QRectF, rect, setRect)
 DECLARE_INT_GET_SET_METHODS(QGraphicsEllipseItem, spanAngle, setSpanAngle)
@@ -48,3 +50,5 @@ QScriptValue constructGraphicsEllipseItemClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

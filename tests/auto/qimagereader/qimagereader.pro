@@ -11,3 +11,6 @@ RESOURCES += qimagereader.qrc
 
 win32-msvc:QMAKE_CXXFLAGS -= -Zm200
 win32-msvc:QMAKE_CXXFLAGS += -Zm800
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -22,6 +22,8 @@
 #include <QtGui/qicon.h>
 #include <private/qlistview_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QUndoModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -437,6 +439,8 @@ QIcon QUndoView::cleanIcon() const
     Q_D(const QUndoView);
     return d->model->cleanIcon();
 }
+
+QT_END_NAMESPACE
 
 #include "qundoview.moc"
 

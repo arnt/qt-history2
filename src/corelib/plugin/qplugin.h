@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 #ifndef Q_EXTERN_C
@@ -31,12 +33,13 @@ QT_MODULE(Core)
 
 typedef QObject *(*QtPluginInstanceFunction)();
 
+void Q_CORE_EXPORT qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunction function);
+
 #define Q_IMPORT_PLUGIN(PLUGIN) \
+        extern QT_ADD_NAMESPACE(QObject) *qt_plugin_instance_##PLUGIN(); \
         class Static##PLUGIN##PluginInstance{ \
         public: \
-                Static##PLUGIN##PluginInstance() {                      \
-                extern void qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunction); \
-                extern QObject *qt_plugin_instance_##PLUGIN(); \
+                Static##PLUGIN##PluginInstance() { \
                 qRegisterStaticPluginInstanceFunction(qt_plugin_instance_##PLUGIN); \
                 } \
         }; \
@@ -44,7 +47,7 @@ typedef QObject *(*QtPluginInstanceFunction)();
 
 #define Q_PLUGIN_INSTANCE(IMPLEMENTATION) \
         { \
-            static QPointer<QObject> _instance; \
+            static QT_ADD_NAMESPACE(QPointer)<QT_ADD_NAMESPACE(QObject)> _instance; \
             if (!_instance)      \
                 _instance = new IMPLEMENTATION; \
             return _instance; \
@@ -59,7 +62,8 @@ typedef QObject *(*QtPluginInstanceFunction)();
 #if defined(QT_STATICPLUGIN)
 
 #  define Q_EXPORT_PLUGIN2(PLUGIN, PLUGINCLASS) \
-            Q_DECL_EXPORT QObject *qt_plugin_instance_##PLUGIN() \
+            Q_DECL_EXPORT QT_ADD_NAMESPACE(QObject) \
+                *qt_plugin_instance_##PLUGIN() \
             Q_PLUGIN_INSTANCE(PLUGINCLASS)
 
 #  define Q_EXPORT_STATIC_PLUGIN2(PLUGIN, PLUGINCLASS) \
@@ -95,12 +99,14 @@ typedef QObject *(*QtPluginInstanceFunction)();
             Q_EXTERN_C Q_DECL_EXPORT \
             const char * Q_STANDARD_CALL qt_plugin_query_verification_data() \
             { return qt_plugin_verification_data; } \
-            Q_EXTERN_C Q_DECL_EXPORT QObject * Q_STANDARD_CALL qt_plugin_instance() \
+            Q_EXTERN_C Q_DECL_EXPORT QT_ADD_NAMESPACE(QObject) * Q_STANDARD_CALL qt_plugin_instance() \
             Q_PLUGIN_INSTANCE(PLUGINCLASS)
 
 #  define Q_EXPORT_STATIC_PLUGIN2(PLUGIN, PLUGINCLASS)
 
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

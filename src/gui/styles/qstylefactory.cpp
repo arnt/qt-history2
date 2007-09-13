@@ -33,9 +33,14 @@
 #include "qwindowsvistastyle.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
+QT_BEGIN_INCLUDE_NAMESPACE
 #  include <private/qt_mac_p.h>
 #  include "qmacstyle_mac.h"
+QT_END_INCLUDE_NAMESPACE
+
 QString qt_mac_get_style_name()
 {
     QString ret;
@@ -201,3 +206,5 @@ QStringList QStyleFactory::keys()
 #endif
     return list;
 }
+
+QT_END_NAMESPACE

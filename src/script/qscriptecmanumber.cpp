@@ -24,6 +24,8 @@
 #include <QtCore/QtDebug>
 #include <QtCore/qnumeric.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 Number::Number(QScriptEnginePrivate *eng):
@@ -183,5 +185,7 @@ QScriptValueImpl Number::method_toPrecision(QScriptContextPrivate *context, QScr
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

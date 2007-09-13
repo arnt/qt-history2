@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 #ifndef QT_NO_SETTINGS
@@ -51,6 +53,8 @@ private:
 };
 
 #endif /* QT_NO_SETTINGS */
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -8,6 +8,8 @@
 
 DECLARE_POINTER_METATYPE(QAbstractGraphicsShapeItem)
 
+QT_BEGIN_NAMESPACE
+
 DECLARE_GET_SET_METHODS(QAbstractGraphicsShapeItem, QBrush, brush, setBrush)
 DECLARE_GET_SET_METHODS(QAbstractGraphicsShapeItem, QPen, pen, setPen)
 
@@ -51,3 +53,5 @@ QScriptValue constructAbstractGraphicsShapeItemClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

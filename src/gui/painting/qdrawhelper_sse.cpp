@@ -15,6 +15,8 @@
 
 #include <private/qdrawhelper_sse_p.h>
 
+QT_BEGIN_NAMESPACE
+
 const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
     comp_func_solid_SourceOver<QSSEIntrinsics>,
     comp_func_solid_DestinationOver<QSSEIntrinsics>,
@@ -89,5 +91,7 @@ void qt_bitmapblit16_sse(QRasterBuffer *rasterBuffer, int x, int y,
                                                         color, src, width,
                                                         height, stride);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_HAVE_SSE

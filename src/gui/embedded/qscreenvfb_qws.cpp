@@ -34,6 +34,8 @@
 #include <qkbddriverfactory_qws.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 class QVFbScreenPrivate
 {
 public:
@@ -358,7 +360,6 @@ void QVFbScreen::setDirty(const QRect& rect)
     d_ptr->hdr->update = d_ptr->hdr->update.united(r);
 }
 
-
-
 #endif // QT_NO_QWS_QVFB
 
+QT_END_NAMESPACE

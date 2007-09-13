@@ -29,6 +29,8 @@ TRANSLATOR qdesigner_internal::GroupBoxTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 GroupBoxTaskMenu::GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent)
@@ -94,3 +96,4 @@ QAction *GroupBoxTaskMenu::preferredEditAction() const
     return m_editTitleAction;
 }
 
+QT_END_NAMESPACE

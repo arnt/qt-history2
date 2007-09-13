@@ -28,6 +28,8 @@
 #  include "private/qmutexpool_p.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #define USE_MALLOC				// comment to use new/delete
 
 #undef NEW
@@ -563,3 +565,5 @@ bool Q3GVector::operator==( const Q3GVector &v ) const
 }
 
 #endif // QT_NO_DATASTREAM
+
+QT_END_NAMESPACE

@@ -45,6 +45,8 @@
 #include "qx11info_x11.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 // old constants that might still be useful...
 static const int motifItemFrame         = 2;    // menu item frame width
 static const int motifSepHeight         = 2;    // separator item height
@@ -2663,4 +2665,6 @@ QPalette QMotifStyle::standardPalette() const
     return palette;
 }
 
-#endif
+QT_END_NAMESPACE
+
+#endif // !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)

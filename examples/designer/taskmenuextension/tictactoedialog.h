@@ -16,7 +16,7 @@
 
 #include <QDialog>
 
-class QDialogButtonBox;
+QT_DECLARE_CLASS(QDialogButtonBox)
 class TicTacToe;
 
 class TicTacToeDialog : public QDialog

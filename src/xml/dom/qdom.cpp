@@ -31,6 +31,8 @@
 #include <qdebug.h>
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
   ### old todo comments -- I don't know if they still apply...
 
@@ -7530,5 +7532,7 @@ void QDomHandler::setDocumentLocator(QXmlLocator *locator)
 {
     this->locator = locator;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DOM

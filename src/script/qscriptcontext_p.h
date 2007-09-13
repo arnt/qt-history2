@@ -23,6 +23,8 @@
 
 #include <QtCore/qnumeric.h>
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -285,6 +287,8 @@ inline QScriptContext::ExecutionState QScriptContextPrivate::state() const
 {
     return m_state;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif

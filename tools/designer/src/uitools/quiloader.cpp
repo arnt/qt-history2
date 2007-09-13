@@ -36,8 +36,13 @@
 #include <QtGui/QFontComboBox>
 #include <private/qobject_p.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef QMap<QString, bool> widget_map;
 Q_GLOBAL_STATIC(widget_map, g_widgets)
+
+class QUiLoader;
+class QUiLoaderPrivate;
 
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
@@ -46,8 +51,8 @@ namespace QFormInternal
 
 class FormBuilderPrivate: public QFormBuilder
 {
-    friend class ::QUiLoader;
-    friend class ::QUiLoaderPrivate;
+    friend class QT_ADD_NAMESPACE(QUiLoader);
+    friend class QT_ADD_NAMESPACE(QUiLoaderPrivate);
     typedef QFormBuilder ParentClass;
 
 public:
@@ -572,3 +577,5 @@ bool QUiLoader::isScriptingEnabled() const
     Q_D(const QUiLoader);
     return d->builder.isScriptingEnabled();
 }
+
+QT_END_NAMESPACE

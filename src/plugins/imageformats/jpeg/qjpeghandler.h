@@ -17,6 +17,8 @@
 #include <QtGui/qimageiohandler.h>
 #include <QtCore/QSize>
 
+QT_BEGIN_NAMESPACE
+
 class QJpegHandler : public QImageIOHandler
 {
 public:
@@ -39,5 +41,7 @@ private:
     QByteArray parameters;
     QSize scaledSize;
 };
+
+QT_END_NAMESPACE
 
 #endif // QJPEGHANDLER_H

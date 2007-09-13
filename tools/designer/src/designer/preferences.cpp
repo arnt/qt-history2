@@ -13,9 +13,13 @@
 
 #include "preferences.h"
 
+QT_BEGIN_NAMESPACE
+
 Preferences::Preferences() :
     m_uiMode(DockedMode),
     m_writingSystem(QFontDatabase::Any),
     m_useFont(false)
 {
 }
+
+QT_END_NAMESPACE

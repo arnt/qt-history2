@@ -27,6 +27,8 @@
 #include "qtimer.h"
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
 static const int defaultShowTime    = 4000;
@@ -851,5 +853,7 @@ void Q3ProgressDialog::forceShow()
     d->shown_once = true;
 }
 
+
+QT_END_NAMESPACE
 
 #endif

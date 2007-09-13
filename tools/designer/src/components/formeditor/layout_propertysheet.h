@@ -19,6 +19,8 @@
 
 #include <QtGui/QLayout>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class LayoutPropertySheet: public QDesignerPropertySheet
@@ -39,5 +41,7 @@ private:
 
 typedef QDesignerPropertySheetFactory<QLayout, LayoutPropertySheet>  LayoutPropertySheetFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // LAYOUT_PROPERTYSHEET_H

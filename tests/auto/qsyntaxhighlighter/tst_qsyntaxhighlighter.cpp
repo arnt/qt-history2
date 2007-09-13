@@ -112,12 +112,14 @@ public:
             QString highlightedText;
 };
 
+QT_BEGIN_NAMESPACE
 static bool operator==(const QTextLayout::FormatRange &lhs, const QTextLayout::FormatRange &rhs)
 {
     return lhs.start == rhs.start
         && lhs.length == rhs.length
         && lhs.format == rhs.format;
 }
+QT_END_NAMESPACE
 
 void tst_QSyntaxHighlighter::basic()
 {

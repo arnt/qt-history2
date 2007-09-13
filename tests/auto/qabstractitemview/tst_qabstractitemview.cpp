@@ -693,7 +693,9 @@ void tst_QAbstractItemView::persistentEditorFocus()
 #if !defined(Q_OS_MAC) && !defined(Q_OS_WIN)
 
 #if defined(Q_WS_X11)
+QT_BEGIN_NAMESPACE
 extern void qt_x11_wait_for_window_manager(QWidget *w);
+QT_END_NAMESPACE
 #endif
 
 #if 0

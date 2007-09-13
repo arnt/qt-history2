@@ -17,17 +17,18 @@
 #include <QGraphicsPixmapItem>
 #include <QList>
 
-class QPixmap;
-class QGraphicsItem;
-class QGraphicsScene;
-class QTextEdit;
-class QGraphicsSceneMouseEvent;
-class QMenu;
-class QGraphicsSceneContextMenuEvent;
-class QPainter;
-class QStyleOptionGraphicsItem;
-class QWidget;
-class QPolygonF;
+QT_DECLARE_CLASS(QPixmap)
+QT_DECLARE_CLASS(QGraphicsItem)
+QT_DECLARE_CLASS(QGraphicsScene)
+QT_DECLARE_CLASS(QTextEdit)
+QT_DECLARE_CLASS(QGraphicsSceneMouseEvent)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QGraphicsSceneContextMenuEvent)
+QT_DECLARE_CLASS(QPainter)
+QT_DECLARE_CLASS(QStyleOptionGraphicsItem)
+QT_DECLARE_CLASS(QWidget)
+QT_DECLARE_CLASS(QPolygonF)
+
 class Arrow;
 
 class DiagramItem : public QGraphicsPolygonItem

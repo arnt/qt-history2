@@ -40,6 +40,8 @@
 #include "private/qpdf_p.h"
 #include "private/qpaintengine_p.h"
 
+QT_BEGIN_NAMESPACE
+
 // #define USE_NATIVE_GRADIENTS
 
 class QImage;
@@ -154,6 +156,8 @@ private:
     QHash<uint, uint> alphaCache;
 };
 
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER
+
 #endif // QPRINTENGINE_PDF_P_H

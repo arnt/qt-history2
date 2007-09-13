@@ -23,8 +23,8 @@
 #include <qshortcut.h>
 
 class AccelForm;
-class QMainWindow;
-class QTextEdit;
+QT_DECLARE_CLASS(QMainWindow)
+QT_DECLARE_CLASS(QTextEdit)
 
 
 //TESTED_CLASS=
@@ -123,6 +123,7 @@ protected:
     Result ambigResult;
 };
 
+QT_BEGIN_NAMESPACE
 template<> struct QMetaTypeId<tst_QShortcut::Widget>
 { enum { Defined = 1 }; static inline int qt_metatype_id() { return QMetaType::Int; } };
 template<> struct QMetaTypeId<tst_QShortcut::Result>
@@ -133,6 +134,7 @@ template<> struct QMetaTypeId<tst_QShortcut::Action>
 #ifdef Q_WS_X11
     extern void qt_x11_wait_for_window_manager( QWidget* w );
 #endif
+QT_END_NAMESPACE
 
 class TestEdit : public QTextEdit
 {

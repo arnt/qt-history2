@@ -28,6 +28,8 @@
 #include "shared_global_p.h"
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -57,6 +59,9 @@ private:
     struct CodeDialogPrivate;
     CodeDialogPrivate *m_impl;
 };
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // CODEPREVIEWDIALOG_H

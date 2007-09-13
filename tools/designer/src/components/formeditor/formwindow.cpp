@@ -69,6 +69,8 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <QtGui/QTabWidget>
 #include <QtXml/QDomDocument>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
 class BlockSelection
 {
@@ -2481,3 +2483,5 @@ QEditorFormBuilder *FormWindow::createFormBuilder()
 }
 
 } // namespace
+
+QT_END_NAMESPACE

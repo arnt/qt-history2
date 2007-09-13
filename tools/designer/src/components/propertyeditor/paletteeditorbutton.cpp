@@ -20,6 +20,8 @@ TRANSLATOR qdesigner_internal::PaletteEditorButton
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 PaletteEditorButton::PaletteEditorButton(QDesignerFormEditorInterface *core, const QPalette &palette, QWidget *parent)
@@ -58,3 +60,5 @@ void PaletteEditorButton::showPaletteEditor()
         emit paletteChanged(m_palette);
     }
 }
+
+QT_END_NAMESPACE

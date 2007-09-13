@@ -14,3 +14,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/activeqt/hierarchy
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS hierarchy.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/activeqt/hierarchy
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

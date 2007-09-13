@@ -40,6 +40,8 @@
 #include <qevent.h>
 #include <qscrollbar.h>
 
+QT_BEGIN_NAMESPACE
+
 class QColumnViewPreviewColumn : public QAbstractItemView {
 
 public:
@@ -148,5 +150,7 @@ public:
 };
 #endif // QT_NO_QCOLUMNVIEW
 
+
+QT_END_NAMESPACE
 #endif //QCOLUMNVIEW_P_H
 

@@ -7,3 +7,6 @@ TARGET = "one space"
 
 # no install rule for application used by test
 INSTALLS =
+
+DEFINES += QT_USE_USING_NAMESPACE
+

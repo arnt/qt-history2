@@ -15,6 +15,8 @@
 
 #include "qgenericsequencetype_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 GenericSequenceType::GenericSequenceType(const ItemType::Ptr &iType,
@@ -40,3 +42,5 @@ ItemType::Ptr GenericSequenceType::itemType() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

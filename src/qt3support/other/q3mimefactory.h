@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_MIMEFACTORY
@@ -64,6 +66,8 @@ Q_COMPAT_EXPORT QPixmap qPixmapFromMimeSource(const QString &abs_name);
 Q_COMPAT_EXPORT QImage qImageFromMimeSource(const QString &abs_name);
 
 #endif // QT_NO_MIMEFACTORY
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

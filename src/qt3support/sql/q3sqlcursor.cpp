@@ -24,6 +24,8 @@
 #include "q3sqlrecordinfo.h"
 #include "q3sqlfieldinfo.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3SqlCursorPrivate
 {
 public:
@@ -1558,5 +1560,7 @@ bool Q3SqlCursor::last()
     sync();
     return res;
 }
+
+QT_END_NAMESPACE
 
 #endif

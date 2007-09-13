@@ -18,6 +18,8 @@
 #include <qdebug.h>
 #include <private/qapplication_p.h>
 
+QT_BEGIN_NAMESPACE
+
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
@@ -288,3 +290,5 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
         return eventNotHandledErr;
     return noErr; //we eat the event
 }
+
+QT_END_NAMESPACE

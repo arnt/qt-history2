@@ -18,6 +18,8 @@
 #include <qpainter.h>
 #include <private/qtablewidget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
     : QAbstractTableModel(parent),
       prototype(0),
@@ -789,7 +791,7 @@ void QTableModel::setItemPrototype(const QTableWidgetItem *item)
 
 QStringList QTableModel::mimeTypes() const
 {
-    const QTableWidget *view = ::qobject_cast<const QTableWidget*>(QObject::parent());
+    const QTableWidget *view = qobject_cast<const QTableWidget*>(QObject::parent());
     return (view ? view->mimeTypes() : QStringList());
 }
 
@@ -803,7 +805,7 @@ QMimeData *QTableModel::mimeData(const QModelIndexList &indexes) const
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
         items << item(indexes.at(i));
-    const QTableWidget *view = ::qobject_cast<const QTableWidget*>(QObject::parent());
+    const QTableWidget *view = qobject_cast<const QTableWidget*>(QObject::parent());
 
     // cachedIndexes is a little hack to avoid copying from QModelIndexList to
     // QList<QTreeWidgetItem*> and back again in the view
@@ -824,13 +826,13 @@ bool QTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
         column = 0;
     }
 
-    QTableWidget *view = ::qobject_cast<QTableWidget*>(QObject::parent());
+    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
     return (view ? view->dropMimeData(row, column, data, action) : false);
 }
 
 Qt::DropActions QTableModel::supportedDropActions() const
 {
-    const QTableWidget *view = ::qobject_cast<const QTableWidget*>(QObject::parent());
+    const QTableWidget *view = qobject_cast<const QTableWidget*>(QObject::parent());
     return (view ? view->supportedDropActions() : Qt::DropActions(Qt::IgnoreAction));
 }
 
@@ -1079,7 +1081,7 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 void QTableWidgetItem::setFlags(Qt::ItemFlags aflags)
 {
     itemFlags = aflags;
-    if (QTableModel *model = (view ? ::qobject_cast<QTableModel*>(view->model()) : 0))
+    if (QTableModel *model = (view ? qobject_cast<QTableModel*>(view->model()) : 0))
         model->itemChanged(this);
 }
 
@@ -1318,7 +1320,7 @@ QTableWidgetItem::QTableWidgetItem(const QIcon &icon, const QString &text, int t
 */
 QTableWidgetItem::~QTableWidgetItem()
 {
-    if (QTableModel *model = (view ? ::qobject_cast<QTableModel*>(view->model()) : 0))
+    if (QTableModel *model = (view ? qobject_cast<QTableModel*>(view->model()) : 0))
         model->removeItem(this);
     view = 0;
     delete d;
@@ -1353,7 +1355,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     }
     if (!found)
         values.append(QWidgetItemData(role, value));
-    if (QTableModel *model = (view ? ::qobject_cast<QTableModel*>(view->model()) : 0))
+    if (QTableModel *model = (view ? qobject_cast<QTableModel*>(view->model()) : 0))
         model->itemChanged(this);
 }
 
@@ -2647,5 +2649,8 @@ void QTableWidget::dropEvent(QDropEvent *event) {
 }
 #endif
 
+QT_END_NAMESPACE
+
 #include "moc_qtablewidget.cpp"
+
 #endif // QT_NO_TABLEWIDGET

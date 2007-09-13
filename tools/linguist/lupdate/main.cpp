@@ -13,6 +13,8 @@
 
 #include "lupdate.h"
 
+QT_USE_NAMESPACE
+
 int main( int argc, char **argv )
 {
     lupdateApplication lupdate(argc, argv);

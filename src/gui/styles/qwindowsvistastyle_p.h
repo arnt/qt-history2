@@ -56,6 +56,8 @@
 #include <qtreeview.h>
 #include <qbasictimer.h>
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(SCHEMA_VERIFY_VSSYM32)
 #define TMT_ANIMATIONDURATION       5006
 #define TMT_TRANSITIONDURATIONS     6000
@@ -176,5 +178,8 @@ private:
     QWidget *treeViewHelper;
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_STYLE_WINDOWSVISTA
+
 #endif // QWINDOWSVISTASTYLE_P_H

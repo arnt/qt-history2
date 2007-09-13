@@ -31,6 +31,8 @@ TRANSLATOR qdesigner_internal::ResourceModel
 
 #include <QtXml/QDomDocument>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 /******************************************************************************
@@ -803,3 +805,5 @@ QMimeData *ResourceModel::mimeData(const QModelIndexList & indexes) const
     return md.toMimeData();
 }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

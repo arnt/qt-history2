@@ -14,7 +14,10 @@
 #ifndef INVOKEMETHOD_H
 #define INVOKEMETHOD_H
 
+#include <QtCore/qglobal.h>
 #include "ui_invokemethod.h"
+
+QT_BEGIN_NAMESPACE
 
 class QAxBase;
 
@@ -36,5 +39,7 @@ protected slots:
 private:
     QAxBase *activex;
 };
+
+QT_END_NAMESPACE
 
 #endif // INVOKEMETHOD_H

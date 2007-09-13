@@ -14,6 +14,8 @@
 #include "qstyleplugin.h"
 #include "qstyle.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QStylePlugin
     \brief The QStylePlugin class provides an abstract base for custom QStyle plugins.
@@ -82,3 +84,5 @@ QStylePlugin::QStylePlugin(QObject *parent)
 QStylePlugin::~QStylePlugin()
 {
 }
+
+QT_END_NAMESPACE

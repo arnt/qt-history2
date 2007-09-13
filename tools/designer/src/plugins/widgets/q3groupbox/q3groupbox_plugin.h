@@ -20,6 +20,8 @@
 #include <QtGui/QLayout>
 #include <QtCore/qplugin.h>
 
+QT_BEGIN_NAMESPACE
+
 class Q3GroupBoxPlugin: public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
@@ -59,5 +61,7 @@ public:
 private:
     bool m_initialized;
 };
+
+QT_END_NAMESPACE
 
 #endif

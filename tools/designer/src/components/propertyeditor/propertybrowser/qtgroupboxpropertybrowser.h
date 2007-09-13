@@ -16,6 +16,8 @@
 
 #include "qtpropertybrowser.h"
 
+QT_BEGIN_NAMESPACE
+
 class QtGroupBoxPropertyBrowser : public QtAbstractPropertyBrowser
 {
     Q_OBJECT
@@ -38,5 +40,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed())
 
 };
+
+QT_END_NAMESPACE
 
 #endif

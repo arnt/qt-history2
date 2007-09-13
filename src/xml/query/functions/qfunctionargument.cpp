@@ -13,6 +13,8 @@
 
 #include "qfunctionargument_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 FunctionArgument::FunctionArgument(const QName nameP,
@@ -34,3 +36,5 @@ SequenceType::Ptr FunctionArgument::type() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

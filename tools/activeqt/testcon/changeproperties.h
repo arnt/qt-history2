@@ -14,7 +14,10 @@
 #ifndef CHANGEPROPERTIES_H
 #define CHANGEPROPERTIES_H
 
+#include <QtCore/qglobal.h>
 #include "ui_changeproperties.h"
+
+QT_BEGIN_NAMESPACE
 
 class QAxWidget;
 
@@ -35,8 +38,9 @@ protected slots:
     void on_buttonSet_clicked();
 
 private:
-
     QAxWidget *activex;
 };
+
+QT_END_NAMESPACE
 
 #endif // CHANGEPROPERTIES_H

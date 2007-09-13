@@ -8,3 +8,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/mainwindows/sdi
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS sdi.pro images
 sources.path = $$[QT_INSTALL_EXAMPLES]/mainwindows/sdi
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

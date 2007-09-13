@@ -36,6 +36,8 @@
 #include <private/qdialog_p.h>
 #include <private/qfont_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QFontListView : public QListView
 {
     Q_OBJECT
@@ -864,7 +866,9 @@ QFont QFontDialog::font() const
     The \a name parameter is ignored.
 */
 
+QT_END_NAMESPACE
+
 #include "qfontdialog.moc"
 #include "moc_qfontdialog.cpp"
 
-#endif
+#endif // QT_NO_FONTDIALOG

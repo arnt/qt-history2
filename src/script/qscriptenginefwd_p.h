@@ -36,6 +36,8 @@
 #include "qscriptobjectfwd_p.h"
 #include "qscriptclassinfo_p.h"
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -473,6 +475,8 @@ public: // attributes
     QScriptEngine *q_ptr;
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif

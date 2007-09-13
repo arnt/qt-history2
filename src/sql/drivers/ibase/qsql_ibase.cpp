@@ -27,6 +27,10 @@
 #include <limits.h>
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 #define FBVERSION SQL_DIALECT_V6
 
 #ifndef SQLDA_CURRENT_VERSION
@@ -1736,3 +1740,5 @@ void QIBaseDriver::qHandleEventNotification(void *updatedResultBuffer)
         }
     }
 }
+
+QT_END_NAMESPACE

@@ -14,3 +14,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/sql/masterdetail
 sources.files = $$SOURCES *.h $$RESOURCES $$FORMS masterdetail.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/sql/masterdetail
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

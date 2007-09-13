@@ -26,6 +26,8 @@
 #include "qfont_p.h"
 #include "private/qunicodetables_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #define MAX_ENTITY 258
 static const struct QTextHtmlEntity { const char *name; quint16 code; } entities[MAX_ENTITY]= {
     { "AElig", 0x00c6 },
@@ -417,7 +419,7 @@ static bool operator<(const QTextHtmlElement &e, const QString &str)
     return QLatin1String(e.name) < str;
 }
 
-static const QTextHtmlElement *lookupElement(const QString &element)
+static const QTextHtmlElement *lookupElementHelper(const QString &element)
 {
     const QTextHtmlElement *start = &elements[0];
     const QTextHtmlElement *end = &elements[Html_NumElements];
@@ -429,7 +431,7 @@ static const QTextHtmlElement *lookupElement(const QString &element)
 
 int QTextHtmlParser::lookupElement(const QString &element)
 {
-    const QTextHtmlElement *e = ::lookupElement(element);
+    const QTextHtmlElement *e = lookupElementHelper(element);
     if (!e)
         return -1;
     return e->id;
@@ -637,7 +639,7 @@ void QTextHtmlParser::parseTag()
     // parse tag name
     node->tag = parseWord().toLower();
 
-    const QTextHtmlElement *elem = ::lookupElement(node->tag);
+    const QTextHtmlElement *elem = lookupElementHelper(node->tag);
     if (elem) {
         node->id = elem->id;
         node->displayMode = elem->displayMode;
@@ -1774,3 +1776,5 @@ bool QTextHtmlParser::nodeIsChildOf(int i, QTextHTMLElements id) const
     }
     return false;
 }
+
+QT_END_NAMESPACE

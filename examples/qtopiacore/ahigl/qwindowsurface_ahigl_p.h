@@ -29,7 +29,7 @@
 #include <GLES/gl.h>
 #include <GLES/egl.h>
 
-class QAhiGLWindowSurfacePrivate;
+QT_DECLARE_CLASS(QAhiGLWindowSurfacePrivate)
 
 class QAhiGLWindowSurface : public QWSGLWindowSurface
 {

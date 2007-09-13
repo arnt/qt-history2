@@ -21,6 +21,8 @@
 
 #include <QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 /**
  * @short Enables detailed parser debug output.
  *
@@ -54,5 +56,7 @@
 #   define Patternist_TOKENIZER_MSG(msg) do{}while(0)
 #endif
 
+
+QT_END_NAMESPACE
 #endif
 // vim: et:ts=4:sw=4:sts=4

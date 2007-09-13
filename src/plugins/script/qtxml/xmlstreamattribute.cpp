@@ -8,6 +8,8 @@ Q_DECLARE_METATYPE(QXmlStreamAttribute)
 Q_DECLARE_METATYPE(QXmlStreamAttribute*)
 Q_DECLARE_METATYPE(QStringRef)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newXmlStreamAttribute(QScriptEngine *eng, const QXmlStreamAttribute &attr)
 {
     return eng->newVariant(qVariantFromValue(attr));
@@ -92,3 +94,5 @@ QScriptValue constructXmlStreamAttributeClass(QScriptEngine *eng)
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
     return ctorFun;
 }
+
+QT_END_NAMESPACE

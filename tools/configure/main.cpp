@@ -18,7 +18,9 @@
 
 #include "configureapp.h"
 
-int main( int argc, char** argv )
+QT_BEGIN_NAMESPACE
+
+int runConfigure( int argc, char** argv )
 {
     Configure app( argc, argv );
     if (!app.isOk())
@@ -71,4 +73,12 @@ int main( int argc, char** argv )
 	app.showSummary();
 
     return 0;
+}
+
+QT_END_NAMESPACE
+
+int main( int argc, char** argv )
+{
+    QT_USE_NAMESPACE
+    return runConfigure(argc, argv);
 }

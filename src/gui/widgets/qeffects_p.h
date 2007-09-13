@@ -30,6 +30,8 @@
 
 #ifndef QT_NO_EFFECTS
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 
 struct QEffects
@@ -46,6 +48,8 @@ struct QEffects
 
 extern void Q_GUI_EXPORT qScrollEffect(QWidget*, QEffects::DirFlags dir = QEffects::DownScroll, int time = -1);
 extern void Q_GUI_EXPORT qFadeEffect(QWidget*, int time = -1);
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_EFFECTS
 

@@ -19,6 +19,8 @@
 #include "qvariant.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSvgIOHandlerPrivate
 {
 public:
@@ -146,3 +148,5 @@ bool QSvgIOHandler::canRead(QIODevice *device)
     QByteArray contents = device->peek(80);
     return contents.contains("<svg");
 }
+
+QT_END_NAMESPACE

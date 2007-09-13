@@ -20,6 +20,8 @@
 
 #include "codemarker.h"
 
+QT_BEGIN_NAMESPACE
+
 class PlainCodeMarker : public CodeMarker
 {
 public:
@@ -43,5 +45,7 @@ public:
     QList<Section> sections(const InnerNode *innerNode, SynopsisStyle style, Status status);
     const Node *resolveTarget(const QString &target, const Tree *tree, const Node *relative);
 };
+
+QT_END_NAMESPACE
   
 #endif

@@ -50,6 +50,8 @@
 #  endif
 #endif // Q_OS_SOLARIS || QT_LSB
 
+QT_BEGIN_NAMESPACE
+
 /***********************************************************************
  *
  * QWSSocket
@@ -245,5 +247,7 @@ QWSSocket *QWSServerSocket::nextPendingConnection()
 }
 
 #endif // QT_NO_SXE
+
+QT_END_NAMESPACE
 
 #endif  //QT_NO_QWS_MULTIPROCESS

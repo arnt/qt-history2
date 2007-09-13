@@ -32,6 +32,8 @@
 #include "qaccessible.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class QDialPrivate : public QAbstractSliderPrivate
 {
     Q_DECLARE_PUBLIC(QDial)
@@ -482,5 +484,6 @@ bool QDial::event(QEvent *e)
     Use QAbstractSlider::sliderReleased() instead.
 */
 
+QT_END_NAMESPACE
 
 #endif // QT_NO_DIAL

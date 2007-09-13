@@ -18,11 +18,11 @@
 
 #include "echointerface.h"
 
-class QString;
-class QLineEdit;
-class QLabel;
-class QPushButton;
-class QGridLayout;
+QT_DECLARE_CLASS(QString)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QGridLayout)
 
 class EchoWindow : public QWidget
 {

@@ -16,11 +16,11 @@
 
 #include <QWidget>
 
-class QDialogButtonBox;
-class QLabel;
-class QMimeData;
-class QPushButton;
-class QTableWidget;
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QMimeData)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTableWidget)
 class DropArea;
 
 class DropSiteWindow : public QWidget

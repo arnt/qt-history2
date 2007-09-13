@@ -19,7 +19,13 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qaction.h>
 
+#ifdef QT3_SUPPORT
+#include <QtGui/qpixmap.h>
+#endif
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Gui)
 
@@ -29,7 +35,6 @@ class QMenuPrivate;
 class QStyleOptionMenuItem;
 #ifdef QT3_SUPPORT
 class QMenuItem;
-#include <QtGui/qpixmap.h>
 #endif
 
 class Q_GUI_EXPORT QMenu : public QWidget
@@ -374,6 +379,8 @@ private:
 };
 
 #endif // QT_NO_MENU
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

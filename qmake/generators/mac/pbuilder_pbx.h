@@ -16,6 +16,8 @@
 
 #include "unixmake.h"
 
+QT_BEGIN_NAMESPACE
+
 class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 {
     bool writingUnixMakefileGenerator;
@@ -52,5 +54,7 @@ protected:
 
 inline ProjectBuilderMakefileGenerator::~ProjectBuilderMakefileGenerator()
 { }
+
+QT_END_NAMESPACE
 
 #endif // PBUILDER_PBX_H

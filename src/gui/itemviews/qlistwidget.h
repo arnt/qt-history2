@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_LISTWIDGET
@@ -297,6 +299,8 @@ inline bool QListWidgetItem::isHidden() const
 { return (view ? view->isItemHidden(this) : false); }
 
 #endif // QT_NO_LISTWIDGET
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

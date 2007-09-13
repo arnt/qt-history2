@@ -7,3 +7,6 @@ TEMPLATE = app
 
 # Input
 SOURCES += tst_qstyleoption.cpp
+
+DEFINES += QT_USE_USING_NAMESPACE
+

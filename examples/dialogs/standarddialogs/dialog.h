@@ -16,9 +16,9 @@
 
 #include <QDialog>
 
-class QCheckBox;
-class QLabel;
-class QErrorMessage;
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QErrorMessage)
 
 class Dialog : public QDialog
 {

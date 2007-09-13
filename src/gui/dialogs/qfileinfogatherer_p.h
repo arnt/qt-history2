@@ -35,6 +35,8 @@
 #include <qstack.h>
 #include <qdir.h>
 
+QT_BEGIN_NAMESPACE
+
 class QExtendedInformation {
 public:
     enum Type { Dir, File, System };
@@ -135,5 +137,7 @@ private:
 };
 #endif // QT_NO_FILESYSTEMWATCHER
 
+
+QT_END_NAMESPACE
 #endif // QFILEINFOGATHERER_H
 

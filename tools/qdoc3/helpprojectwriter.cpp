@@ -19,6 +19,8 @@
 #include "node.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 HelpProjectWriter::HelpProjectWriter(const Config &config, const QString &defaultFileName)
 {
     // The output directory should already have been checked by the calling
@@ -239,3 +241,5 @@ void HelpProjectWriter::generate(const Tree *tre)
     writer.writeEndDocument();
     file.close();
 }
+
+QT_END_NAMESPACE

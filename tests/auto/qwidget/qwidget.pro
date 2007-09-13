@@ -9,3 +9,6 @@ aix-g++*:QMAKE_CXXFLAGS+=-fpermissive
 
 CONFIG += x11inc
 win32: LIBS += -luser32 -lgdi32
+
+DEFINES += QT_USE_USING_NAMESPACE
+

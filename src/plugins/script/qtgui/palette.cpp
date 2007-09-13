@@ -7,6 +7,8 @@
 Q_DECLARE_METATYPE(QPalette)
 Q_DECLARE_METATYPE(QPalette*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newPalette(QScriptEngine *eng, const QPalette &palette)
 {
     return eng->newVariant(qVariantFromValue(palette));
@@ -346,3 +348,5 @@ QScriptValue constructPaletteClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

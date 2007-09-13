@@ -20,6 +20,8 @@
 // for normalizeTypeInternal
 #include <private/qmetaobject_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // only moc needs this function
 static QByteArray normalizeType(const char *s, bool fixScope = false)
 {
@@ -709,11 +711,14 @@ void Moc::generate(FILE *out)
             " much.)\"\n", QT_VERSION_STR);
     fprintf(out, "#endif\n\n");
 
+    fprintf(out, "QT_BEGIN_MOC_NAMESPACE\n");
 
     for (i = 0; i < classList.size(); ++i) {
         Generator generator(&classList[i], metaTypes, out);
         generator.generateCode();
     }
+
+    fprintf(out, "QT_END_MOC_NAMESPACE\n");
 }
 
 
@@ -1144,3 +1149,5 @@ void Moc::checkSuperClasses(ClassDef *def)
     }
 }
 
+
+QT_END_NAMESPACE

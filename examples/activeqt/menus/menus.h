@@ -16,7 +16,7 @@
 
 #include <QMainWindow>
 
-class QTextEdit;
+QT_DECLARE_CLASS(QTextEdit)
 
 class QMenus : public QMainWindow
 {

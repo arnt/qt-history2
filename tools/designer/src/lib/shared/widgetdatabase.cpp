@@ -27,6 +27,8 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/QMetaProperty>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { debugWidgetDataBase = 0 };
 }
@@ -533,3 +535,5 @@ QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList
     return rc;
 }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

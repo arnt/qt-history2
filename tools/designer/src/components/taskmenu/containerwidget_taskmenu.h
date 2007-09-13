@@ -19,6 +19,8 @@
 #include <qdesigner_taskmenu_p.h>
 #include <QtDesigner/default_extensionfactory.h>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerFormEditorInterface;
 class QDesignerContainerExtension;
@@ -69,5 +71,7 @@ protected:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // CONTAINERWIDGER_TASKMENU_H

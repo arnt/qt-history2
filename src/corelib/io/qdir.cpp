@@ -29,6 +29,8 @@
 #include "../kernel/qcoreglobaldata_p.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 static QString driveSpec(const QString &path)
 {
 #ifdef Q_OS_WIN
@@ -2488,3 +2490,5 @@ QDebug operator<<(QDebug debug, const QDir &dir)
 #endif
 
 #endif
+
+QT_END_NAMESPACE

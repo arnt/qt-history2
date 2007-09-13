@@ -18,7 +18,7 @@
 #include <QTimer>
 #include <QTreeWidget>
 
-class QSettings;
+QT_DECLARE_CLASS(QSettings)
 
 class SettingsTree : public QTreeWidget
 {

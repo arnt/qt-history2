@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QByteArray;
@@ -387,6 +389,8 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QMap<Key, T
 }
 
 #endif // QT_NO_DATASTREAM
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -29,3 +29,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS widgets.pro README
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

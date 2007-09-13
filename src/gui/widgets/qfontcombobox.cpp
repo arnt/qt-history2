@@ -23,6 +23,10 @@
 #include <private/qcombobox_p.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
+extern QObject *qt_fontdatabase_private();
+
 static QFontDatabase::WritingSystem writingSystemForFont(const QFont &font, bool *hasLatin)
 {
     *hasLatin = true;
@@ -289,7 +293,6 @@ QFontComboBox::QFontComboBox(QWidget *parent)
             this, SLOT(_q_currentChanged(QString)));
 
     // qfontdatabase.cpp
-    extern QObject *qt_fontdatabase_private();
     connect(qt_fontdatabase_private(), SIGNAL(fontDatabaseChanged()),
             this, SLOT(_q_updateModel()));
 }
@@ -414,6 +417,8 @@ QSize QFontComboBox::sizeHint() const
     sz.setWidth(fm.width(QLatin1Char('m'))*14);
     return sz;
 }
+
+QT_END_NAMESPACE
 
 #include "qfontcombobox.moc"
 #include "moc_qfontcombobox.cpp"

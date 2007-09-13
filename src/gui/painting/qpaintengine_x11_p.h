@@ -33,11 +33,13 @@
 #include "private/qpainter_p.h"
 #include "private/qpolygonclipper_p.h"
 
+typedef unsigned long Picture;
+
+QT_BEGIN_NAMESPACE
+
 class QX11PaintEnginePrivate;
 class QFontEngineFT;
 class QXRenderTessellator;
-
-typedef unsigned long Picture;
 
 struct qt_float_point
 {
@@ -199,5 +201,7 @@ public:
     QXRenderTessellator *tessellator;
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QPAINTENGINE_X11_P_H

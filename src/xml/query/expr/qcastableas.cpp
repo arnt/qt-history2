@@ -23,6 +23,8 @@
 
 #include "qcastableas_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 CastableAs::CastableAs(const Expression::Ptr &operand,
@@ -129,3 +131,5 @@ ExpressionVisitorResult::Ptr CastableAs::accept(const ExpressionVisitor::Ptr &vi
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

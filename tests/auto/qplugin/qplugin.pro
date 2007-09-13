@@ -22,3 +22,6 @@ mac {
     tst_qplugin_pro.depends += debugplugin releaseplugin
 } 
 SUBDIRS += tst_qplugin.pro
+
+DEFINES += QT_USE_USING_NAMESPACE
+

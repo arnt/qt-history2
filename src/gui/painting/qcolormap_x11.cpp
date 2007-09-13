@@ -22,6 +22,8 @@
 #include <private/qt_x11_p.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 class QColormapPrivate
 {
 public:
@@ -722,3 +724,4 @@ QColormap &QColormap::operator=(const QColormap &colormap)
     return *this;
 }
 
+QT_END_NAMESPACE

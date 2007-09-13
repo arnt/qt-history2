@@ -29,6 +29,8 @@
 #include <QtCore/qdatetime.h>
 #include <QtCore/qbasictimer.h>
 
+QT_BEGIN_NAMESPACE
+
 class QLabel;
 class QCalendarDateValidator;
 class QFrame;
@@ -71,6 +73,8 @@ private:
 
     QDate m_date;
 };
+
+QT_END_NAMESPACE
 
 #endif
 

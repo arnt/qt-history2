@@ -43,13 +43,15 @@
 #include "private/qwsmanager_p.h"
 #endif
 
-extern QImage qt_imageForBrush(int brushStyle, bool invert); //in qbrush.cpp
-
 #define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
 #define QGL_D_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
 
 #include <stdlib.h>
 #include "qpaintengine_opengl_p.h"
+
+QT_BEGIN_NAMESPACE
+
+extern QImage qt_imageForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 #define QREAL_MAX 9e100
 #define QREAL_MIN -9e100
@@ -4792,5 +4794,7 @@ void QOpenGLPaintEnginePrivate::deleteFragmentPrograms()
     glDeleteProgramsARB(num_fragment_brushes * num_fragment_composition_modes, painter_fragment_programs[0]);
 #endif
 }
+
+QT_END_NAMESPACE
 
 #include "qpaintengine_opengl.moc"

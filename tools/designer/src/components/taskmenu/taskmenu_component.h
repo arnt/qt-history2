@@ -19,6 +19,8 @@
 
 #include <QtCore/QObject>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 
 namespace qdesigner_internal {
@@ -37,5 +39,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // TASKMENU_COMPONENT_H

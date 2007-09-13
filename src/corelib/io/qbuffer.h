@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QObject;
@@ -70,6 +72,8 @@ private:
 
 inline void QBuffer::setData(const char *adata, int alen)
 { setData(QByteArray(adata, alen)); }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

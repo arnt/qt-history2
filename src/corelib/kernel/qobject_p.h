@@ -33,6 +33,8 @@
 #include "QtCore/qreadwritelock.h"
 #include "QtCore/qvariant.h"
 
+QT_BEGIN_NAMESPACE
+
 class QVariant;
 class QThreadData;
 class QObjectConnectionListVector;
@@ -181,5 +183,7 @@ private:
     bool &block;
     bool reset;
 };
+
+QT_END_NAMESPACE
 
 #endif // QOBJECT_P_H

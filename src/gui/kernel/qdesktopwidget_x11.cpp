@@ -19,6 +19,8 @@
 #include "qwidget_p.h"
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 // defined in qwidget_x11.cpp
 extern int qt_x11_create_desktop_on_screen;
 
@@ -307,3 +309,5 @@ void QDesktopWidget::resizeEvent(QResizeEvent *event)
     qt_desktopwidget_workarea_dirty = true;
     QWidget::resizeEvent(event);
 }
+
+QT_END_NAMESPACE

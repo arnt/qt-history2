@@ -18,6 +18,8 @@
 
 #include "qsubstringfns_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Item ContainsFN::evaluateSingleton(const DynamicContext::Ptr &context) const
@@ -141,3 +143,5 @@ Item SubstringAfterFN::evaluateSingleton(const DynamicContext::Ptr &context) con
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

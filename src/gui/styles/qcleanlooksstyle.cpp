@@ -37,6 +37,8 @@
 #include <qtoolbar.h>
 #include <qwizard.h>
 
+QT_BEGIN_NAMESPACE
+
 static const bool UsePixmapCache = true;
 
 enum Direction {
@@ -4739,5 +4741,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
 
     return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_STYLE_CLEANLOOKS || QT_PLUGIN

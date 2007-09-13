@@ -16,6 +16,8 @@
 #include "qpointer.h"
 #include "q3cstring.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3Signal q3signal.h
     \brief The Q3Signal class can be used to send signals for classes
@@ -229,3 +231,5 @@ int Q3Signal::parameter() const
     return val.toInt();
 }
 #endif //QT_NO_VARIANT
+
+QT_END_NAMESPACE

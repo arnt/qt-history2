@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_GRAPHICSVIEW) || (QT_EDITION & QT_MODULE_GRAPHICSVIEW) != QT_MODULE_GRAPHICSVIEW
@@ -269,6 +271,8 @@ inline QPolygon QGraphicsView::mapFromScene(qreal ax, qreal ay, qreal w, qreal h
 { return mapFromScene(QRectF(ax, ay, w, h)); }
 
 #endif // QT_NO_GRAPHICSVIEW
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

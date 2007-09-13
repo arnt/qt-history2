@@ -21,6 +21,8 @@
 #include <QPainter>
 #include <QGroupBox>
 
+QT_BEGIN_NAMESPACE
+
 PaletteEditorAdvanced::PaletteEditorAdvanced( QWidget * parent,
                                               const char * name, bool modal, Qt::WindowFlags f )
     : PaletteEditorAdvancedBase( parent, name, modal, f ), selectedPalette(0)
@@ -557,3 +559,5 @@ QPalette PaletteEditorAdvanced::getPalette( bool *ok, const QPalette &init,
     delete dlg;
     return result;
 }
+
+QT_END_NAMESPACE

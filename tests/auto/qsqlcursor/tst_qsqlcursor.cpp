@@ -18,7 +18,7 @@
 
 //TESTED_FILES=
 
-class QSqlDatabase;
+QT_DECLARE_CLASS(QSqlDatabase)
 
 class tst_Q3SqlCursor : public QObject
 {

@@ -13,6 +13,8 @@
 
 #include "qwsevent_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 QWSEvent *QWSEvent::factory(int type)
 {
     QWSEvent *event = 0;
@@ -178,4 +180,4 @@ QWSEvent *QWSEvent::factory(int type)
    \internal
 */
 
-
+QT_END_NAMESPACE

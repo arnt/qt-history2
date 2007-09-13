@@ -16,7 +16,7 @@
 
 #include <QWidget>
 
-class QLabel;
+QT_DECLARE_CLASS(QLabel)
 
 class Window : public QWidget
 {

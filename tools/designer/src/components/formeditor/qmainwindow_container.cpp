@@ -23,6 +23,8 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QDockWidget>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 QMainWindowContainer::QMainWindowContainer(QMainWindow *widget, QObject *parent)
@@ -165,3 +167,5 @@ void QMainWindowContainer::remove(int index)
     }
     m_widgets.removeAt(index);
 }
+
+QT_END_NAMESPACE

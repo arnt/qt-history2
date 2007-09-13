@@ -18,3 +18,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/threads/waitconditions
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS waitconditions.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/threads/waitconditions
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

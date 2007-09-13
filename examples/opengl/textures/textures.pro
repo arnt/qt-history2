@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/opengl/textures
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS textures.pro images
 sources.path = $$[QT_INSTALL_EXAMPLES]/opengl/textures
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -18,6 +18,8 @@
 #include <QtCore/QPointer>
 #include <QtGui/QPrinter>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerWorkbench;
 
 class QDir;
@@ -176,5 +178,6 @@ private:
     qdesigner_internal::PreviewManager *m_previewManager;
 };
 
-#endif // QDESIGNER_ACTIONS_H
+QT_END_NAMESPACE
 
+#endif // QDESIGNER_ACTIONS_H

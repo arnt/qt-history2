@@ -13,6 +13,8 @@
 
 #include "token.h"
 
+QT_BEGIN_NAMESPACE
+
 #if defined(DEBUG_MOC)
 const char *tokenTypeName(Token t)
 {
@@ -187,3 +189,4 @@ const char *tokenTypeName(Token t)
 }
 #endif
 
+QT_END_NAMESPACE

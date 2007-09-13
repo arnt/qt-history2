@@ -30,6 +30,8 @@
 #include <qtextobject.h>
 #include <qdesktopservices.h>
 
+QT_BEGIN_NAMESPACE
+
 class QTextBrowserPrivate : public QTextEditPrivate
 {
     Q_DECLARE_PUBLIC(QTextBrowser)
@@ -1114,5 +1116,8 @@ bool QTextBrowser::event(QEvent *e)
     return QTextEdit::event(e);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qtextbrowser.cpp"
+
 #endif // QT_NO_TEXTBROWSER

@@ -16,6 +16,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 #define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
 
 inline bool QBasicAtomicInt::isReferenceCountingNative()
@@ -196,7 +198,9 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValu
 
 #elif defined Q_CC_HPACC
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <ia64/sys/inline.h>
+QT_END_INCLUDE_NAMESPACE
 
 #define FENCE (_Asm_fence)(_UP_CALL_FENCE | _UP_SYS_FENCE | _DOWN_CALL_FENCE | _DOWN_SYS_FENCE)
 
@@ -473,6 +477,8 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueTo
     }
     return returnValue;
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

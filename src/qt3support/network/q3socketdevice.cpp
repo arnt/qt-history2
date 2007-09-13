@@ -17,6 +17,7 @@
 #include "qwindowdefs.h"
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
 
 //#define Q3SOCKETDEVICE_DEBUG
 
@@ -518,4 +519,7 @@ void Q3SocketDevice::setError( Error err )
     \fn bool Q3SocketDevice::isSequential() const
     \internal
 */
+
+QT_END_NAMESPACE
+
 #endif //QT_NO_NETWORK

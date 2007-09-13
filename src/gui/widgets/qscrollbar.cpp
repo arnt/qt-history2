@@ -28,6 +28,8 @@
 #include <limits.h>
 #include "qabstractslider_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QScrollBar
     \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
@@ -681,5 +683,7 @@ Q_GUI_EXPORT QStyleOptionSlider qt_qscrollbarStyleOption(QScrollBar *scrollbar)
     scrollbar->initStyleOption(&opt);
     return opt;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCROLLBAR

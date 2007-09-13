@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QAhiScreenPrivate;
@@ -46,6 +48,8 @@ private:
     AhiDevCtx_t context;
     AhiSurf_t surface;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

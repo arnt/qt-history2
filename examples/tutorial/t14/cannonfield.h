@@ -16,7 +16,7 @@
 
 #include <QWidget>
 
-class QTimer;
+QT_DECLARE_CLASS(QTimer)
 
 class CannonField : public QWidget
 {

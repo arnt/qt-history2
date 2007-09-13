@@ -16,8 +16,8 @@
 
 #include <QWidget>
 
-class QPushButton;
-class QTextEdit;
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTextEdit)
 
 class PreviewWindow : public QWidget
 {

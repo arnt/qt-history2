@@ -31,6 +31,8 @@
 #include <stdio.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 #define shiftWindowsLineBreak() if(current == '\r' && next1 == '\n') shift(1);
 
 
@@ -1032,6 +1034,6 @@ bool QScript::Lexer::scanRegExp()
     return true;
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
-
-

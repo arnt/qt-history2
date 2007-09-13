@@ -16,8 +16,8 @@
 
 #include <QWidget>
 
-class QGroupBox;
-class QRadioButton;
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QRadioButton)
 
 class PrintPanel : public QWidget
 {

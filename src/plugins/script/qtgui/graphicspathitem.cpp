@@ -4,9 +4,11 @@
 #include <QtGui/QGraphicsPathItem>
 #include "../global.h"
 
-DECLARE_POINTER_METATYPE(QGraphicsPathItem)
 Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
 Q_DECLARE_METATYPE(QPainterPath)
+DECLARE_POINTER_METATYPE(QGraphicsPathItem)
+
+QT_BEGIN_NAMESPACE
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -52,3 +54,5 @@ QScriptValue constructGraphicsPathItemClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

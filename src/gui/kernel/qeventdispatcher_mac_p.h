@@ -30,6 +30,8 @@
 #include "private/qeventdispatcher_unix_p.h"
 #include "private/qt_mac_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QEventDispatcherMacPrivate;
 
 class QEventDispatcherMac : public QEventDispatcherUNIX
@@ -98,5 +100,7 @@ public:
     MacSocketHash macSockets;
     QList<EventRef> queuedUserInputEvents;
 };
+
+QT_END_NAMESPACE
 
 #endif // QEVENTDISPATCHER_MAC_P_H

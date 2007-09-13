@@ -45,6 +45,7 @@
 #include <QtGui/QPushButton>
 #include <private/qobject_p.h>
 
+QT_BEGIN_NAMESPACE
 
 static QMenuBar *findMenuBar(const QWidget *widget)
 {
@@ -70,7 +71,7 @@ static QStatusBar *findStatusBar(const QWidget *widget)
     return 0;
 }
 
-static inline QAction *createSeparator(QObject *parent) {
+static inline QAction *createSeparatorHelper(QObject *parent) {
     QAction *rc = new QAction(parent);
     rc->setSeparator(true);
     return rc;
@@ -148,11 +149,11 @@ public:
 
 QDesignerTaskMenuPrivate::QDesignerTaskMenuPrivate(QWidget *widget, QObject *parent) :
     m_widget(widget),
-    m_separator(createSeparator(parent)),
-    m_separator2(createSeparator(parent)),
-    m_separator3(createSeparator(parent)),
-    m_separator4(createSeparator(parent)),
-    m_separator5(createSeparator(parent)),
+    m_separator(createSeparatorHelper(parent)),
+    m_separator2(createSeparatorHelper(parent)),
+    m_separator3(createSeparatorHelper(parent)),
+    m_separator4(createSeparatorHelper(parent)),
+    m_separator5(createSeparatorHelper(parent)),
     m_changeObjectNameAction(new QAction(QDesignerTaskMenu::tr("Change objectName..."), parent)),
     m_changeToolTip(new QAction(QDesignerTaskMenu::tr("Change toolTip..."), parent)),
     m_changeWhatsThis(new QAction(QDesignerTaskMenu::tr("Change whatsThis..."), parent)),
@@ -189,8 +190,9 @@ QDesignerTaskMenu::~QDesignerTaskMenu()
 {
 }
 
-QAction *QDesignerTaskMenu::createSeparator() {
-    return ::createSeparator(this);
+QAction *QDesignerTaskMenu::createSeparator()
+{
+    return createSeparatorHelper(this);
 }
 
 QWidget *QDesignerTaskMenu::widget() const
@@ -445,4 +447,7 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
 
     return new QDesignerTaskMenu(widget, parent);
 }
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

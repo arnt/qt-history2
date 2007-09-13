@@ -26,6 +26,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
 $ mcookie
 3cb86418caef9c95cd211cbf60a1bddd
@@ -528,3 +530,5 @@ bool getNumerusInfo(QLocale::Language language, QLocale::Country country,
 }
 
 #endif // QT_NO_TRANSLATION
+
+QT_END_NAMESPACE

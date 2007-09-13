@@ -21,6 +21,8 @@
 #include "qlayoutengine_p.h"
 #include "qlayout_p.h"
 
+QT_BEGIN_NAMESPACE
+
 struct QGridLayoutSizeTriple
 {
     QSize minS;
@@ -1853,3 +1855,5 @@ void QGridLayout::invalidate()
     Use originCorner() instead.
 */
 
+
+QT_END_NAMESPACE

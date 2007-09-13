@@ -9,3 +9,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/opengl/framebufferobject2
 sources.files = $$SOURCES $$HEADERS $$RESOURCES framebufferobject2.pro *.png
 sources.path = $$[QT_INSTALL_EXAMPLES]/opengl/framebufferobject2
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

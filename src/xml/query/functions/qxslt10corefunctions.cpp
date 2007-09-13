@@ -18,6 +18,8 @@
 
 #include "qxslt10corefunctions_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Expression::Ptr XSLT10CoreFunctions::retrieveExpression(const QName lname,
@@ -70,3 +72,5 @@ FunctionSignature::Ptr XSLT10CoreFunctions::retrieveFunctionSignature(const Name
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

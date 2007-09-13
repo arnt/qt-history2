@@ -18,6 +18,8 @@
 #include <private/qdrawhelper_sse_p.h>
 #include <mm3dnow.h>
 
+QT_BEGIN_NAMESPACE
+
 struct QSSE3DNOWIntrinsics : public QSSEIntrinsics
 {
     static inline void end() {
@@ -100,5 +102,7 @@ void qt_bitmapblit16_sse3dnow(QRasterBuffer *rasterBuffer, int x, int y,
                                                              color, src, width,
                                                              height, stride);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_HAVE_3DNOW && QT_HAVE_SSE

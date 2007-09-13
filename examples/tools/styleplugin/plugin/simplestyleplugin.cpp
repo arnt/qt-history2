@@ -28,4 +28,6 @@ QStyle *SimpleStylePlugin::create(const QString &key)
     return 0;
 }
 
+QT_BEGIN_NAMESPACE
 Q_EXPORT_PLUGIN2(simplestyleplugin, SimpleStylePlugin)
+QT_END_NAMESPACE

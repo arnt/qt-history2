@@ -29,6 +29,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 static const int MaxBits = 8 * sizeof(QSizePolicy::ControlType);
 
 static int unpackControlTypes(QSizePolicy::ControlTypes controls, QSizePolicy::ControlType *array)
@@ -2253,7 +2255,10 @@ int QStyle::layoutSpacingImplementation(QSizePolicy::ControlType /* control1 */,
 }
 
 #if !defined(QT_NO_DEBUG) && !defined(QT_NO_DEBUG_STREAM)
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <QDebug>
+QT_END_INCLUDE_NAMESPACE
+
 QDebug operator<<(QDebug debug, QStyle::State state)
 {
     debug << "QStyle::State(";
@@ -2290,3 +2295,5 @@ QDebug operator<<(QDebug debug, QStyle::State state)
     return debug;
 }
 #endif
+
+QT_END_NAMESPACE

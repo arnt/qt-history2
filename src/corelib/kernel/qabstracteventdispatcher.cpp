@@ -18,6 +18,7 @@
 #include <private/qthread_p.h>
 #include <private/qcoreapplication_p.h>
 
+QT_BEGIN_NAMESPACE
 
 static QBasicAtomicInt timerId = Q_BASIC_ATOMIC_INITIALIZER(1);
 
@@ -327,3 +328,5 @@ bool QAbstractEventDispatcher::filterEvent(void *message)
 
     \sa awake()
 */
+
+QT_END_NAMESPACE

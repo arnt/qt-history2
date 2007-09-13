@@ -1,4 +1,4 @@
-/****************************************************************************
+/*****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
@@ -34,6 +34,8 @@
 #include <QtNetwork/qssl.h>
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Network)
 
@@ -86,6 +88,8 @@ Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, const QSslKey &key);
 #endif
 
 #endif // QT_NO_OPENSSL
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

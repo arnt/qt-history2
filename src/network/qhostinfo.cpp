@@ -29,7 +29,9 @@
 #  include <unistd.h>
 #endif
 
-Q_GLOBAL_STATIC(QHostInfoAgent, agent)
+QT_BEGIN_NAMESPACE
+
+Q_GLOBAL_STATIC(QHostInfoAgent, theAgent)
 
 //#define QHOSTINFO_DEBUG
 
@@ -92,7 +94,7 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
     \sa QAbstractSocket, {http://www.rfc-editor.org/rfc/rfc3492.txt}{RFC 3492}
 */
 
-static QBasicAtomicInt idCounter = Q_BASIC_ATOMIC_INITIALIZER(1);
+static QBasicAtomicInt theIdCounter = Q_BASIC_ATOMIC_INITIALIZER(1);
 
 /*!
     Looks up the IP address(es) associated with host name \a name, and
@@ -160,12 +162,12 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
     // together before passing the name to the lookup agent.
     QString lookup = QString::fromLatin1(QUrl::toAce(name));
 
-    QHostInfoAgent *agent = ::agent();
+    QHostInfoAgent *agent = theAgent();
 
     QHostInfoResult *result = new QHostInfoResult;
     QObject::connect(result, SIGNAL(resultsReady(QHostInfo)),
                      receiver, member);
-    int id = result->lookupId = ::idCounter.fetchAndAddRelaxed(1);
+    int id = result->lookupId = theIdCounter.fetchAndAddRelaxed(1);
     agent->addHostName(lookup, result);
 
 #if !defined QT_NO_THREAD
@@ -187,7 +189,7 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
 */
 void QHostInfo::abortHostLookup(int id)
 {
-    QHostInfoAgent *agent = ::agent();
+    QHostInfoAgent *agent = theAgent();
     agent->abortLookup(id);
 }
 
@@ -449,3 +451,5 @@ void QHostInfo::setErrorString(const QString &str)
 
     \sa hostName()
 */
+
+QT_END_NAMESPACE

@@ -13,6 +13,8 @@
 
 #include "abstractpropertyeditor.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerPropertyEditorInterface
 
@@ -176,3 +178,5 @@ QDesignerFormEditorInterface *QDesignerPropertyEditorInterface::core() const
 
     \sa isReadOnly()
 */
+
+QT_END_NAMESPACE

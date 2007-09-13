@@ -10,3 +10,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/opengl/hellogl
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS hellogl.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/opengl/hellogl
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

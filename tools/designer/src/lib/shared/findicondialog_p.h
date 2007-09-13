@@ -30,6 +30,8 @@
 #include <QtCore/QDir>
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QListWidgetItem;
 class QModelIndex;
@@ -118,5 +120,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // FINDICONDIALOG_H

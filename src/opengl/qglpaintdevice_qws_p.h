@@ -27,6 +27,8 @@
 
 #include <QPaintDevice>
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 class QWSGLWindowSurface;
 class QWSGLPaintDevicePrivate;
@@ -49,5 +51,7 @@ private:
     QWSGLPaintDevicePrivate *d_ptr;
 };
 
+
+QT_END_NAMESPACE
 
 #endif // QWSGLPAINTDEVICE_GL_P_H

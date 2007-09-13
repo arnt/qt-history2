@@ -16,9 +16,9 @@
 
 #include <QDialog>
 
-class QDialogButtonBox;
-class QFileInfo;
-class QTabWidget;
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QFileInfo)
+QT_DECLARE_CLASS(QTabWidget)
 
 class GeneralTab : public QWidget
 {

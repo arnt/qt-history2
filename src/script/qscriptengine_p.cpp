@@ -53,6 +53,8 @@ Q_DECLARE_METATYPE(QObjectList)
 #endif
 Q_DECLARE_METATYPE(QList<int>)
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
 
 NodePool::~NodePool()
@@ -2025,5 +2027,7 @@ void QScriptEnginePrivate::notifyExceptionCatch_helper(QScriptContextPrivate *ct
 }
 
 #endif // Q_SCRIPT_NO_EVENT_NOTIFY
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

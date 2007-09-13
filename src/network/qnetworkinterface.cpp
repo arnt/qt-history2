@@ -16,6 +16,8 @@
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 Q_GLOBAL_STATIC(QNetworkInterfaceManager, manager)
 
 QNetworkInterfaceManager::QNetworkInterfaceManager()
@@ -448,3 +450,5 @@ QDebug operator<<(QDebug debug, const QNetworkInterface &networkInterface)
     return debug.space();
 }
 #endif
+
+QT_END_NAMESPACE

@@ -12,3 +12,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/itemviews/pixelator
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro images
 sources.path = $$[QT_INSTALL_EXAMPLES]/itemviews/pixelator
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

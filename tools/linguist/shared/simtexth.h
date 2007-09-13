@@ -19,6 +19,8 @@ const int textSimilarityThreshold = 190;
 #include <QString>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
+
 class MetaTranslator;
 
 struct Candidate {
@@ -62,5 +64,7 @@ int getSimilarityScore(const QString &str1, const char* str2);
 CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 					      const char *text,
 					      int maxCandidates );
+
+QT_END_NAMESPACE
 
 #endif

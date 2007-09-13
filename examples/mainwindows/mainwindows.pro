@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/mainwindows
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS mainwindows.pro README
 sources.path = $$[QT_INSTALL_EXAMPLES]/mainwindows
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

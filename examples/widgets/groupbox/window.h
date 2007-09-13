@@ -16,7 +16,7 @@
 
 #include <QWidget>
 
-class QGroupBox;
+QT_DECLARE_CLASS(QGroupBox)
 
 class Window : public QWidget
 {

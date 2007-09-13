@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 struct QReadWriteLockPrivate
 {
     QReadWriteLockPrivate()
@@ -40,5 +44,7 @@ struct QReadWriteLockPrivate
     int waitingReaders;
     int waitingWriters;
 };
+
+QT_END_NAMESPACE
 
 #endif // QREADWRITELOCK_P_H

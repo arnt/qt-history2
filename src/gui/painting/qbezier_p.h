@@ -31,6 +31,8 @@
 #include "QtCore/qvector.h"
 #include "QtCore/qlist.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPolygonF;
 
 class Q_GUI_EXPORT QBezier
@@ -206,5 +208,7 @@ inline void QBezier::parameterSplitLeft(qreal t, QBezier *left)
     left->x4 = x1 = left->x3 + t * (x2 - left->x3);
     left->y4 = y1 = left->y3 + t * (y2 - left->y3);
 }
+
+QT_END_NAMESPACE
 
 #endif // QBEZIER_P_H

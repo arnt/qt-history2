@@ -17,6 +17,8 @@
 #include <QtCore/QString>
 #include <QtGui/QPixmap>
 
+QT_BEGIN_NAMESPACE
+
 class Item
 {
 public:
@@ -47,4 +49,7 @@ public:
 private:
     QString m_bigPic;
 };
+
+QT_END_NAMESPACE
+
 #endif

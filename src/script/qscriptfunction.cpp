@@ -21,6 +21,8 @@
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QScriptFunction::~QScriptFunction()
 {
 }
@@ -112,5 +114,7 @@ QString QScript::C2Function::functionName() const
         return m_name;
     return QString();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

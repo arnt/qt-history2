@@ -49,6 +49,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef void (*QPrintDialogCreator)(QPrintDialog *parent);
 Q_GUI_EXPORT QPrintDialogCreator _qt_print_dialog_creator;
 
@@ -506,6 +508,8 @@ void QPrintDialogPrivate::init()
 
     q->installEventFilter(q);
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qprintdialog.cpp"
 

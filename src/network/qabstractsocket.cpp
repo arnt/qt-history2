@@ -319,9 +319,13 @@
 #define QT_CONNECT_TIMEOUT 30000
 #define QT_TRANSFER_TIMEOUT 120000
 
+QT_BEGIN_NAMESPACE
+
 #if defined QABSTRACTSOCKET_DEBUG
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qstring.h>
 #include <ctype.h>
+QT_END_INCLUDE_NAMESPACE
 
 /*
     Returns a human readable representation of the first \a len
@@ -2383,6 +2387,6 @@ Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, QAbstractSocket::SocketState st
 }
 #endif
 
-
+QT_END_NAMESPACE
 
 #include "moc_qabstractsocket.cpp"

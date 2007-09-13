@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Script)
 
 class QScriptValue;
@@ -167,7 +169,10 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QScriptValue::ResolveFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QScriptValue::PropertyFlags)
 
+QT_END_NAMESPACE
+
 QT_END_HEADER
 
 #endif // QT_NO_SCRIPT
+
 #endif

@@ -16,6 +16,8 @@
 
 #include <QtGui/qaccessiblewidget.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_ACCESSIBILITY
 
 class Q3ListView;
@@ -132,5 +134,7 @@ protected:
 };
 
 #endif // QT_NO_ACCESSIBILITY
+
+QT_END_NAMESPACE
 
 #endif // QACCESSIBLECOMPAT_H

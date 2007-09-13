@@ -16,6 +16,8 @@
 #include "qxmlname.h"
 #include "qabstractxmlpullprovider.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class QAbstractXmlPullProvider
   \brief A pull-based, stream interface for the XPath Data Model.
@@ -162,5 +164,7 @@ QHash<QXmlName, QString> QAbstractXmlPullProvider::attributes()
 
     return result;
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

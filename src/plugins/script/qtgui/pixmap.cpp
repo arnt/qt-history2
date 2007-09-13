@@ -10,6 +10,8 @@ Q_DECLARE_METATYPE(QBitmap)
 Q_DECLARE_METATYPE(QPixmap)
 Q_DECLARE_METATYPE(QPixmap*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newPixmap(QScriptEngine *eng, const QPixmap &pixmap)
 {
     return eng->newVariant(qVariantFromValue(pixmap));
@@ -371,3 +373,5 @@ QScriptValue constructPixmapClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

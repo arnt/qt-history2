@@ -18,6 +18,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
+QT_BEGIN_NAMESPACE
+
 class Driver;
 
 class DatabaseInfo : public TreeWalker
@@ -43,5 +45,7 @@ private:
     QMap<QString, QStringList> m_cursors;
     QMap<QString, QStringList> m_fields;
 };
+
+QT_END_NAMESPACE
 
 #endif // DATABASEINFO_H

@@ -13,10 +13,14 @@
 
 #include "qtokenizer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Tokenizer::~Tokenizer()
 {
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

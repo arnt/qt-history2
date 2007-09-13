@@ -40,6 +40,8 @@
 #define SZ_SIZETOPLEFT      0xf004
 #define SZ_SIZETOPRIGHT     0xf005
 
+QT_BEGIN_NAMESPACE
+
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
 {
     while (w && !w->isWindow() && w->windowType() != Qt::SubWindow)
@@ -520,6 +522,8 @@ bool QSizeGrip::winEvent( MSG *m, long *result )
     return true;
 }
 #endif
+
+QT_END_NAMESPACE
 
 #include "moc_qsizegrip.cpp"
 

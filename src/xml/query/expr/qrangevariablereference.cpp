@@ -17,6 +17,8 @@
 
 #include "qrangevariablereference_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 RangeVariableReference::RangeVariableReference(const Expression::Ptr &source,
@@ -64,3 +66,5 @@ Expression::Properties RangeVariableReference::properties() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

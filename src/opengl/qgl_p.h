@@ -33,6 +33,8 @@
 #include "QtCore/qhash.h"
 #include "private/qwidget_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QGLContext;
 class QGLOverlayWidget;
 class QPixmap;
@@ -41,7 +43,9 @@ class QPixmap;
 #   define old_qDebug qDebug
 #   undef qDebug
 # endif
+QT_BEGIN_INCLUDE_NAMESPACE
 # include <AGL/agl.h>
+QT_END_INCLUDE_NAMESPACE
 # ifdef old_qDebug
 #   undef qDebug
 #   define qDebug QT_QDEBUG_MACRO
@@ -51,12 +55,16 @@ class QMacWindowChangeEvent;
 #endif
 
 #ifdef Q_WS_QWS
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <GLES/egl.h>
+QT_END_INCLUDE_NAMESPACE
 class QGLDirectPainter;
 class QWSGLWindowSurface;
 #endif
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <QtOpenGL/private/qglextensions_p.h>
+QT_END_INCLUDE_NAMESPACE
 
 class QGLFormatPrivate
 {
@@ -281,4 +289,7 @@ extern QGLShareRegister* qgl_share_reg();
 class QOpenGLPaintEngine;
 extern QOpenGLPaintEngine* qt_qgl_paint_engine();
 #endif
+
+QT_END_NAMESPACE
+
 #endif // QGL_P_H

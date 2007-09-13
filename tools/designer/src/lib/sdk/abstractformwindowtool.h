@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QWidget;
@@ -47,6 +49,8 @@ public:
 
     virtual bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event) = 0;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

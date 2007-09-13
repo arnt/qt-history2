@@ -18,6 +18,8 @@
 #include <private/qabstractprintdialog_p.h>
 #include <private/qprintengine_mac_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 {
     Q_DECLARE_PUBLIC(QPrintDialog)
@@ -152,5 +154,7 @@ int QPrintDialog::exec()
     }
     return d->acceptStatus ? Accepted : Rejected;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qprintdialog.cpp"

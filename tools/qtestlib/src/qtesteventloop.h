@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class Q_TESTLIB_EXPORT QTestEventLoop : public QObject
 {
     Q_OBJECT
@@ -95,6 +97,8 @@ inline void QTestEventLoop::timerEvent(QTimerEvent *e)
     _timeout = true;
     exitLoop();
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

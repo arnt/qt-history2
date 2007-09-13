@@ -16,6 +16,8 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
+
 class GammaView: public QWidget
 {
     Q_OBJECT
@@ -23,5 +25,7 @@ public:
     GammaView( QWidget *parent = 0, Qt::WindowFlags f = 0 )
         : QWidget(parent,f) { }
 };
+
+QT_END_NAMESPACE
 
 #endif

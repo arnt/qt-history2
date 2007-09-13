@@ -35,6 +35,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 class QFTOutlineMapper;
 class QRasterPaintEnginePrivate;
 class QRasterBuffer;
@@ -405,5 +407,7 @@ private:
     int bytes_per_line;
     uchar *m_buffer;
 };
+
+QT_END_NAMESPACE
 
 #endif // QPAINTENGINE_RASTER_P_H

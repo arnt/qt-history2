@@ -18,6 +18,8 @@
 
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowToolInterface;
 
 namespace qdesigner_internal {
@@ -58,5 +60,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // FORMWINDOW_WIDGETSTACK_H

@@ -34,6 +34,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QBrush;
@@ -826,6 +828,8 @@ inline void QPainter::drawPicture(const QPoint &pt, const QPicture &p)
     drawPicture(QPointF(pt), p);
 }
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -47,6 +47,8 @@ typedef std::basic_string<wchar_t> QStdWString;
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QCharRef;
@@ -1099,6 +1101,8 @@ inline QT_ASCII_CAST_WARN bool operator!=(const char *s1, const QStringRef &s2)
 inline QT_ASCII_CAST_WARN bool operator!=(const QStringRef &s1, const char *s2)
 { return !qStringComparisonHelper(s1, s2); }
 
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -25,6 +25,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(ActiveQt)
 
 extern GUID IID_IAxServerBase;
@@ -58,6 +60,8 @@ extern bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArra
 extern QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint type = 0);
 extern bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeName, uint type = 0);
 extern void clearVARIANT(VARIANT *var);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

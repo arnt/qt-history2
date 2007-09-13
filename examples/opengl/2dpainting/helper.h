@@ -18,8 +18,8 @@
 #include <QFont>
 #include <QPen>
 
-class QPainter;
-class QPaintEvent;
+QT_DECLARE_CLASS(QPainter)
+QT_DECLARE_CLASS(QPaintEvent)
 
 class Helper
 {

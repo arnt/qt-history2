@@ -17,6 +17,8 @@
 
 #ifndef QT_NO_SQL
 
+QT_BEGIN_NAMESPACE
+
 class Q3SqlSelectCursorPrivate
 {
 public:
@@ -221,7 +223,6 @@ void Q3SqlSelectCursor::populateCursor()
 
 /*!
     \fn int Q3SqlSelectCursor::update(const QString & filter, bool invalidate = true)
-
     \overload
 
     Updates the database with the current contents of the cursor edit
@@ -238,4 +239,7 @@ void Q3SqlSelectCursor::populateCursor()
 
     \sa Q3SqlCursor::update() primeUpdate() setMode() lastError()
 */
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_SQL

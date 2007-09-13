@@ -24,6 +24,8 @@ TRANSLATOR qdesigner_internal::PromotionModel
 
 #include <QtGui/QStandardItem>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     typedef QList<QStandardItem *> StandardItemList;
 
@@ -188,3 +190,5 @@ namespace qdesigner_internal {
         return matches.empty() ? QModelIndex() : indexFromItem (matches.front());
     }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

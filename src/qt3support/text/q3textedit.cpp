@@ -56,6 +56,8 @@
 #define LOGOFFSET(i) d->logOffset + i
 #endif
 
+QT_BEGIN_NAMESPACE
+
 struct QUndoRedoInfoPrivate
 {
     Q3TextString text;
@@ -7233,5 +7235,7 @@ Q3SyntaxHighlighter * Q3TextEdit::syntaxHighlighter() const
     else
         return 0;
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_TEXTEDIT

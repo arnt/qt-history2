@@ -19,6 +19,8 @@
 
 #include "qqnametest_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 QNameTest::QNameTest(const ItemType::Ptr &primaryType,
@@ -62,3 +64,5 @@ bool QNameTest::operator==(const ItemType &other) const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

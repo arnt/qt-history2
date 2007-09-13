@@ -26,7 +26,7 @@ Q_DECLARE_METATYPE(QHostAddress)
 
 //TESTED_FILES=network/qudpsocket.cpp network/qudpsocket.h network/qabstractsocket.cpp network/qabstractsocket.h network/qabstractsocket_p.h network/qsocketlayer.cpp network/qsocketlayer.h network/qsocketlayer_unix.cpp
 
-class QUdpSocket;
+QT_DECLARE_CLASS(QUdpSocket)
 
 class tst_QUdpSocket : public QObject
 {

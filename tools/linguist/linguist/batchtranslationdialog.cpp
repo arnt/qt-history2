@@ -18,6 +18,8 @@
 #include "phrase.h"
 #include "messagemodel.h"
 
+QT_BEGIN_NAMESPACE
+
 CheckableListModel::CheckableListModel(QObject *parent) 
 : QStandardItemModel(parent)
 {
@@ -154,3 +156,4 @@ void BatchTranslationDialog::movePhraseBookDown()
     }
 }
 
+QT_END_NAMESPACE

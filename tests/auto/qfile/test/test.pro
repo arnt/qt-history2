@@ -13,3 +13,6 @@ win32 {
   }
   LIBS+=-lole32 -luuid
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -17,6 +17,8 @@
 #include <qdesigner_dnditem_p.h>
 #include "widgetbox_global.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class DomWidget;
 
@@ -31,5 +33,7 @@ public:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // WIDGETBOX_DNDITEM_H

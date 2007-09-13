@@ -18,6 +18,8 @@
 #include <cups/language.h>
 #include <qtextcodec.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef int (*CupsGetDests)(cups_dest_t **dests);
 typedef void (*CupsFreeDests)(int num_dests, cups_dest_t *dests);
 typedef const char* (*CupsGetPPD)(const char *printer);
@@ -339,5 +341,6 @@ void QCUPSSupport::collectMarkedOptionsHelper(QStringList& list, const ppd_group
     }
 }
 
-#endif // QT_NO_CUPS
+QT_END_NAMESPACE
 
+#endif // QT_NO_CUPS

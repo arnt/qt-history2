@@ -18,6 +18,8 @@
 #include "node.h"
 #include "qscodemarker.h"
 
+QT_BEGIN_NAMESPACE
+
 QsCodeMarker::QsCodeMarker()
 {
 }
@@ -351,3 +353,5 @@ const Node *QsCodeMarker::resolveTarget( const QString& /* target */,
 {
     return 0;
 }
+
+QT_END_NAMESPACE

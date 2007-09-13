@@ -14,6 +14,8 @@
 #include <string.h>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 typedef QList<MetaTranslatorMessage> TML;
 
 void lupdateApplication::recursiveFileInfoList(const QDir &dir, const QStringList &nameFilters, 
@@ -294,5 +296,6 @@ int lupdateApplication::start()
         return 1;
     }
     return 0;
-
 }
+
+QT_END_NAMESPACE

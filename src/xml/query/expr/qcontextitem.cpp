@@ -17,6 +17,8 @@
 
 #include "qcontextitem_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Item ContextItem::evaluateSingleton(const DynamicContext::Ptr &context) const
@@ -76,3 +78,5 @@ const SourceLocationReflection *ContextItem::actualReflection() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

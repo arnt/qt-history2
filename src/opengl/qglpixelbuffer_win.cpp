@@ -20,6 +20,8 @@
 #include <qimage.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /* WGL_WGLEXT_PROTOTYPES */
 typedef const char * (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC) (HDC hdc);
 typedef HPBUFFERARB (WINAPI * PFNWGLCREATEPBUFFERARBPROC) (HDC hDC, int iPixelFormat, int iWidth, int iHeight, const int *piAttribList);
@@ -320,3 +322,5 @@ bool QGLPixelBuffer::hasOpenGLPbuffers()
     }
     return false;
 }
+
+QT_END_NAMESPACE

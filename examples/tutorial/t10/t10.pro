@@ -13,3 +13,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t10
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS t10.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t10
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

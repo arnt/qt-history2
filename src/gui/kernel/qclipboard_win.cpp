@@ -24,6 +24,7 @@
 #include "qt_windows.h"
 #include "qdnd_p.h"
 
+QT_BEGIN_NAMESPACE
 
 class QClipboardWatcher : public QInternalMimeData {
 public:
@@ -266,5 +267,7 @@ bool QClipboard::ownsMode(Mode mode) const
 void QClipboard::ownerDestroyed()
 {
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_CLIPBOARD

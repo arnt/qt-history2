@@ -20,6 +20,8 @@
 #include <QtGui/QResizeEvent>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     const QChar NewLineChar(QLatin1Char('\n'));
     const QLatin1String EscapedNewLine("\\n");
@@ -240,3 +242,4 @@ namespace qdesigner_internal {
     }
 }
 
+QT_END_NAMESPACE

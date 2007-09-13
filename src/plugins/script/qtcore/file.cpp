@@ -8,6 +8,8 @@
 Q_DECLARE_METATYPE(QIODevice*)
 Q_DECLARE_METATYPE(QFile*)
 
+QT_BEGIN_NAMESPACE
+
 class FileConstructor : public QObject,
                         public QScriptable
 {
@@ -232,5 +234,7 @@ QScriptValue constructFileClass(QScriptEngine *eng)
     proto.setProperty("constructor", ctor);
     return ctor;
 }
+
+QT_END_NAMESPACE
 
 #include "file.moc"

@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(OpenGL)
 
 class Q_OPENGL_EXPORT QGLColormap
@@ -67,6 +69,8 @@ inline void QGLColormap::detach()
     if (d->ref != 1)
         detach_helper();
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

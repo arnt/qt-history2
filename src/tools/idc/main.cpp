@@ -18,12 +18,15 @@
 #include <qt_windows.h>
 #include <io.h>
 
+QT_BEGIN_NAMESPACE
+
 static QString quotePath(const QString &s)
 {
     if (!s.startsWith(QLatin1String("\"")) && s.contains(QLatin1Char(' ')))
         return QLatin1String("\"") + s + QLatin1String("\"");
     return s;
 }
+
 
 static bool runWithQtInEnvironment(const QString &cmd)
 {
@@ -196,7 +199,7 @@ static void slashify(QString &s)
     }
 }
 
-int main(int argc, char **argv)
+int runIdc(int argc, char **argv)
 {
     QString error;
     QString tlbfile;
@@ -328,4 +331,11 @@ int main(int argc, char **argv)
         }
     }
     return 0;
+}
+
+QT_END_NAMESPACE
+
+int main(int argc, char **argv)
+{
+    return QT_ADD_NAMESPACE(runIdc)(argc, argv);
 }

@@ -10,3 +10,4 @@ sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro images
 sources.path = $$[QT_INSTALL_EXAMPLES]/draganddrop/dropsite
 INSTALLS += target sources
 
+DEFINES += QT_USE_USING_NAMESPACE

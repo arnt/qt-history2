@@ -29,6 +29,8 @@
 #include <QTextBlock>
 #include <QKeyEvent>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_WS_MAC
 const QLatin1String ImageLocation(":trolltech/assistant/images/mac/");
 #else
@@ -288,7 +290,7 @@ QList<HelpWindow*> TabbedBrowser::browsers() const
 {
     QList<HelpWindow*> list;
     for (int i=0; i<ui.tab->count(); ++i) {
-        Q_ASSERT(::qobject_cast<HelpWindow*>(ui.tab->widget(i)));
+        Q_ASSERT(qobject_cast<HelpWindow*>(ui.tab->widget(i)));
         list.append(static_cast<HelpWindow*>(ui.tab->widget(i)));
     }
     return list;
@@ -296,7 +298,7 @@ QList<HelpWindow*> TabbedBrowser::browsers() const
 
 void TabbedBrowser::sourceChanged()
 {
-    HelpWindow *win = ::qobject_cast<HelpWindow *>(QObject::sender());
+    HelpWindow *win = qobject_cast<HelpWindow *>(QObject::sender());
     Q_ASSERT(win);
     QString docTitle(win->documentTitle());
     if (docTitle.isEmpty())
@@ -500,3 +502,5 @@ void TabbedBrowser::openTabMenu(const QPoint& pos)
     }
     delete m;
 }
+
+QT_END_NAMESPACE

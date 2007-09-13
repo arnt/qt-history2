@@ -17,3 +17,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/tools/styleplugin/styles
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS plugin.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/styleplugin/plugin
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

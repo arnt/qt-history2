@@ -17,6 +17,8 @@ Q_DECLARE_METATYPE(QPolygonF)
 Q_DECLARE_METATYPE(QRegion)
 Q_DECLARE_METATYPE(QRegion*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newTransform(QScriptEngine *eng, const QTransform &transform)
 {
     return eng->newVariant(qVariantFromValue(transform));
@@ -414,3 +416,5 @@ QScriptValue constructTransformClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

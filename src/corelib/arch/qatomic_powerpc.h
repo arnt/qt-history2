@@ -16,6 +16,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 #define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
 
 inline bool QBasicAtomicInt::isReferenceCountingNative()
@@ -70,6 +72,8 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddNative()
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
 { return false; }
+
+QT_BEGIN_NAMESPACE
 
 #if defined(Q_CC_GNU)
 #if defined(__64BIT__) || defined(__powerpc64__)
@@ -567,6 +571,8 @@ Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueTo
 {
     return fetchAndAddAcquire(valueToAdd);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

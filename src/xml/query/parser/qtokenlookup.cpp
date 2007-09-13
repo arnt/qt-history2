@@ -31,6 +31,8 @@
 
 #line 80 "TokenLookup.gperf"
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
 
@@ -396,5 +398,7 @@ TokenLookup::value (register const char *str, register unsigned int len)
 
 
 } /* Close the Patternist namespace. */
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

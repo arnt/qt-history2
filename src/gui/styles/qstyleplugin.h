@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QStyle;
@@ -29,6 +31,7 @@ struct Q_GUI_EXPORT QStyleFactoryInterface : public QFactoryInterface
 };
 
 #define QStyleFactoryInterface_iid "com.trolltech.Qt.QStyleFactoryInterface"
+
 Q_DECLARE_INTERFACE(QStyleFactoryInterface, QStyleFactoryInterface_iid)
 
 class Q_GUI_EXPORT QStylePlugin : public QObject, public QStyleFactoryInterface
@@ -42,6 +45,8 @@ public:
     virtual QStringList keys() const = 0;
     virtual QStyle *create(const QString &key) = 0;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -15,6 +15,8 @@
 
 #include <ActiveQt>
 
+QT_BEGIN_NAMESPACE
+
 InvokeMethod::InvokeMethod(QWidget *parent)
 : QDialog(parent), activex(0)
 {
@@ -136,3 +138,4 @@ void InvokeMethod::on_buttonSet_clicked()
     item->setText(2, editValue->text());
 }
 
+QT_END_NAMESPACE

@@ -27,6 +27,8 @@
 
 #include "qunicodetables.cpp"
 
+QT_BEGIN_NAMESPACE
+
 #define LAST_UNICODE_CHAR 0x10ffff
 
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
@@ -869,7 +871,8 @@ enum {
 };
 
 // buffer has to have a length of 3. It's needed for Hangul decomposition
-static const unsigned short * QT_FASTCALL decomposition(uint ucs4, int *length, int *tag, unsigned short *buffer)
+static const unsigned short * QT_FASTCALL decompositionHelper
+    (uint ucs4, int *length, int *tag, unsigned short *buffer)
 {
     *length = 0;
     if (ucs4 > LAST_UNICODE_CHAR)
@@ -912,7 +915,7 @@ QString QChar::decomposition(uint ucs4)
     unsigned short buffer[3];
     int length;
     int tag;
-    const unsigned short *d = ::decomposition(ucs4, &length, &tag, buffer);
+    const unsigned short *d = decompositionHelper(ucs4, &length, &tag, buffer);
     return QString::fromUtf16(d, length);
 }
 
@@ -1382,7 +1385,8 @@ QDataStream &operator>>(QDataStream &in, QChar &chr)
 // ---------------------------------------------------------------------------
 
 
-static QString decompose(const QString &str, bool canonical, QChar::UnicodeVersion version)
+static QString decomposeHelper
+    (const QString &str, bool canonical, QChar::UnicodeVersion version)
 {
     unsigned short buffer[3];
 
@@ -1403,7 +1407,7 @@ static QString decompose(const QString &str, bool canonical, QChar::UnicodeVersi
             continue;
         int length;
         int tag;
-        const unsigned short *d = decomposition(ucs4, &length, &tag, buffer);
+        const unsigned short *d = decompositionHelper(ucs4, &length, &tag, buffer);
         if (!d || (canonical && tag != QChar::Canonical))
             continue;
 
@@ -1418,7 +1422,7 @@ static QString decompose(const QString &str, bool canonical, QChar::UnicodeVersi
 }
 
 
-static ushort ligature(ushort u1, ushort u2)
+static ushort ligatureHelper(ushort u1, ushort u2)
 {
     // hangul L-V pair
     int LIndex = u1 - Hangul_LBase;
@@ -1449,7 +1453,7 @@ static ushort ligature(ushort u1, ushort u2)
     return 0;
 }
 
-static QString compose(const QString &str)
+static QString composeHelper(const QString &str)
 {
     QString s = str;
 
@@ -1472,7 +1476,7 @@ static QString compose(const QString &str)
         int combining = QChar::combiningClass(uc);
         if (starter == pos - 1 || combining > lastCombining) {
             // allowed to form ligature with S
-            QChar ligature = ::ligature(s.utf16()[starter], uc);
+            QChar ligature = ligatureHelper(s.utf16()[starter], uc);
             if (ligature.unicode()) {
                 s[starter] = ligature;
                 s.remove(pos, 1);
@@ -1488,7 +1492,8 @@ static QString compose(const QString &str)
 }
 
 
-static QString canonicalOrder(const QString &str, QChar::UnicodeVersion version)
+static QString canonicalOrderHelper
+    (const QString &str, QChar::UnicodeVersion version)
 {
     QString s = str;
     const int l = s.length()-1;
@@ -1573,3 +1578,5 @@ Q_CORE_EXPORT QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(uint
     return (QUnicodeTables::LineBreakClass) qGetProp(ucs4)->line_break_class;
 }
 
+
+QT_END_NAMESPACE

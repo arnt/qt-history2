@@ -30,6 +30,8 @@
 
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class QTextEdit;
 
 namespace qdesigner_internal {
@@ -47,5 +49,7 @@ namespace qdesigner_internal {
 
     };
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // SCRIPTERRORDIALOG_H

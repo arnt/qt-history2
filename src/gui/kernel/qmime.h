@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QMimeSource
@@ -32,11 +34,13 @@ public:
 
 #if defined(Q_WS_WIN)
 
+QT_BEGIN_INCLUDE_NAMESPACE
 typedef struct tagFORMATETC FORMATETC;
 typedef struct tagSTGMEDIUM STGMEDIUM;
 struct IDataObject;
 
 #include <QtCore/qvariant.h>
+QT_END_INCLUDE_NAMESPACE
 
 /*
   Encapsulation of conversion between MIME and Windows CLIPFORMAT.
@@ -44,7 +48,8 @@ struct IDataObject;
   directly.
 */
 
-class Q_GUI_EXPORT QWindowsMime {
+class Q_GUI_EXPORT QWindowsMime
+{
 public:
     QWindowsMime();
     virtual ~QWindowsMime();
@@ -133,6 +138,8 @@ public:
 };
 
 #endif // Q_WS_MAC
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

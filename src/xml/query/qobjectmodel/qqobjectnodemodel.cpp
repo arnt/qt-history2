@@ -21,6 +21,8 @@
 #include "qqobjectnodemodel_p.h"
 #include "qqobjectpropertytoattributeiterator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 QMetaProperty QObjectNodeModel::toMetaProperty(const Node n)
@@ -244,3 +246,5 @@ ItemType::Ptr QObjectNodeModel::type(const Node ni) const
     return typeFromKind(isProperty(ni) ? Node::Attribute : Node::Element);
 }
 
+
+QT_END_NAMESPACE

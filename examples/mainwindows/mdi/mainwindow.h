@@ -16,12 +16,12 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QMenu;
-class QMdiArea;
-class QMdiSubWindow;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QMdiArea)
+QT_DECLARE_CLASS(QMdiSubWindow)
 class MdiChild;
-class QSignalMapper;
+QT_DECLARE_CLASS(QSignalMapper)
 
 class MainWindow : public QMainWindow
 {

@@ -16,22 +16,22 @@
 
 #include <QDialog>
 
-class QCheckBox;
-class QComboBox;
-class QDateTimeEdit;
-class QDial;
-class QGroupBox;
-class QLabel;
-class QLineEdit;
-class QProgressBar;
-class QPushButton;
-class QRadioButton;
-class QScrollBar;
-class QSlider;
-class QSpinBox;
-class QTabWidget;
-class QTableWidget;
-class QTextEdit;
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QDateTimeEdit)
+QT_DECLARE_CLASS(QDial)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QProgressBar)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QRadioButton)
+QT_DECLARE_CLASS(QScrollBar)
+QT_DECLARE_CLASS(QSlider)
+QT_DECLARE_CLASS(QSpinBox)
+QT_DECLARE_CLASS(QTabWidget)
+QT_DECLARE_CLASS(QTableWidget)
+QT_DECLARE_CLASS(QTextEdit)
 
 class WidgetGallery : public QDialog
 {

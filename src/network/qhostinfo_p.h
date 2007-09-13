@@ -33,14 +33,16 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qpointer.h"
 
-static const int QHOSTINFO_THREAD_WAIT = 250; // ms
-
 #if !defined QT_NO_THREAD
 #include "QtCore/qthread.h"
 #    define QHostInfoAgentBase QThread
 #else
 #    define QHostInfoAgentBase QObject
 #endif
+
+QT_BEGIN_NAMESPACE
+
+static const int QHOSTINFO_THREAD_WAIT = 250; // ms
 
 class QHostInfoResult : public QObject
 {
@@ -147,5 +149,7 @@ public:
     QString hostName;
     int lookupId;
 };
+
+QT_END_NAMESPACE
 
 #endif // QHOSTINFO_P_H

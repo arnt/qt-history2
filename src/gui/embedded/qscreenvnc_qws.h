@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QVNCScreenPrivate;
@@ -69,6 +71,8 @@ private:
     friend class QVNCScreenPrivate;
     QVNCScreenPrivate *d_ptr;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

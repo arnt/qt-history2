@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QColor;
@@ -237,6 +239,8 @@ inline QColor QColor::lighter(int f) const
 
 inline QColor QColor::darker(int f) const 
 { return dark(f); }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

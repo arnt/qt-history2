@@ -15,6 +15,8 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QPainter>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtBrushManagerPrivate
@@ -109,3 +111,5 @@ QPixmap QtBrushManager::brushPixmap(const QBrush &brush) const
 }
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE

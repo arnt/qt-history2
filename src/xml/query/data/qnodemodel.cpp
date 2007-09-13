@@ -18,6 +18,8 @@
 
 #include "qitem_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 NodeModel::~NodeModel()
@@ -141,3 +143,5 @@ bool NodeModel::isIgnorable(const Node n)
            nk == Node::Comment;
 }
 
+
+QT_END_NAMESPACE

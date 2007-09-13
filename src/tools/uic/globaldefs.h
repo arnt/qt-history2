@@ -14,7 +14,13 @@
 #ifndef GLOBALDEFS_H
 #define GLOBALDEFS_H
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
 enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
+
+QT_END_NAMESPACE
 
 #endif // GLOBALDEFS_H

@@ -34,6 +34,8 @@
 #include <QtGui/QPalette>
 #include <QtGui/QIcon>
 
+QT_BEGIN_NAMESPACE
+
 namespace QCss
 {
 
@@ -728,6 +730,8 @@ public:
     QString sourcePath;
 };
 
-}
+} // namespace QCss
+
+QT_END_NAMESPACE
 
 #endif

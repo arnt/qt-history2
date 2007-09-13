@@ -27,6 +27,8 @@
 
 #include "qcastas_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 CastAs::CastAs(const Expression::Ptr &source,
@@ -169,3 +171,5 @@ ExpressionVisitorResult::Ptr CastAs::accept(const ExpressionVisitor::Ptr &visito
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

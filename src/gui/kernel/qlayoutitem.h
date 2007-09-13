@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 static const int QLAYOUTSIZE_MAX = INT_MAX/256/16;
@@ -109,6 +111,8 @@ private:
     QWidget *wid;
     Q_DISABLE_COPY(QWidgetItem)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

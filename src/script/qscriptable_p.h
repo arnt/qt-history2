@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_QOBJECT
 
+QT_BEGIN_NAMESPACE
+
 class QScriptEngine;
 
 class QScriptablePrivate
@@ -46,6 +48,8 @@ public:
 
     QScriptable *q_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QOBJECT
 

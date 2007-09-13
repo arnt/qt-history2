@@ -27,6 +27,8 @@
 
 #include "private/qaction_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWidgetActionPrivate : public QActionPrivate
 {
     Q_DECLARE_PUBLIC(QWidgetAction)
@@ -41,5 +43,7 @@ public:
         createdWidgets.removeAll(static_cast<QWidget *>(o));
     }
 };
+
+QT_END_NAMESPACE
 
 #endif

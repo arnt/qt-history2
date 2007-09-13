@@ -29,6 +29,8 @@
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 class QGroupBoxPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QGroupBox)
@@ -739,6 +741,8 @@ QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
     setTitle(title);
 }
 #endif // QT3_SUPPORT
+
+QT_END_NAMESPACE
 
 #include "moc_qgroupbox.cpp"
 

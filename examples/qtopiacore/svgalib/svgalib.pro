@@ -17,3 +17,4 @@ SOURCES	= svgalibscreen.cpp \
           svgalibpaintdevice.cpp \
           svgalibplugin.cpp
 
+DEFINES += QT_USE_USING_NAMESPACE

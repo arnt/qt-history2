@@ -16,6 +16,8 @@
 
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtGradientDialog : public QDialog
@@ -35,5 +37,7 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

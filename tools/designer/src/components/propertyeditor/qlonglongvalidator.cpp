@@ -13,6 +13,8 @@
 
 #include "qlonglongvalidator.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 // ----------------------------------------------------------------------------
@@ -120,3 +122,4 @@ void QULongLongValidator::setTop(qulonglong top)
     setRange(bottom(), top);
 }
 
+QT_END_NAMESPACE

@@ -16,6 +16,8 @@
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 Q3WidgetStackContainer::Q3WidgetStackContainer(QDesignerQ3WidgetStack *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)
@@ -81,3 +83,5 @@ QObject *Q3WidgetStackContainerFactory::createExtension(QObject *object, const Q
     return 0;
 }
 
+
+QT_END_NAMESPACE

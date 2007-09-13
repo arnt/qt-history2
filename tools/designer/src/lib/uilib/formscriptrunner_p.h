@@ -30,6 +30,8 @@
 #include <QtCore/QFlags>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 
 #ifdef QFORMINTERNAL_NAMESPACE
@@ -84,5 +86,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QFormScriptRunner::Options)
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_NAMESPACE
 
 #endif // FORMSCRIPTRUNNER_H

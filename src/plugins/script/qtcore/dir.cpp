@@ -6,8 +6,9 @@
 
 Q_DECLARE_METATYPE(QDir)
 Q_DECLARE_METATYPE(QDir*)
-
 Q_DECLARE_METATYPE(QFileInfoList)
+
+QT_BEGIN_NAMESPACE
 
 static inline QScriptValue newDir(QScriptEngine *eng, const QDir &dir)
 {
@@ -568,3 +569,5 @@ QScriptValue constructDirClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

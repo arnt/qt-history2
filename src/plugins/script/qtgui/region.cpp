@@ -10,6 +10,8 @@ Q_DECLARE_METATYPE(QRegion)
 Q_DECLARE_METATYPE(QRegion*)
 Q_DECLARE_METATYPE(QVector<QRect>)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newRegion(QScriptEngine *eng, const QRegion &region)
 {
     return eng->newVariant(qVariantFromValue(region));
@@ -193,3 +195,5 @@ QScriptValue constructRegionClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

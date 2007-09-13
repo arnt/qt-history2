@@ -19,7 +19,7 @@
 //TESTED_CLASS=
 //TESTED_FILES=compat/widgets/q3scrollview.h compat/widgets/q3scrollview.cpp
 
-class QTestScrollView;
+QT_DECLARE_CLASS(QTestScrollView)
 Q_DECLARE_METATYPE(QTestScrollView *)
 Q_DECLARE_METATYPE(QPixmap)
 

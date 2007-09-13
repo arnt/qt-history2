@@ -28,6 +28,8 @@
 #include "private/qcssparser_p.h"
 #include "QtCore/qsize.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPainter;
 
 extern void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, qreal dw2,
@@ -42,5 +44,7 @@ extern void qDrawBorder(QPainter *p, const QRect &rect, const QCss::BorderStyle 
 
 extern void qNormalizeRadii(const QRect &br, const QSize *radii,
                             QSize *tlr, QSize *trr, QSize *blr, QSize *brr);
+
+QT_END_NAMESPACE
 
 #endif // QCSSUTIL_P_H

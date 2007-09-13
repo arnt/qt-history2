@@ -33,6 +33,8 @@
 #include <qurl.h>
 #include <qmutex.h>
 
+QT_BEGIN_NAMESPACE
+
 class QOpenUrlHandlerRegistry : public QObject
 {
     Q_OBJECT
@@ -225,6 +227,8 @@ void QDesktopServices::unsetUrlHandler(const QString &scheme)
 {
     setUrlHandler(scheme, 0, 0);
 }
+
+QT_END_NAMESPACE
 
 #include "qdesktopservices.moc"
 

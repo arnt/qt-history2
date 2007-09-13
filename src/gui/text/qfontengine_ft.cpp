@@ -36,6 +36,8 @@
 #include FT_TYPE1_TABLES_H
 #include FT_GLYPH_H
 
+QT_BEGIN_NAMESPACE
+
 /*
  * Freetype 2.1.7 and earlier used width/height
  * for matching sizes in the BDF and PCF loaders.
@@ -81,11 +83,11 @@ public:
     QHash<QFontEngine::FaceId, QFreetypeFace *> faces;
 };
 
-Q_GLOBAL_STATIC(QThreadStorage<QtFreetypeData *>, freetypeData)
+Q_GLOBAL_STATIC(QThreadStorage<QtFreetypeData *>, theFreetypeData)
 
 QtFreetypeData *qt_getFreetypeData()
 {
-    QtFreetypeData *&freetypeData = ::freetypeData()->localData();
+    QtFreetypeData *&freetypeData = theFreetypeData()->localData();
     if (!freetypeData)
         freetypeData = new QtFreetypeData;
     return freetypeData;
@@ -1557,5 +1559,6 @@ HB_Error QFontEngineFT::getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 p
     return result;
 }
 
+QT_END_NAMESPACE
 
 #endif // QT_NO_FREETYPE

@@ -24,6 +24,8 @@
 
 #include <QtCore/QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 class ArrayClassData: public QScriptClassData
@@ -634,5 +636,7 @@ Array::Instance *Array::Instance::get(const QScriptValueImpl &object, QScriptCla
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

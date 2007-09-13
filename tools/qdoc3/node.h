@@ -28,6 +28,8 @@
 #include "location.h"
 #include "text.h"
 
+QT_BEGIN_NAMESPACE
+
 class InnerNode;
 
 class Node
@@ -480,5 +482,7 @@ public:
 
     virtual bool isInnerNode() const;
 };
+
+QT_END_NAMESPACE
 
 #endif

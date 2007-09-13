@@ -21,6 +21,8 @@
 #include <QtCore/QHash>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 #define USE_LAYOUT_SIZE_CONSTRAINT
 
 static const char *leftMargin = "leftMargin";
@@ -301,3 +303,5 @@ void LayoutPropertySheet::setChanged(int index, bool changed)
     QDesignerPropertySheet::setChanged(index, changed);
 }
 }
+
+QT_END_NAMESPACE

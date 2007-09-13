@@ -14,6 +14,8 @@
 #include "abstractintegration.h"
 #include "abstractformeditor.h"
 
+QT_BEGIN_NAMESPACE
+
 QDesignerIntegrationInterface::QDesignerIntegrationInterface(QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent),
       m_core(core)
@@ -21,3 +23,4 @@ QDesignerIntegrationInterface::QDesignerIntegrationInterface(QDesignerFormEditor
     core->setIntegration(this);
 }
 
+QT_END_NAMESPACE

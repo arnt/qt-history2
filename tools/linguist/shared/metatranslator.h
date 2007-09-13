@@ -20,6 +20,8 @@
 #include <QList>
 #include <QtCore/QDir>
 
+QT_BEGIN_NAMESPACE
+
 class QIODevice;
 class QTextCodec;
 
@@ -135,5 +137,7 @@ private:
 #define ContextComment "QT_LINGUIST_INTERNAL_CONTEXT_COMMENT"
 
 bool saveXLIFF( const MetaTranslator &mt, const QString& filename);
+
+QT_END_NAMESPACE
 
 #endif

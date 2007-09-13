@@ -19,6 +19,8 @@
 
 #include "qsqlquerymodel_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #define QSQL_PREFETCH 255
 
 void QSqlQueryModelPrivate::prefetch(int limit)
@@ -573,3 +575,4 @@ QModelIndex QSqlQueryModel::indexInQuery(const QModelIndex &item) const
                        item.internalPointer());
 }
 
+QT_END_NAMESPACE

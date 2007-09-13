@@ -29,6 +29,8 @@
 #include "QtCore/qvector.h"
 #include "QtCore/qset.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q_GUI_EXPORT QTextFormatCollection
 {
 public:
@@ -75,5 +77,7 @@ public:
 private:
     QFont defaultFnt;
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTFORMAT_P_H

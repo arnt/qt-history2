@@ -23,6 +23,8 @@
 
 #include "qpatternmatchingfns_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 MatchesFN::MatchesFN() : PatternPlatform(2)
@@ -207,3 +209,5 @@ Item::Iterator::Ptr TokenizeFN::evaluateSequence(const DynamicContext::Ptr &cont
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

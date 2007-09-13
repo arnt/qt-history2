@@ -24,6 +24,7 @@
     Returns a human readable representation of the first \a len
     characters in \a data.
 */
+QT_BEGIN_NAMESPACE
 static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 {
     if (!data) return "(null)";
@@ -48,6 +49,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
     return out;
 }
+QT_END_NAMESPACE
 #endif
 
 #include "qplatformdefs.h"
@@ -74,6 +76,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+
+QT_BEGIN_NAMESPACE
 
 #ifdef Q_OS_INTEGRITY
 static inline char *strdup(const char *data)
@@ -1313,6 +1317,8 @@ void QProcessPrivate::initializeProcessManager()
 {
     (void) processManager();
 }
+
+QT_END_NAMESPACE
 
 #include "qprocess_unix.moc"
 

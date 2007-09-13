@@ -5,6 +5,8 @@
 #include <QtCore/QByteArray>
 #include "../global.h"
 
+QT_BEGIN_NAMESPACE
+
 /////////////////////////////////////////////////////////////
 
 static QScriptValue toUtf8(QScriptContext *ctx, QScriptEngine *eng)
@@ -81,3 +83,5 @@ void extendStringPrototype(QScriptEngine *eng)
     eng->globalObject().property("String").setProperty("fromUtf8", eng->newFunction(fromUtf8));
 }
 
+
+QT_END_NAMESPACE

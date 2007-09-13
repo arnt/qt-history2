@@ -17,6 +17,8 @@
 #include <private/qmath_p.h>
 #include "private/qcups_p.h"
 
+QT_BEGIN_NAMESPACE
+
 extern int qt_defaultDpi();
 
 #ifndef QT_NO_PRINTER
@@ -1780,6 +1782,6 @@ QRect QPdfBaseEnginePrivate::pageRect() const
         return QRect(y, x, h, w);
 }
 
-
 #endif
 
+QT_END_NAMESPACE

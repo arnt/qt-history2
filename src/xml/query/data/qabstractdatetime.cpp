@@ -20,6 +20,8 @@
 
 #include "qabstractdatetime_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 AbstractDateTime::AbstractDateTime(const QDateTime &dateTime) : m_dateTime(dateTime)
@@ -369,3 +371,5 @@ Item AbstractDateTime::fromValue(const QDateTime &) const
     return Item();
 }
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

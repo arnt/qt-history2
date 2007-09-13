@@ -18,6 +18,8 @@
 #include <extensionfactory_p.h>
 #include <spacer_widget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class SpacerPropertySheet: public QDesignerPropertySheet
@@ -36,5 +38,7 @@ public:
 
 typedef QDesignerPropertySheetFactory<Spacer, SpacerPropertySheet> SpacerPropertySheetFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // SPACER_PROPERTYSHEET_H

@@ -23,6 +23,8 @@
 
 #include <QtCore/QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 Boolean::Boolean(QScriptEnginePrivate *eng):
@@ -101,5 +103,7 @@ QScriptValueImpl Boolean::method_valueOf(QScriptContextPrivate *context,
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

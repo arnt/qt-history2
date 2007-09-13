@@ -32,11 +32,22 @@
 #include "private/qfont_p.h"
 
 #ifdef Q_WS_WIN
-#include "QtCore/qt_windows.h"
+#   include "QtCore/qt_windows.h"
 #endif
+
+#ifdef Q_WS_MAC
+#   include "private/qt_mac_p.h"
+#   include "QtCore/qmap.h"
+#   include "QtCore/qcache.h"
+#   include "private/qcore_mac_p.h"
+#endif
+
 struct glyph_metrics_t;
-class QChar;
 typedef unsigned int glyph_t;
+
+QT_BEGIN_NAMESPACE
+
+class QChar;
 class QPainterPath;
 
 class QTextEngine;
@@ -320,11 +331,6 @@ protected:
 };
 
 #if defined(Q_WS_MAC)
-#include "private/qt_mac_p.h"
-#include "QtCore/qmap.h"
-#include "QtCore/qcache.h"
-
-#include "private/qcore_mac_p.h"
 
 struct QCharAttributes;
 class QFontEngineMacMulti;
@@ -438,15 +444,17 @@ private:
 
 #endif
 
-#if defined(Q_WS_WIN)
-#  include "private/qfontengine_win_p.h"
-#endif
-
 class QTestFontEngine : public QFontEngineBox
 {
 public:
     QTestFontEngine(int size) : QFontEngineBox(size) {}
     Type type() const { return TestFontEngine; }
 };
+
+QT_END_NAMESPACE
+
+#ifdef Q_WS_WIN
+#   include "private/qfontengine_win_p.h"
+#endif
 
 #endif // QFONTENGINE_P_H

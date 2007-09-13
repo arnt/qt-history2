@@ -28,6 +28,8 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   QFontEngine debug facilities
  *****************************************************************************/
@@ -702,6 +704,8 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineMac::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
+    Q_UNUSED(flags)
+
     QVarLengthArray<GlyphID> atsuGlyphs(len);
     for (int i = 0; i < len; ++i)
         atsuGlyphs[i] = glyphs[i].glyph;
@@ -794,7 +798,7 @@ QFixed QFontEngineMac::averageCharWidth() const
     return QFixed::fromReal(metrics.avgAdvanceWidth * fontDef.pointSize);
 }
 
-static void addGlyphsToPath(ATSUStyle style, glyph_t *glyphs, QFixedPoint *positions, int numGlyphs, QPainterPath *path)
+static void addGlyphsToPathHelper(ATSUStyle style, glyph_t *glyphs, QFixedPoint *positions, int numGlyphs, QPainterPath *path)
 {
     if (!numGlyphs)
         return;
@@ -824,7 +828,7 @@ static void addGlyphsToPath(ATSUStyle style, glyph_t *glyphs, QFixedPoint *posit
 void QFontEngineMac::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs, QPainterPath *path,
                                            QTextItem::RenderFlags)
 {
-    ::addGlyphsToPath(style, glyphs, positions, numGlyphs, path);
+    addGlyphsToPathHelper(style, glyphs, positions, numGlyphs, path);
 }
 
 QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
@@ -1093,8 +1097,9 @@ void QFontEngineMac::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_m
     metrics->yoff = QFixed::fromReal(atsuMetrics.deviceAdvance.y);
 
     QFixedPoint p;
-    ::addGlyphsToPath(unscaledStyle, &glyph, &p, 1, path);
+    addGlyphsToPathHelper(unscaledStyle, &glyph, &p, 1, path);
 
     ATSUDisposeStyle(unscaledStyle);
 }
 
+QT_END_NAMESPACE

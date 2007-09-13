@@ -53,6 +53,9 @@
 #include <private/qpaintengine_opengl_p.h>
 #include <qimage.h>
 
+QT_BEGIN_NAMESPACE
+
+extern void qgl_cleanup_glyph_cache(QGLContext *);
 
 void QGLPixelBufferPrivate::common_init(const QSize &size, const QGLFormat &format, QGLWidget *shareWidget)
 {
@@ -132,8 +135,6 @@ QGLPixelBuffer::~QGLPixelBuffer()
     Q_D(QGLPixelBuffer);
 
     // defined in qpaintengine_opengl.cpp
-    extern void qgl_cleanup_glyph_cache(QGLContext *);
-
     QGLContext *current = const_cast<QGLContext *>(QGLContext::currentContext());
     if (current != d->qctx)
         makeCurrent();
@@ -489,6 +490,7 @@ QGLFormat QGLPixelBuffer::format() const
 }
 
 /*! \fn int QGLPixelBuffer::devType() const
-
     \reimp
 */
+
+QT_END_NAMESPACE

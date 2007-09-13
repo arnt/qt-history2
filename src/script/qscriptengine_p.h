@@ -47,6 +47,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -852,6 +854,8 @@ inline void QScriptEnginePrivate::notifyExceptionCatch(QScriptContextPrivate *ct
 }
 
 #endif // Q_SCRIPT_NO_EVENT_NOTIFY
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 

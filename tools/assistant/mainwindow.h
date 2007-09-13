@@ -20,6 +20,8 @@
 #include <QPointer>
 #include <QMap>
 
+QT_BEGIN_NAMESPACE
+
 class TabbedBrowser;
 class HelpDialog;
 class HelpWindow;
@@ -102,3 +104,5 @@ private:
 };
 
 #endif // MAINWINDOW_H
+
+QT_END_NAMESPACE

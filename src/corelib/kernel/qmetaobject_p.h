@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 #ifndef UTILS_H
 // mirrored in moc's utils.h
 static inline bool is_ident_char(char s)
@@ -166,6 +170,8 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
 
     return result;
 }
+
+QT_END_NAMESPACE
 
 #endif
 

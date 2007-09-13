@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
 
 /*****************************************************************************
   X bitmap image read/write functions
@@ -313,5 +314,7 @@ QByteArray QXbmHandler::name() const
 {
     return "xbm";
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_IMAGEFORMAT_XBM

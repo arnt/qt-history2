@@ -16,6 +16,10 @@
 #include <qbitmap.h>
 #include <qwsdisplay_qws.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 #ifndef QT_NO_CURSOR
 
 static int nextCursorId = Qt::BitmapCursor;
@@ -100,3 +104,5 @@ void QCursor::setPos(int x, int y)
         return;
     QPaintDevice::qwsDisplay()->setCursorPosition(x, y);
 }
+
+QT_END_NAMESPACE

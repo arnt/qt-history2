@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/threads/mandelbrot
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS mandelbrot.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/threads/mandelbrot
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

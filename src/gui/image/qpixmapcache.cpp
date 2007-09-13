@@ -22,6 +22,8 @@
 #include <private/qpixmap_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QPixmapCache
 
@@ -96,7 +98,9 @@ private:
     int ps;
     bool t;
 };
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qpixmapcache.moc"
+QT_END_INCLUDE_NAMESPACE
 
 /*
   This is supposed to cut the cache size down by about 80-90% in a
@@ -296,3 +300,4 @@ void QPixmapCache::clear()
     pm_cache()->clear();
 }
 
+QT_END_NAMESPACE

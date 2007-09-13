@@ -823,7 +823,7 @@ void tst_QDataStream::readQBitArray(QDataStream *s)
 
 // ************************************
 
-static QBrush QBrushData(int index)
+static QBrush qBrushData(int index)
 {
     switch (index)
     {
@@ -858,7 +858,7 @@ void tst_QDataStream::stream_QBrush()
 
 void tst_QDataStream::writeQBrush(QDataStream *s)
 {
-    QBrush brush = QBrushData(dataIndex(QTest::currentDataTag()));
+    QBrush brush = qBrushData(dataIndex(QTest::currentDataTag()));
     *s << brush;
 }
 
@@ -867,7 +867,7 @@ void tst_QDataStream::readQBrush(QDataStream *s)
     QBrush d2;
     *s >> d2;
 
-    QBrush brush = QBrushData(dataIndex(QTest::currentDataTag()));
+    QBrush brush = qBrushData(dataIndex(QTest::currentDataTag()));
     QVERIFY(d2 == brush);
 }
 
@@ -917,7 +917,7 @@ void tst_QDataStream::readQColor(QDataStream *s)
 
 // ************************************
 
-static QByteArray QByteArrayData(int index)
+static QByteArray qByteArrayData(int index)
 {
     switch (index)
     {
@@ -946,13 +946,13 @@ void tst_QDataStream::stream_QByteArray()
 
 void tst_QDataStream::writeQByteArray(QDataStream *s)
 {
-    QByteArray d4(QByteArrayData(dataIndex(QTest::currentDataTag())));
+    QByteArray d4(qByteArrayData(dataIndex(QTest::currentDataTag())));
     *s << d4;
 }
 
 void tst_QDataStream::readQByteArray(QDataStream *s)
 {
-    QByteArray test(QByteArrayData(dataIndex(QTest::currentDataTag())));
+    QByteArray test(qByteArrayData(dataIndex(QTest::currentDataTag())));
     QByteArray d4;
     *s >> d4;
     QCOMPARE(d4, test);
@@ -960,7 +960,7 @@ void tst_QDataStream::readQByteArray(QDataStream *s)
 
 // ************************************
 
-static QCursor QCursorData(int index)
+static QCursor qCursorData(int index)
 {
     switch (index)
     {
@@ -990,13 +990,13 @@ void tst_QDataStream::stream_QCursor()
 
 void tst_QDataStream::writeQCursor(QDataStream *s)
 {
-    QCursor d5(QCursorData(dataIndex(QTest::currentDataTag())));
+    QCursor d5(qCursorData(dataIndex(QTest::currentDataTag())));
     *s << d5;
 }
 
 void tst_QDataStream::readQCursor(QDataStream *s)
 {
-    QCursor test(QCursorData(dataIndex(QTest::currentDataTag())));
+    QCursor test(qCursorData(dataIndex(QTest::currentDataTag())));
     QCursor d5;
     *s >> d5;
 
@@ -1012,7 +1012,7 @@ void tst_QDataStream::readQCursor(QDataStream *s)
 
 // ************************************
 
-static QDate QDateData(int index)
+static QDate qDateData(int index)
 {
     switch (index)
     {
@@ -1049,13 +1049,13 @@ void tst_QDataStream::stream_QDate()
 
 void tst_QDataStream::writeQDate(QDataStream *s)
 {
-    QDate d6(QDateData(dataIndex(QTest::currentDataTag())));
+    QDate d6(qDateData(dataIndex(QTest::currentDataTag())));
     *s << d6;
 }
 
 void tst_QDataStream::readQDate(QDataStream *s)
 {
-    QDate test(QDateData(dataIndex(QTest::currentDataTag())));
+    QDate test(qDateData(dataIndex(QTest::currentDataTag())));
     QDate d6;
     *s >> d6;
     QVERIFY(d6 == test);
@@ -1063,7 +1063,7 @@ void tst_QDataStream::readQDate(QDataStream *s)
 
 // ************************************
 
-static QTime QTimeData(int index)
+static QTime qTimeData(int index)
 {
     switch (index)
     {
@@ -1144,13 +1144,13 @@ void tst_QDataStream::stream_QTime()
 
 void tst_QDataStream::writeQTime(QDataStream *s)
 {
-    QTime d7 = QTimeData(dataIndex(QTest::currentDataTag()));
+    QTime d7 = qTimeData(dataIndex(QTest::currentDataTag()));
     *s << d7;
 }
 
 void tst_QDataStream::readQTime(QDataStream *s)
 {
-    QTime test = QTimeData(dataIndex(QTest::currentDataTag()));
+    QTime test = qTimeData(dataIndex(QTest::currentDataTag()));
     QTime d7;
     *s >> d7;
     QVERIFY(d7 == test);
@@ -1158,7 +1158,7 @@ void tst_QDataStream::readQTime(QDataStream *s)
 
 // ************************************
 
-static QDateTime QDateTimeData(int index)
+static QDateTime qDateTimeData(int index)
 {
     switch (index)
     {
@@ -1195,13 +1195,13 @@ void tst_QDataStream::stream_QDateTime()
 
 void tst_QDataStream::writeQDateTime(QDataStream *s)
 {
-    QDateTime dt(QDateTimeData(dataIndex(QTest::currentDataTag())));
+    QDateTime dt(qDateTimeData(dataIndex(QTest::currentDataTag())));
     *s << dt;
 }
 
 void tst_QDataStream::readQDateTime(QDataStream *s)
 {
-    QDateTime test(QDateTimeData(dataIndex(QTest::currentDataTag())));
+    QDateTime test(qDateTimeData(dataIndex(QTest::currentDataTag())));
     QDateTime d8;
     *s >> d8;
     QVERIFY(d8 == test);
@@ -1209,7 +1209,7 @@ void tst_QDataStream::readQDateTime(QDataStream *s)
 
 // ************************************
 
-static QFont QFontData(int index)
+static QFont qFontData(int index)
 {
     switch (index)
     {
@@ -1305,13 +1305,13 @@ void tst_QDataStream::stream_QFont()
 
 void tst_QDataStream::writeQFont(QDataStream *s)
 {
-    QFont d9(QFontData(dataIndex(QTest::currentDataTag())));
+    QFont d9(qFontData(dataIndex(QTest::currentDataTag())));
     *s << d9;
 }
 
 void tst_QDataStream::readQFont(QDataStream *s)
 {
-    QFont test(QFontData(dataIndex(QTest::currentDataTag())));
+    QFont test(qFontData(dataIndex(QTest::currentDataTag())));
     QFont d9;
     *s >> d9;
 
@@ -1383,7 +1383,7 @@ void tst_QDataStream::readQImage(QDataStream *s)
 
 // ************************************
 
-static QPalette QPaletteData(int index)
+static QPalette qPaletteData(int index)
 {
     QColorGroup g1(
 	QBrush(Qt::red, Qt::SolidPattern),
@@ -1442,13 +1442,13 @@ void tst_QDataStream::stream_QPalette()
 
 void tst_QDataStream::writeQPalette(QDataStream *s)
 {
-    QPalette d13(QPaletteData(dataIndex(QTest::currentDataTag())));
+    QPalette d13(qPaletteData(dataIndex(QTest::currentDataTag())));
     *s << d13;
 }
 
 void tst_QDataStream::readQPalette(QDataStream *s)
 {
-    QPalette test(QPaletteData(dataIndex(QTest::currentDataTag())));
+    QPalette test(qPaletteData(dataIndex(QTest::currentDataTag())));
     QPalette d13;
     *s >> d13;
     QVERIFY(d13 == test);
@@ -1524,7 +1524,7 @@ void tst_QDataStream::readQColorGroup(QDataStream *s)
 
 // ************************************
 
-static QPen QPenData(int index)
+static QPen qPenData(int index)
 {
     switch (index)
     {
@@ -1600,13 +1600,13 @@ void tst_QDataStream::stream_QPen()
 
 void tst_QDataStream::writeQPen(QDataStream *s)
 {
-    QPen d15(QPenData(dataIndex(QTest::currentDataTag())));
+    QPen d15(qPenData(dataIndex(QTest::currentDataTag())));
     *s << d15;
 }
 
 void tst_QDataStream::readQPen(QDataStream *s)
 {
-    QPen origPen(QPenData(dataIndex(QTest::currentDataTag())));
+    QPen origPen(qPenData(dataIndex(QTest::currentDataTag())));
     QPen d15;
     *s >> d15;
     QCOMPARE(d15.style(), origPen.style());
@@ -1704,7 +1704,7 @@ void tst_QDataStream::readQIcon(QDataStream *s)
 
 // ************************************
 
-QPoint QPointData(int index)
+QPoint qPointData(int index)
 {
     switch (index)
     {
@@ -1738,7 +1738,7 @@ void tst_QDataStream::stream_QPoint()
 
 void tst_QDataStream::writeQPoint(QDataStream *s)
 {
-    QPoint d17(QPointData(dataIndex(QTest::currentDataTag())));
+    QPoint d17(qPointData(dataIndex(QTest::currentDataTag())));
     *s << d17;
 
     QPointF d17f = d17;
@@ -1747,7 +1747,7 @@ void tst_QDataStream::writeQPoint(QDataStream *s)
 
 void tst_QDataStream::readQPoint(QDataStream *s)
 {
-    QPoint ref(QPointData(dataIndex(QTest::currentDataTag())));
+    QPoint ref(qPointData(dataIndex(QTest::currentDataTag())));
     QPoint d17;
     *s >> d17;
     QVERIFY(d17 == ref);
@@ -1759,7 +1759,7 @@ void tst_QDataStream::readQPoint(QDataStream *s)
 
 // ************************************
 
-static QRect QRectData(int index)
+static QRect qRectData(int index)
 {
     switch (index)
     {
@@ -1791,7 +1791,7 @@ void tst_QDataStream::stream_QRect()
 
 void tst_QDataStream::writeQRect(QDataStream *s)
 {
-    QRect d18(QRectData(dataIndex(QTest::currentDataTag())));
+    QRect d18(qRectData(dataIndex(QTest::currentDataTag())));
     *s << d18;
 
     QRectF d18f(d18);
@@ -1800,7 +1800,7 @@ void tst_QDataStream::writeQRect(QDataStream *s)
 
 void tst_QDataStream::readQRect(QDataStream *s)
 {
-    QRect ref(QRectData(dataIndex(QTest::currentDataTag())));
+    QRect ref(qRectData(dataIndex(QTest::currentDataTag())));
     QRect d18;
     *s >> d18;
     QVERIFY(d18 == ref);
@@ -1812,7 +1812,7 @@ void tst_QDataStream::readQRect(QDataStream *s)
 
 // ************************************
 
-static QPolygon QPolygonData(int index)
+static QPolygon qPolygonData(int index)
 {
     QPoint p0(0, 0);
     QPoint p1(1, 1);
@@ -1898,7 +1898,7 @@ void tst_QDataStream::stream_QPolygon()
 
 void tst_QDataStream::writeQPolygon(QDataStream *s)
 {
-    QPolygon d19(QPolygonData(dataIndex(QTest::currentDataTag())));
+    QPolygon d19(qPolygonData(dataIndex(QTest::currentDataTag())));
     *s << d19;
 
     QPolygonF d19f(d19);
@@ -1907,7 +1907,7 @@ void tst_QDataStream::writeQPolygon(QDataStream *s)
 
 void tst_QDataStream::readQPolygon(QDataStream *s)
 {
-    QPolygon ref(QPolygonData(dataIndex(QTest::currentDataTag())));
+    QPolygon ref(qPolygonData(dataIndex(QTest::currentDataTag())));
     QPolygon d19;
     *s >> d19;
     QVERIFY(d19 == ref);
@@ -1919,7 +1919,7 @@ void tst_QDataStream::readQPolygon(QDataStream *s)
 
 // ************************************
 
-static QRegion QRegionData(int index)
+static QRegion qRegionData(int index)
 {
     switch (index)
     {
@@ -1965,13 +1965,13 @@ void tst_QDataStream::stream_QRegion()
 
 void tst_QDataStream::writeQRegion(QDataStream *s)
 {
-    QRegion r(QRegionData(dataIndex(QTest::currentDataTag())));
+    QRegion r(qRegionData(dataIndex(QTest::currentDataTag())));
     *s << r;
 }
 
 void tst_QDataStream::readQRegion(QDataStream *s)
 {
-    QRegion ref(QRegionData(dataIndex(QTest::currentDataTag())));
+    QRegion ref(qRegionData(dataIndex(QTest::currentDataTag())));
     QRegion r;
     *s >> r;
     QVERIFY(r == ref);
@@ -1979,7 +1979,7 @@ void tst_QDataStream::readQRegion(QDataStream *s)
 
 // ************************************
 
-static QSize QSizeData(int index)
+static QSize qSizeData(int index)
 {
     switch (index)
     {
@@ -2011,7 +2011,7 @@ void tst_QDataStream::stream_QSize()
 
 void tst_QDataStream::writeQSize(QDataStream *s)
 {
-    QSize d21(QSizeData(dataIndex(QTest::currentDataTag())));
+    QSize d21(qSizeData(dataIndex(QTest::currentDataTag())));
     *s << d21;
 
     QSizeF d21f(d21);
@@ -2020,7 +2020,7 @@ void tst_QDataStream::writeQSize(QDataStream *s)
 
 void tst_QDataStream::readQSize(QDataStream *s)
 {
-    QSize ref(QSizeData(dataIndex(QTest::currentDataTag())));
+    QSize ref(qSizeData(dataIndex(QTest::currentDataTag())));
     QSize d21;
     *s >> d21;
     QVERIFY(d21 == ref);

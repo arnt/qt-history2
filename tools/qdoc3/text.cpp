@@ -20,6 +20,8 @@
 #include "text.h"
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 Text::Text()
     : first(0), last(0)
 {
@@ -223,3 +225,5 @@ int Text::compare(const Text &text1, const Text &text2)
         atom2 = atom2->next();
     }
 }
+
+QT_END_NAMESPACE

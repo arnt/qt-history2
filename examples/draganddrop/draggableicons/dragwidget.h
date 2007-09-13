@@ -16,8 +16,8 @@
 
 #include <QFrame>
 
-class QDragEnterEvent;
-class QDropEvent;
+QT_DECLARE_CLASS(QDragEnterEvent)
+QT_DECLARE_CLASS(QDropEvent)
 
 class DragWidget : public QFrame
 {

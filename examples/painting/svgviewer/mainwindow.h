@@ -19,7 +19,7 @@
 
 #include "svgwindow.h"
 
-class QAction;
+QT_DECLARE_CLASS(QAction)
 
 class MainWindow : public QMainWindow
 {

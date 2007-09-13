@@ -15,6 +15,7 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
 
 /*!
     \class QPoint
@@ -695,3 +696,5 @@ QDataStream &operator>>(QDataStream &s, QPointF &p)
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
+QT_END_NAMESPACE

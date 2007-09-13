@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_ACTION
@@ -198,9 +200,13 @@ private:
     friend class QToolButton;
 };
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <QtGui/qactiongroup.h>
+QT_END_INCLUDE_NAMESPACE
 
 #endif // QT_NO_ACTION
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerWidgetBoxInterface;
 class QDesignerPropertyEditorInterface;
 class QDesignerFormWindowManagerInterface;
@@ -42,7 +44,7 @@ class QExtensionManager;
 
 class  QDesignerFormEditorInterfacePrivate;
 
-class QDESIGNER_SDK_EXPORT QDesignerFormEditorInterface: public QObject
+class QDESIGNER_SDK_EXPORT QDesignerFormEditorInterface : public QObject
 {
     Q_OBJECT
 public:
@@ -108,6 +110,8 @@ private:
     QDesignerFormEditorInterface(const QDesignerFormEditorInterface &other);
     void operator = (const QDesignerFormEditorInterface &other);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -62,6 +62,8 @@
     objects of the same application.
 */
 
+QT_BEGIN_NAMESPACE
+
 struct QConfFileCustomFormat
 {
     QString extension;
@@ -90,8 +92,10 @@ inline bool qt_isEvilFsTypeName(const char *name)
 }
 
 #if defined(Q_OS_BSD4) && !defined(Q_OS_NETBSD)
+QT_BEGIN_INCLUDE_NAMESPACE
 # include <sys/param.h>
 # include <sys/mount.h>
+QT_END_INCLUDE_NAMESPACE
 
 static bool isLikelyToBeNfs(int handle)
 {
@@ -102,7 +106,9 @@ static bool isLikelyToBeNfs(int handle)
 }
 
 #elif (defined(Q_OS_LINUX) || defined(Q_OS_HURD)) && !defined(QT_LSB)
+QT_BEGIN_INCLUDE_NAMESPACE
 # include <sys/vfs.h>
+QT_END_INCLUDE_NAMESPACE
 # ifndef NFS_SUPER_MAGIC
 #  define NFS_SUPER_MAGIC       0x00006969
 # endif
@@ -126,7 +132,9 @@ static bool isLikelyToBeNfs(int handle)
 #elif defined(Q_OS_SOLARIS) || defined(Q_OS_IRIX) || defined(Q_OS_AIX) || defined(Q_OS_HPUX) \
       || defined(Q_OS_OSF) || defined(Q_OS_QNX) || defined(Q_OS_QNX6) || defined(Q_OS_SCO) \
       || defined(Q_OS_UNIXWARE) || defined(Q_OS_RELIANT) || defined(Q_OS_NETBSD)
+QT_BEGIN_INCLUDE_NAMESPACE
 # include <sys/statvfs.h>
+QT_END_INCLUDE_NAMESPACE
 
 static bool isLikelyToBeNfs(int handle)
 {
@@ -3647,5 +3655,7 @@ QSettings::Format QSettings::registerFormat(const QString &extension, ReadFunc r
     \endcode
 */
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SETTINGS

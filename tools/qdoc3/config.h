@@ -24,6 +24,8 @@
 
 #include "location.h"
 
+QT_BEGIN_NAMESPACE
+
 class Config
 {
 public:
@@ -119,5 +121,7 @@ private:
 #define CONFIG_VERSIONSYM               "versionsym"
 
 #define CONFIG_FILEEXTENSIONS           "fileextensions"
+
+QT_END_NAMESPACE
 
 #endif

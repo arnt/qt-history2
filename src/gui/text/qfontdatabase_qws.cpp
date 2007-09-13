@@ -40,6 +40,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QFontEngineFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/fontengines"), Qt::CaseInsensitive))
@@ -942,3 +944,5 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     d->engineData->engines[script] = engine;
 }
 
+
+QT_END_NAMESPACE

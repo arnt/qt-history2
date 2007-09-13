@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 #if defined(qdoc)
@@ -99,6 +101,8 @@ inline Q3StrList::Q3StrList( const Q3StrList &strList )
     dc = false;
     operator=( strList );
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

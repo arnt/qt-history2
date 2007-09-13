@@ -20,6 +20,8 @@
 
 #include <qstring.h>
 
+QT_BEGIN_NAMESPACE
+
 class Atom
 {
 public:
@@ -77,5 +79,7 @@ private:
 #define ATOM_LIST_NUMERIC               "numeric"
 #define ATOM_LIST_UPPERALPHA            "upperalpha"
 #define ATOM_LIST_UPPERROMAN            "upperroman"
+
+QT_END_NAMESPACE
 
 #endif

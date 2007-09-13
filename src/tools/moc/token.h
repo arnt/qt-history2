@@ -14,6 +14,10 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 enum Token {
     NOTOKEN,
     IDENTIFIER,
@@ -233,4 +237,7 @@ const char *tokenTypeName(Token t);
 #endif
 
 typedef Token PP_Token;
+
+QT_END_NAMESPACE
+
 #endif // TOKEN_H

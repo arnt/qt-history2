@@ -30,6 +30,8 @@
 #include "QtGui/qregion.h"
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPaintDevice;
 
 class QPaintEnginePrivate
@@ -45,5 +47,7 @@ public:
 private:
     QRect systemRect;
 };
+
+QT_END_NAMESPACE
 
 #endif // QPAINTENGINE_P_H

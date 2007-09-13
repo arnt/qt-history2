@@ -9,3 +9,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/tools/codecs
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS encodedfiles codecs.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/codecs
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

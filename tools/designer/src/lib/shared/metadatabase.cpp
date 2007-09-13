@@ -22,6 +22,8 @@
 #include <QtCore/qalgorithms.h>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     const bool debugMetaDatabase = false;
 }
@@ -299,5 +301,6 @@ QDESIGNER_SHARED_EXPORT bool setPropertyComment(QDesignerFormEditorInterface* co
     return true;
 }    
 
-
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QEventLoopPrivate;
@@ -62,6 +64,8 @@ public Q_SLOTS:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QEventLoop::ProcessEventsFlags)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

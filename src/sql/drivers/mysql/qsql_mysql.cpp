@@ -27,6 +27,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_OS_WIN32
 // comment the next line out if you want to use MySQL/embedded on Win32 systems.
 // note that it will crash if you don't statically link to the mysql/e library!
@@ -45,6 +47,8 @@ Q_DECLARE_METATYPE(MYSQL_STMT*)
 #else
 #  define Q_CLIENT_MULTI_STATEMENTS 0
 #endif
+
+QT_USE_NAMESPACE
 
 class QMYSQLDriverPrivate
 {
@@ -1293,3 +1297,5 @@ QString QMYSQLDriver::formatValue(const QSqlField &field, bool trimStrings) cons
     }
     return r;
 }
+
+QT_END_NAMESPACE

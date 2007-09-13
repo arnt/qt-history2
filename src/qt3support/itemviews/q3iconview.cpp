@@ -47,6 +47,8 @@
 #include <limits.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 #define RECT_EXTENSION 300
 
 static const char * const unknown_xpm[] = {
@@ -6217,5 +6219,7 @@ bool Q3IconView::isRenaming() const
 
     \sa StringComparisonMode
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_ICONVIEW

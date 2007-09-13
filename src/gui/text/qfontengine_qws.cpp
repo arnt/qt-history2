@@ -43,8 +43,12 @@
 
 #endif // QT_NO_QWS_QPF
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_QWS_QPF
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qplatformdefs.h"
+QT_END_INCLUDE_NAMESPACE
 
 static inline unsigned int getChar(const QChar *str, int &i, const int len)
 {
@@ -544,5 +548,6 @@ QFixed QFontEngineQPF1::lineThickness() const
     return d->fm.underlinewidth;
 }
 
-
 #endif //QT_NO_QWS_QPF
+
+QT_END_NAMESPACE

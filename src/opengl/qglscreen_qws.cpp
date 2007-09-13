@@ -16,6 +16,8 @@
 #include <QGLWidget>
 #include "private/qglwindowsurface_qws_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QGLScreenPrivate
 {
 
@@ -70,3 +72,5 @@ QGLScreen::chooseContext(QGLContext *context, const QGLContext *shareContext)
     }
     return false;
 }
+
+QT_END_NAMESPACE

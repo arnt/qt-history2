@@ -9,6 +9,8 @@ Q_DECLARE_METATYPE(QImage)
 Q_DECLARE_METATYPE(QImage*)
 Q_DECLARE_METATYPE(QVector<QRgb>)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newImage(QScriptEngine *eng, const QImage &image)
 {
     return eng->newVariant(qVariantFromValue(image));
@@ -585,3 +587,5 @@ QScriptValue constructImageClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

@@ -14,10 +14,13 @@
 #ifndef Patternist_Cardinality_H
 #define Patternist_Cardinality_H
 
-class QString;
 #include <QtCore/QtGlobal>
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QString;
 
 namespace Patternist
 {
@@ -495,6 +498,8 @@ namespace Patternist
 }
 
 Q_DECLARE_TYPEINFO(Patternist::Cardinality, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

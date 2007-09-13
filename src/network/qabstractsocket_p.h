@@ -34,6 +34,8 @@
 #include "private/qnativesocketengine_p.h"
 #include "qnetworkproxy.h"
 
+QT_BEGIN_NAMESPACE
+
 class QHostInfo;
 
 class QAbstractSocketPrivate : public QIODevicePrivate, public QAbstractSocketEngineReceiver
@@ -116,5 +118,7 @@ public:
     QNetworkProxy *proxy;
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QABSTRACTSOCKET_P_H

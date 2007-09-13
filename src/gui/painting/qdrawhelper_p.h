@@ -39,6 +39,8 @@
 #include "QtGui/qscreen_qws.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*******************************************************************************
  * QSpan
  *
@@ -613,5 +615,7 @@ const uint qt_bayer_matrix[16][16] = {
 
 #define ARGB_COMBINE_ALPHA(argb, alpha) \
     ((((argb >> 24) * alpha) >> 8) << 24) | (argb & 0x00ffffff)
+
+QT_END_NAMESPACE
 
 #endif // QDRAWHELPER_P_H

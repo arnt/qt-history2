@@ -20,17 +20,20 @@
 #include "qt_windows.h"
 #include "qprinter.h"
 
+QT_BEGIN_NAMESPACE
+
 QPaintDevice::QPaintDevice()
 {
     painters = 0;
 }
+
+extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
 
 QPaintDevice::~QPaintDevice()
 {
     if (paintingActive())
         qWarning("QPaintDevice: Cannot destroy paint device that is being "
                   "painted.  Be sure to QPainter::end() painters!");
-    extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
     qt_painter_removePaintDevice(this);
 }
 
@@ -53,3 +56,5 @@ HDC QPaintDevice::getDC() const
 void QPaintDevice::releaseDC(HDC) const
 {
 }
+
+QT_END_NAMESPACE

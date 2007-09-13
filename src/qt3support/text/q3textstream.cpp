@@ -31,6 +31,8 @@
 #include "qt_windows.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TEXTCODEC
 static void resetCodecConverterState(QTextCodec::ConverterState *state) {
     state->flags = QTextCodec::DefaultConversion;
@@ -187,8 +189,8 @@ void Q3TextStream::init()
     owndev = FALSE;
     mapper = 0;
 #ifndef QT_NO_TEXTCODEC
-    ::resetCodecConverterState(&mapperReadState);
-    ::resetCodecConverterState(&mapperWriteState);
+    resetCodecConverterState(&mapperReadState);
+    resetCodecConverterState(&mapperWriteState);
 #endif
     d = new Q3TextStreamPrivate;
     doUnicodeHeader = TRUE; // autodetect
@@ -2299,8 +2301,8 @@ Q3TextStream &reset( Q3TextStream &s )
 
 void Q3TextStream::setEncoding( Encoding e )
 {
-    ::resetCodecConverterState(&mapperReadState);
-    ::resetCodecConverterState(&mapperWriteState);
+    resetCodecConverterState(&mapperReadState);
+    resetCodecConverterState(&mapperWriteState);
 
     if ( d->sourceType == Q3TextStreamPrivate::String )
 	return;
@@ -2419,5 +2421,7 @@ QTextCodec *Q3TextStream::codec()
 }
 
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_TEXTSTREAM

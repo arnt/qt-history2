@@ -27,6 +27,11 @@
 #include <private/qthread_p.h>
 #include <private/qmutexpool_p.h>
 
+QT_BEGIN_NAMESPACE
+
+HINSTANCE qWinAppInst();
+extern uint qGlobalPostedEventsCount();
+
 #ifndef TIME_KILL_SYNCHRONOUS
 #  define TIME_KILL_SYNCHRONOUS 0x0100
 #endif
@@ -39,7 +44,7 @@ struct QSockNot {
 };
 typedef QHash<int, QSockNot *> QSNDict;
 
-struct TimerInfo {                              // internal timer info
+struct WinTimerInfo {                           // internal timer info
     int timerId;
     int interval;
     QObject *obj;                               // - object to receive events
@@ -53,8 +58,8 @@ public:
     QZeroTimerEvent(int id) : QEvent(QEvent::ZeroTimerEvent), timerid(id) {}
 };
 
-typedef QList<TimerInfo*>  TimerVec;            // vector of TimerInfo structs
-typedef QHash<int,TimerInfo*> TimerDict;        // fast dict of timers
+typedef QList<WinTimerInfo*>  WinTimerVec;      // vector of TimerInfo structs
+typedef QHash<int, WinTimerInfo*> WinTimerDict; // fast dict of timers
 
 #if !defined(DWORD_PTR) && !defined(Q_WS_WIN64)
 #define DWORD_PTR DWORD
@@ -97,10 +102,10 @@ public:
     HWND internalHwnd;
 
     // timers
-    TimerVec timerVec;
-    TimerDict timerDict;
-    void registerTimer(::TimerInfo *t);
-    void unregisterTimer(::TimerInfo *t);
+    WinTimerVec timerVec;
+    WinTimerDict timerDict;
+    void registerTimer(WinTimerInfo *t);
+    void unregisterTimer(WinTimerInfo *t);
 
     // socket notifiers
     QSNDict sn_read;
@@ -131,7 +136,6 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
 
 QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
 {
-    extern HINSTANCE qWinAppInst();
     wakeUpNotifier.setEnabled(false);
     CloseHandle(wakeUpNotifier.handle());
     if (internalHwnd)
@@ -173,7 +177,7 @@ void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_P
     if (!timerId) // sanity check
         return;
 
-    TimerInfo *t = (TimerInfo*)user;
+    WinTimerInfo *t = (WinTimerInfo*)user;
     Q_ASSERT(t);
     QCoreApplication::postEvent(t->obj, new QTimerEvent(t->timerId));
 }
@@ -260,7 +264,7 @@ LRESULT CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
         Q_ASSERT(eventDispatcher != 0);
         QEventDispatcherWin32Private *d = eventDispatcher->d_func();
 
-        TimerInfo *t = d->timerDict.value(wp);
+        WinTimerInfo *t = d->timerDict.value(wp);
         if (t) {
             QTimerEvent e(t->timerId);
             QCoreApplication::sendEvent(t->obj, &e);
@@ -273,7 +277,6 @@ LRESULT CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
 
 static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatcher)
 {
-    extern HINSTANCE qWinAppInst();
     HINSTANCE hi = qWinAppInst();
     WNDCLASSA wc;
     wc.style = 0;
@@ -312,7 +315,7 @@ static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatch
     return wnd;
 }
 
-void QEventDispatcherWin32Private::registerTimer(::TimerInfo *t)
+void QEventDispatcherWin32Private::registerTimer(WinTimerInfo *t)
 {
     Q_ASSERT(internalHwnd);
 
@@ -338,7 +341,7 @@ void QEventDispatcherWin32Private::registerTimer(::TimerInfo *t)
         qErrnoWarning("QEventDispatcherWin32::registerTimer: Failed to create a timer");
 }
 
-void QEventDispatcherWin32Private::unregisterTimer(::TimerInfo *t)
+void QEventDispatcherWin32Private::unregisterTimer(WinTimerInfo *t)
 {
     if (t->fastTimerId != 0) {
         qtimeKillEvent(t->fastTimerId);
@@ -532,7 +535,6 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 bool QEventDispatcherWin32::hasPendingEvents()
 {
     MSG msg;
-    extern uint qGlobalPostedEventsCount();
     return qGlobalPostedEventsCount() || winPeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
 }
 
@@ -615,7 +617,7 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
 
     Q_D(QEventDispatcherWin32);
 
-    register ::TimerInfo *t = new ::TimerInfo;
+    register WinTimerInfo *t = new WinTimerInfo;
     t->timerId  = timerId;
     t->interval = interval;
     t->obj  = object;
@@ -644,7 +646,7 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
     if (d->timerVec.isEmpty() || timerId <= 0)
         return false;
 
-    ::TimerInfo *t = d->timerDict.value(timerId);
+    WinTimerInfo *t = d->timerDict.value(timerId);
     if (!t)
         return false;
 
@@ -669,7 +671,7 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
     Q_D(QEventDispatcherWin32);
     if (d->timerVec.isEmpty())
         return false;
-    register ::TimerInfo *t;
+    register WinTimerInfo *t;
     for (int i=0; i<d->timerVec.size(); i++) {
         t = d->timerVec.at(i);
         if (t && t->obj == object) {                // object found
@@ -693,7 +695,7 @@ QEventDispatcherWin32::registeredTimers(QObject *object) const
     Q_D(const QEventDispatcherWin32);
     QList<TimerInfo> list;
     for (int i = 0; i < d->timerVec.size(); ++i) {
-        const ::TimerInfo *t = d->timerVec.at(i);
+        const WinTimerInfo *t = d->timerVec.at(i);
         if (t && t->obj == object)
             list << TimerInfo(t->timerId, t->interval);
     }
@@ -796,11 +798,11 @@ bool QEventDispatcherWin32::event(QEvent *e)
     Q_D(QEventDispatcherWin32);
     if (e->type() == QEvent::ZeroTimerEvent) {
         QZeroTimerEvent *zte = static_cast<QZeroTimerEvent*>(e);
-        ::TimerInfo *t = d->timerDict.value(zte->timerid);
+        WinTimerInfo *t = d->timerDict.value(zte->timerid);
         if (t) {
             QTimerEvent te(zte->timerid);
             QCoreApplication::sendEvent(t->obj, &te);
-            ::TimerInfo *tn = d->timerDict.value(zte->timerid);
+            WinTimerInfo *tn = d->timerDict.value(zte->timerid);
             if (tn && t == tn)
                 QCoreApplication::postEvent(this, new QZeroTimerEvent(zte->timerid));
         }
@@ -808,3 +810,5 @@ bool QEventDispatcherWin32::event(QEvent *e)
     }
     return QAbstractEventDispatcher::event(e);
 }
+
+QT_END_NAMESPACE

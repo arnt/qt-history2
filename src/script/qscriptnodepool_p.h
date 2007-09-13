@@ -30,6 +30,8 @@
 
 #include "qscriptmemorypool_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
 
 namespace AST {
@@ -108,5 +110,6 @@ private:
 
 } // namespace QScript
 
-#endif
+QT_END_NAMESPACE
 
+#endif

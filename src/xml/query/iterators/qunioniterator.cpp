@@ -16,6 +16,8 @@
 
 #include "qunioniterator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 UnionIterator::UnionIterator(const Item::Iterator::Ptr &it1,
@@ -96,3 +98,5 @@ Item::Iterator::Ptr UnionIterator::copy() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

@@ -37,6 +37,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+QT_BEGIN_NAMESPACE
+
 // Well, Windows doesn't have this, so here's the macro
 #ifndef S_ISDIR
 #  define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
@@ -2974,3 +2976,5 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
     }
     return false;
 }
+
+QT_END_NAMESPACE

@@ -32,6 +32,8 @@
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 static const char *designerPath = "/.designer";
 static const char *newFormShowKey = "newFormDialog/ShowOnStartup";
 static const char *mainWindowStateKey = "MainWindowState";
@@ -304,3 +306,5 @@ void QDesignerSettings::setActionEditorViewMode(int vm)
 {
     setValue(QLatin1String(actionEditorViewModeKey), vm);
 }
+
+QT_END_NAMESPACE

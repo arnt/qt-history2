@@ -9,6 +9,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 static const unsigned char qt_resource_data[] = {
   // /Users/twschulz/troll/private/qthack/images/aavit.jpg
   0x0,0x0,0x6,0xc1,
@@ -8951,3 +8953,5 @@ int qCleanupResources_qthack()
     return 1;
 }
 Q_DESTRUCTOR_FUNCTION(qCleanupResources_qthack)
+
+QT_END_NAMESPACE

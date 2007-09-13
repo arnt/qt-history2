@@ -15,6 +15,8 @@
 #include "qlayout.h"
 #include "qapplication.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3Grid qgrid.h
     \brief The Q3Grid widget provides simple geometry management of its children.
@@ -106,3 +108,5 @@ QSize Q3Grid::sizeHint() const
     QApplication::sendPostedEvents(mThis, QEvent::ChildInserted);
     return Q3Frame::sizeHint();
 }
+
+QT_END_NAMESPACE

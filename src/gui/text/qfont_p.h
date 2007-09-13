@@ -31,6 +31,8 @@
 #include <private/qunicodetables_p.h>
 #include <QtGui/qfontdatabase.h>
 
+QT_BEGIN_NAMESPACE
+
 // forwards
 class QFontEngine;
 
@@ -270,5 +272,7 @@ public:
     bool fast;
     int timer_id;
 };
+
+QT_END_NAMESPACE
 
 #endif // QFONT_P_H

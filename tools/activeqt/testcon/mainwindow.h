@@ -16,12 +16,19 @@
 
 #include "ui_mainwindow.h"
 
+QT_BEGIN_NAMESPACE
+
 class InvokeMethod;
 class ChangeProperties;
 class AmbientProperties;
 class QAxScriptManager;
 
 class QWorkspace;
+
+QT_END_NAMESPACE
+
+QT_USE_NAMESPACE
+
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -67,6 +74,5 @@ private slots:
 
     void on_VerbMenu_triggered(QAction *action);
 };
-
 
 #endif // MAINWINDOW_H

@@ -23,12 +23,15 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qvariant.h>
 
+struct IUnknown;
+struct IDispatch;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(ActiveQt)
 
-struct IUnknown;
-struct IDispatch;
 struct QUuid;
 class QAxEventSink;
 class QAxObject;
@@ -150,9 +153,10 @@ template <> inline QAxBase *qobject_cast<QAxBase*>(QObject *o)
     return (QAxBase*)(result);
 }
 
+extern QString qax_generateDocumentation(QAxBase *);
+
 inline QString QAxBase::generateDocumentation()
 {
-    extern QString qax_generateDocumentation(QAxBase *);
     return qax_generateDocumentation(this);
 }
 
@@ -180,6 +184,8 @@ inline QDataStream &operator <<(QDataStream &s, const QAxBase &c)
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
+QT_END_NAMESPACE
 
 #ifndef Q_COM_METATYPE_DECLARED
 #define Q_COM_METATYPE_DECLARED

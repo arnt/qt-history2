@@ -16,6 +16,8 @@
 
 #include "ui_saveformastemplate.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 class SaveFormAsTemplate: public QDialog
@@ -35,5 +37,7 @@ private:
     QDesignerFormWindowInterface *m_formWindow;
     int m_addPathIndex;
 };
+
+QT_END_NAMESPACE
 
 #endif // SAVEFORMASTEMPLATE_H

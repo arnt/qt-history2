@@ -26,6 +26,8 @@
 
 #include "qatomicmathematicians_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 /* The translation strings is place here once, in order to reduce work for translators,
@@ -322,3 +324,5 @@ Item AbstractDateTimeMathematician::calculate(const Item &o1,
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

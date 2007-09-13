@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Svg)
     
 class QSvgGeneratorPrivate;
@@ -50,6 +52,8 @@ protected:
 private:
     QSvgGeneratorPrivate *d_ptr;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

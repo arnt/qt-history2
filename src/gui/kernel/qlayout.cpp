@@ -23,6 +23,8 @@
 #include "qwidget_p.h"
 #include "qlayout_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static int menuBarHeightForWidth(QWidget *menubar, int w)
 {
     if (menubar && !menubar->isHidden() && !menubar->isWindow()) {
@@ -484,7 +486,7 @@ QWidget *QLayout::parentWidget() const
     Q_D(const QLayout);
     if (!d->topLevel) {
         if (parent()) {
-            QLayout *parentLayout = ::qobject_cast<QLayout*>(parent());
+            QLayout *parentLayout = qobject_cast<QLayout*>(parent());
             Q_ASSERT(parentLayout);
             return parentLayout->parentWidget();
         } else {
@@ -619,7 +621,7 @@ void QLayout::widgetEvent(QEvent *e)
                 QWidget *w = (QWidget *)c->child();
                 if (!w->isWindow()) {
 #if !defined(QT_NO_MENUBAR) && !defined(QT_NO_TOOLBAR)
-                    if (qobject_cast<QMenuBar*>(w) && !::qobject_cast<QToolBar*>(w->parentWidget())) {
+                    if (qobject_cast<QMenuBar*>(w) && !qobject_cast<QToolBar*>(w->parentWidget())) {
                         d->menubar = (QMenuBar *)w;
                         invalidate();
                     } else
@@ -1529,3 +1531,5 @@ QDataStream &operator>>(QDataStream &stream, QSizePolicy &policy)
 
 #endif
 
+
+QT_END_NAMESPACE

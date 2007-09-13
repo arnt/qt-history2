@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QFramePrivate;
@@ -110,6 +112,8 @@ private:
     Q_DISABLE_COPY(QFrame)
     Q_DECLARE_PRIVATE(QFrame)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -21,6 +21,8 @@
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static void dfs(QScriptObject *instance, QHash<QScriptObject*, int> &dfn, int n)
 {
     bool found = dfn.contains(instance);
@@ -322,5 +324,7 @@ QDebug &operator<<(QDebug &d, const QScriptValueImpl &object)
     d << ")";
     return d;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

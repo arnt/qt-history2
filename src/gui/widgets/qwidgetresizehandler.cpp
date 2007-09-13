@@ -26,6 +26,8 @@
 #include "qdebug.h"
 #include "private/qlayoutengine_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #define RANGE 4
 
 static bool resizeHorizontalDirectionFixed = false;
@@ -511,5 +513,7 @@ void QWidgetResizeHandler::doMove()
 #endif
     widget->grabKeyboard();
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_RESIZEHANDLER

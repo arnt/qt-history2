@@ -27,6 +27,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPaintDevice;
 class QRegion;
 class QRect;
@@ -67,5 +69,7 @@ QRect QWindowSurface::rect(const QWidget *widget) const
 {
     return widget->rect().translated(offset(widget));
 }
+
+QT_END_NAMESPACE
 
 #endif // QWINDOWSURFACE_P_H

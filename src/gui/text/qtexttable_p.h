@@ -28,6 +28,8 @@
 #include "private/qtextobject_p.h"
 #include "private/qtextdocument_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTextTablePrivate : public QTextFramePrivate
 {
     Q_DECLARE_PUBLIC(QTextTable)
@@ -53,5 +55,7 @@ public:
     mutable bool dirty;
     bool blockFragmentUpdates;
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTTABLE_P_H

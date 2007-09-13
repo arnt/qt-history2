@@ -36,6 +36,8 @@
 
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 extern int qt_antialiasing_threshold; // QApplication.cpp
 
 /*****************************************************************************
@@ -1512,3 +1514,5 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
             CGContextRestoreGState(hd);
     }
 }
+
+QT_END_NAMESPACE

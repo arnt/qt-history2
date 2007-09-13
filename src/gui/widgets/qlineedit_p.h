@@ -37,6 +37,8 @@
 #include "QtCore/qpointer.h"
 #include "QtGui/qlineedit.h"
 
+QT_BEGIN_NAMESPACE
+
 class QLineEditPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QLineEdit)
@@ -210,5 +212,7 @@ public:
 };
 
 #endif // QT_NO_LINEEDIT
+
+QT_END_NAMESPACE
 
 #endif // QLINEEDIT_P_H

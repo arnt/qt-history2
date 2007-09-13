@@ -44,6 +44,7 @@
 #  define for if(0){}else for
 #endif
 
+QT_BEGIN_NAMESPACE
 
 Q_GUI_EXPORT bool qt_enable_test_font = false;
 
@@ -837,6 +838,7 @@ QObject *qt_fontdatabase_private()
 
 #define SMOOTH_SCALABLE 0xffff
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #if defined(Q_WS_X11)
 #  include "qfontdatabase_x11.cpp"
 #elif defined(Q_WS_MAC)
@@ -846,6 +848,7 @@ QObject *qt_fontdatabase_private()
 #elif defined(Q_WS_QWS)
 #  include "qfontdatabase_qws.cpp"
 #endif
+QT_END_INCLUDE_NAMESPACE
 
 static QtFontStyle *bestStyle(QtFontFoundry *foundry, const QtFontStyle::Key &styleKey)
 {
@@ -1151,7 +1154,7 @@ static void match(int script, const QFontDef &request,
 
     unsigned int score = ~0u;
 
-    ::load(family_name, script);
+    load(family_name, script);
 
     QFontDatabasePrivate *db = privateDb();
     for (int x = 0; x < db->count; ++x) {
@@ -1167,7 +1170,7 @@ static void match(int script, const QFontDef &request,
             continue;
 
         if (family_name.isEmpty())
-            ::load(test.family->name, script);
+            load(test.family->name, script);
 
         uint score_adjust = 0;
 
@@ -1208,7 +1211,7 @@ static void match(int script, const QFontDef &request,
 }
 #endif
 
-static QString styleString(int weight, QFont::Style style)
+static QString styleStringHelper(int weight, QFont::Style style)
 {
     QString result;
     if (weight >= QFont::Black)
@@ -1238,7 +1241,7 @@ static QString styleString(int weight, QFont::Style style)
 */
 QString QFontDatabase::styleString(const QFont &font)
 {
-    return ::styleString(font.weight(), font.style());
+    return styleStringHelper(font.weight(), font.style());
 }
 
 /*!
@@ -1248,7 +1251,7 @@ QString QFontDatabase::styleString(const QFont &font)
 */
 QString QFontDatabase::styleString(const QFontInfo &fontInfo)
 {
-    return ::styleString(fontInfo.weight(), fontInfo.style());
+    return styleStringHelper(fontInfo.weight(), fontInfo.style());
 }
 
 
@@ -1365,9 +1368,9 @@ QFontDatabase::QFontDatabase()
 */
 QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
 {
-    ::load();
+    QT_ADD_NAMESPACE(load)();
 #ifdef Q_WS_X11
-    ::checkSymbolFonts();
+    checkSymbolFonts();
 #endif
 
     QList<WritingSystem> list;
@@ -1399,9 +1402,9 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems(const QString 
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load();
+    QT_ADD_NAMESPACE(load)();
 #ifdef Q_WS_X11
-    ::checkSymbolFonts(familyName);
+    checkSymbolFonts(familyName);
 #endif
 
     QList<WritingSystem> list;
@@ -1430,10 +1433,10 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems(const QString 
 */
 QStringList QFontDatabase::families(WritingSystem writingSystem) const
 {
-    ::load();
+    QT_ADD_NAMESPACE(load)();
 #ifdef Q_WS_X11
     if (writingSystem != Any)
-        ::checkSymbolFonts();
+        checkSymbolFonts();
 #endif
 
     QStringList flist;
@@ -1473,7 +1476,7 @@ QStringList QFontDatabase::styles(const QString &family) const
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QStringList l;
     QtFontFamily *f = d->family(familyName);
@@ -1493,7 +1496,7 @@ QStringList QFontDatabase::styles(const QString &family) const
     }
 
     for (int i = 0; i < allStyles.count; i++)
-        l.append(::styleString(allStyles.styles[i]->key.weight, (QFont::Style)allStyles.styles[i]->key.style));
+        l.append(styleStringHelper(allStyles.styles[i]->key.weight, (QFont::Style)allStyles.styles[i]->key.style));
     return l;
 }
 
@@ -1510,7 +1513,7 @@ bool QFontDatabase::isFixedPitch(const QString &family,
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontFamily *f = d->family(familyName);
 #if !defined(QWS) && defined(Q_OS_MAC)
@@ -1536,7 +1539,7 @@ bool QFontDatabase::isBitmapScalable(const QString &family,
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontStyle::Key styleKey(style);
 
@@ -1573,7 +1576,7 @@ bool QFontDatabase::isSmoothlyScalable(const QString &family, const QString &sty
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontStyle::Key styleKey(style);
 
@@ -1629,7 +1632,7 @@ QList<int> QFontDatabase::pointSizes(const QString &family,
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontStyle::Key styleKey(style);
 
@@ -1687,7 +1690,7 @@ QFont QFontDatabase::font(const QString &family, const QString &style,
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontFoundry allStyles(foundryName);
     QtFontFamily *f = d->family(familyName);
@@ -1732,7 +1735,7 @@ QList<int> QFontDatabase::smoothSizes(const QString &family,
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontStyle::Key styleKey(style);
 
@@ -1805,7 +1808,7 @@ bool QFontDatabase::italic(const QString &family, const QString &style) const
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontFoundry allStyles(foundryName);
     QtFontFamily *f = d->family(familyName);
@@ -1837,7 +1840,7 @@ bool QFontDatabase::bold(const QString &family,
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontFoundry allStyles(foundryName);
     QtFontFamily *f = d->family(familyName);
@@ -1871,7 +1874,7 @@ int QFontDatabase::weight(const QString &family,
     QString familyName, foundryName;
     parseFontName(family, foundryName, familyName);
 
-    ::load(familyName);
+    QT_ADD_NAMESPACE(load)(familyName);
 
     QtFontFoundry allStyles(foundryName);
     QtFontFamily *f = d->family(familyName);
@@ -2212,7 +2215,7 @@ QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
 
 void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString &family)
 {
-    ::parseFontName(name, foundry, family);
+    QT_ADD_NAMESPACE(parseFontName)(name, foundry, family);
 }
 
 void QFontDatabase::createDatabase()
@@ -2348,5 +2351,7 @@ QStringList QFontDatabase::applicationFontFamilies(int id)
 
     \sa removeApplicationFont(), addApplicationFont(), addApplicationFontFromData()
 */
+
+QT_END_NAMESPACE
 
 #include "qfontdatabase.moc"

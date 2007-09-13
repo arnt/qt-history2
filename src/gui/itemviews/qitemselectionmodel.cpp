@@ -16,6 +16,9 @@
 #include <qdebug.h>
 
 #ifndef QT_NO_ITEMVIEWS
+
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QItemSelectionRange
 
@@ -1448,6 +1451,8 @@ QDebug operator<<(QDebug dbg, const QItemSelectionRange &range)
 #endif
 }
 #endif
+
+QT_END_NAMESPACE
 
 #include "moc_qitemselectionmodel.cpp"
 

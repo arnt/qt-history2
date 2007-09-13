@@ -34,6 +34,8 @@
 #include <qstylepainter.h>
 #include <private/qcalendartextnavigator_p.h>
 
+QT_BEGIN_NAMESPACE
+
 enum {
     RowCount = 6,
     ColumnCount = 7,
@@ -1247,7 +1249,7 @@ QCalendarView::QCalendarView(QWidget *parent)
 
 QModelIndex QCalendarView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
-    QCalendarModel *calendarModel = ::qobject_cast<QCalendarModel *>(model());
+    QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model());
     if (!calendarModel)
         return QTableView::moveCursor(cursorAction, modifiers);
 
@@ -1341,7 +1343,7 @@ bool QCalendarView::event(QEvent *event)
 
 QDate QCalendarView::handleMouseEvent(QMouseEvent *event)
 {
-    QCalendarModel *calendarModel = ::qobject_cast<QCalendarModel *>(model());
+    QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model());
     if (!calendarModel)
         return QDate();
 
@@ -1357,7 +1359,7 @@ QDate QCalendarView::handleMouseEvent(QMouseEvent *event)
 
 void QCalendarView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    QCalendarModel *calendarModel = ::qobject_cast<QCalendarModel *>(model());
+    QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model());
     if (!calendarModel) {
         QTableView::mouseDoubleClickEvent(event);
         return;
@@ -1375,7 +1377,7 @@ void QCalendarView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void QCalendarView::mousePressEvent(QMouseEvent *event)
 {
-    QCalendarModel *calendarModel = ::qobject_cast<QCalendarModel *>(model());
+    QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model());
     if (!calendarModel) {
         QTableView::mousePressEvent(event);
         return;
@@ -1403,7 +1405,7 @@ void QCalendarView::mousePressEvent(QMouseEvent *event)
 
 void QCalendarView::mouseMoveEvent(QMouseEvent *event)
 {
-    QCalendarModel *calendarModel = ::qobject_cast<QCalendarModel *>(model());
+    QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model());
     if (!calendarModel) {
         QTableView::mouseMoveEvent(event);
         return;
@@ -1428,7 +1430,7 @@ void QCalendarView::mouseMoveEvent(QMouseEvent *event)
 
 void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
 {
-    QCalendarModel *calendarModel = ::qobject_cast<QCalendarModel *>(model());
+    QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model());
     if (!calendarModel) {
         QTableView::mouseReleaseEvent(event);
         return;
@@ -2964,6 +2966,8 @@ void QCalendarWidget::keyPressEvent(QKeyEvent * event)
     }
     QWidget::keyReleaseEvent(event);
 }
+
+QT_END_NAMESPACE
 
 #include "qcalendarwidget.moc"
 #include "moc_qcalendarwidget.cpp"

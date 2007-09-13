@@ -14,3 +14,4 @@ SOURCES	= qwindowsurface_ahigl.cpp \
           qscreenahigl_qws.cpp \
           qscreenahiglplugin.cpp
 
+DEFINES += QT_USE_USING_NAMESPACE

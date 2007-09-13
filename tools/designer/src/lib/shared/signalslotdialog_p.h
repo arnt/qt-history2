@@ -30,6 +30,8 @@
 #include <QtGui/QDialog>
 #include <QtGui/QStandardItemModel>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QDesignerDialogGuiInterface;
@@ -137,4 +139,7 @@ private:
     SignaturePanel *m_signalPanel;
 };
 }
+
+QT_END_NAMESPACE
+
 #endif

@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3StrVec : public Q3PtrVector<char>
@@ -55,6 +57,8 @@ private:
 				{ return qstricmp((const char*)s1,
 						 (const char*)s2); }
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

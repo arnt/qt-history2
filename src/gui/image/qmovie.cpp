@@ -165,6 +165,8 @@
 
 #define QMOVIE_INVALID_DELAY -1
 
+QT_BEGIN_NAMESPACE
+
 class QFrameInfo
 {
 public:
@@ -1045,5 +1047,8 @@ QMovie::CacheMode QMovie::cacheMode()
     return d->cacheMode;
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qmovie.cpp"
+
 #endif // QT_NO_MOVIE

@@ -23,6 +23,8 @@
 #include "qscriptcontext.h"
 #include "qscriptvalue.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \since 4.3
   \class QScriptable
@@ -182,3 +184,5 @@ QScriptValue QScriptable::argument(int index) const
 
 #endif // QT_NO_SCRIPT
 #endif // QT_NO_QOBJECT
+
+QT_END_NAMESPACE

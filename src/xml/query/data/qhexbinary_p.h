@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
 
@@ -58,6 +60,8 @@ namespace Patternist
         static inline qint8 fromHex(const QChar &c);
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

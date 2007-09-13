@@ -12,3 +12,6 @@ CONFIG += qt warn_on create_prl link_prl
 CONFIG -= app_bundle
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
+
+DEFINES += QT_USE_USING_NAMESPACE
+

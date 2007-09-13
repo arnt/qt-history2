@@ -24,7 +24,7 @@
 #include <QPoint>
 #include <QWidget>
 
-class QRubberBand;
+QT_DECLARE_CLASS(QRubberBand)
 
 class PieView : public QAbstractItemView
 {

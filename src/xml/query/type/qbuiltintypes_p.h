@@ -24,6 +24,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
 
@@ -115,6 +117,8 @@ namespace Patternist
         Q_DISABLE_COPY(BuiltinTypes)
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

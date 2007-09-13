@@ -16,6 +16,8 @@
 #include <qstringlist.h>
 #include <qfileinfo.h>
 
+QT_BEGIN_NAMESPACE
+
 // XML Tags ---------------------------------------------------------
 const char _Configuration[]                     = "Configuration";
 const char _Configurations[]                    = "Configurations";
@@ -2494,3 +2496,5 @@ XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
             << data(); // No "/>" end tag
     return xml;
 }
+
+QT_END_NAMESPACE

@@ -37,6 +37,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 extern int errno;
 
 #define QT_QWS_SOUND_16BIT 1 // or 0, or undefined for always 0
@@ -1460,6 +1462,8 @@ void QWSSoundClient::emitConnectionRefused()
     emit error( QTcpSocket::ConnectionRefusedError );
 }
 #endif
+
+QT_END_NAMESPACE
 
 #include "qsoundqss_qws.moc"
 

@@ -1,6 +1,6 @@
 
-class QIODevice;
-class QString;
+QT_DECLARE_CLASS(QIODevice)
+QT_DECLARE_CLASS(QString)
 
 #include <QtCore/QFlags>
 

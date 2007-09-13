@@ -14,6 +14,8 @@
 #include <private/qhiviewwidget_mac_p.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 extern HIViewRef qt_mac_hiview_for(const QWidget *w); //qwidget_mac.cpp
 extern HIViewRef qt_mac_hiview_for(WindowPtr w); //qwidget_mac.cpp
 
@@ -57,3 +59,5 @@ void QHIViewWidget::addViews_recursive(HIViewRef child, QWidget *parent)
     addViews_recursive(HIViewGetFirstSubview(child), widget);
     addViews_recursive(HIViewGetNextView(child), parent);
 }
+
+QT_END_NAMESPACE

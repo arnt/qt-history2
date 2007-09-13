@@ -43,6 +43,8 @@
 #include <QtGui/qwsevent_qws.h>
 #include "qwsprotocolitem_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #define QTE_PIPE "QtEmbedded-%1"
@@ -798,5 +800,7 @@ struct QWSFontCommand : public QWSCommand
 
     QByteArray fontName;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWSCOMMAND_QWS_P_H

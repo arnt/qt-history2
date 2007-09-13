@@ -87,12 +87,15 @@
 #include <private/qpnghandler_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QImageIOHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/imageformats")))
 #endif
 
-static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &format)
+static QImageIOHandler *createWriteHandlerHelper(QIODevice *device,
+    const QByteArray &format)
 {
     QByteArray form = format.toLower();
     QByteArray suffix;
@@ -519,7 +522,7 @@ bool QImageWriter::canWrite() const
                                            QLatin1String("Device not writable"));
         return false;
     }
-    if (!d->handler && (d->handler = ::createWriteHandler(d->device, d->format)) == 0) {
+    if (!d->handler && (d->handler = createWriteHandlerHelper(d->device, d->format)) == 0) {
         d->imageWriterError = QImageWriter::UnsupportedFormatError;
         d->errorString = QT_TRANSLATE_NOOP(QImageWriter,
                                            QLatin1String("Unsupported image format"));
@@ -601,7 +604,7 @@ QString QImageWriter::errorString() const
 */
 bool QImageWriter::supportsOption(QImageIOHandler::ImageOption option) const
 {
-    if (!d->handler && (d->handler = ::createWriteHandler(d->device, d->format)) == 0) {
+    if (!d->handler && (d->handler = createWriteHandlerHelper(d->device, d->format)) == 0) {
         d->imageWriterError = QImageWriter::UnsupportedFormatError;
         d->errorString = QT_TRANSLATE_NOOP(QImageWriter,
                                            QLatin1String("Unsupported image format"));
@@ -665,3 +668,4 @@ QList<QByteArray> QImageWriter::supportedImageFormats()
     return sortedFormats;
 }
 
+QT_END_NAMESPACE

@@ -17,6 +17,7 @@
 #include <QtCore/QPointer>
 #include <QtGui/QApplication>
 
+QT_BEGIN_NAMESPACE
 
 #define qDesigner \
     (static_cast<QDesigner*>(QCoreApplication::instance()))
@@ -66,5 +67,7 @@ private:
     QString m_lastErrorMessage;
     bool m_suppressNewFormShow;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_H

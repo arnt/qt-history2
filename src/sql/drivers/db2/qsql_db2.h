@@ -24,6 +24,8 @@
 #include <QtSql/qsqldriver.h>
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 class QDB2Driver;
 class QDB2DriverPrivate;
 class QDB2ResultPrivate;
@@ -82,6 +84,8 @@ private:
     bool setAutoCommit(bool autoCommit);
     QDB2DriverPrivate* d;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -16,6 +16,8 @@
 
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtGradientEditor : public QWidget
@@ -61,5 +63,7 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

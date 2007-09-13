@@ -20,6 +20,8 @@
 #include "qdbusmessage.h"
 #include "qdbusmessage_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*
  * Use the following Perl script to generate the error string index list:
 ===== PERL SCRIPT ====
@@ -313,5 +315,7 @@ QDebug operator<<(QDebug dbg, const QDBusError &msg)
     return dbg.space();
 }
 #endif
+
+QT_END_NAMESPACE
 
 

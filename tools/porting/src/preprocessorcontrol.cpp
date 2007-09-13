@@ -16,6 +16,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTemporaryFile>
+
+QT_BEGIN_NAMESPACE
 using namespace TokenEngine;
 using namespace Rpp;
 
@@ -393,3 +395,5 @@ TokenEngine::TokenSectionSequence RppPreprocessor::evaluate(const QString &filen
     DefineMap defMap = *m_activeDefinitions;
     return m_controller.evaluate(filename, &defMap);
 }
+
+QT_END_NAMESPACE

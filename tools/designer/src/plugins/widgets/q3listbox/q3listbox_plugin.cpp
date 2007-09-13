@@ -21,6 +21,8 @@
 #include <QtGui/QIcon>
 #include <Qt3Support/Q3ListBox>
 
+QT_BEGIN_NAMESPACE
+
 Q3ListBoxPlugin::Q3ListBoxPlugin(QObject *parent)
         : QObject(parent), m_initialized(false)
 {}
@@ -86,3 +88,5 @@ QString Q3ListBoxPlugin::domXml() const
 }
 
 
+
+QT_END_NAMESPACE

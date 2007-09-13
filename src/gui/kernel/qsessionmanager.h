@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QSessionManagerPrivate;
@@ -71,6 +73,8 @@ private:
     friend class QApplicationPrivate;
     friend class QBaseApplication;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -16,6 +16,8 @@
 #include "qsystemsemaphore.h"
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 QSharedMemoryPrivate::QSharedMemoryPrivate() : QObjectPrivate(),
         memory(0), size(0), error(QSharedMemory::NoError),
            systemSemaphore(QString()), lockedByMe(false), hand(0)
@@ -158,3 +160,5 @@ bool QSharedMemoryPrivate::detach()
     return cleanHandle();
 }
 
+
+QT_END_NAMESPACE

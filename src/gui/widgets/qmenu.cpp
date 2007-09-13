@@ -43,12 +43,15 @@
 #endif // QT3_SUPPORT
 
 #ifdef Q_WS_X11
-#include <private/qt_x11_p.h>
-#endif
-#if defined(Q_WS_MAC) && !defined(QT_NO_EFFECTS)
-#include <private/qcore_mac_p.h>
+#   include <private/qt_x11_p.h>
 #endif
 
+#if defined(Q_WS_MAC) && !defined(QT_NO_EFFECTS)
+#   include <private/qcore_mac_p.h>
+#endif
+
+
+QT_BEGIN_NAMESPACE
 
 QPointer<QMenu> QMenuPrivate::mouseDown;
 QBasicTimer QMenuPrivate::menuDelayTimer;
@@ -112,7 +115,6 @@ private:
     Q_DECLARE_PRIVATE(QTornOffMenu)
     friend class QMenuPrivate;
 };
-#include "qmenu.moc"
 
 void QMenuPrivate::init()
 {
@@ -149,9 +151,9 @@ QList<QPointer<QWidget> > QMenuPrivate::calcCausedStack() const
     QList<QPointer<QWidget> > ret;
     for(QWidget *widget = causedPopup.widget; widget; ) {
         ret.append(widget);
-        if (QTornOffMenu *qtmenu = ::qobject_cast<QTornOffMenu*>(widget))
+        if (QTornOffMenu *qtmenu = qobject_cast<QTornOffMenu*>(widget))
             ret += qtmenu->d_func()->causedStack;
-        if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget))
+        if (QMenu *qmenu = qobject_cast<QMenu*>(widget))
             widget = qmenu->d_func()->causedPopup.widget;
         else
             break;
@@ -920,7 +922,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         if (!inWhatsThisMode)
             actionAboutToTrigger = action;
         for(QWidget *widget = qApp->activePopupWidget(); widget; ) {
-            if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
+            if (QMenu *qmenu = qobject_cast<QMenu*>(widget)) {
                 if(qmenu == q)
                     hideUpToMenuBar();
                 widget = qmenu->d_func()->causedPopup.widget;
@@ -950,7 +952,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         if (!widget)
             continue;
         //fire
-        if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
+        if (QMenu *qmenu = qobject_cast<QMenu*>(widget)) {
             widget = qmenu->d_func()->causedPopup.widget;
             if (action_e == QAction::Trigger) {
                 emit qmenu->triggered(action);
@@ -964,7 +966,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 #endif
             }
 #ifndef QT_NO_MENUBAR
-        } else if (QMenuBar *qmenubar = ::qobject_cast<QMenuBar*>(widget)) {
+        } else if (QMenuBar *qmenubar = qobject_cast<QMenuBar*>(widget)) {
             if (action_e == QAction::Trigger) {
                 emit qmenubar->triggered(action);
 #ifdef QT3_SUPPORT
@@ -3265,8 +3267,10 @@ int QMenu::findIdForAction(QAction *act) const
     Use setActiveAction() instead.
 */
 
+QT_END_NAMESPACE
+
 // for private slots
-
 #include "moc_qmenu.cpp"
-#endif // QT_NO_MENU
+#include "qmenu.moc"
 
+#endif // QT_NO_MENU

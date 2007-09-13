@@ -9,6 +9,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 static const unsigned char qt_resource_data[] = {
   // /Users/twschulz/troll/private/qthack/images/mike.jpg
   0x0,0x0,0x6,0x35,
@@ -8434,3 +8436,5 @@ int qCleanupResources_qthack2()
     return 1;
 }
 Q_DESTRUCTOR_FUNCTION(qCleanupResources_qthack2)
+
+QT_END_NAMESPACE

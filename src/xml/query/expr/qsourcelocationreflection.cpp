@@ -15,6 +15,8 @@
 
 #include "qsourcelocationreflection_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 QSourceLocation SourceLocationReflection::sourceLocation() const
@@ -31,3 +33,5 @@ QString DelegatingSourceLocationReflection::description() const
 {
     return m_r->description();
 }
+
+QT_END_NAMESPACE

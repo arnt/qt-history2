@@ -50,6 +50,8 @@ TRANSLATOR qdesigner_internal::ResourceEditor
 #include "ui_resourceeditor.h"
 #include "resourceeditor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { COMBO_EMPTY_DATA, COMBO_NEW_DATA, COMBO_OPEN_DATA };
 }
@@ -966,5 +968,7 @@ void ResourceEditor::setActiveForm(QDesignerFormWindowInterface *form)
     setEnabled(m_form != 0);
 }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #include "resourceeditor.moc"

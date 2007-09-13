@@ -33,6 +33,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 enum { warnHeaderGeneration = 0 };
 
 #define CONVERT_PROPERTY(o, n) \
@@ -1232,3 +1234,5 @@ QString Ui3Reader::fixMethod(const QString &method) const
     result.append(normalized.mid(index));
     return QLatin1String(result);
 }
+
+QT_END_NAMESPACE

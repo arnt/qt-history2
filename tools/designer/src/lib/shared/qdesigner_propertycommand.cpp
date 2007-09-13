@@ -40,6 +40,8 @@
 #include <private/qfont_p.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace  {
 enum { debugPropertyCommands = 0 };
 
@@ -1353,3 +1355,5 @@ void RemoveDynamicPropertyCommand::setDescription()
 
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

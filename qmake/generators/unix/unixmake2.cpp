@@ -22,6 +22,8 @@
 #include <qdebug.h>
 #include <time.h>
 
+QT_BEGIN_NAMESPACE
+
 UnixMakefileGenerator::UnixMakefileGenerator() : MakefileGenerator(), init_flag(false), include_deps(false)
 {
 
@@ -1404,3 +1406,5 @@ UnixMakefileGenerator::writePkgConfigFile()
       << " -I${includedir}" << endl;
     t << endl;
 }
+
+QT_END_NAMESPACE

@@ -34,6 +34,8 @@
 
 #include <QtDesigner/QDesignerComponents>
 
+QT_BEGIN_NAMESPACE
+
 static const char *designerApplicationName = "Designer";
 static const char *designerWarningPrefix = "Designer: ";
 
@@ -247,3 +249,5 @@ void QDesigner::callCreateForm()
     if (!m_suppressNewFormShow)
         m_workbench->actionManager()->createForm();
 }
+
+QT_END_NAMESPACE

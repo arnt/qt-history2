@@ -13,6 +13,8 @@
 
 #include "qstylepainter.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QStylePainter
 
@@ -147,3 +149,5 @@
 
     Return the current style used by the QStylePainter.
 */
+
+QT_END_NAMESPACE

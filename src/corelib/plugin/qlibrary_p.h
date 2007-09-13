@@ -35,6 +35,8 @@
 
 #ifndef QT_NO_LIBRARY
 
+QT_BEGIN_NAMESPACE
+
 bool qt_debug_component();
 
 class QLibraryPrivate
@@ -83,6 +85,8 @@ private:
     enum {IsAPlugin, IsNotAPlugin, MightBeAPlugin } pluginState;
     friend class QLibraryPrivateHasFriends;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_LIBRARY
 

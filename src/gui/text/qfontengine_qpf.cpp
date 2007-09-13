@@ -33,20 +33,26 @@
 #include <fcntl.h>
 #include <errno.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_QWS_QPF
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qpfutil.cpp"
 
 #if defined(Q_WS_QWS)
-#include "private/qwscommand_qws_p.h"
-#include "qwsdisplay_qws.h"
-#include "qabstractfontengine_p.h"
+#   include "private/qwscommand_qws_p.h"
+#   include "qwsdisplay_qws.h"
+#   include "qabstractfontengine_p.h"
 #endif
 #include "qplatformdefs.h"
+QT_END_INCLUDE_NAMESPACE
 
 #ifdef QT_LSB
 
-#include <dlfcn.h>
+QT_BEGIN_INCLUDE_NAMESPACE
+#   include <dlfcn.h>
+QT_END_INCLUDE_NAMESPACE
 
 #  ifdef QT_NO_MREMAP
 #    undef QT_NO_MREMAP
@@ -1109,3 +1115,4 @@ void QFontEngineMultiQWS::draw(QPaintEngine */*p*/, qreal /*x*/, qreal /*y*/, co
     qFatal("QFontEngineMultiQWS::draw should never be called!");
 }
 
+QT_END_NAMESPACE

@@ -29,6 +29,8 @@
 #include <QtGui/QDialog>
 #include <QtCore/QVariant>
 
+QT_BEGIN_NAMESPACE
+
 class QAbstractButton;
 class QDesignerDialogGuiInterface;
 
@@ -64,5 +66,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // NEWDYNAMICPROPERTYDIALOG_P_H

@@ -30,6 +30,8 @@
 #include <qstring.h>
 #include <qauthenticator.h>
 
+QT_BEGIN_NAMESPACE
+
 class QHttpResponseHeader;
 
 class QAuthenticatorPrivate
@@ -74,5 +76,7 @@ public:
 
 };
 
+
+QT_END_NAMESPACE
 
 #endif

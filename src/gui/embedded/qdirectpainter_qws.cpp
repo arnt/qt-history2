@@ -23,6 +23,8 @@
 #include <private/qwindowsurface_qws_p.h>
 #include <private/qwsdisplay_qws_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
 
@@ -616,3 +618,5 @@ void QDirectPainter::unlock()
 #endif //QT_NO_DIRECTPAINTER
 
 #endif
+
+QT_END_NAMESPACE

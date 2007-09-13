@@ -16,11 +16,11 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QLabel;
-class QMenu;
-class QScrollArea;
-class QSlider;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QScrollArea)
+QT_DECLARE_CLASS(QSlider)
 class GLWidget;
 
 class MainWindow : public QMainWindow

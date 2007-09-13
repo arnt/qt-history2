@@ -41,6 +41,8 @@
 #endif
 */
 
+QT_BEGIN_NAMESPACE
+
 /*
   QThreadData
 */
@@ -478,6 +480,10 @@ void QThread::run()
 /*! \internal
     Initializes the QThread system.
 */
+#if defined (Q_OS_WIN)
+void qt_create_tls();
+#endif
+
 void QThread::initialize()
 {
     if (qt_global_mutexpool)
@@ -485,7 +491,6 @@ void QThread::initialize()
     qt_global_mutexpool = QMutexPool::instance();
 
 #if defined (Q_OS_WIN)
-    extern void qt_create_tls();
     qt_create_tls();
 #endif
 }
@@ -542,7 +547,9 @@ QThread::Priority QThread::priority() const
 
 #else // QT_NO_THREAD
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <private/qcoreapplication_p.h>
+QT_END_INCLUDE_NAMESPACE
 
 QThread* QThread::instance = 0;
 
@@ -561,3 +568,5 @@ QThreadData* QThreadData::current()
 }
 
 #endif // QT_NO_THREAD
+
+QT_END_NAMESPACE

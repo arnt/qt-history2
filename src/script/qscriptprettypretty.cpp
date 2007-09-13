@@ -26,6 +26,8 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 using namespace QScript;
 
 PrettyPretty::PrettyPretty(QScriptEngine *e, QTextStream &o):
@@ -1183,5 +1185,7 @@ bool PrettyPretty::preVisit(AST::Node *node)
     Q_UNUSED(node);
     return true;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 class QErrorMessagePrivate : public QDialogPrivate
 {
     Q_DECLARE_PUBLIC(QErrorMessage)
@@ -293,5 +295,7 @@ void QErrorMessagePrivate::retranslateStrings()
 
     Use showMessage(\a message) instead.
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_ERRORMESSAGE

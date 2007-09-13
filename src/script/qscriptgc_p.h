@@ -34,6 +34,8 @@
 
 #include "qscriptmemorypool_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
 
 class GCBlock
@@ -243,6 +245,8 @@ private:
 };
 
 } // namespace QScript
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif // QSCRIPT_GC_H

@@ -27,6 +27,8 @@
 
 #include "private/qdrawhelper_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #define QT_ROTATION_CACHEDREAD 1
 #define QT_ROTATION_CACHEDWRITE 2
 #define QT_ROTATION_PACKING 3
@@ -60,5 +62,7 @@ QT_DECL_MEMROTATE(quint16, quint8);
 QT_DECL_MEMROTATE(quint8, quint8);
 
 #undef QT_DECL_MEMROTATE
+
+QT_END_NAMESPACE
 
 #endif // QMEMROTATE_P_H

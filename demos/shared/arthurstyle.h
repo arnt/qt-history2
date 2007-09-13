@@ -16,6 +16,8 @@
 
 #include <QWindowsStyle>
 
+QT_USE_NAMESPACE
+
 class ArthurStyle : public QWindowsStyle
 {
 public:

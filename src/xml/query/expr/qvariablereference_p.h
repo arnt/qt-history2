@@ -14,11 +14,13 @@
 #ifndef Patternist_VariableReference_H
 #define Patternist_VariableReference_H
 
-template<typename T> class QList;
-
 #include "qemptycontainer_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+template<typename T> class QList;
 
 namespace Patternist
 {
@@ -69,6 +71,8 @@ namespace Patternist
     }
 
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

@@ -31,6 +31,8 @@
 #include <QtDesigner/default_extensionfactory.h>
 #include <QtCore/QStringList>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerMemberSheetPrivate;
 
 class QDESIGNER_SHARED_EXPORT QDesignerMemberSheet: public QObject, public QDesignerMemberSheetExtension
@@ -80,5 +82,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_MEMBERSHEET_H

@@ -21,6 +21,8 @@
 #include "qclipboard_p.h"
 #include "qvariant.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QClipboard
     \brief The QClipboard class provides access to the window system clipboard.
@@ -598,3 +600,5 @@ QStringList QMimeSourceWrapper::formats() const
 }
 
 #endif // QT_NO_CLIPBOARD
+
+QT_END_NAMESPACE

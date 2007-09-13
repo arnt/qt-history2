@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 template <class T> class QSharedDataPointer;
@@ -172,6 +174,8 @@ Q_OUTOFLINE_TEMPLATE void QExplicitlySharedDataPointer<T>::detach_helper()
 template <class T>
 Q_INLINE_TEMPLATE QExplicitlySharedDataPointer<T>::QExplicitlySharedDataPointer(T *adata) : d(adata)
 { if (d) d->ref.ref(); }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

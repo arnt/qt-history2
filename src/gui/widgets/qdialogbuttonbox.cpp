@@ -19,6 +19,8 @@
 
 #include "qdialogbuttonbox.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDialogButtonBox
     \since 4.2
@@ -1084,5 +1086,7 @@ bool QDialogButtonBox::event(QEvent *event)
 
     return QWidget::event(event);
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qdialogbuttonbox.cpp"

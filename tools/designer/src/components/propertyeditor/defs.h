@@ -17,6 +17,8 @@
 #include <QtGui/QSizePolicy>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 int size_type_to_int(QSizePolicy::Policy t);
@@ -24,5 +26,7 @@ QString size_type_to_string(QSizePolicy::Policy t);
 QSizePolicy::Policy int_to_size_type(int i);
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // DEFS_H

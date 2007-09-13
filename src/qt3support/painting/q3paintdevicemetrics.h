@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3PaintDeviceMetrics                        // paint device metrics
@@ -39,6 +41,8 @@ public:
 private:
     const QPaintDevice *pdev;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

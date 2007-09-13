@@ -32,6 +32,8 @@
 #include "qtoolbutton.h"
 #include "qtooltip.h"
 
+QT_BEGIN_NAMESPACE
+
 static const char * const arrow_v_xpm[] = {
     "7 9 3 1",
     "            c None",
@@ -194,7 +196,9 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
     style()->drawPrimitive(QStyle::PE_Q3DockWindowSeparator, &opt, &p, this);
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "q3toolbar.moc"
+QT_END_INCLUDE_NAMESPACE
 
 
 /*!
@@ -800,4 +804,7 @@ more predictable.
 11.  Keep a single tool bar to fewer than 20 items divided into 4-7 groups of
 items.
 */
+
+QT_END_NAMESPACE
+
 #endif

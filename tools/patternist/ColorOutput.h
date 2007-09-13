@@ -23,12 +23,13 @@
 #define Patternist_ColorOutput_h
 
 #include <QtCore/QtGlobal>
-
-class ColorOutputPrivate;
-template<typename Key, typename Value> class QHash;
-class QString;
+#include <QtCore/QHash>
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
+
+class ColorOutputPrivate;
 
 class ColorOutput
 {
@@ -91,6 +92,8 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ColorOutput::ColorCode)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

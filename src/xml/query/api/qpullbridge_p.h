@@ -33,6 +33,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class PullBridge : public QAbstractXmlPullProvider
 {
 public:
@@ -54,6 +56,8 @@ private:
     Patternist::Item    m_item;
     Event               m_current;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -28,9 +28,13 @@
 #include <QtNetwork/qtcpsocket.h>
 #include <private/qabstractsocket_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QTcpSocketPrivate : public QAbstractSocketPrivate
 {
     Q_DECLARE_PUBLIC(QTcpSocket)
 };
+
+QT_END_NAMESPACE
 
 #endif

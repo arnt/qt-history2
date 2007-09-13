@@ -4,7 +4,7 @@
 #include <qobject.h>
 #include <qstringlist.h>
 
-class Q3Process;
+QT_DECLARE_CLASS(Q3Process)
 
 #define COMPILE_ERROR "Compile error"
 #define COMPILE_SUCCESS "Compile successfull"

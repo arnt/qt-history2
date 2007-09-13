@@ -33,6 +33,8 @@
 #include <QtCore/QMultiMap>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -92,3 +94,5 @@ namespace qdesigner_internal {
 }  // namespace qdesigner_internal
 
 #endif // OBJECTINSPECTORMODEL_H
+
+QT_END_NAMESPACE

@@ -35,6 +35,8 @@
 #include "QtCore/qpointer.h"
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QMimeData;
 class QAbstractScrollArea;
 
@@ -176,5 +178,7 @@ public:
     QString linkToCopy;
     void _q_copyLink();
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTCONTROL_P_H

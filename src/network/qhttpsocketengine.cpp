@@ -20,6 +20,8 @@
 #if !defined(QT_NO_NETWORKPROXY) && !defined(QT_NO_HTTP)
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 #define DEBUG
 
 QHttpSocketEngine::QHttpSocketEngine(QObject *parent)
@@ -637,3 +639,5 @@ QAbstractSocketEngine *QHttpSocketEngineHandler::createSocketEngine(int, QObject
 }
 
 #endif
+
+QT_END_NAMESPACE

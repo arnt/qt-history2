@@ -21,6 +21,8 @@
 #include "qvector.h"
 #include "qsqldriver.h"
 
+QT_BEGIN_NAMESPACE
+
 struct QHolder {
     QHolder(const QString& hldr = QString(), int index = -1): holderName(hldr), holderPos(index) {}
     bool operator==(const QHolder& h) const { return h.holderPos == holderPos && h.holderName == holderName; }
@@ -1006,3 +1008,4 @@ QVariant QSqlResult::handle() const
     return QVariant();
 }
 
+QT_END_NAMESPACE

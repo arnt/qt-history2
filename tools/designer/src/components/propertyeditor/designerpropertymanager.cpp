@@ -36,6 +36,8 @@
 
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 static const char *resettableAttributeC = "resettable";
 static const char *flagsAttributeC = "flags";
 static const char *validationModesAttributeC = "validationMode";
@@ -45,13 +47,10 @@ class DesignerFlagPropertyType
 {
 };
 
-Q_DECLARE_METATYPE(DesignerFlagPropertyType)
 
 class DesignerAlignmentPropertyType
 {
 };
-
-Q_DECLARE_METATYPE(DesignerAlignmentPropertyType)
 
 namespace qdesigner_internal {
 
@@ -1654,5 +1653,10 @@ void ResetDecorator::slotEditorDestroyed(QObject *object)
 }
 
 }
+
+QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(DesignerFlagPropertyType)
+Q_DECLARE_METATYPE(DesignerAlignmentPropertyType)
 
 #include "designerpropertymanager.moc"

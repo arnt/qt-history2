@@ -13,3 +13,6 @@ test.files=test.txt foo.bar
 test.path=dist
 INSTALLS+=test
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

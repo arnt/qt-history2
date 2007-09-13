@@ -26,6 +26,8 @@
 #include "dcfsection.h"
 #include "pagegenerator.h"
 
+QT_BEGIN_NAMESPACE
+
 #if 0
 struct NavigationBar
 {
@@ -182,5 +184,7 @@ private:
 #define HTMLGENERATOR_STYLE             "style"
 #define HTMLGENERATOR_STYLESHEETS       "stylesheets"
 #define HTMLGENERATOR_CUSTOMHEADELEMENTS "customheadelements"
+
+QT_END_NAMESPACE
 
 #endif

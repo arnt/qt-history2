@@ -15,6 +15,8 @@
 #include <QtCore/qdebug.h>
 #include <qalgorithms.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { debugWidgetDataBase =  0 };
 }
@@ -326,3 +328,5 @@ bool QDesignerWidgetDataBaseInterface::isCustom(QObject *object, bool resolveNam
 
     Returns a list of default values to be used as properties for the item.
 */
+
+QT_END_NAMESPACE

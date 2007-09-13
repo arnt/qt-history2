@@ -17,6 +17,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 IconCache::IconCache(QObject *parent)
@@ -69,3 +71,5 @@ QString IconCache::resolveQrcPath(const QString &filePath, const QString &qrcPat
 
     return QString();
 }
+
+QT_END_NAMESPACE

@@ -16,6 +16,8 @@
 
 #ifndef QT_NO_TEXTCODECPLUGIN
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QTextCodecPlugin
     \brief The QTextCodecPlugin class provides an abstract base for custom QTextCodec plugins.
@@ -140,5 +142,7 @@ QTextCodec *QTextCodecPlugin::create(const QString &name)
         return createForMib(name.mid(4).toInt());
     return createForName(name.toLatin1());
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_TEXTCODECPLUGIN

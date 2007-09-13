@@ -20,9 +20,13 @@
 
 #include <qstring.h>
 
+QT_BEGIN_NAMESPACE
+
 inline QString tr( const char *sourceText, const char * /* comment */ = 0 )
 {
     return QString( sourceText );
 }
+
+QT_END_NAMESPACE
 
 #endif

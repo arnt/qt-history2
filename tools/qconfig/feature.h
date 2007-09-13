@@ -20,6 +20,8 @@
 #include <QSet>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
+
 class Feature;
 
 class FeaturePrivate
@@ -89,5 +91,7 @@ private:
     static QMap<QString, Feature*> instances;
     FeaturePrivate *d;
 };
+
+QT_END_NAMESPACE
 
 #endif // FEATURE_H

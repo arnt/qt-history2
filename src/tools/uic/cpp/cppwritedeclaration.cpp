@@ -24,6 +24,8 @@
 
 #include <QtCore/QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     void openNameSpaces(const QStringList &namespaceList, QTextStream &output) {
         if (namespaceList.empty())
@@ -111,6 +113,8 @@ void WriteDeclaration::acceptUI(DomUI *node)
         namespaceList.removeLast();
     }
 
+    m_output << "QT_BEGIN_NAMESPACE\n\n";
+
     openNameSpaces(namespaceList, m_output);
 
     if (namespaceList.count())
@@ -177,6 +181,8 @@ void WriteDeclaration::acceptUI(DomUI *node)
         if (namespaceList.count())
             m_output << "\n";
     }
+    
+    m_output << "QT_END_NAMESPACE\n";
 }
 
 void WriteDeclaration::acceptWidget(DomWidget *node)
@@ -222,3 +228,5 @@ void WriteDeclaration::acceptAction(DomAction *node)
 }
 
 } // namespace CPP
+
+QT_END_NAMESPACE

@@ -14,11 +14,6 @@
 #ifndef Patternist_ReportContext_H
 #define Patternist_ReportContext_H
 
-class QAbstractMessageHandler;
-class QSourceLocation;
-class QString;
-
-#include <QSharedData>
 #include "qabstracturiresolver.h"
 #include "qsourcelocation.h"
 
@@ -26,7 +21,15 @@ class QString;
 #include "qplainsharedptr_p.h"
 #include "qqname_p.h"
 
+#include <QSharedData>
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
+
+class QAbstractMessageHandler;
+class QSourceLocation;
+class QString;
 
 namespace Patternist
 {
@@ -2409,6 +2412,8 @@ namespace Patternist
         Q_DISABLE_COPY(ReportContext)
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

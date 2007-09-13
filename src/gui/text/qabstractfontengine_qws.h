@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QFontEngineInfoPrivate;
@@ -183,6 +185,8 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractFontEngine::Capabilities)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractFontEngine::TextShapingFlags)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

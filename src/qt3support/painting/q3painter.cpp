@@ -16,6 +16,8 @@
 
 #include <private/qpainter_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3Painter q3painter.h
     \brief The Q3Painter class is a Qt 3 compatibility wrapper for QPainter.
@@ -209,3 +211,5 @@ QRect Q3Painter::adjustedRectangle(const QRect &r)
     and \a h using the current pen and brush. The parameters \a xrnd
     and \a yrnd specifies the roundness in x and y direction.
 */
+
+QT_END_NAMESPACE

@@ -16,6 +16,8 @@
 
 #include <QtGui/QAbstractScrollArea>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtGradientStopsModel;
@@ -66,5 +68,7 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

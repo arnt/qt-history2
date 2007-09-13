@@ -18,6 +18,8 @@
 
 #include <QMdiArea>
 
+QT_BEGIN_NAMESPACE
+
 class Workspace : public QMdiArea
 {
     Q_OBJECT
@@ -41,5 +43,7 @@ public:
 private:
     PreviewWidget 	*previewWidget;
 };
+
+QT_END_NAMESPACE
 
 #endif

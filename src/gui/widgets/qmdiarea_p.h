@@ -36,6 +36,8 @@
 #include <private/qmdisubwindow_p.h>
 #include <private/qabstractscrollarea_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class Rearranger
 {
 public:
@@ -189,5 +191,7 @@ public:
 };
 
 #endif // QT_NO_MDIAREA
+
+QT_END_NAMESPACE
 
 #endif // QMDIAREA_P_H

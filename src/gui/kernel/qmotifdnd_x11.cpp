@@ -56,14 +56,11 @@ in doc/dnd.doc, where the documentation system can see it. */
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 static Window sourceWindow = XNone;
 static QWidget *dropWidget = 0;
 static Qt::DropAction lastAcceptedAction = Qt::IgnoreAction;
-
-
-
-
-
 
 static Atom Dnd_selection = 0;
 static Time Dnd_selection_time;
@@ -997,5 +994,7 @@ void QX11Data::motifdndHandle(QWidget *widget, const XEvent * xe, bool /* passiv
         break;
     }   //  end of switch (dnd_data.reason)
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DRAGANDDROP

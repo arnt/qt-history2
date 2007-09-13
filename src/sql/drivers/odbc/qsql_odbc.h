@@ -55,6 +55,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QODBCPrivate;
 class QODBCDriverPrivate;
 class QODBCDriver;
@@ -125,6 +127,8 @@ private:
     QODBCDriverPrivate* d;
     friend class QODBCPrivate;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

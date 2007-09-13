@@ -19,6 +19,9 @@
 #include "../../3rdparty/md4/md4.cpp"
 #include "../../3rdparty/sha1/sha1.cpp"
 
+
+QT_BEGIN_NAMESPACE
+
 class QCryptographicHashPrivate
 {
 public:
@@ -148,3 +151,5 @@ QByteArray QCryptographicHash::hash(const QByteArray &data, Algorithm method)
     hash.addData(data);
     return hash.result();
 }
+
+QT_END_NAMESPACE

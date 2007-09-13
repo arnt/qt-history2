@@ -45,6 +45,8 @@
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSslKeyPrivate
 {
 public:
@@ -76,5 +78,7 @@ public:
 
     QAtomicInt ref;
 };
+
+QT_END_NAMESPACE
 
 #endif // QSSLKEY_P_H

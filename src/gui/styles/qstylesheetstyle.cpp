@@ -50,6 +50,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace QCss;
 
 class QStyleSheetStylePrivate : public QWindowsStylePrivate
@@ -2125,7 +2127,7 @@ static QWidget *embeddedWidget(QWidget *w)
 
 static int extendedPseudoClass(QWidget *w)
 {
-    int pc = w->isWindow() ? PseudoClass_Window : 0;
+    int pc = w->isWindow() ? int(PseudoClass_Window) : 0;
     if (QAbstractSlider *slider = qobject_cast<QAbstractSlider *>(w)) {
         pc |= ((slider->orientation() == Qt::Vertical) ? PseudoClass_Vertical : PseudoClass_Horizontal);
     } else
@@ -4903,6 +4905,8 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
 
     return baseStyle()->subElementRect(se, opt, w);
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qstylesheetstyle_p.cpp"
 

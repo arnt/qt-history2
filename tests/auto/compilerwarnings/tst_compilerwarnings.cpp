@@ -16,6 +16,8 @@
 
 #include <stdlib.h>
 
+QT_USE_NAMESPACE
+
 class tst_CompilerWarnings: public QObject
 {
     Q_OBJECT

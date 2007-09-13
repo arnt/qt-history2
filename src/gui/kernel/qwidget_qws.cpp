@@ -38,6 +38,10 @@
 
 #include "qwidget_p.h"
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 extern int *qt_last_x;
 extern int *qt_last_y;
 extern WId qt_last_cursor;
@@ -1195,3 +1199,5 @@ void QWidgetPrivate::setModal_sys()
 {
 }
 
+
+QT_END_NAMESPACE

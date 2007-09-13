@@ -24,6 +24,8 @@
 #include "qfile.h"
 #include "qlibrary.h"
 
+QT_BEGIN_NAMESPACE
+
 #if defined(Q_WS_X11) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
 QGLExtensionFuncs QGLContextPrivate::qt_extensionFuncs;
 #endif
@@ -54,6 +56,7 @@ typedef void (APIENTRY *pfn_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, G
                                                         GLsizei, GLint, GLsizei, const GLvoid *);
 static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #if defined(Q_WS_X11)
 #include "private/qt_x11_p.h"
 #define INT32 dummy_INT32
@@ -67,15 +70,16 @@ static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
 #endif
 
 #include <stdlib.h> // malloc
+QT_END_INCLUDE_NAMESPACE
 
 #ifndef APIENTRY
 #define APIENTRY
 #endif
 
-Q_GLOBAL_STATIC(QGLSignalProxy, signalProxy)
+Q_GLOBAL_STATIC(QGLSignalProxy, theSignalProxy)
 QGLSignalProxy *QGLSignalProxy::instance()
 {
-    return ::signalProxy();
+    return theSignalProxy();
 }
 
 /*!
@@ -3726,3 +3730,5 @@ Q_OPENGL_EXPORT const QString qt_gl_library_name()
     return *qt_gl_lib_name();
 }
 #endif
+
+QT_END_NAMESPACE

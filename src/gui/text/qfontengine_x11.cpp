@@ -44,6 +44,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 
 // ------------------------------------------------------------------
 // Multi XLFD engine
@@ -164,7 +166,7 @@ static QFontEngine::FaceId fontFile(const QByteArray &_xname, QFreetypeFace **fr
         ++minus;
     QByteArray encoding = xname.mid(pos + 1);
     //qDebug("xname='%s', searchname='%s', encoding='%s'", xname.data(), searchname.data(), encoding.data());
-    QStringList fontpath = ::fontPath();
+    QStringList fontpath = fontPath();
     QFontEngine::FaceId face_id;
     face_id.index = 0;
 
@@ -583,7 +585,7 @@ QFontEngine::FaceId QFontEngineXLFD::faceId() const
 {
 #ifndef QT_NO_FREETYPE
     if (face_id.index == -1) {
-        face_id = ::fontFile(_name, &freetype, &synth);
+        face_id = fontFile(_name, &freetype, &synth);
         if (_codec)
             face_id.encoding = _codec->mibEnum();
         if (freetype) {
@@ -963,3 +965,5 @@ bool QFontEngineX11FT::uploadGlyphToServer(QGlyphSet *set, uint glyphid, Glyph *
 }
 
 #endif // QT_NO_FONTCONFIG
+
+QT_END_NAMESPACE

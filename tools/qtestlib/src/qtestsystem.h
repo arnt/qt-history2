@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest
 {
     inline static void qWait(int ms)
@@ -34,6 +36,8 @@ namespace QTest
         } while (timer.elapsed() < ms);
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -3,7 +3,7 @@
 #include <qdebug.h>
 
 
-class QStringListModel;
+QT_DECLARE_CLASS(QStringListModel)
 
 class QModelListener : public QObject
 {

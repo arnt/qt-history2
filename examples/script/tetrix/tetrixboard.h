@@ -18,7 +18,7 @@
 #include <QFrame>
 #include <QPointer>
 
-class QLabel;
+QT_DECLARE_CLASS(QLabel)
 
 class TetrixBoard : public QFrame
 {

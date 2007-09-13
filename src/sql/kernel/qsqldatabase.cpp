@@ -68,6 +68,8 @@
 #include "qhash.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QSqlDriverFactoryInterface_iid,
@@ -1491,3 +1493,5 @@ QDebug operator<<(QDebug dbg, const QSqlDatabase &d)
     return dbg.space();
 }
 #endif
+
+QT_END_NAMESPACE

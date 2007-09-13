@@ -15,6 +15,8 @@
 
 #include "qpaircontainer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 PairContainer::PairContainer(const Expression::Ptr &operand1,
@@ -53,3 +55,5 @@ bool PairContainer::compressOperands(const StaticContext::Ptr &context)
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

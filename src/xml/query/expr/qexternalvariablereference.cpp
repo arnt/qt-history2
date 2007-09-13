@@ -15,6 +15,8 @@
 
 #include "qexternalvariablereference_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ExternalVariableReference::ExternalVariableReference(const QName name,
@@ -57,3 +59,5 @@ ExpressionVisitorResult::Ptr ExternalVariableReference::accept(const ExpressionV
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

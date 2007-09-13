@@ -18,6 +18,8 @@
 #include "q3textedit.h"
 #include "qtimer.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3SyntaxHighlighter qsyntaxhighlighter.h
     \brief The Q3SyntaxHighlighter class is a base class for
@@ -187,5 +189,7 @@ int Q3SyntaxHighlighter::currentParagraph() const
 {
     return d->currentParagraph;
 }
+
+QT_END_NAMESPACE
 
 #endif

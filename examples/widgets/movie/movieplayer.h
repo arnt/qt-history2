@@ -16,15 +16,15 @@
 
 #include <QWidget>
 
-class QCheckBox;
-class QGridLayout;
-class QHBoxLayout;
-class QLabel;
-class QMovie;
-class QSlider;
-class QSpinBox;
-class QToolButton;
-class QVBoxLayout;
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QGridLayout)
+QT_DECLARE_CLASS(QHBoxLayout)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QMovie)
+QT_DECLARE_CLASS(QSlider)
+QT_DECLARE_CLASS(QSpinBox)
+QT_DECLARE_CLASS(QToolButton)
+QT_DECLARE_CLASS(QVBoxLayout)
 
 class MoviePlayer : public QWidget
 {

@@ -34,6 +34,8 @@
 #include <share.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #if 1
 #define qmake_endOfLine(c) (c == '\r' || c == '\n')
 #else
@@ -924,3 +926,5 @@ bool QMakeSourceFileInfo::verifyCache(const QMap<QString, QStringList> &v)
 {
     return v == getCacheVerification();
 }
+
+QT_END_NAMESPACE

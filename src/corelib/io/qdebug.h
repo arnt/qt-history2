@@ -26,6 +26,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QDebug
@@ -215,6 +217,8 @@ inline QNoDebug operator<<(QNoDebug debug, const T &) { return debug; }
 #endif
 
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

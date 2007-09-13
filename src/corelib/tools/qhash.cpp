@@ -20,6 +20,11 @@
 #include <qbitarray.h>
 #include <qstring.h>
 #include <stdlib.h>
+#ifdef QT_QHASH_DEBUG
+#include <qstring.h>
+#endif
+
+QT_BEGIN_NAMESPACE
 
 /*
     These functions are based on Peter J. Weinberger's hash function
@@ -299,7 +304,6 @@ void QHashData::destroyAndFree()
 }
 
 #ifdef QT_QHASH_DEBUG
-#include <qstring.h>
 
 void QHashData::dump()
 {
@@ -1991,3 +1995,5 @@ void QHashData::checkSanity()
     \overload
     \sa QHash::constFind()
 */
+
+QT_END_NAMESPACE

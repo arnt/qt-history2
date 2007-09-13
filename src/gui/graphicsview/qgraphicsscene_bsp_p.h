@@ -33,6 +33,8 @@
 #include <QtCore/qset.h>
 #include <QtCore/qvector.h>
 
+QT_BEGIN_NAMESPACE
+
 class QGraphicsItem;
 class QGraphicsSceneBspTreeVisitor;
 class QGraphicsSceneInsertItemBspTreeVisitor;
@@ -100,5 +102,8 @@ public:
     virtual void visit(QList<QGraphicsItem *> *items) = 0;
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_GRAPHICSVIEW
+
 #endif // QGRAPHICSSCENEBSPTREE_P_H

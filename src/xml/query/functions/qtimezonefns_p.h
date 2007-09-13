@@ -27,6 +27,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -88,6 +90,8 @@ namespace Patternist
         virtual Item createValue(const QDateTime &dt) const;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

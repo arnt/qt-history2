@@ -20,6 +20,8 @@
 
 #include "qassemblestringfns_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 /*
@@ -84,3 +86,5 @@ Item::Iterator::Ptr StringToCodepointsFN::evaluateSequence(const DynamicContext:
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

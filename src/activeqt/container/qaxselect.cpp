@@ -15,6 +15,8 @@
 
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
 class ControlList : public QAbstractListModel
 {
 public:
@@ -106,3 +108,5 @@ void QAxSelect::on_ActiveXList_doubleClicked(const QModelIndex &index)
 
     accept();
 }
+
+QT_END_NAMESPACE

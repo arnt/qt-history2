@@ -12,6 +12,10 @@
  * ****************************************************************************/
 
 #include "qsourcelocation.h"
+#include <QtDebug>
+
+
+QT_BEGIN_NAMESPACE
 
 /*!
   \class QSourceLocation
@@ -162,8 +166,6 @@ void QSourceLocation::setUri(const QUrl &newUri)
     m_uri = newUri;
 }
 
-#include <QtDebug>
-
 /*!
   \relates QSourceLocation
 
@@ -194,5 +196,7 @@ bool QSourceLocation::isNull() const
 {
     return !m_uri.isValid();
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

@@ -8,7 +8,7 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qstringlist.h"
 
-class QByteArray;
+QT_DECLARE_CLASS(QByteArray)
 
 class QBic
 {

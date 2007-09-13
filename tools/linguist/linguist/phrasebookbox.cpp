@@ -24,6 +24,8 @@
 #include <QMessageBox>
 #include <QHeaderView>
 
+QT_BEGIN_NAMESPACE
+
 #define NewPhrase tr("(New Phrase)")
 
 PhraseBookBox::PhraseBookBox(const QString& filename,
@@ -200,3 +202,5 @@ void PhraseBookBox::enableDisable()
     led->setFocus();
     led->selectAll();
 }
+
+QT_END_NAMESPACE

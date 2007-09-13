@@ -15,6 +15,8 @@
 
 #include "proitems.h"
 #include "abstractproitemvisitor.h"
+
+QT_BEGIN_NAMESPACE
 // --------------- ProItem ------------
 void ProItem::setComment(const QByteArray &comment)
 {
@@ -289,3 +291,5 @@ bool ProFile::Accept(AbstractProItemVisitor *visitor)
     }
     return visitor->visitEndProFile(this);
 }
+
+QT_END_NAMESPACE

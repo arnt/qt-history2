@@ -28,6 +28,8 @@
 #include <string.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #if defined(QT_HPUX_LD) // for HP-UX < 11.x and 32 bit
 
 bool QLibraryPrivate::load_sys()
@@ -80,7 +82,9 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 }
 
 #else // POSIX
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <dlfcn.h>
+QT_END_INCLUDE_NAMESPACE
 
 static QString qdlerror()
 {
@@ -240,5 +244,7 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 }
 
 #endif // POSIX
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_LIBRARY

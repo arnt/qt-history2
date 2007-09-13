@@ -33,6 +33,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 {
     QWidget *widget = QWidget::find(window);
@@ -151,3 +153,5 @@ int QPixmap::qwsBytesPerLine() const
 {
     return data->image.bytesPerLine();
 }
+
+QT_END_NAMESPACE

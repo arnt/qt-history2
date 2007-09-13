@@ -21,6 +21,8 @@
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 Core::Core(QScriptEnginePrivate *engine, const QString &className)
@@ -70,5 +72,7 @@ QString Core::functionName() const
 
 
 } // namespace QScript
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

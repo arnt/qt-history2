@@ -48,6 +48,8 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 #include <QtCore/QVector>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     // Selections: Basically, ObjectInspector has to ensure a consistent
     // selection, that is, either form-managed widgets (represented
@@ -737,5 +739,7 @@ void  ObjectInspector::dragLeaveEvent(QDragLeaveEvent * /* event*/)
 void  ObjectInspector::dropEvent (QDropEvent * event)
 {
     m_impl->dropEvent(event);
+
+QT_END_NAMESPACE
 }
 }

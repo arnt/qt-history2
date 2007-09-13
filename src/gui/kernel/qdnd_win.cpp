@@ -30,6 +30,8 @@
 #include "qdnd_p.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 //#define QDND_DEBUG
 
 #ifdef QDND_DEBUG
@@ -926,7 +928,6 @@ void QDragManager::drop()
     // not used in windows implementation
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_DRAGANDDROP
-
-
-

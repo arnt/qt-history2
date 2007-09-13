@@ -34,6 +34,8 @@
 #include <QtCore/QMap>
 #include <QtGui/QMainWindow>
 
+QT_BEGIN_NAMESPACE
+
 class QIcon;
 class QPixmap;
 
@@ -208,9 +210,6 @@ QDESIGNER_SHARED_EXPORT bool runUIC(const QString &fileName, UIC_Mode mode, QByt
 QDESIGNER_SHARED_EXPORT QString qtify(const QString &name);
 } // namespace qdesigner_internal
 
-Q_DECLARE_METATYPE(qdesigner_internal::PropertySheetEnumValue)
-Q_DECLARE_METATYPE(qdesigner_internal::PropertySheetFlagValue)
-
 namespace qdesigner_internal { namespace Utils {
 
 inline int valueOf(const QVariant &value, bool *ok = 0)
@@ -258,5 +257,10 @@ inline bool isCentralWidget(QDesignerFormWindowInterface *fw, QWidget *widget)
 } // namespace Utils
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QT_ADD_NAMESPACE(qdesigner_internal::PropertySheetEnumValue))
+Q_DECLARE_METATYPE(QT_ADD_NAMESPACE(qdesigner_internal::PropertySheetFlagValue))
 
 #endif // QDESIGNER_UTILS_H

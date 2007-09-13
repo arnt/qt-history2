@@ -86,6 +86,8 @@ Q_GUI_EXPORT void qt_x11_set_global_double_buffer(bool enable)
 }
 #endif
 
+QT_BEGIN_NAMESPACE
+
 QWidgetPrivate::QWidgetPrivate(int version) :
         QObjectPrivate(version), extra(0), focus_child(0)
         ,layout(0)
@@ -1754,6 +1756,12 @@ void QWidgetPrivate::paintBackground(QPainter *painter, const QRect &rect, bool 
   visible widgets.
 */
 
+#ifdef Q_WS_MAC
+    extern QPointer<QWidget> qt_button_down;
+#else
+    extern QWidget *qt_button_down;
+#endif
+
 void QWidgetPrivate::deactivateWidgetCleanup()
 {
     Q_Q(QWidget);
@@ -1761,11 +1769,6 @@ void QWidgetPrivate::deactivateWidgetCleanup()
     if (qApp->activeWindow() == q)
         qApp->setActiveWindow(0);
     // If the is the active mouse press widget, reset it
-#ifdef Q_WS_MAC
-    extern QPointer<QWidget> qt_button_down;
-#else
-    extern QWidget *qt_button_down;
-#endif
     if (q == qt_button_down)
         qt_button_down = 0;
 }
@@ -9307,6 +9310,8 @@ void QWidgetPrivate::setLayoutItemMargins(QStyle::SubElement element, const QSty
     Synonym for QList<QWidget *>.
 */
 
+QT_END_NAMESPACE
+
 #include "moc_qwidget.cpp"
 
 /*!
@@ -9315,4 +9320,3 @@ void QWidgetPrivate::setLayoutItemMargins(QStyle::SubElement element, const QSty
 
     Platform dependent window identifier.
 */
-

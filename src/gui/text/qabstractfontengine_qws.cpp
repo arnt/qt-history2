@@ -17,6 +17,8 @@
 #include <private/qtextengine_p.h>
 #include <private/qpaintengine_raster_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QFontEngineInfoPrivate
 {
 public:
@@ -686,3 +688,4 @@ bool QProxyFontEngine::drawAsOutline() const
     return !outlineHint.isValid() || outlineHint.toBool();
 }
 
+QT_END_NAMESPACE

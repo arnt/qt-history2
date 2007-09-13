@@ -21,6 +21,8 @@
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
 
+QT_BEGIN_NAMESPACE
+
 QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags),
       m_workbench(workbench),
@@ -125,3 +127,5 @@ Qt::DockWidgetArea QDesignerToolWindow::dockWidgetAreaHint() const
     return Qt::RightDockWidgetArea;
 }
 
+
+QT_END_NAMESPACE

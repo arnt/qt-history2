@@ -21,6 +21,8 @@
 
 #ifndef QT_NO_LIBRARY
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QPluginLoader
     \reentrant
@@ -309,4 +311,7 @@ QObjectList QPluginLoader::staticInstances()
     }
     return instances;
 }
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_LIBRARY

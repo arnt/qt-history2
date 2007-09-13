@@ -33,6 +33,8 @@
 #include <QtCore/QVariantMap>
 #include <QtCore/QList>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerDnDItemInterface;
 class QMenu;
 class QPoint;
@@ -108,6 +110,9 @@ private:
     Grid m_grid;
     bool m_hasFormGrid;
 };
+
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // FORMWINDOWBASE_H

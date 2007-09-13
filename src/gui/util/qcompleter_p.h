@@ -37,6 +37,8 @@
 #include "QtGui/qpainter.h"
 #include "private/qabstractproxymodel_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QCompletionModel;
 
 class QCompleterPrivate : public QObjectPrivate
@@ -225,5 +227,8 @@ class QCompletionModelPrivate : public QAbstractProxyModelPrivate
     Q_DECLARE_PUBLIC(QCompletionModel)
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_COMPLETER
+
 #endif // QCOMPLETER_P_H

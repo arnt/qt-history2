@@ -17,6 +17,8 @@
 
 #include "qindexofiterator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 IndexOfIterator::IndexOfIterator(const Item::Iterator::Ptr &seq,
@@ -85,3 +87,5 @@ const SourceLocationReflection *IndexOfIterator::actualReflection() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

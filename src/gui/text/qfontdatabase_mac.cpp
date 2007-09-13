@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <qendian.h>
 
+QT_BEGIN_NAMESPACE
+
 int qt_mac_pixelsize(const QFontDef &def, int dpi); //qfont_mac.cpp
 int qt_mac_pointsize(const QFontDef &def, int dpi); //qfont_mac.cpp
 
@@ -450,3 +452,5 @@ bool QFontDatabase::removeAllApplicationFonts()
     return true;
 }
 
+
+QT_END_NAMESPACE

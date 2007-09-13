@@ -13,3 +13,6 @@ MOC_DIR=tmp
 
 QT = core network
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

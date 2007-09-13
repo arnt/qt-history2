@@ -28,6 +28,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 struct Q_CORE_EXPORT QVectorData
@@ -710,9 +712,13 @@ Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(Vector)
    ### Qt exports QPolygon and QPolygonF that inherit QVector<QPoint> and
    ### QVector<QPointF> respectively.
 */
+
 #ifdef Q_CC_MSVC
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <QtCore/QPointF>
 #include <QtCore/QPoint>
+QT_END_INCLUDE_NAMESPACE
+
 #if defined(QT_BUILD_CORE_LIB)
 #define Q_TEMPLATE_EXTERN
 #else
@@ -724,6 +730,8 @@ Q_TEMPLATE_EXTERN template class Q_CORE_EXPORT QVector<QPointF>;
 Q_TEMPLATE_EXTERN template class Q_CORE_EXPORT QVector<QPoint>;
 # pragma warning(pop)
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

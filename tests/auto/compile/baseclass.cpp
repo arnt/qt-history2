@@ -1,8 +1,6 @@
 #define BASECLASS_NOT_ABSTRACT
 #include "baseclass.h"
 
-#include <QtGlobal>
-
 BaseClass::~BaseClass()
 {
 }

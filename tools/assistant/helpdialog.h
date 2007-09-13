@@ -26,8 +26,10 @@
 #include <QMap>
 #include <QStringList>
 #include <QValidator>
-#include <QMenu>
+#include <qmenu.h>
 #include <QHash>
+
+QT_BEGIN_NAMESPACE
 
 class QProgressBar;
 class MainWindow;
@@ -148,5 +150,7 @@ private:
     QAction *actionOpenLinkInNewWindow;
     QAction *actionOpenLinkInNewTab;
 };
+
+QT_END_NAMESPACE
 
 #endif // HELPDIALOG_H

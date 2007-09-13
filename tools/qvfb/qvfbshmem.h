@@ -15,6 +15,8 @@
 
 #include "qvfbprotocol.h"
 
+QT_BEGIN_NAMESPACE
+
 class QVFbHeader;
 class QTimer;
 class QShMemViewProtocol : public QVFbViewProtocol
@@ -51,5 +53,7 @@ private:
     int shmId;
     QTimer *mRefreshTimer;
 };
+
+QT_END_NAMESPACE
 
 #endif

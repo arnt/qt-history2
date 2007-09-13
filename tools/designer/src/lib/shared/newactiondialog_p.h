@@ -27,6 +27,8 @@
 
 #include "ui_newactiondialog.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class ActionEditor;
@@ -60,5 +62,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // NEWACTIONDIALOG_P_H

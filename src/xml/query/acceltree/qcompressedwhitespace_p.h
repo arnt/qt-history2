@@ -16,11 +16,13 @@
 
 #include <QtGlobal>
 
+QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
 class QChar;
 class QString;
 class QStringRef;
-
-QT_BEGIN_HEADER 
 
 namespace Patternist
 {
@@ -138,6 +140,8 @@ namespace Patternist
             Q_DISABLE_COPY(CompressedWhitespace)
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

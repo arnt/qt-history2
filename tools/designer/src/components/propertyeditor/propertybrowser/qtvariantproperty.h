@@ -18,9 +18,9 @@
 #include <QtCore/QVariant>
 #include <QtGui/QIcon>
 
+QT_BEGIN_NAMESPACE
+
 typedef QMap<int, QIcon> QtIconMap;
-Q_DECLARE_METATYPE(QIcon)
-Q_DECLARE_METATYPE(QtIconMap)
 
 class QtVariantPropertyManager;
 
@@ -140,4 +140,8 @@ private:
     Q_DISABLE_COPY(QtVariantEditorFactory)
 };
 
+QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QIcon)
+Q_DECLARE_METATYPE(QtIconMap)
 #endif

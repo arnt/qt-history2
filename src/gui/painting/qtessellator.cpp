@@ -20,6 +20,8 @@
 #include <limits.h>
 #include <private/qmath_p.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define DEBUG
 #ifdef DEBUG
 #define QDEBUG qDebug
@@ -1458,3 +1460,5 @@ void QTessellator::tessellateRect(const QPointF &a_, const QPointF &b_, qreal wi
         }
     }
 }
+
+QT_END_NAMESPACE

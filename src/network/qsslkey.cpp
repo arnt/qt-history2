@@ -51,6 +51,8 @@
 #include <QtCore/qiodevice.h>
 #ifndef QT_NO_DEBUG_STREAM
 #include <QtCore/qdebug.h>
+
+QT_BEGIN_NAMESPACE
 #endif
 
 
@@ -447,3 +449,5 @@ QDebug operator<<(QDebug debug, const QSslKey &key)
     return debug;
 }
 #endif
+
+QT_END_NAMESPACE

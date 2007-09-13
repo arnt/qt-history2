@@ -11,3 +11,6 @@ win32-borland: DEFINES += WIN32_BORLAND
 
 #no special install rule for the library used by test
 INSTALLS =
+
+DEFINES += QT_USE_USING_NAMESPACE
+

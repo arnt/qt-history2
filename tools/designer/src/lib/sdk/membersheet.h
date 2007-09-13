@@ -21,6 +21,10 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
+class QString; // FIXME: fool syncqt
+
 class QDesignerMemberSheetExtension
 {
 public:
@@ -48,6 +52,8 @@ public:
     virtual QList<QByteArray> parameterNames(int index) const = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerMemberSheetExtension, "com.trolltech.Qt.Designer.MemberSheet")
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -47,6 +47,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 static bool qt_gen_epsf = false;
 
 void qt_generate_epsf(bool b)
@@ -162,7 +164,9 @@ QPSPrintEnginePrivate::~QPSPrintEnginePrivate()
 {
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qdebug.h>
+QT_END_INCLUDE_NAMESPACE
 
 static void ps_r7(QPdf::ByteStream& stream, const char * s, int l)
 {
@@ -261,7 +265,7 @@ static const char *const filters[3] = {
     "/DCTDecode filter "
 };
 
-static QByteArray compress(const QImage &img, bool gray, int *format)
+static QByteArray compressHelper(const QImage &img, bool gray, int *format)
 {
     // we can't use premultiplied here
     QImage image = img;
@@ -387,7 +391,7 @@ void QPSPrintEnginePrivate::drawImage(qreal x, qreal y, qreal w, qreal h,
 
         if (!mask.isNull()) {
             int format;
-            out = ::compress(mask, true, &format);
+            out = compressHelper(mask, true, &format);
             size = (width+7)/8*height;
             *currentPage << "/mask currentfile/ASCII85Decode filter"
                          << filters[format]
@@ -407,7 +411,7 @@ void QPSPrintEnginePrivate::drawImage(qreal x, qreal y, qreal w, qreal h,
         }
 
         int format;
-        out = ::compress(img, gray, &format);
+        out = compressHelper(img, gray, &format);
         *currentPage << "/sl currentfile/ASCII85Decode filter"
                      << filters[format]
                      << size << " string readstring\n";
@@ -830,6 +834,6 @@ QPrinter::PrinterState QPSPrintEngine::printerState() const
     return d->printerState;
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_PRINTER
-
-

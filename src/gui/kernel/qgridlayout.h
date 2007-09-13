@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QGridLayoutPrivate;
@@ -138,6 +140,8 @@ public:
     inline QT3_SUPPORT int rowSpacing(int row) const {return rowMinimumHeight(row); }
 #endif
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -27,6 +27,8 @@
 
 #include <QtCore/qshareddata.h>
 
+QT_BEGIN_NAMESPACE
+
 class QScriptValueImpl;
 class QScriptNameIdImpl;
 
@@ -58,5 +60,7 @@ public:
 private:
     Q_DISABLE_COPY(QScriptClassData)
 };
+
+QT_END_NAMESPACE
 
 #endif // QSCRIPTCLASSDATA_P_H

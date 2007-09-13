@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -142,6 +144,8 @@ namespace Patternist
         return *this;
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

@@ -23,6 +23,8 @@
 
 #include <stdarg.h>
 
+QT_BEGIN_NAMESPACE
+
 //same as qt_painterpath_isect_line in qpainterpath.cpp
 static void qt_polygon_isect_line(const QPointF &p1, const QPointF &p2, const QPointF &pos,
                                   int *winding)
@@ -855,6 +857,7 @@ QPolygonF QPolygonF::subtracted(const QPolygonF &r) const
 {
     QPainterPath subject; subject.addPolygon(*this);
     QPainterPath clip; clip.addPolygon(r);
-
     return subject.subtracted(clip).toFillPolygon();
 }
+
+QT_END_NAMESPACE

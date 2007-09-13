@@ -17,14 +17,14 @@
 #include <QPixmap>
 #include <QWidget>
 
-class QCheckBox;
-class QGridLayout;
-class QGroupBox;
-class QHBoxLayout;
-class QLabel;
-class QPushButton;
-class QSpinBox;
-class QVBoxLayout;
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QGridLayout)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QHBoxLayout)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QSpinBox)
+QT_DECLARE_CLASS(QVBoxLayout)
 
 class Screenshot : public QWidget
 {

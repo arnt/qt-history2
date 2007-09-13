@@ -31,6 +31,8 @@
 
 #ifndef QT_NO_LIBRARY
 
+QT_BEGIN_NAMESPACE
+
 class QFactoryLoaderPrivate;
 
 class Q_CORE_EXPORT QFactoryLoader : public QObject
@@ -49,6 +51,8 @@ public:
     QObject *instance(const QString &key) const;
 
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_LIBRARY
 

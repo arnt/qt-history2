@@ -21,6 +21,8 @@ TRANSLATOR qdesigner_internal::QtGradientStopsEditor
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtGradientStopsEditorPrivate
@@ -604,4 +606,7 @@ QGradientStops QtGradientStopsEditor::gradientStops() const
     return stops;
 }
 }
+
+QT_END_NAMESPACE
+
 #include "moc_qtgradientstopseditor.cpp"

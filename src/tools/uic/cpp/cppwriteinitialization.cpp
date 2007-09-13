@@ -22,6 +22,8 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     // Fixup an enumeration name from class Qt.
     // They are currently stored as "BottomToolBarArea" instead of "Qt::BottomToolBarArea".
@@ -2222,3 +2224,5 @@ void WriteInitialization::acceptWidgetScripts(const DomScripts &widgetScripts, D
 }
 
 } // namespace CPP
+
+QT_END_NAMESPACE

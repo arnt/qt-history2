@@ -32,6 +32,8 @@
 
 #include "QtCore/qhash.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 class QMenu;
 
@@ -84,5 +86,7 @@ public:
 };
 
 #endif // QT_NO_QWS_MANAGER
+
+QT_END_NAMESPACE
 
 #endif // QWSMANAGER_P_H

@@ -9,3 +9,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/scribble
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS scribble.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/scribble
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

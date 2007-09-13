@@ -19,6 +19,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QRegion
     \brief The QRegion class specifies a clip region for a painter.
@@ -561,3 +563,5 @@ bool QRegion::intersects(const QRect &rect) const
             return true;
     return false;
 }
+
+QT_END_NAMESPACE

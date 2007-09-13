@@ -21,6 +21,8 @@
 #include <QtGui/QPushButton>
 #include <Qt3Support/Q3Wizard>
 
+QT_BEGIN_NAMESPACE
+
 Q3WizardPlugin::Q3WizardPlugin(QObject *parent)
     : QObject(parent), m_initialized(false)
 {}
@@ -90,3 +92,5 @@ QString Q3WizardPlugin::domXml() const
     ");
 }
 
+
+QT_END_NAMESPACE

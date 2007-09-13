@@ -16,12 +16,14 @@
 
 #include <QtDesigner/sdk_global.h>
 
+QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QWidget;
 class QVariant;
 class QString;
-
-QT_BEGIN_HEADER
 
 class QDESIGNER_SDK_EXPORT QDesignerFormWindowCursorInterface
 {
@@ -71,6 +73,8 @@ public:
 
     bool isWidgetSelected(QWidget *widget) const;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

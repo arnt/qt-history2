@@ -21,6 +21,8 @@
 #include <tslib.h>
 #include <errno.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_QWS_TP_PRESSURE_THRESHOLD
 #define QT_QWS_TP_PRESSURE_THRESHOLD 1
 #endif
@@ -321,5 +323,8 @@ void QWSTslibMouseHandler::calibrate(const QWSPointerCalibrationData *data)
     d->calibrate(data);
 }
 
+QT_END_NAMESPACE
+
 #include "qmousetslib_qws.moc"
+
 #endif //QT_NO_QWS_MOUSE_TSLIB

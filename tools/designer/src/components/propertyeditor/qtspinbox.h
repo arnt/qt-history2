@@ -16,6 +16,8 @@
 
 #include <QtGui/QSpinBox>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtSpinBox : public QSpinBox
@@ -38,5 +40,7 @@ public:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

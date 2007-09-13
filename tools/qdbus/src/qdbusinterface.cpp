@@ -21,6 +21,8 @@
 #include "qdbusinterface_p.h"
 #include "qdbusconnection_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static void assign(void *ptr, int id, const QVariant &value)
 {
     Q_ASSERT(value.userType() == QDBusMetaTypeId::argument || value.userType() == id);
@@ -281,5 +283,7 @@ int QDBusInterfacePrivate::metacall(QMetaObject::Call c, int id, void **argv)
         return -1;
     }
     return id;
+
+QT_END_NAMESPACE
 }
 

@@ -17,6 +17,8 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include "ui4_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QAxWidgetExtraInfo::QAxWidgetExtraInfo(QActiveXPluginObject *widget, QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent), m_widget(widget), m_core(core)
 {}
@@ -63,3 +65,5 @@ QObject *QAxWidgetExtraInfoFactory::createExtension(QObject *object, const QStri
 
     return 0;
 }
+
+QT_END_NAMESPACE

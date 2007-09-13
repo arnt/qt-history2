@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -62,6 +64,8 @@ namespace Patternist
         return SequenceType::Ptr(new GenericSequenceType(itemType, cardinality));
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_SHORTCUT
@@ -190,6 +192,8 @@ public:
 };
 
 #endif // QT_NO_SHORTCUT
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

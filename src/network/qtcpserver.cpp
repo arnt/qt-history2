@@ -72,6 +72,7 @@
 #include "qtcpsocket.h"
 #include "qnetworkproxy.h"
 
+QT_BEGIN_NAMESPACE
 
 #define Q_CHECK_SOCKETENGINE(returnValue) do { \
     if (!d->socketEngine) { \
@@ -579,6 +580,8 @@ QNetworkProxy QTcpServer::proxy() const
     return QNetworkProxy();
 }
 #endif // QT_NO_NETWORKPROXY
+
+QT_END_NAMESPACE
 
 #include "moc_qtcpserver.cpp"
 

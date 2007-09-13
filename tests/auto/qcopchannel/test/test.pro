@@ -10,3 +10,6 @@ win32 {
     TARGET = ../../release/tst_qcopchannel
   }
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -27,6 +27,8 @@
 
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class QMainWindow;
 class QAction;
 class QToolBar;
@@ -102,5 +104,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void currentToolBarChanged(QListWidgetItem *))
     Q_PRIVATE_SLOT(d_func(), void currentToolBarActionChanged(QListWidgetItem *))
 };
+
+QT_END_NAMESPACE
 
 #endif

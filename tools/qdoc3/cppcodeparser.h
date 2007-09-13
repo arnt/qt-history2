@@ -23,6 +23,8 @@
 #include "codeparser.h"
 #include "node.h"
 
+QT_BEGIN_NAMESPACE
+
 class ClassNode;
 class CodeChunk;
 class CppCodeParserPrivate;
@@ -116,5 +118,7 @@ private:
     static QStringList exampleFiles;
     static QStringList exampleDirs;
 };
+
+QT_END_NAMESPACE
 
 #endif

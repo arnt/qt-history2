@@ -15,6 +15,8 @@
 
 #include "qgenericnamespaceresolver_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 GenericNamespaceResolver::GenericNamespaceResolver(const Bindings &list) : m_bindings(list)
@@ -54,3 +56,5 @@ NamespaceResolver::Bindings GenericNamespaceResolver::bindings() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

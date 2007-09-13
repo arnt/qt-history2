@@ -20,6 +20,8 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QTextCodec>
 
+QT_BEGIN_NAMESPACE
+
 static const char *error = 0;
 
 void showHelp(const char *appName)
@@ -41,7 +43,7 @@ void showHelp(const char *appName)
             "\n", appName);
 }
 
-int main(int argc, char *argv[])
+int runUic(int argc, char *argv[])
 {
     Driver driver;
 
@@ -157,4 +159,11 @@ int main(int argc, char *argv[])
     }
 
     return !rtn;
+}
+
+QT_END_NAMESPACE
+
+int main(int argc, char *argv[])
+{
+    return QT_ADD_NAMESPACE(runUic)(argc, argv);
 }

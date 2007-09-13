@@ -17,6 +17,8 @@
 #include "widgetbox_global.h"
 #include <qdesigner_widgetbox_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 
@@ -68,5 +70,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // WIDGETBOX_H

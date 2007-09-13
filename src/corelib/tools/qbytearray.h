@@ -26,6 +26,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 /*****************************************************************************
@@ -520,6 +522,8 @@ inline QByteArray qUncompress(const QByteArray& data)
 
 Q_DECLARE_TYPEINFO(QByteArray, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QByteArray)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

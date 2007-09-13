@@ -50,6 +50,8 @@
 
 Q_DECLARE_METATYPE(QWidgetList)
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 // ---- InsertWidgetCommand ----
@@ -2350,5 +2352,6 @@ void DeleteToolBarCommand::undo()
     }
 }
 
-
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

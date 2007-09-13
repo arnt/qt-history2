@@ -28,6 +28,8 @@
 #include "qabstractfileengine.h"
 #include "qdir.h"
 
+QT_BEGIN_NAMESPACE
+
 class QFSFileEngineIteratorPrivate;
 class QFSFileEngineIteratorPlatformSpecificData;
 
@@ -52,5 +54,7 @@ private:
     
     QString currentEntry;
 };
+
+QT_END_NAMESPACE
 
 #endif

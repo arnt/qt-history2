@@ -29,6 +29,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QDialog;
 class QWidget;
 class QDesignerFormWindowInterface;
@@ -62,6 +64,8 @@ public:
 };
 
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerLanguageExtension, "com.trolltech.Qt.Designer.Language.3")
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

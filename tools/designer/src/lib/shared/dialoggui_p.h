@@ -17,6 +17,8 @@
 #include "shared_global_p.h"
 #include <abstractdialoggui_p.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QDESIGNER_SHARED_EXPORT DialogGui : public QDesignerDialogGuiInterface
@@ -36,5 +38,7 @@ public:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // DIALOGGUI

@@ -13,6 +13,8 @@
 
 #include "qtextengine_p.h"
 
+QT_BEGIN_NAMESPACE
+
 // set the glyph attributes heuristically. Assumes a 1 to 1 relationship between chars and glyphs
 // and no reordering.
 // also computes logClusters heuristically
@@ -609,3 +611,4 @@ void QTextEngine::shapeTextWithAtsui(int item) const
         delete [] uc;
 }
 
+QT_END_NAMESPACE

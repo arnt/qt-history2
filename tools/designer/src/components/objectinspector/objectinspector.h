@@ -17,6 +17,8 @@
 #include "objectinspector_global.h"
 #include "qdesigner_objectinspector_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 
@@ -61,3 +63,5 @@ private:
 }  // namespace qdesigner_internal
 
 #endif // OBJECTINSPECTOR_H
+
+QT_END_NAMESPACE

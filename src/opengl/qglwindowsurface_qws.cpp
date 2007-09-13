@@ -18,6 +18,8 @@
 #include "private/qglpaintdevice_qws_p.h"
 #include "private/qpaintengine_opengl_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QWSGLWindowSurface
     \since 4.3
@@ -99,3 +101,5 @@ void QWSGLWindowSurface::setContext(QGLContext *context)
     }
     d->qglContext = context;
 }
+
+QT_END_NAMESPACE

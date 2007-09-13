@@ -32,7 +32,7 @@
 
 
 class KALedMeter;
-class QLCDNumber;
+QT_DECLARE_CLASS(QLCDNumber)
 
 class KAstTopLevel : public Q3MainWindow
 {

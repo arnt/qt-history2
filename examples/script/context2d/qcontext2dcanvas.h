@@ -21,9 +21,9 @@
 #include <QWidget>
 #include <QTimer>
 
-class QPaintEvent;
-class QResizeEvent;
-class QMouseEvent;
+QT_DECLARE_CLASS(QPaintEvent)
+QT_DECLARE_CLASS(QResizeEvent)
+QT_DECLARE_CLASS(QMouseEvent)
 class Context2D;
 
 class QContext2DCanvas : public QWidget

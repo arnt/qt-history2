@@ -56,6 +56,8 @@
 
 #include "QtCore/qtextcodec.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_CODECS
 
 class Q_CORE_EXPORT QTsciiCodec : public QTextCodec {
@@ -70,5 +72,7 @@ public:
 };
 
 #endif // QT_NO_CODECS
+
+QT_END_NAMESPACE
 
 #endif // QTSCIICODEC_P_H

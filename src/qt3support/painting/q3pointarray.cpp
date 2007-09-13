@@ -15,6 +15,8 @@
 #include "private/qbezier_p.h"
 #include "private/qpainterpath_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3PointArray
     The Q3PointArray class provides an array of points.
@@ -155,3 +157,5 @@ Q3PointArray Q3PointArray::cubicBezier() const
     return polygon.toPolygon();
 }
 #endif //QT_NO_BEZIER
+
+QT_END_NAMESPACE

@@ -25,6 +25,8 @@
 #include <qtextlayout.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 enum {
     AdjustPrev = 0x1,
     AdjustUp = 0x3,
@@ -534,7 +536,7 @@ void QTextCursorPrivate::selectedTableCells(int *firstRow, int *numRows, int *fi
     *numColumns = qMax(cell_pos.column() + cell_pos.columnSpan(), cell_anchor.column() + cell_anchor.columnSpan()) - *firstColumn;
 }
 
-static void setBlockCharFormat(QTextDocumentPrivate *priv, int pos1, int pos2,
+static void setBlockCharFormatHelper(QTextDocumentPrivate *priv, int pos1, int pos2,
                                const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
 {
     QTextBlock it = priv->blocksFind(pos1);
@@ -547,7 +549,8 @@ static void setBlockCharFormat(QTextDocumentPrivate *priv, int pos1, int pos2,
     }
 }
 
-void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &_format, QTextDocumentPrivate::FormatChangeMode changeMode)
+void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &_format,
+    QTextDocumentPrivate::FormatChangeMode changeMode)
 {
     priv->beginEditBlock();
 
@@ -578,7 +581,7 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &_format, QTex
 
                 int pos1 = cell.firstPosition();
                 int pos2 = cell.lastPosition();
-                ::setBlockCharFormat(priv, pos1, pos2, format, changeMode);
+                setBlockCharFormatHelper(priv, pos1, pos2, format, changeMode);
             }
         }
     } else {
@@ -589,7 +592,7 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &_format, QTex
             pos2 = position;
         }
 
-        ::setBlockCharFormat(priv, pos1, pos2, format, changeMode);
+        setBlockCharFormatHelper(priv, pos1, pos2, format, changeMode);
     }
     priv->endEditBlock();
 }
@@ -2176,3 +2179,5 @@ int QTextCursor::columnNumber() const
         return 0;
     return relativePos - line.textStart();
 }
+
+QT_END_NAMESPACE

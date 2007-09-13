@@ -13,7 +13,6 @@
 
 #include "qmime.h"
 
-
 #include "qimagereader.h"
 #include "qimagewriter.h"
 #include "qdatastream.h"
@@ -30,6 +29,8 @@
 #include "qvariant.h"
 #include "qtextdocument.h"
 #include "qdir.h"
+
+QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_IMAGEFORMAT_BMP
 #ifndef CF_DIBV5
@@ -180,7 +181,7 @@ private:
     QList<QWindowsMime*> mimes;
 };
 
-Q_GLOBAL_STATIC(QWindowsMimeList, mimeList);
+Q_GLOBAL_STATIC(QWindowsMimeList, theMimeList);
 
 
 /*!
@@ -229,7 +230,7 @@ list of available converters.
 */
 QWindowsMime::QWindowsMime()
 {
-    ::mimeList()->addWindowsMime(this);
+    theMimeList()->addWindowsMime(this);
 }
 
 /*!
@@ -238,7 +239,7 @@ list of available converters.
 */
 QWindowsMime::~QWindowsMime()
 {
-    ::mimeList()->removeWindowsMime(this);
+    theMimeList()->removeWindowsMime(this);
 }
 
 
@@ -321,7 +322,7 @@ int QWindowsMime::registerMimeType(const QString &mime)
 
 QWindowsMime *QWindowsMime::converterFromMime(const FORMATETC &formatetc, const QMimeData *mimeData)
 {
-    QList<QWindowsMime*> mimes = ::mimeList()->windowsMimes();
+    QList<QWindowsMime*> mimes = theMimeList()->windowsMimes();
     for (int i=mimes.size()-1; i>=0; --i) {
         if (mimes.at(i)->canConvertFromMime(formatetc, mimeData))
             return mimes.at(i);
@@ -331,7 +332,7 @@ QWindowsMime *QWindowsMime::converterFromMime(const FORMATETC &formatetc, const 
 
 QWindowsMime *QWindowsMime::converterToMime(const QString &mimeType, IDataObject *pDataObj)
 {
-    QList<QWindowsMime*> mimes = ::mimeList()->windowsMimes();
+    QList<QWindowsMime*> mimes = theMimeList()->windowsMimes();
     for (int i=mimes.size()-1; i>=0; --i) {
         if (mimes.at(i)->canConvertToMime(mimeType, pDataObj))
             return mimes.at(i);
@@ -341,7 +342,7 @@ QWindowsMime *QWindowsMime::converterToMime(const QString &mimeType, IDataObject
 
 QVector<FORMATETC> QWindowsMime::allFormatsForMime(const QMimeData *mimeData)
 {
-    QList<QWindowsMime*> mimes = ::mimeList()->windowsMimes();
+    QList<QWindowsMime*> mimes = theMimeList()->windowsMimes();
     QVector<FORMATETC> formatics;
     formatics.reserve(20);
     QStringList formats = QInternalMimeData::formatsHelper(mimeData);
@@ -354,7 +355,7 @@ QVector<FORMATETC> QWindowsMime::allFormatsForMime(const QMimeData *mimeData)
 
 QStringList QWindowsMime::allMimesForFormats(IDataObject *pDataObj)
 {
-    QList<QWindowsMime*> mimes = ::mimeList()->windowsMimes();
+    QList<QWindowsMime*> mimes = theMimeList()->windowsMimes();
     QStringList formats;
     LPENUMFORMATETC FAR fmtenum;
     HRESULT hr = pDataObj->EnumFormatEtc(DATADIR_GET, &fmtenum);
@@ -1513,3 +1514,5 @@ static bool qt_read_dibv5(QDataStream &s, QImage &image)
 }
 
 #endif
+
+QT_END_NAMESPACE

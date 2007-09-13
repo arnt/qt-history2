@@ -222,12 +222,12 @@ extern "C" char *XSetIMValues(XIM /* im */, ...);
 
 
 #ifdef QT_MITSHM
-
 #  include <X11/extensions/XShm.h>
 #endif // QT_MITSHM
 
-class QWidget;
+QT_BEGIN_NAMESPACE
 
+class QWidget;
 
 struct QX11InfoData {
     uint ref;
@@ -600,5 +600,7 @@ Q_DECLARE_TYPEINFO(XChar2b, Q_PRIMITIVE_TYPE);
 #ifndef QT_NO_XRENDER
 Q_DECLARE_TYPEINFO(XGlyphElt32, Q_PRIMITIVE_TYPE);
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QT_X11_P_H

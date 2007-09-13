@@ -22,6 +22,8 @@
 #include "private/qwindowsurface_raster_p.h"
 #include "private/qpaintengine_raster_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class MetricAccessor : public QWidget {
 public:
     int metric(PaintDeviceMetric m) const { return QWidget::metric(m); }
@@ -150,3 +152,4 @@ bool QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
 #endif
 }
 
+QT_END_NAMESPACE

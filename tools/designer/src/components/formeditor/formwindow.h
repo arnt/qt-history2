@@ -23,6 +23,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QSet>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerDnDItemInterface;
 class DomConnections;
 
@@ -338,5 +340,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // FORMWINDOW_H

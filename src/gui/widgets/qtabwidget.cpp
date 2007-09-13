@@ -27,6 +27,8 @@
 #include "qtabbar.h"
 #include "qtoolbutton.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QTabWidget
     \brief The QTabWidget class provides a stack of tabbed widgets.
@@ -1268,6 +1270,7 @@ void QTabWidget::clear()
     Use currentChanged(int) instead.
 */
 
+QT_END_NAMESPACE
 
 #include "moc_qtabwidget.cpp"
 

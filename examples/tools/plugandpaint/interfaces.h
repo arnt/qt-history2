@@ -16,14 +16,14 @@
 
 #include <QtPlugin>
 
-class QImage;
-class QPainter;
-class QWidget;
-class QPainterPath;
-class QPoint;
-class QRect;
-class QString;
-class QStringList;
+QT_DECLARE_CLASS(QImage)
+QT_DECLARE_CLASS(QPainter)
+QT_DECLARE_CLASS(QWidget)
+QT_DECLARE_CLASS(QPainterPath)
+QT_DECLARE_CLASS(QPoint)
+QT_DECLARE_CLASS(QRect)
+QT_DECLARE_CLASS(QString)
+QT_DECLARE_CLASS(QStringList)
 
 class BrushInterface
 {
@@ -59,11 +59,13 @@ public:
                                QWidget *parent) = 0;
 };
 
+QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(BrushInterface,
                     "com.trolltech.PlugAndPaint.BrushInterface/1.0")
 Q_DECLARE_INTERFACE(ShapeInterface,
                     "com.trolltech.PlugAndPaint.ShapeInterface/1.0")
 Q_DECLARE_INTERFACE(FilterInterface,
                     "com.trolltech.PlugAndPaint.FilterInterface/1.0")
+QT_END_NAMESPACE
 
 #endif

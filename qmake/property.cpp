@@ -13,11 +13,14 @@
 
 #include "property.h"
 #include "option.h"
+
 #include <qdir.h>
 #include <qmap.h>
 #include <qsettings.h>
 #include <qstringlist.h>
 #include <stdio.h>
+
+QT_BEGIN_NAMESPACE
 
 QStringList qmake_mkspec_paths(); //project.cpp
 
@@ -180,3 +183,5 @@ QMakeProperty::exec()
     }
     return ret;
 }
+
+QT_END_NAMESPACE

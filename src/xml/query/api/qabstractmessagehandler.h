@@ -14,13 +14,13 @@
 #ifndef QABSTRACTMESSAGEHANDLER_H
 #define QABSTRACTMESSAGEHANDLER_H
 
-class QString;
-
 #include "qsourcelocation.h"
 #include <QtCore/QSharedData>
 #include <QtCore/QtGlobal>
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Xml)
 
@@ -48,6 +48,8 @@ protected:
 private:
     Q_DISABLE_COPY(QAbstractMessageHandler)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

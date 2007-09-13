@@ -28,6 +28,8 @@
 #include <QtGui/QDialog>
 #include "ui_orderdialog.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -54,5 +56,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // ORDERDIALOG_P_H

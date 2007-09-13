@@ -34,6 +34,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QList>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 class QWidget;
@@ -87,5 +89,7 @@ protected:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_TASKMENU_H

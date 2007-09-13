@@ -35,6 +35,8 @@
 
 #ifndef QT_NO_DATETIMEEDIT
 
+QT_BEGIN_NAMESPACE
+
 class QCalendarPopup : public QWidget
 {
     Q_OBJECT
@@ -66,6 +68,8 @@ private:
     bool dateChanged;
 
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DATETIMEEDIT
 

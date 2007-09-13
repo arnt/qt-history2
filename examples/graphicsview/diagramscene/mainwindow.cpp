@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <QtGui>
+#include <QLabel>
 
 #include "mainwindow.h"
 #include "diagramitem.h"

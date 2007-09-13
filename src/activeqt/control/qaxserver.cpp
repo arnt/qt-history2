@@ -27,6 +27,8 @@
 #include <qt_windows.h>
 #include <olectl.h>
 
+QT_BEGIN_NAMESPACE
+
 #define Q_REQUIRED_RPCNDR_H_VERSION 475
 
 // Some global variables to store module information
@@ -45,10 +47,11 @@ extern void qax_shutDown();
 extern bool qax_ownQApp;
 
 
+extern QAxFactory *qax_instantiate();
+
 QAxFactory *qAxFactory()
 {
     if (!qax_factory) {
-        extern QAxFactory *qax_instantiate();
         bool hadQApp = qApp != 0;
         qax_factory = qax_instantiate();
         // QAxFactory created a QApplication
@@ -1200,3 +1203,5 @@ ErrorInClass:
     
     return res;
 }
+
+QT_END_NAMESPACE

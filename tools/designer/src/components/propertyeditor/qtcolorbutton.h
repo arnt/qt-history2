@@ -16,6 +16,8 @@
 
 #include <QtGui/QToolButton>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtColorButton : public QToolButton
@@ -44,5 +46,7 @@ private:
 };
 
 }
+
+QT_END_NAMESPACE
 
 #endif

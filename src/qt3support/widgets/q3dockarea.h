@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_MAINWINDOW
@@ -161,6 +163,8 @@ Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, Q3DockArea &);
 #endif
 
 #endif // QT_NO_MAINWINDOW
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -32,6 +32,8 @@
 #include <QtCore/qmutex.h>
 #include <private/qmutexpool_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef SSLEAY_MACROS
 DEFINEFUNC3(void *, ASN1_dup, i2d_of_void *a, a, d2i_of_void *b, b, char *c, c, return 0, return)
 #endif
@@ -455,3 +457,5 @@ time_t q_getTimeFromASN1(const ASN1_TIME *aTime)
 
     return lResult;
 }
+
+QT_END_NAMESPACE

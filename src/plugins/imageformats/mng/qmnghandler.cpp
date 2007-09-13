@@ -20,6 +20,8 @@
 #define MNG_USE_SO
 #include <libmng.h>
 
+QT_BEGIN_NAMESPACE
+
 class QMngHandlerPrivate
 {
     Q_DECLARE_PUBLIC(QMngHandler)
@@ -460,3 +462,5 @@ bool QMngHandler::supportsOption(ImageOption option) const
         return true;
     return false;
 }
+
+QT_END_NAMESPACE

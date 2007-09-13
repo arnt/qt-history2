@@ -19,6 +19,8 @@
 
 #include "qexpressionsequence_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ExpressionSequence::ExpressionSequence(const Expression::List &ops) : UnlimitedContainer(ops)
@@ -170,3 +172,5 @@ Expression::ID ExpressionSequence::id() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

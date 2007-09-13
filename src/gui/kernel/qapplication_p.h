@@ -41,6 +41,8 @@
 #include "QtGui/qscreen_qws.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 class QObject;
 class QClipboard;
@@ -345,5 +347,7 @@ private:
 
     static QApplicationPrivate *self;
 };
+
+QT_END_NAMESPACE
 
 #endif // QAPPLICATION_P_H

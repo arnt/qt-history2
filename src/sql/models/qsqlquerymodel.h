@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Sql)
 
 class QSqlQueryModelPrivate;
@@ -67,6 +69,8 @@ protected:
     void setLastError(const QSqlError &error);
     QSqlQueryModel(QSqlQueryModelPrivate &dd, QObject *parent = 0);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

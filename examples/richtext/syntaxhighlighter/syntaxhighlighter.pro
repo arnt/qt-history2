@@ -9,3 +9,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/richtext/syntaxhighlighter
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS syntaxhighlighter.pro examples
 sources.path = $$[QT_INSTALL_EXAMPLES]/richtext/syntaxhighlighter
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

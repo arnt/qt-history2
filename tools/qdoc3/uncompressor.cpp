@@ -17,6 +17,8 @@
 
 #include "uncompressor.h"
 
+QT_BEGIN_NAMESPACE
+
 QList<Uncompressor *> Uncompressor::uncompressors;
 
 Uncompressor::Uncompressor( const QStringList& extensions )
@@ -44,3 +46,5 @@ Uncompressor *Uncompressor::uncompressorForFileName( const QString& fileName )
     }
     return 0;
 }
+
+QT_END_NAMESPACE

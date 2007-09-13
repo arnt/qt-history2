@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Network)
 
 class QTcpSocketPrivate;
@@ -36,6 +38,8 @@ private:
     Q_DISABLE_COPY(QTcpSocket)
     Q_DECLARE_PRIVATE(QTcpSocket)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

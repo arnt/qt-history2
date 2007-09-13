@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QPainter>
 
+QT_USE_NAMESPACE
+
 /*
     GuiTest provides tools for:
      - navigating the Qt Widget hiearchy using the accessibilty APIs.

@@ -26,6 +26,8 @@
 #include <QSettings>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
+
 static Config *static_configuration = 0;
 
 inline QString getVersionString()
@@ -404,3 +406,5 @@ QString Config::assistantDocPath() const
         ? QLibraryInfo::location(QLibraryInfo::DocumentationPath) + QLatin1String("/html")
         : profil->props[QLatin1String("assistantdocs")];
 }
+
+QT_END_NAMESPACE

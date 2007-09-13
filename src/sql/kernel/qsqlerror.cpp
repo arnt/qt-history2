@@ -14,6 +14,8 @@
 #include "qsqlerror.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QSqlError &s)
 {
@@ -225,3 +227,4 @@ bool QSqlError::isValid() const
     return errorType != NoError;
 }
 
+QT_END_NAMESPACE

@@ -32,7 +32,7 @@
 
 #include "qcommonstyle.h"
 #include "qstyleoption.h"
-class QPainter;
+QT_DECLARE_CLASS(QPainter)
 
 class StyleOptionTestStyle : public QCommonStyle
 {

@@ -26,6 +26,8 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
+QT_BEGIN_NAMESPACE
+
 class AccessibleFactory : public QAccessiblePlugin
 {
 public:
@@ -303,5 +305,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 
 Q_EXPORT_STATIC_PLUGIN(AccessibleFactory)
 Q_EXPORT_PLUGIN2(qtaccessiblewidgets, AccessibleFactory)
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_ACCESSIBILITY

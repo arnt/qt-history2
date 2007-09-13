@@ -19,6 +19,8 @@
 
 #include "command.h"
 
+QT_BEGIN_NAMESPACE
+
 void executeCommand( const Location& location, const QString& format,
 		     const QStringList& args )
 {
@@ -57,3 +59,5 @@ void executeCommand( const Location& location, const QString& format,
 			   "It emitted these errors:\n%2")
 			.arg(actualCommand).arg(errors) );
 }
+
+QT_END_NAMESPACE

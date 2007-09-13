@@ -30,6 +30,8 @@
 
 //#define DEBUG_RESOURCE_MATCH
 
+QT_BEGIN_NAMESPACE
+
 //resource glue
 class QResourceRoot
 {
@@ -843,8 +845,10 @@ public:
 // also this lacks Large File support but that's probably irrelevant
 #if defined(QT_USE_MMAP)
 // for mmap
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <sys/mman.h>
 #include <errno.h>
+QT_END_INCLUDE_NAMESPACE
 #endif
 
 
@@ -1388,5 +1392,4 @@ Q_CORE_EXPORT void qInitResourceIO() { resource_file_handler(); }
 static int qt_forced_resource_init = qt_force_resource_init();
 Q_CONSTRUCTOR_FUNCTION(qt_force_resource_init)
 
-
-
+QT_END_NAMESPACE

@@ -33,6 +33,8 @@
 #include "QtCore/qbasictimer.h"
 #include "private/qwidget_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_MENU
 
 class QTornOffMenu;
@@ -204,5 +206,7 @@ public:
 };
 
 #endif // QT_NO_MENU
+
+QT_END_NAMESPACE
 
 #endif // QMENU_P_H

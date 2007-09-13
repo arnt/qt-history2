@@ -18,6 +18,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+QT_USE_NAMESPACE
+
 bool isEmpty( const QString& line )
 {
     int i = 0;
@@ -59,7 +61,7 @@ QString extractContents( const QString& line )
 	    if ( inStr ) {
 		if ( line[pos] == '\\') {
 		    pos++;
-		    switch (char(line[pos]) ) {
+		    switch (line[pos].unicode()) {
 		    case 'n':
 			contents += '\n';
 			break;
@@ -82,7 +84,7 @@ QString extractContents( const QString& line )
 			contents += '\b';
 			break;
 		    default:
-			contents += char(line[pos]);
+			contents += line[pos];
 			break;
 		    }
 		} else {

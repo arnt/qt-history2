@@ -16,6 +16,8 @@
 
 #include <QtCore/QLibraryInfo>
 
+QT_BEGIN_NAMESPACE
+
 // Pre- and postcondition macros
 #define PRE(cond) do {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);} while (0)
 #define POST(cond) do {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);} while (0)
@@ -258,5 +260,7 @@ static QString getPropertyValue(const QString &v)
 }
 
 
+
+QT_END_NAMESPACE
 #endif // PROPARSERUTILS_H
 

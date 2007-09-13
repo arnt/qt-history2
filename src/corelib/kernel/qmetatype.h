@@ -27,6 +27,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QMetaType {
@@ -183,6 +185,7 @@ inline int qRegisterMetaType(
 }
 
 #define Q_DECLARE_METATYPE(TYPE)                                        \
+    QT_BEGIN_NAMESPACE                                                  \
     template <>                                                         \
     struct QMetaTypeId< TYPE >                                          \
     {                                                                   \
@@ -194,14 +197,17 @@ inline int qRegisterMetaType(
                     metatype_id = qRegisterMetaType< TYPE >(#TYPE);     \
                 return metatype_id;                                     \
             }                                                           \
-    };
+    };                                                                  \
+    QT_END_NAMESPACE
 
 #define Q_DECLARE_BUILTIN_METATYPE(TYPE, NAME) \
-template<> struct QMetaTypeId2<TYPE> \
-{ \
-    enum { Defined = 1, MetaType = QMetaType::NAME }; \
-    static inline int qt_metatype_id() { return QMetaType::NAME; } \
-};
+    QT_BEGIN_NAMESPACE \
+    template<> struct QMetaTypeId2<TYPE> \
+    { \
+        enum { Defined = 1, MetaType = QMetaType::NAME }; \
+        static inline int qt_metatype_id() { return QMetaType::NAME; } \
+    }; \
+    QT_END_NAMESPACE
 
 class QString;
 class QByteArray;
@@ -248,6 +254,8 @@ class QTextLength;
 class QTextFormat;
 class QMatrix;
 class QTransform;
+
+QT_END_NAMESPACE
 
 Q_DECLARE_BUILTIN_METATYPE(QString, QString)
 Q_DECLARE_BUILTIN_METATYPE(int, Int)

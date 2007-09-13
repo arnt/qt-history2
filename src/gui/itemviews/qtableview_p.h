@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_TABLEVIEW
 
+QT_BEGIN_NAMESPACE
+
 class QTableViewPrivate : public QAbstractItemViewPrivate
 {
     Q_DECLARE_PUBLIC(QTableView)
@@ -150,6 +152,8 @@ public:
     void selectRow(int row, bool anchor);
     void selectColumn(int column, bool anchor);
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_TABLEVIEW
 

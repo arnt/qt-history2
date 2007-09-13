@@ -14,3 +14,4 @@ sources.files = $$SOURCES $$HEADERS $$RESOURCES documentation *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/assistant/simpletextviewer
 INSTALLS += target sources
 
+DEFINES += QT_USE_USING_NAMESPACE

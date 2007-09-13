@@ -20,6 +20,10 @@
 
 #include <glib.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 struct GX11EventSource
 {
     GSource source;
@@ -179,3 +183,5 @@ void QGuiEventDispatcherGlib::startingUp()
     d->x11EventSource->d = d;
     g_source_add_poll(&d->x11EventSource->source, &d->x11EventSource->pollfd);
 }
+
+QT_END_NAMESPACE

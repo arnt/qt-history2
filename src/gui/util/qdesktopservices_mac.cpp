@@ -20,6 +20,8 @@
 #include <qstringlist.h>
 #include <private/qcore_mac_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
     Translates a QDesktopServices::Location into the mac equivalent.
 */
@@ -160,6 +162,6 @@ QString QDesktopServices::displayName(const Location type)
 }
 #endif
 
+QT_END_NAMESPACE
 
 #endif // QT_NO_DESKTOPSERVICES
-

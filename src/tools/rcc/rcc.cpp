@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "rcc.h"
+#include <qglobal.h>
 #include <qdebug.h>
 #include <qfile.h>
 #include <qdatetime.h>
@@ -20,6 +21,8 @@
 #include <qdiriterator.h>
 #include <qstack.h>
 #include <qdom.h>
+
+QT_BEGIN_NAMESPACE
 
 static bool qt_rcc_write_number(FILE *out, quint32 number, int width, RCCResourceLibrary::Format format)
 {
@@ -601,10 +604,10 @@ RCCResourceLibrary::writeDataStructure(FILE *out)
     return true;
 }
 
-bool
-RCCResourceLibrary::writeInitializer(FILE *out)
+bool RCCResourceLibrary::writeInitializer(FILE *out)
 {
     if(mFormat == C_Code) {
+        //fprintf(out, "\nQT_BEGIN_NAMESPACE\n");
         QString initName = mInitName;
         if(!initName.isEmpty()) {
             initName.prepend(QLatin1Char('_'));
@@ -612,29 +615,40 @@ RCCResourceLibrary::writeInitializer(FILE *out)
         }
 
         //init
-        fprintf(out, "int qInitResources%s()\n{\n", initName.toLatin1().constData());
-        if(this->root) {
-            fprintf(out, "    extern bool qRegisterResourceData(int, const unsigned char *, "
-                    "const unsigned char *, const unsigned char *);\n");
-            fprintf(out, "    qRegisterResourceData(0x01, qt_resource_struct, "
-                    "qt_resource_name, qt_resource_data);\n");
+        fprintf(out, "QT_BEGIN_NAMESPACE\n\n");
+        if (this->root) {
+            fprintf(out, "extern bool qRegisterResourceData\n    "
+                "(int, const unsigned char *, "
+                "const unsigned char *, const unsigned char *);\n\n");
+            fprintf(out, "extern bool qUnregisterResourceData\n    "
+                "(int, const unsigned char *, "
+                "const unsigned char *, const unsigned char *);\n\n");
+        }
+        fprintf(out, "QT_END_NAMESPACE\n\n\n");
+
+        fprintf(out, "int QT_MANGLE_NAMESPACE(qInitResources%s)()\n{\n",
+            initName.toLatin1().constData());
+        if (this->root) {
+            fprintf(out, "    QT_ADD_NAMESPACE(qRegisterResourceData)\n"
+                "        (0x01, qt_resource_struct, "
+                "qt_resource_name, qt_resource_data);\n");
         }
         fprintf(out, "    return 1;\n");
-        fprintf(out, "}\n");
-        fprintf(out, "Q_CONSTRUCTOR_FUNCTION(qInitResources%s)\n",
+        fprintf(out, "}\n\n");
+        fprintf(out, "Q_CONSTRUCTOR_FUNCTION(QT_MANGLE_NAMESPACE(qInitResources%s))\n\n",
                 initName.toLatin1().constData());
 
         //cleanup
-        fprintf(out, "int qCleanupResources%s()\n{\n", initName.toLatin1().constData());
-        if(this->root) {
-            fprintf(out, "    extern bool qUnregisterResourceData(int, const unsigned char *, "
-                    "const unsigned char *, const unsigned char *);\n");
-            fprintf(out, "    qUnregisterResourceData(0x01, qt_resource_struct, "
-                    "qt_resource_name, qt_resource_data);\n");
+        fprintf(out, "int QT_MANGLE_NAMESPACE(qCleanupResources%s)()\n{\n",
+            initName.toLatin1().constData());
+        if (this->root) {
+            fprintf(out, "    QT_ADD_NAMESPACE(qUnregisterResourceData)\n"
+                "       (0x01, qt_resource_struct, "
+                "qt_resource_name, qt_resource_data);\n");
         }
         fprintf(out, "    return 1;\n");
-        fprintf(out, "}\n");
-        fprintf(out, "Q_DESTRUCTOR_FUNCTION(qCleanupResources%s)\n",
+        fprintf(out, "}\n\n");
+        fprintf(out, "Q_DESTRUCTOR_FUNCTION(QT_MANGLE_NAMESPACE(qCleanupResources%s))\n\n",
                 initName.toLatin1().constData());
     } else if(mFormat == Binary) {
         const long old_pos = ftell(out);
@@ -647,3 +661,5 @@ RCCResourceLibrary::writeInitializer(FILE *out)
     }
     return true;
 }
+
+QT_END_NAMESPACE

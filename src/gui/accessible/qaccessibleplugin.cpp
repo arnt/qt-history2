@@ -17,6 +17,8 @@
 
 #include "qaccessible.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAccessiblePlugin
     \brief The QAccessiblePlugin class provides an abstract base for
@@ -71,5 +73,7 @@ QAccessiblePlugin::~QAccessiblePlugin()
 
     \sa keys()
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_ACCESSIBILITY

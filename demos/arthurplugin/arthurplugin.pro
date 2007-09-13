@@ -49,3 +49,4 @@ win32-msvc.net|win32-msvc {
 	QMAKE_CXXFLAGS += /Zm500
 }
 
+DEFINES += QT_USE_USING_NAMESPACE

@@ -24,6 +24,8 @@
 #include "generator.h"
 #include "location.h"
 
+QT_BEGIN_NAMESPACE
+
 class ClassNode;
 class InnerNode;
 class NamespaceNode;
@@ -50,5 +52,7 @@ private:
 
     QStack<QTextStream *> outStreamStack;
 };
+
+QT_END_NAMESPACE
 
 #endif

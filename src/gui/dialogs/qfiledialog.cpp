@@ -31,6 +31,8 @@
 #include <qapplication.h>
 #include "ui_qfiledialog.h"
 
+QT_BEGIN_NAMESPACE
+
 /*
     \internal
 
@@ -243,6 +245,7 @@ Q_GUI_EXPORT _qt_filedialog_save_filename_hook qt_filedialog_save_filename_hook 
 bool Q_GUI_EXPORT qt_use_native_dialogs = true; // for the benefit of testing tools, until we have a proper API
 #endif
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #ifdef Q_WS_WIN
 #include <qwindowsstyle.h>
 #endif
@@ -251,6 +254,7 @@ bool Q_GUI_EXPORT qt_use_native_dialogs = true; // for the benefit of testing to
 #include <private/qunicodetables_p.h>
 #include <qmacstyle_mac.h>
 #endif
+QT_END_INCLUDE_NAMESPACE
 
 /*!
     \fn QFileDialog::QFileDialog(QWidget *parent, Qt::WindowFlags flags)
@@ -2719,8 +2723,10 @@ QString QFileDialog::selectedFile() const
     the first argument instead.
 */
 
-#endif
+#endif // QT3_SUPPORT
+
+QT_END_NAMESPACE
 
 #include "moc_qfiledialog.cpp"
 
-#endif
+#endif // QT_NO_FILEDIALOG

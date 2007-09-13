@@ -25,6 +25,8 @@
 
 #include "qxmlname.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class QXmlName
   \brief Represents a name for an XML node in a namespace-aware and efficient way.
@@ -175,5 +177,7 @@ QString QXmlName::toClarkName(const QXmlQuery &query) const
         }
     }
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

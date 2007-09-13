@@ -26,6 +26,8 @@
 #include "qstyleoption.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3GroupBox
     \brief The Q3GroupBox widget provides a group box frame with a title.
@@ -927,5 +929,8 @@ int Q3GroupBox::frameWidth() const
     Returns the width of the the margin around the contents of the widget.
     
     This function uses QWidget::getContentsMargins() to get the margin.
+
     \sa setMargin(), QWidget::getContentsMargins()
 */
+
+QT_END_NAMESPACE

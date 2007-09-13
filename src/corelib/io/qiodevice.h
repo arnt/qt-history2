@@ -27,6 +27,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QByteArray;
@@ -213,6 +215,8 @@ inline QT3_SUPPORT int QIODevice::state() const
 class QDebug;
 Q_CORE_EXPORT QDebug operator<<(QDebug debug, QIODevice::OpenMode modes);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

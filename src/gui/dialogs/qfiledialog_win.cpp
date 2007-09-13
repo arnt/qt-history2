@@ -47,6 +47,8 @@ static PtrSHBrowseForFolder ptrSHBrowseForFolder = 0;
 typedef BOOL (WINAPI *PtrSHGetPathFromIDList)(LPITEMIDLIST,LPWSTR);
 static PtrSHGetPathFromIDList ptrSHGetPathFromIDList = 0;
 
+QT_BEGIN_NAMESPACE
+
 static void qt_win_resolve_libs()
 {
 #ifndef Q_OS_TEMP
@@ -723,5 +725,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
 #endif
 }
 
+
+QT_END_NAMESPACE
 
 #endif

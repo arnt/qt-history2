@@ -16,6 +16,8 @@
 
 #include "winmakefile.h"
 
+QT_BEGIN_NAMESPACE
+
 class FolderGroup;
 
 class DspMakefileGenerator : public Win32MakefileGenerator
@@ -86,5 +88,7 @@ inline DspMakefileGenerator::~DspMakefileGenerator()
 
 inline bool DspMakefileGenerator::findLibraries()
 { return Win32MakefileGenerator::findLibraries("MSVCDSP_LIBS"); }
+
+QT_END_NAMESPACE
 
 #endif // MSVC_DSP_H

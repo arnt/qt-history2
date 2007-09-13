@@ -17,6 +17,8 @@
 
 #include "qscriptlexer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
 
 
@@ -107,5 +109,7 @@ bool SyntaxChecker::parse(const QString &code)
 }
 
 } // namespace QScript
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

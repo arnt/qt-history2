@@ -28,6 +28,8 @@
 #include "QtGui/qkeysequence.h"
 #include "QtCore/qvector.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_SHORTCUT
 
 // To enable dump output uncomment below
@@ -79,5 +81,7 @@ private:
 };
 
 #endif // QT_NO_SHORTCUT
+
+QT_END_NAMESPACE
 
 #endif // QSHORTCUTMAP_P_H

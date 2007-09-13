@@ -19,6 +19,9 @@
 #include <qstyle.h>
 
 #ifndef QT_NO_ACCESSIBILITY
+
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_MENU
 
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
@@ -634,4 +637,8 @@ QWidget *QAccessibleMenuItem::owner() const
 }
 
 #endif // QT_NO_MENU
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_ACCESSIBILITY
+

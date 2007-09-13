@@ -13,3 +13,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/tools/settingseditor
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS settingseditor.pro inifiles
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/settingseditor
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

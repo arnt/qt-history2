@@ -16,6 +16,8 @@
 #include <QtGui/QMdiArea>
 #include <QtGui/QMdiSubWindow>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 QMdiAreaContainer::QMdiAreaContainer(QMdiArea *widget, QObject *parent)
@@ -63,3 +65,5 @@ void QMdiAreaContainer::remove(int index)
     Q_UNUSED(index);
 }
 }
+
+QT_END_NAMESPACE

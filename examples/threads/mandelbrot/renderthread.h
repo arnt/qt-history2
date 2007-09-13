@@ -19,7 +19,7 @@
 #include <QThread>
 #include <QWaitCondition>
 
-class QImage;
+QT_DECLARE_CLASS(QImage)
 
 class RenderThread : public QThread
 {

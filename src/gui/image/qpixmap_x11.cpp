@@ -46,6 +46,8 @@
 #  define for if(0){}else for
 #endif
 
+QT_BEGIN_NAMESPACE
+
 // For thread-safety:
 //   image->data does not belong to X11, so we must free it ourselves.
 
@@ -2285,3 +2287,5 @@ void QPixmapData::convertToARGB32()
     d = 32;
 }
 #endif
+
+QT_END_NAMESPACE

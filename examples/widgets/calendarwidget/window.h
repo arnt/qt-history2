@@ -16,14 +16,14 @@
 
 #include <QWidget>
 
-class QCalendarWidget;
-class QCheckBox;
-class QComboBox;
-class QDate;
-class QDateEdit;
-class QGridLayout;
-class QGroupBox;
-class QLabel;
+QT_DECLARE_CLASS(QCalendarWidget)
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QDate)
+QT_DECLARE_CLASS(QDateEdit)
+QT_DECLARE_CLASS(QGridLayout)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
 
 class Window : public QWidget
 {

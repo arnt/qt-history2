@@ -20,6 +20,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QMap>
 
+QT_BEGIN_NAMESPACE
+
 class DomProperty;
 class QDesignerMetaDataBaseItemInterface;
 class QDesignerPropertySheetExtension;
@@ -136,5 +138,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // PROPERTYEDITOR_H

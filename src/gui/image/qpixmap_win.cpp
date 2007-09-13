@@ -31,6 +31,8 @@
 #include "qdebug.h"
 #include "qt_windows.h"
 
+QT_BEGIN_NAMESPACE
+
 QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
 {
     RECT r;
@@ -288,5 +290,7 @@ QPixmap loadIconFromShell32( int resourceId, int size )
     }
     return QPixmap();
 }
+
 #endif
 
+QT_END_NAMESPACE

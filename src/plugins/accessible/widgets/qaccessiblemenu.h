@@ -16,6 +16,8 @@
 
 #include <QtGui/qaccessiblewidget.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_ACCESSIBILITY
 
 #ifndef QT_NO_MENU
@@ -104,5 +106,7 @@ private:
 };
 
 #endif // QT_NO_MENU
+
+QT_END_NAMESPACE
 #endif // QT_NO_ACCESSIBILITY
 #endif // QACCESSIBLEMENU_H

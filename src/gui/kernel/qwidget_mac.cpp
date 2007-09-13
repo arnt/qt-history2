@@ -42,6 +42,8 @@
 #include "qwidget_p.h"
 #include "qdnd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #define XCOORD_MAX 16383
 #define WRECT_MAX 8191
 
@@ -2969,3 +2971,4 @@ void QWidgetPrivate::macUpdateMetalAttribute()
     }
 }
 
+QT_END_NAMESPACE

@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
     This function looks at two file names and returns the name of the
     infile with a path relative to outfile.
@@ -148,7 +150,7 @@ QByteArray composePreprocessorOutput(const Symbols &symbols) {
 }
 
 
-int main(int _argc, char **_argv)
+int runMoc(int _argc, char **_argv)
 {
     bool autoInclude = true;
     Preprocessor pp;
@@ -418,4 +420,11 @@ int main(int _argc, char **_argv)
         fclose(out);
 
     return 0;
+}
+
+QT_END_NAMESPACE
+
+int main(int _argc, char **_argv)
+{
+    return QT_ADD_NAMESPACE(runMoc)(_argc, _argv);
 }

@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_STYLE_WINDOWSVISTA)
@@ -70,6 +72,8 @@ private:
     friend class QStyleFactory;
 };
 #endif //QT_NO_STYLE_WINDOWSVISTA
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

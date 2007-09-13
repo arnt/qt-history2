@@ -20,6 +20,8 @@
 
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 QDesignerActionEditor::QDesignerActionEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
@@ -47,3 +49,5 @@ QRect QDesignerActionEditor::geometryHint() const
     return QRect((g.width() - sz.width() - margin), margin,
                   sz.width(), sz.height());
 }
+
+QT_END_NAMESPACE

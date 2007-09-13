@@ -18,6 +18,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/qevent.h>
 
+QT_BEGIN_NAMESPACE
+
 QDesignerDialog::QDesignerDialog(QDesignerFormWindowInterface *fw, QWidget *parent) :
     QDialog(parent),
     m_formWindow(qobject_cast<qdesigner_internal::FormWindowBase*>(fw))
@@ -61,3 +63,5 @@ void QDesignerWidget::dragEnterEvent(QDragEnterEvent *)
 {
 //    e->setAccepted(QTextDrag::canDecode(e));
 }
+
+QT_END_NAMESPACE

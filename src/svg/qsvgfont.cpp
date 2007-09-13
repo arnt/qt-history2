@@ -17,6 +17,8 @@
 #include "qpen.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 QSvgGlyph::QSvgGlyph(QChar unicode, const QPainterPath &path, qreal horizAdvX)
     : m_unicode(unicode), m_path(path), m_horizAdvX(horizAdvX)
 {
@@ -81,3 +83,5 @@ void QSvgFont::setUnitsPerEm(qreal upem)
 {
     m_unitsPerEm = upem;
 }
+
+QT_END_NAMESPACE

@@ -21,6 +21,8 @@
 
 #include <errno.h>
 
+QT_BEGIN_NAMESPACE
+
 static void report_error(int code, const char *where, const char *what)
 {
     if (code != 0)
@@ -80,5 +82,7 @@ void QMutexPrivate::wakeUp()
     report_error(pthread_cond_signal(&cond), "QMutex::unlock", "cv signal");
     report_error(pthread_mutex_unlock(&mutex), "QMutex::unlock", "mutex unlock");
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_THREAD

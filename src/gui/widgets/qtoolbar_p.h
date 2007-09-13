@@ -29,6 +29,8 @@
 #include "QtGui/qaction.h"
 #include "private/qwidget_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TOOLBAR
 
 class QToolBarLayout;
@@ -89,5 +91,7 @@ public:
 };
 
 #endif // QT_NO_TOOLBAR
+
+QT_END_NAMESPACE
 
 #endif // QDYNAMICTOOLBAR_P_H

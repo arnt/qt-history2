@@ -20,6 +20,8 @@
 
 #include "qscriptvalueimplfwd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -50,5 +52,8 @@ public:
     QBasicAtomicInt ref;
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif

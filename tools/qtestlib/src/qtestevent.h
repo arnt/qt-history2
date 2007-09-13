@@ -30,6 +30,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QTestEvent
 {
 public:
@@ -172,6 +174,8 @@ public:
             at(i)->simulate(w);
     }
 };
+
+QT_END_NAMESPACE
 
 Q_DECLARE_METATYPE(QTestEventList)
 

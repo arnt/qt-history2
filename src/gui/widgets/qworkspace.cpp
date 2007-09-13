@@ -37,6 +37,8 @@
 #include <private/qwidgetresizehandler_p.h>
 #include <private/qlayoutengine_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWorkspaceTitleBarPrivate;
 
 
@@ -3340,7 +3342,10 @@ void QWorkspace::changeEvent(QEvent *ev)
     QWidget::changeEvent(ev);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qworkspace.cpp"
+
 #include "qworkspace.moc"
 
 #endif // QT_NO_WORKSPACE

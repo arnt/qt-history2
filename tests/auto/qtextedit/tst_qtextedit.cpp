@@ -35,7 +35,7 @@ Q_DECLARE_METATYPE(QList<bool>);
 #include <Carbon/Carbon.h>
 #endif
 
-class QTextEdit;
+QT_DECLARE_CLASS(QTextEdit)
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/widgets/qtextedit.h gui/widgets/qtextedit.cpp

@@ -21,6 +21,8 @@
 
 #include "qatomizer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Atomizer::Atomizer(const Expression::Ptr &operand) : SingleContainer(operand)
@@ -96,3 +98,5 @@ const SourceLocationReflection *Atomizer::actualReflection() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

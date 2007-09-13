@@ -14,6 +14,8 @@
 
 #include "treewalker.h"
 
+QT_BEGIN_NAMESPACE
+
 /*
 template <class T>
 inline void parseAll(TreeWalker *w, const List<T *> *l)
@@ -423,3 +425,5 @@ void TreeWalker::parseReturnStatement(ReturnStatementAST *node)
 {
     parseNode(node->expression());
 }
+
+QT_END_NAMESPACE

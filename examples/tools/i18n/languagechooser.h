@@ -18,10 +18,10 @@
 #include <QMap>
 #include <QStringList>
 
-class QAbstractButton;
-class QCheckBox;
-class QDialogButtonBox;
-class QGroupBox;
+QT_DECLARE_CLASS(QAbstractButton)
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QGroupBox)
 class MainWindow;
 
 class LanguageChooser : public QDialog

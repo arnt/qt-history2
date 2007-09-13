@@ -18,6 +18,8 @@
 #include "config.h"
 #include "cpptoqsconverter.h"
 
+QT_BEGIN_NAMESPACE
+
 #define CONFIG_QUICK                    "quick"
 #define CONFIG_INDENTSIZE               "indentsize"
 
@@ -381,3 +383,5 @@ QString CppToQsConverter::convertExpr( Tree *qsTree, const QString& expr,
     // suboptimal
     return convertComment( qsTree, expr, classesWithNoQ );
 }
+
+QT_END_NAMESPACE

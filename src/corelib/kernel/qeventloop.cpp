@@ -20,6 +20,8 @@
 #include "qobject_p.h"
 #include <private/qthread_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QEventLoopPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QEventLoop)
@@ -268,3 +270,5 @@ void QEventLoop::wakeUp()
 */
 void QEventLoop::quit()
 { exit(0); }
+
+QT_END_NAMESPACE

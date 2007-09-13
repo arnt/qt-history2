@@ -32,6 +32,8 @@
 #include <QtGui/QListView>
 #include <QtGui/QStackedWidget>
 
+QT_BEGIN_NAMESPACE
+
 class QPixmap;
 
 class QDesignerFormEditorInterface;
@@ -221,6 +223,9 @@ private:
     const Qt::DropAction m_dropAction;
     ActionList m_actionList;
 };
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // ACTIONREPOSITORY_H

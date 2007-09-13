@@ -16,6 +16,8 @@
 
 #include <QTextBrowser>
 
+QT_BEGIN_NAMESPACE
+
 class MainWindow;
 class QKeyEvent;
 class QMime;
@@ -64,5 +66,7 @@ private:
     bool fwdAvail;
     bool backAvail;
 };
+
+QT_END_NAMESPACE
 
 #endif // HELPWINDOW_H

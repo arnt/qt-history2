@@ -35,6 +35,8 @@
 #include "QtGui/qpaintengine.h"
 #include "QtCore/qvector.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPaintEngine;
 
 class QPainterClipInfo
@@ -155,5 +157,7 @@ public:
 };
 
 QString qt_generate_brush_key(const QBrush &brush);
+
+QT_END_NAMESPACE
 
 #endif // QPAINTER_P_H

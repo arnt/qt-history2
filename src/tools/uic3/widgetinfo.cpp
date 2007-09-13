@@ -48,6 +48,8 @@
 #include <Q3IconView>
 #include <Q3ProgressBar>
 
+QT_BEGIN_NAMESPACE
+
 WidgetInfo::WidgetInfo()
 {
 }
@@ -247,3 +249,5 @@ QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &
 
     return QString();
 }
+
+QT_END_NAMESPACE

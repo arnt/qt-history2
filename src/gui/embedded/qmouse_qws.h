@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QWSMouseHandlerPrivate;
@@ -85,6 +87,8 @@ private:
     int currSample;
     int numSamples;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

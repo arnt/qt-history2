@@ -422,6 +422,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
     ### Move this into QGraphicsItemPrivate
  */
@@ -6904,6 +6906,8 @@ QDebug operator<<(QDebug debug, QGraphicsItem *item)
     return debug;
 }
 #endif
+
+QT_END_NAMESPACE
 
 #include "moc_qgraphicsitem.cpp"
 

@@ -20,6 +20,8 @@
 #include "qmetaobject.h"
 #include "qmap.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3SqlPropertyMapPrivate
 {
 public:
@@ -271,5 +273,7 @@ void Q3SqlPropertyMap::installDefaultMap(Q3SqlPropertyMap * map)
     defaultmap = map;
     qsql_cleanup_property_map.add(&defaultmap);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SQL_FORM

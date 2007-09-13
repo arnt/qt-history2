@@ -44,6 +44,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 class QFontPrivate;
 class QFontEngine;
 
@@ -549,5 +551,6 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEngine::ShaperFlags)
 
+QT_END_NAMESPACE
 
 #endif // QTEXTENGINE_P_H

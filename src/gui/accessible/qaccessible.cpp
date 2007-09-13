@@ -25,6 +25,8 @@
 
 #include "qwidget.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAccessible
     \brief The QAccessible class provides enums and static functions
@@ -1050,4 +1052,7 @@ QAccessible2Interface *QAccessibleInterface::cast_helper(QAccessible2::Interface
         return static_cast<QAccessibleInterfaceEx *>(this)->interface_cast(t);
     return 0;
 }
+
+QT_END_NAMESPACE
+
 #endif

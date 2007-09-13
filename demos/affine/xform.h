@@ -20,7 +20,7 @@
 #include <QPolygonF>
 
 class HoverPoints;
-class QLineEdit;
+QT_DECLARE_CLASS(QLineEdit)
 
 class XFormView : public ArthurFrame
 {

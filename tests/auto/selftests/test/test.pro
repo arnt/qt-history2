@@ -13,3 +13,6 @@ win32 {
 }
 
 RESOURCES += ../selftests.qrc
+
+DEFINES += QT_USE_USING_NAMESPACE
+

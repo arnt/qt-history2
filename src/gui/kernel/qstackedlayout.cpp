@@ -18,6 +18,8 @@
 #include <qwidget.h>
 #include "private/qlayoutengine_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QStackedLayoutPrivate : public QLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QStackedLayout)
@@ -430,3 +432,5 @@ void QStackedLayout::setGeometry(const QRect &rect)
     if (widget)
         widget->setGeometry(rect);
 }
+
+QT_END_NAMESPACE

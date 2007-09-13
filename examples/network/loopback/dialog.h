@@ -18,12 +18,12 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
-class QDialogButtonBox;
-class QLabel;
-class QProgressBar;
-class QPushButton;
-class QTcpServer;
-class QTcpSocket;
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QProgressBar)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTcpServer)
+QT_DECLARE_CLASS(QTcpSocket)
 
 class Dialog : public QDialog
 {

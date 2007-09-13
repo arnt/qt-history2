@@ -26,6 +26,8 @@
 #include "private/qcssparser_p.h"
 #include "QtGui/qbrush.h"
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -136,5 +138,7 @@ private:
     Q_DECLARE_PRIVATE(QStyleSheetStyle)
 };
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_STYLE_STYLESHEET
 #endif // QSTYLESHEETSTYLE_P_H

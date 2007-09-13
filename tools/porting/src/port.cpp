@@ -27,6 +27,8 @@
 #include <QLibraryInfo>
 #include <QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 QString rulesFilePath;
 QString applicationDirPath;
 
@@ -104,7 +106,7 @@ void usage(const OptionList &optionList)
     printf("to use qt3to4 as well as general porting information.\n");
 }
 
-int main(int argc, char**argv)
+int runPort(int argc, char**argv)
 {
     QCoreApplication app(argc, argv);
     applicationDirPath = app.applicationDirPath();
@@ -257,4 +259,11 @@ int main(int argc, char**argv)
     Logger::deleteInstance();
     PortingRules::deleteInstance();
     return 0;
+}
+
+QT_END_NAMESPACE
+
+int main(int argc, char**argv)
+{
+    return QT_ADD_NAMESPACE(runPort)(argc, argv);
 }

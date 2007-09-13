@@ -17,6 +17,8 @@
 
 #include "qsocketnotifier.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3ServerSocketPrivate {
 public:
     Q3ServerSocketPrivate(): s(0), n(0) {}
@@ -262,5 +264,7 @@ void Q3ServerSocket::setSocket( int socket )
     connect( d->n, SIGNAL(activated(int)),
 	     this, SLOT(incomingConnection(int)) );
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_NETWORK

@@ -33,11 +33,12 @@
 
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_XKB
 
 // bring in the auto-generated xkbLayoutData
 #include "qkeymapper_x11_p.cpp"
-
 
 static void getLocaleAndDirection(QLocale *locale,
                                   Qt::LayoutDirection *direction,
@@ -1264,6 +1265,8 @@ static QString translateKeySym(KeySym keysym, uint xmodifiers,
     return text;
 }
 
+extern bool qt_use_rtl_extensions; // from qapplication_x11.cpp
+
 bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
                                                   const XEvent *event,
                                                   KeySym &keysym,
@@ -1284,7 +1287,6 @@ bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
 
     static int directionKeyEvent = 0;
     static unsigned int lastWinId = 0;
-    extern bool qt_use_rtl_extensions; // from qapplication_x11.cpp
 
     // translate pending direction change
     if (statefulTranslation && qt_use_rtl_extensions && type == QEvent::KeyRelease) {
@@ -1609,3 +1611,5 @@ bool QKeyMapper::sendKeyEvent(QWidget *keyWidget, bool grab,
                   nativeScanCode, nativeVirtualKey, nativeModifiers);
     return qt_sendSpontaneousEvent(keyWidget, &e);
 }
+
+QT_END_NAMESPACE

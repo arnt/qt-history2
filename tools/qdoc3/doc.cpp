@@ -30,6 +30,8 @@
 #include <ctype.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef QMap<QString, QString> QMap_QString_QString;
 
 Q_GLOBAL_STATIC(QSet<QString>, null_Set_QString)
@@ -2638,3 +2640,5 @@ void Doc::detach()
 
     priv = newPriv;
 }
+
+QT_END_NAMESPACE

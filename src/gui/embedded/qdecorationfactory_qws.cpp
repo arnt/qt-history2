@@ -21,6 +21,8 @@
 #include "qdecorationwindows_qws.h"
 #include "qdecorationstyled_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QDecorationFactoryInterface_iid, QCoreApplication::libraryPaths(),
@@ -122,3 +124,5 @@ QStringList QDecorationFactory::keys()
 
     return list;
 }
+
+QT_END_NAMESPACE

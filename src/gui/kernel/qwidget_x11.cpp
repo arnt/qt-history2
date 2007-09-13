@@ -28,7 +28,7 @@
 #include "qdebug.h"
 #include "private/qbackingstore_p.h"
 
-extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_x11.cpp
+//extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_x11.cpp
 
 #include <private/qpixmap_p.h>
 #include <private/qpaintengine_x11_p.h>
@@ -40,8 +40,8 @@ extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_x11.cpp
 //#define ALIEN_DEBUG
 
 // defined in qapplication_x11.cpp
-bool qt_wstate_iconified(WId);
-void qt_updated_rootinfo();
+//bool qt_wstate_iconified(WId);
+//void qt_updated_rootinfo();
 
 
 #if !defined(QT_NO_IM)
@@ -53,6 +53,8 @@ void qt_updated_rootinfo();
 
 #define XCOORD_MAX 16383
 #define WRECT_MAX 8191
+
+QT_BEGIN_NAMESPACE
 
 extern bool qt_nograb();
 
@@ -2789,3 +2791,5 @@ Picture QX11Data::getSolidFill(int screen, const QColor &c)
 void QWidgetPrivate::setModal_sys()
 {
 }
+
+QT_END_NAMESPACE

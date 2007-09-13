@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QRadioButtonPrivate;
@@ -50,6 +52,8 @@ private:
     Q_DECLARE_PRIVATE(QRadioButton)
     Q_DISABLE_COPY(QRadioButton)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

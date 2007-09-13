@@ -18,6 +18,8 @@
 
 #include <Qt3Support/Q3ButtonGroup>
 
+QT_BEGIN_NAMESPACE
+
 class Q3ButtonGroupPlugin: public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
@@ -57,5 +59,7 @@ public:
 private:
     bool m_initialized;
 };
+
+QT_END_NAMESPACE
 
 #endif

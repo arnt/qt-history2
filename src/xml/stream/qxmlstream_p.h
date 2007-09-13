@@ -25,6 +25,10 @@
 #ifndef QXMLSTREAM_P_H
 #define QXMLSTREAM_P_H
 
+#include <QCoreApplication>
+
+QT_BEGIN_NAMESPACE
+
 class QXmlStreamReader_Table
 {
 public:
@@ -588,7 +592,6 @@ const int QXmlStreamReader_Table::action_check [] = {
   -1, -1};
 
 
-#include <QCoreApplication>
 template <typename T> class QXmlStreamSimpleStack {
     T *data;
     int tos, cap;
@@ -1889,6 +1892,8 @@ bool QXmlStreamReaderPrivate::parse()
     }
     return false;
 }
+
+QT_END_NAMESPACE
 
 #endif // QXMLSTREAM_P_H
 

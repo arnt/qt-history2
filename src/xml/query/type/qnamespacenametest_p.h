@@ -20,6 +20,8 @@ template<typename Key, typename Value> class QHash;
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -52,6 +54,8 @@ namespace Patternist
         const QName::NamespaceCode m_namespaceURI;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

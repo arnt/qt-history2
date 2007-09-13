@@ -6,6 +6,8 @@
 
 #include "qpushbridge_p.h"
 
+QT_BEGIN_NAMESPACE
+
 void PushBridge::startElement(const Patternist::QName name)
 {
     m_receiver->startElement(QXmlQueryPrivate::fromPoolName(name));
@@ -69,5 +71,7 @@ void PushBridge::endDocument()
 {
     m_receiver->endDocument();
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

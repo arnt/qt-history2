@@ -31,6 +31,8 @@
 #include <QtCore/QList>
 #include <QtCore/QPair>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerPropertySheetExtension;
 
@@ -265,5 +267,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_PROPERTYCOMMAND_H

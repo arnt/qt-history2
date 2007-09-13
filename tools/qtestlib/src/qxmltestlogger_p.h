@@ -28,6 +28,8 @@
 
 #include <QtTest/private/qabstracttestlogger_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QXmlTestLogger : public QAbstractTestLogger
 {
 public:
@@ -51,5 +53,7 @@ public:
 private:
     XmlMode xmlmode;
 };
+
+QT_END_NAMESPACE
 
 #endif

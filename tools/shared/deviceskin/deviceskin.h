@@ -20,6 +20,8 @@
 #include <QtGui/QPixmap>
 #include <QtCore/QVector>
 
+QT_BEGIN_NAMESPACE
+
 namespace qvfb_internal {
     class CursorWindow;
 }
@@ -132,5 +134,7 @@ private:
 
     bool flipped_open;
 };
+
+QT_END_NAMESPACE
 
 #endif

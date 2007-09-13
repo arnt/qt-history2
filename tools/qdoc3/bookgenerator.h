@@ -20,6 +20,8 @@
 
 #include "generator.h"
 
+QT_BEGIN_NAMESPACE
+
 class BookGenerator : public Generator
 {
 public:
@@ -28,5 +30,7 @@ public:
 
     virtual void generateTree( const Tree *tree, CodeMarker *marker );
 };
+
+QT_END_NAMESPACE
 
 #endif

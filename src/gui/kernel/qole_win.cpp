@@ -13,6 +13,8 @@
 
 #include "qdnd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QOleEnumFmtEtc::QOleEnumFmtEtc(const QVector<FORMATETC> &fmtetcs)
 {
     m_isNull = false;
@@ -206,3 +208,5 @@ bool QOleEnumFmtEtc::copyFormatEtc(LPFORMATETC dest, LPFORMATETC src) const
 
     return true;
 }
+
+QT_END_NAMESPACE

@@ -35,6 +35,8 @@
 #include "qmime.h"
 #include "qspinbox.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_WS_MAC
 QRgb macGetRgba(QRgb initial, bool needAlpha, bool *ok, QWidget *parent);
 QColor macGetColor(const QColor& initial, QWidget *parent);
@@ -1683,10 +1685,12 @@ bool QColorDialog::selectColor(const QColor& col)
     return false;
 }
 
+QT_END_NAMESPACE
+
 #include "qcolordialog.moc"
 #include "moc_qcolordialog.cpp"
 
-#endif
+#endif // QT_NO_COLORDIALOG
 
 /*!
     \fn QColor QColorDialog::getColor(const QColor &init, QWidget *parent, const char *name)

@@ -27,6 +27,8 @@
 
 #include "shared_global_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QString;
 class QIcon;
 
@@ -36,5 +38,7 @@ QDESIGNER_SHARED_EXPORT QIcon createIconSet(const QString &name);
 QDESIGNER_SHARED_EXPORT QIcon emptyIcon();
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // ICONLOADER_H

@@ -86,6 +86,8 @@
 #include <sys/param.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /* XPM */
 static const char * const start_xpm[]={
     "16 15 8 1",
@@ -537,7 +539,7 @@ private:
 
 static void makeVariables() {
     if (!openFolderIcon) {
-        workingDirectory = new QString(::toRootIfNotExists( QDir::currentDirPath() ));
+        workingDirectory = new QString(toRootIfNotExists( QDir::currentDirPath() ));
         qfd_cleanup_string.add(&workingDirectory);
 
         openFolderIcon = new QPixmap((const char **)open_xpm);
@@ -2390,7 +2392,7 @@ void Q3FileDialog::init()
     connect(d->mimeTypeTimer, SIGNAL(timeout()),
              this, SLOT(doMimeTypeLookup()));
 
-    d->url = Q3UrlOperator(::toRootIfNotExists( QDir::currentDirPath() ));
+    d->url = Q3UrlOperator(toRootIfNotExists( QDir::currentDirPath() ));
     d->oldUrl = d->url;
     d->currListChildren = 0;
 
@@ -3388,7 +3390,7 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
     }
 
     if (workingDirectory->isNull())
-        *workingDirectory = ::toRootIfNotExists( QDir::currentDirPath() );
+        *workingDirectory = toRootIfNotExists( QDir::currentDirPath() );
 
 #if defined(Q_WS_WIN)
     if (qt_use_native_dialogs && qobject_cast<QWindowsStyle *>(qApp->style()))
@@ -3506,7 +3508,7 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
     }
 
     if (workingDirectory->isNull())
-        *workingDirectory = ::toRootIfNotExists( QDir::currentDirPath() );
+        *workingDirectory = toRootIfNotExists( QDir::currentDirPath() );
 
 #if defined(Q_WS_WIN)
     if (qt_use_native_dialogs && qobject_cast<QWindowsStyle *>(qApp->style()))
@@ -4447,7 +4449,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
         } else {
             QString theDir = dir_;
             if (theDir.isEmpty()) {
-                theDir = ::toRootIfNotExists( QDir::currentDirPath() );
+                theDir = toRootIfNotExists( QDir::currentDirPath() );
             } if (!theDir.isEmpty()) {
                 Q3Url tempUrl(theDir);
                 QFileInfo f(tempUrl.path());
@@ -5526,7 +5528,7 @@ QStringList Q3FileDialog::getOpenFileNames(const QString & filter,
     makeVariables();
 
     if (workingDirectory->isNull())
-        *workingDirectory = ::toRootIfNotExists( QDir::currentDirPath() );
+        *workingDirectory = toRootIfNotExists( QDir::currentDirPath() );
 
     if (!dir.isEmpty()) {
         // #### works only correct for local files
@@ -6330,6 +6332,8 @@ Q3FilePreview::Q3FilePreview()
   function to provide file previewing.
 */
 
+
+QT_END_NAMESPACE
 
 #include "moc_q3filedialog.cpp"
 #include "q3filedialog.moc"

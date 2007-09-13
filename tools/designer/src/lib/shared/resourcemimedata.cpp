@@ -17,6 +17,8 @@
 #include <QtCore/QMimeData>
 #include <QtXml/QDomDocument>
 
+QT_BEGIN_NAMESPACE
+
 static const char *elementResourceData = "resource";
 static const char *typeAttribute = "type";
 static const char *typeImage = "image";
@@ -128,3 +130,4 @@ bool  ResourceMimeData::fromMimeData(const QMimeData *md)
 
 }
 
+QT_END_NAMESPACE

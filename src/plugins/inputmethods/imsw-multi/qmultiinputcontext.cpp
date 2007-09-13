@@ -35,6 +35,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 QMultiInputContext::QMultiInputContext()
     : QInputContext(), current(-1)
 {
@@ -162,5 +164,7 @@ void QMultiInputContext::changeSlave(QAction *a)
         }
     }
 }
-#endif
 
+QT_END_NAMESPACE
+
+#endif // QT_NO_IM

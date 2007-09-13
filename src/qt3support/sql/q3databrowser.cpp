@@ -19,6 +19,8 @@
 #include "private/q3sqlmanager_p.h"
 #include "qsqlresult.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3DataBrowserPrivate
 {
 public:
@@ -1252,5 +1254,7 @@ QSql::Confirm  Q3DataBrowser::confirmCancel(QSql::Op m)
     buffer being deleted. You might connect to this signal to capture
     some auditing information about the deletion.
 */
+
+QT_END_NAMESPACE
 
 #endif

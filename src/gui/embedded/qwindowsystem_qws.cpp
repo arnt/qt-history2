@@ -85,6 +85,8 @@
 
 //#define QWS_DEBUG_FONTCLEANUP
 
+QT_BEGIN_NAMESPACE
+
 QWSServer Q_GUI_EXPORT *qwsServer=0;
 static QWSServerPrivate *qwsServerPrivate=0;
 
@@ -4810,5 +4812,7 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     event is caused by an auto-repeat mechanism and not an actual key
     press.
 */
+
+QT_END_NAMESPACE
 
 #include "moc_qwindowsystem_qws.cpp"

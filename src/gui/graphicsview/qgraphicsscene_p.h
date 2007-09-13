@@ -36,6 +36,8 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qset.h>
 
+QT_BEGIN_NAMESPACE
+
 class QGraphicsView;
 
 class QGraphicsScenePrivate : public QObjectPrivate
@@ -133,6 +135,8 @@ public:
     static void drawItemHelper(QGraphicsItem *item, QPainter *painter,
                                const QStyleOptionGraphicsItem *option, QWidget *widget);
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_GRAPHICSVIEW
 

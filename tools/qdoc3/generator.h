@@ -27,6 +27,8 @@
 #include "node.h"
 #include "text.h"
 
+QT_BEGIN_NAMESPACE
+
 class ClassNode;
 class Config;
 class CodeMarker;
@@ -127,5 +129,7 @@ private:
     static QString outDir;
     static QString project;
 };
+
+QT_END_NAMESPACE
 
 #endif

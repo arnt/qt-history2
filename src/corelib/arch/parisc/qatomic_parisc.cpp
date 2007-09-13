@@ -14,6 +14,10 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/qhash.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 #define UNLOCKED    {-1,-1,-1,-1}
 #define UNLOCKED2      UNLOCKED,UNLOCKED
 #define UNLOCKED4     UNLOCKED2,UNLOCKED2
@@ -52,3 +56,5 @@ extern "C" {
     { lock[0] = lock[1] = lock[2] = lock[3] = -1; }
 }
 
+
+QT_END_NAMESPACE

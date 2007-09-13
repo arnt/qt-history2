@@ -27,6 +27,8 @@
 
 #ifndef QT_NO_SHORTCUT
 
+QT_BEGIN_NAMESPACE
+
 // To enable verbose output uncomment below
 //#define DEBUG_QSHORTCUTMAP
 
@@ -750,5 +752,7 @@ void QShortcutMap::dumpMap() const
         qDebug().nospace() << &(d->sequences.at(i));
 }
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SHORTCUT

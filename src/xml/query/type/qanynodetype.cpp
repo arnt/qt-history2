@@ -16,6 +16,8 @@
 
 #include "qanynodetype_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 AnyNodeType::AnyNodeType()
@@ -67,3 +69,5 @@ Node::NodeKind AnyNodeType::nodeKind() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

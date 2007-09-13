@@ -22,6 +22,8 @@
 #include "config.h"
 #include "pagegenerator.h"
 
+QT_BEGIN_NAMESPACE
+
 class WebXMLGenerator : public PageGenerator
 {
 public:
@@ -57,5 +59,7 @@ private:
     QString link;
     QStringList sectionNumber;
 };
+
+QT_END_NAMESPACE
 
 #endif

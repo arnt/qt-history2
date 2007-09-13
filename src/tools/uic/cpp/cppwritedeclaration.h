@@ -16,6 +16,8 @@
 
 #include "treewalker.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTextStream;
 class Driver;
 class Uic;
@@ -44,5 +46,7 @@ private:
 };
 
 } // namespace CPP
+
+QT_END_NAMESPACE
 
 #endif // CPPWRITEDECLARATION_H

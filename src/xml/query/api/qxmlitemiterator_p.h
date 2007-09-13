@@ -31,6 +31,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QXmlItemIteratorPrivate
 {
 public:
@@ -64,6 +66,8 @@ private:
     Patternist::Item                current;
     Patternist::Item                next;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

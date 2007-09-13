@@ -24,6 +24,8 @@
 #include "qdbusmetatype.h"
 #include "qdbusconnection_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static inline const char *data(const QByteArray &arr)
 {
     return arr.isEmpty() ? 0 : arr.constData();
@@ -761,5 +763,7 @@ QDebug operator<<(QDebug dbg, const QDBusMessage &msg)
     dbg.nospace() << ") )";
     return dbg.space();
 }
+
+QT_END_NAMESPACE
 #endif
 

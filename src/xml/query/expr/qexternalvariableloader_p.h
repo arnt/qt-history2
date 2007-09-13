@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     class DynamicContext;
@@ -91,6 +93,8 @@ namespace Patternist
                                  const PlainSharedPtr<DynamicContext> &context);
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

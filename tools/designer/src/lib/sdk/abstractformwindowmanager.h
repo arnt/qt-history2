@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QAction;
 class QActionGroup;
 class QDesignerFormEditorInterface;
@@ -86,6 +88,8 @@ private:
     QDesignerFormWindowManagerInterface(const QDesignerFormWindowManagerInterface &other);
     QDesignerFormWindowManagerInterface &operator = (const QDesignerFormWindowManagerInterface &other);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

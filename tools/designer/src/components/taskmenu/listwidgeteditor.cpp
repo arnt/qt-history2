@@ -27,6 +27,8 @@ TRANSLATOR qdesigner_internal::ListWidgetEditor
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 ListWidgetEditor::ListWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent)
@@ -250,3 +252,5 @@ void ListWidgetEditor::updateEditor()
     ui.previewPixmapItemButton->setIcon(itemIcon);
     ui.deletePixmapItemButton->setEnabled(!itemIcon.isNull());
 }
+
+QT_END_NAMESPACE

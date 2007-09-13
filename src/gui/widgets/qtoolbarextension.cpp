@@ -15,8 +15,9 @@
 #include <qpixmap.h>
 #include <qstyle.h>
 
-
 #ifndef QT_NO_TOOLBUTTON
+
+QT_BEGIN_NAMESPACE
 
 QToolBarExtension::QToolBarExtension(QWidget *parent)
     : QToolButton(parent)
@@ -42,5 +43,7 @@ QSize QToolBarExtension::sizeHint() const
     int ext = style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
     return QSize(ext, ext);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_TOOLBUTTON

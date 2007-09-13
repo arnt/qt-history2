@@ -26,6 +26,8 @@
 #include <qlist.h>
 #include <qiterator.h>
 
+QT_BEGIN_NAMESPACE
+
 #define COMMAND_VERSION                 Doc::alias("version")
 
 static bool showBrokenLinks = false;
@@ -2638,3 +2640,5 @@ void HtmlGenerator::endLink()
     }
     inLink = false;
 }
+
+QT_END_NAMESPACE

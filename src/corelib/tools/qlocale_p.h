@@ -28,6 +28,8 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qvarlengtharray.h"
 
+QT_BEGIN_NAMESPACE
+
 struct Q_CORE_EXPORT QLocalePrivate
 {
 public:
@@ -142,5 +144,7 @@ inline char QLocalePrivate::digitToCLocale(const QChar &in) const
 
     return 0;
 }
+
+QT_END_NAMESPACE
 
 #endif // QLOCALE_P_H

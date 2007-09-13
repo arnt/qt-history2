@@ -20,6 +20,8 @@
 #include "qstringlist.h"
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QIODEVICE_DEBUG
 void debugBinaryString(const QByteArray &input)
 {
@@ -1692,3 +1694,5 @@ QDebug operator<<(QDebug debug, QIODevice::OpenMode modes)
     return debug;
 }
 #endif
+
+QT_END_NAMESPACE

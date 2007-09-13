@@ -19,6 +19,8 @@
 #include <private/qgl_p.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef GL_TEXTURE_RECTANGLE_EXT
 #define GL_TEXTURE_RECTANGLE_EXT 0x84F5
 #endif
@@ -56,3 +58,5 @@ bool QGLPixelBuffer::hasOpenGLPbuffers()
 {
     return false;
 }
+
+QT_END_NAMESPACE

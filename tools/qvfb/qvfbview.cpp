@@ -37,6 +37,8 @@
 #include <errno.h>
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 extern int qvfb_protocol;
 
 QVFbAbstractView::QVFbAbstractView( QWidget *parent )
@@ -718,3 +720,5 @@ void QVFbView::skinKeyReleaseEvent(int code, const QString& text, bool autorep)
     QKeyEvent e(QEvent::KeyRelease,code,0,text,autorep);
     keyReleaseEvent(&e);
 }
+
+QT_END_NAMESPACE

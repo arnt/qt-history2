@@ -16,6 +16,8 @@
 #include <QTextStream>
 #include <qt_windows.h>
 
+QT_USE_NAMESPACE
+
 int main(int argc, char **argv)
 {
     CoInitialize(0);
@@ -112,6 +114,5 @@ int main(int argc, char **argv)
     
     QString docu = axobject->generateDocumentation();
     out << docu;
-    
     return 0;
 }

@@ -17,7 +17,7 @@
 #include <QDate>
 #include <QMainWindow>
 
-class QTextBrowser;
+QT_DECLARE_CLASS(QTextBrowser)
 
 class MainWindow : public QMainWindow
 {

@@ -22,6 +22,8 @@
 #include <QtCore/QPair>
 #include <QtCore/QRect>
 
+QT_BEGIN_NAMESPACE
+
 class QLayoutWidget;
 class QLayoutSupport;
 
@@ -61,5 +63,7 @@ protected:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // DEFAULT_ACTIONPROVIDER_H

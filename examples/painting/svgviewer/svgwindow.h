@@ -18,8 +18,8 @@
 #include <QScrollArea>
 #include <QString>
 
-class QKeyEvent;
-class QMouseEvent;
+QT_DECLARE_CLASS(QKeyEvent)
+QT_DECLARE_CLASS(QMouseEvent)
 
 class SvgWindow : public QScrollArea
 {

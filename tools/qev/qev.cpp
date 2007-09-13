@@ -13,6 +13,8 @@
 
 #include <QtGui>
 
+QT_USE_NAMESPACE
+
 class Widget : public QWidget
 {
 public:

@@ -15,6 +15,8 @@
 #include "trwindow.h"
 #include <QtCore/QTextCodec>
 
+QT_BEGIN_NAMESPACE
+
 static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
 
@@ -897,3 +899,4 @@ MessageItem *ContextList::messageItem(int context, int message) const
     return 0;
 }
 
+QT_END_NAMESPACE

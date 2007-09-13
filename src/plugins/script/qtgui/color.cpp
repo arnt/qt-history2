@@ -7,6 +7,8 @@
 Q_DECLARE_METATYPE(QColor)
 Q_DECLARE_METATYPE(QColor*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newColor(QScriptEngine *eng, const QColor &color)
 {
     return eng->newVariant(qVariantFromValue(color));
@@ -469,3 +471,5 @@ QScriptValue constructColorClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

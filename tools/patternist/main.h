@@ -26,6 +26,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class PatternistCLI
 {
 public:
@@ -34,6 +36,8 @@ private:
     PatternistCLI();
     Q_DISABLE_COPY(PatternistCLI)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

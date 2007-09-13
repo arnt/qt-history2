@@ -17,16 +17,16 @@
 #include <QSystemTrayIcon>
 #include <QDialog>
 
-class QAction;
-class QCheckBox;
-class QComboBox;
-class QGroupBox;
-class QLabel;
-class QLineEdit;
-class QMenu;
-class QPushButton;
-class QSpinBox;
-class QTextEdit;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QSpinBox)
+QT_DECLARE_CLASS(QTextEdit)
 
 class Window : public QDialog
 {

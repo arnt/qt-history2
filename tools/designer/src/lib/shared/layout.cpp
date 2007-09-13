@@ -41,6 +41,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSet>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { FormLayoutColumns = 2 };
 }
@@ -1212,4 +1214,7 @@ Layout* Layout::createLayout(const QWidgetList &widgets,  QWidget *parentWidget,
     Q_ASSERT(0);
     return 0;
 }
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

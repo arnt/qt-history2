@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -135,6 +137,8 @@ namespace Patternist
         return typename SingletonIterator<T>::Ptr(new SingletonIterator<T>(item));
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

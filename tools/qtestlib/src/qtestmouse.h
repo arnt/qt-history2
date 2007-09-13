@@ -32,6 +32,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest
 {
     enum MouseAction { MousePress, MouseRelease, MouseClick, MouseDClick, MouseMove };
@@ -102,6 +104,8 @@ namespace QTest
     { mouseEvent(MouseMove, widget, Qt::NoButton, 0, pos, delay); }
 
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -21,6 +21,8 @@
 #include <private/qnumeric_p.h>
 #include <private/qmath_p.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QDEBUG_BEZIER
 
 #ifdef FLOAT_ACCURACY
@@ -1093,3 +1095,5 @@ void QBezier::addToPolygonIterative(QPolygonF *p) const
 
     p->append(QPointF(x4, y4));
 }
+
+QT_END_NAMESPACE

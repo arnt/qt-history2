@@ -7,6 +7,8 @@
 
 Q_DECLARE_METATYPE(QTimeLine*)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newTimeLine(QScriptEngine *eng, QTimeLine *timeLine)
 {
     return eng->newQObject(timeLine, QScriptEngine::AutoOwnership);
@@ -126,3 +128,5 @@ QScriptValue constructTimeLineClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

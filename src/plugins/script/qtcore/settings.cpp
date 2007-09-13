@@ -8,6 +8,8 @@
 
 Q_DECLARE_METATYPE(QSettings*)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newSettings(QScriptEngine *eng, QSettings *settings)
 {
     return eng->newQObject(settings, QScriptEngine::AutoOwnership);
@@ -241,3 +243,5 @@ QScriptValue constructSettingsClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

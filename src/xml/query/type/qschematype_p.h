@@ -23,6 +23,8 @@ template<typename N, typename M> class QHash;
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     class AtomicType;
@@ -155,6 +157,8 @@ namespace Patternist
         bool isComplexType() const;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

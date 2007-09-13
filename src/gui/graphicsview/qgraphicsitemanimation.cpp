@@ -65,6 +65,8 @@
 #include <QtCore/qpair.h>
 #include <QtGui/qmatrix.h>
 
+QT_BEGIN_NAMESPACE
+
 class QGraphicsItemAnimationPrivate
 {
 public:
@@ -564,5 +566,7 @@ void QGraphicsItemAnimation::afterAnimationStep(qreal step)
 {
     Q_UNUSED(step);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_GRAPHICSVIEW

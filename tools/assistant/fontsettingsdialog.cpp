@@ -23,6 +23,8 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QDialogButtonBox>
 
+QT_BEGIN_NAMESPACE
+
 FontSettingsDialog::FontSettingsDialog(QWidget *parent)
     : QDialog(parent)
     , m_windowFontPanel(new FontPanel(this))
@@ -104,3 +106,4 @@ void FontSettingsDialog::setupFontSettingsDialog(const FontSettings *settings)
     m_browserFontPanel->setChecked(settings->useBrowserFont);
 }
 
+QT_END_NAMESPACE

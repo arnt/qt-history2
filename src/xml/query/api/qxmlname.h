@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Xml)
 
 class QXmlName;
@@ -74,6 +76,8 @@ static inline uint qHash(const QXmlName &name)
 }
 
 Q_DECLARE_TYPEINFO(QXmlName, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

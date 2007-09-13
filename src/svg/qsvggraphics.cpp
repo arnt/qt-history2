@@ -23,6 +23,8 @@
 #include <math.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 void QSvgAnimation::draw(QPainter *)
 {
     qWarning("<animation> no implemented");
@@ -515,3 +517,4 @@ QRectF QSvgLine::bounds() const
     }
 }
 
+QT_END_NAMESPACE

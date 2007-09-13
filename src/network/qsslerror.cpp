@@ -78,6 +78,8 @@
 #include "qsslerror.h"
 #ifndef QT_NO_DEBUG_STREAM
 #include <QtCore/qdebug.h>
+
+QT_BEGIN_NAMESPACE
 #endif
 
 class QSslErrorPrivate
@@ -242,3 +244,5 @@ QDebug operator<<(QDebug debug, const QSslError::SslError &error)
     return debug;
 }
 #endif
+
+QT_END_NAMESPACE

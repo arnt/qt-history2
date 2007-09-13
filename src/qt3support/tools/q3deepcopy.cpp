@@ -13,6 +13,8 @@
 
 #include "q3deepcopy.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3DeepCopy qdeepcopy.h
     \brief The Q3DeepCopy class is a template class which ensures that
@@ -138,3 +140,4 @@
     Returns a deep copy of the encapsulated data.
 */
 
+QT_END_NAMESPACE

@@ -18,10 +18,14 @@
 #include "qapplication.h"
 #include "qwsdisplay_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 QPaintDevice::QPaintDevice()
 {
     painters = 0;
 }
+
+extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
 
 
 QPaintDevice::~QPaintDevice()
@@ -29,7 +33,6 @@ QPaintDevice::~QPaintDevice()
     if (paintingActive())
         qWarning("QPaintDevice: Cannot destroy paint device that is being "
                   "painted");
-    extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
     qt_painter_removePaintDevice(this);
 }
 
@@ -57,3 +60,5 @@ QWSDisplay *QPaintDevice::qwsDisplay()
 {
     return qt_fbdpy;
 }
+
+QT_END_NAMESPACE

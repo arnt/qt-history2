@@ -57,7 +57,10 @@ TRANSLATOR qdesigner_internal::ActionEditor
 
 Q_DECLARE_METATYPE(QAction*)
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
+
 //-------- ActionFilterWidget
 class ActionFilterWidget: public QWidget
 {
@@ -716,5 +719,7 @@ void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QAction *item)
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #include "actioneditor.moc"

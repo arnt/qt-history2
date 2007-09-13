@@ -22,6 +22,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 #define MAPDOUBLE(x, y, nx, ny) \
 { \
     fx = x; \
@@ -1585,3 +1587,5 @@ QTransform::operator QVariant() const
 
     \sa reset()
 */
+
+QT_END_NAMESPACE

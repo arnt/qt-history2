@@ -27,6 +27,8 @@
 
 #include "qscriptbuffer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
 
 template <typename Tp, typename Factory>
@@ -56,5 +58,6 @@ private:
 
 } // namespace QScript
 
-#endif
+QT_END_NAMESPACE
 
+#endif

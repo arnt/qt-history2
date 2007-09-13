@@ -16,7 +16,7 @@
 
 #include <QtGui>
 
-class QBypassWidget;
+QT_DECLARE_CLASS(QBypassWidget)
 
 class HoverPoints : public QObject
 {

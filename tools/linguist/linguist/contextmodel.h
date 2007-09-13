@@ -19,6 +19,8 @@
 #include <QAbstractItemModel>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
+
 class MessageModel;
 class ContextModel;
 
@@ -99,5 +101,7 @@ private:
 
     QList<ContextItem *> cntxtList;
 };
+
+QT_END_NAMESPACE
 
 #endif //CONTEXTMODEL_H

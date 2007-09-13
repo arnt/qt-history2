@@ -18,6 +18,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
+QT_BEGIN_NAMESPACE
+
 class Driver;
 class DomScript;
 
@@ -51,5 +53,7 @@ private:
     NameCustomWidgetMap m_customWidgets;
     bool m_scriptsActivated;
 };
+
+QT_END_NAMESPACE
 
 #endif // CUSTOMWIDGETSINFO_H

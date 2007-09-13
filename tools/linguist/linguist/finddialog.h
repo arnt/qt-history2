@@ -17,6 +17,8 @@
 #include "ui_finddialog.h"
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class FindDialog : public QDialog, public Ui::FindDialog
 {
     Q_OBJECT
@@ -32,5 +34,7 @@ private slots:
     void emitFindNext();
     void verifyText(const QString &);
 };
+
+QT_END_NAMESPACE
 
 #endif

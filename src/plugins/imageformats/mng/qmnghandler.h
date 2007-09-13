@@ -16,6 +16,8 @@
 
 #include <QtGui/qimageiohandler.h>
 
+QT_BEGIN_NAMESPACE
+
 class QImage;
 class QByteArray;
 class QIODevice;
@@ -46,5 +48,7 @@ class QMngHandler : public QImageIOHandler
     Q_DECLARE_PRIVATE(QMngHandler)
     QMngHandlerPrivate *d_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QMNGHANDLER_H

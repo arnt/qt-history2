@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QVariant;
@@ -122,6 +124,8 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &outS, const QCursor &cursor);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &inS, QCursor &cursor);
 #endif
 #endif // QT_NO_CURSOR
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_PRINTDIALOG
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAbstractPrintDialog
     \brief The QAbstractPrintDialog class provides a base implementation for
@@ -304,5 +306,7 @@ QPrinter *QAbstractPrintDialog::printer() const
     \fn int QPrintDialog::exec()
     \reimp
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTDIALOG

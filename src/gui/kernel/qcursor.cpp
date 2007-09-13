@@ -22,6 +22,8 @@
 #include <qvariant.h>
 #include <private/qcursor_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QCursor
 
@@ -491,3 +493,5 @@ QCursor::operator QVariant() const
 }
 
 #endif // QT_NO_CURSOR
+
+QT_END_NAMESPACE

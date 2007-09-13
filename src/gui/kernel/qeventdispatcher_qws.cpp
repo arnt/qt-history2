@@ -25,6 +25,10 @@
 
 #include <errno.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 class QEventDispatcherQWSPrivate : public QEventDispatcherUNIXPrivate
 {
     Q_DECLARE_PUBLIC(QEventDispatcherQWS)
@@ -132,3 +136,5 @@ int QEventDispatcherQWS::select(int nfds, fd_set *readfds, fd_set *writefds, fd_
 {
     return QEventDispatcherUNIX::select(nfds, readfds, writefds, exceptfds, timeout);
 }
+
+QT_END_NAMESPACE

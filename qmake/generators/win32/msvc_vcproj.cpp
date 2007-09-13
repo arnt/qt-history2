@@ -24,6 +24,7 @@
 //#define DEBUG_SOLUTION_GEN
 //#define DEBUG_PROJECT_GEN
 
+QT_BEGIN_NAMESPACE
 // Filter GUIDs (Do NOT change these!) ------------------------------
 const char _GUIDSourceFiles[]          = "{4FC737F1-C7A5-4376-A066-2A32D752A2FF}";
 const char _GUIDHeaderFiles[]          = "{93995380-89BD-4b04-88EB-625FBE52EBFB}";
@@ -33,9 +34,12 @@ const char _GUIDLexYaccFiles[]         = "{E12AE0D2-192F-4d59-BD23-7D3FA58D3183}
 const char _GUIDTranslationFiles[]     = "{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}";
 const char _GUIDFormFiles[]            = "{99349809-55BA-4b9d-BF79-8FDBB0286EB3}";
 const char _GUIDExtraCompilerFiles[]   = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
+QT_END_NAMESPACE
 
 #ifdef Q_OS_WIN32
 #include <qt_windows.h>
+
+QT_BEGIN_NAMESPACE
 
 struct {
     DotNET version;
@@ -180,8 +184,10 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
     RegCloseKey(handle);
     return result;
 }
+QT_END_NAMESPACE
 #endif
 
+QT_BEGIN_NAMESPACE
 DotNET which_dotnet_version()
 {
 #ifndef Q_OS_WIN32
@@ -367,7 +373,7 @@ bool VcprojGenerator::writeProjectMakefile()
 struct VcsolutionDepend {
     QString uuid;
     QString vcprojFile, orig_target, target;
-    ::target targetType;
+    Target targetType;
     QStringList dependencies;
 };
 
@@ -1552,4 +1558,6 @@ void VcprojGenerator::outputVariables()
         qDebug("Generator: MSVC.NET: %s => %s", it.key().toLatin1().constData(), it.data().join(" | ").toLatin1().constData());
 #endif
 }
+
+QT_END_NAMESPACE
 

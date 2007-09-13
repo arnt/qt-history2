@@ -30,6 +30,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QWidget;
 class QPixmap;
@@ -115,4 +117,7 @@ private:
     PreviewManager &operator =(const PreviewManager &other);
 };
 }
+
+QT_END_NAMESPACE
+
 #endif // PREVIEWMANAGER_H

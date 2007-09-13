@@ -34,6 +34,8 @@
 
 #include <float.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef DBL_DIG
 #  define DBL_DIG 10
 #endif
@@ -42,7 +44,7 @@
 #endif
 
 
-static const void *constData(const QVariant::Private &d)
+static const void *constDataHelper(const QVariant::Private &d)
 {
     switch (d.type) {
     case QVariant::Int:
@@ -1865,7 +1867,7 @@ void QVariant::load(QDataStream &s)
     }
 
     // const cast is save since we operate on a newly constructed variant
-    if (!QMetaType::load(s, d.type, const_cast<void *>(::constData(d)))) {
+    if (!QMetaType::load(s, d.type, const_cast<void *>(constDataHelper(d)))) {
         Q_ASSERT_X(false, "QVariant::load", "Invalid type to load");
         qWarning("QVariant::load: unable to load type %d.", d.type);
     }
@@ -1905,7 +1907,7 @@ void QVariant::save(QDataStream &s) const
         return;
     }
 
-    if (!QMetaType::save(s, d.type, ::constData(d))) {
+    if (!QMetaType::save(s, d.type, constDataHelper(d))) {
         Q_ASSERT_X(false, "QVariant::save", "Invalid type to save");
         qWarning("QVariant::save: unable to save type %d.", d.type);
     }
@@ -2657,7 +2659,7 @@ bool QVariant::cmp(const QVariant &v) const
 
 const void *QVariant::constData() const
 {
-    return ::constData(d);
+    return constDataHelper(d);
 }
 
 /*!
@@ -2670,7 +2672,7 @@ const void *QVariant::constData() const
 void* QVariant::data()
 {
     detach();
-    return const_cast<void *>(::constData(d));
+    return const_cast<void *>(constDataHelper(d));
 }
 
 
@@ -3055,3 +3057,5 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \fn DataPtr &QVariant::data_ptr()
     \internal
 */
+
+QT_END_NAMESPACE

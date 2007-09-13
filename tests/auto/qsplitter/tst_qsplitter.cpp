@@ -20,8 +20,8 @@
 //TESTED_CLASS=
 //TESTED_FILES=gui/widgets/qsplitter.h gui/widgets/qsplitter.cpp
 
-class QSplitter;
-class QWidget;
+QT_DECLARE_CLASS(QSplitter)
+QT_DECLARE_CLASS(QWidget)
 class tst_QSplitter : public QObject
 {
     Q_OBJECT

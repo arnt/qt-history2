@@ -28,10 +28,13 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-class QDomDocument;
-class QDomElement;
 
 #include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
+class QDomDocument;
+class QDomElement;
 
 #define QDESIGNER_UILIB_EXTERN Q_DECL_EXPORT
 #define QDESIGNER_UILIB_IMPORT Q_DECL_IMPORT
@@ -3024,5 +3027,7 @@ private:
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_NAMESPACE
 
 #endif // UI4_H

@@ -50,6 +50,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+QT_BEGIN_NAMESPACE
+
 // =====================================================================
 
 static const char *red_on_led_xpm[] = {
@@ -1036,5 +1038,7 @@ void AnimationSaveWidget::save()
 	}
     }
 }
+
+QT_END_NAMESPACE
 
 #include "qvfb.moc"

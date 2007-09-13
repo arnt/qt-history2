@@ -27,6 +27,8 @@
 
 #include "QtCore/qbytearray.h"
 
+QT_BEGIN_NAMESPACE
+
 template <typename Type> class QDataBuffer
 {
 public:
@@ -84,5 +86,7 @@ private:
     int siz;
     Type *buffer;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDATABUFFER_P_H

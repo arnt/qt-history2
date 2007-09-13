@@ -27,6 +27,8 @@
 
 #include "qscriptastfwd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace AST {
 
 class Visitor
@@ -257,5 +259,6 @@ public:
 
 } } // namespace AST
 
-#endif
+QT_END_NAMESPACE
 
+#endif // QSCRIPTASTVISITOR_P_H

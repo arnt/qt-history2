@@ -18,12 +18,12 @@
 
 #include "diagramitem.h"
 
-class QGraphicsPolygonItem;
-class QGraphicsLineItem;
-class QGraphicsScene;
-class QRectF;
-class QGraphicsSceneMouseEvent;
-class QPainterPath;
+QT_DECLARE_CLASS(QGraphicsPolygonItem)
+QT_DECLARE_CLASS(QGraphicsLineItem)
+QT_DECLARE_CLASS(QGraphicsScene)
+QT_DECLARE_CLASS(QRectF)
+QT_DECLARE_CLASS(QGraphicsSceneMouseEvent)
+QT_DECLARE_CLASS(QPainterPath)
 
 class Arrow : public QGraphicsLineItem
 {

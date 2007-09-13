@@ -18,6 +18,8 @@
 #include "qimage.h"
 #include "qt_windows.h"
 
+QT_BEGIN_NAMESPACE
+
 static QRegion *empty_region = 0;
 
 static void cleanup_empty_region()
@@ -1386,3 +1388,5 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
     return region;
 }
 // END OF PolyReg.c extract
+
+QT_END_NAMESPACE

@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifdef QT3_SUPPORT
@@ -210,6 +212,8 @@ inline QColorGroup QPalette::normal() const { return createColorGroup(Active); }
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &ds, const QPalette &p);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &ds, QPalette &p);
 #endif // QT_NO_DATASTREAM
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

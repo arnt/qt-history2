@@ -17,6 +17,8 @@
 
 #include "sgmlgenerator.h"
 
+QT_BEGIN_NAMESPACE
+
 SgmlGenerator::SgmlGenerator()
 {
 }
@@ -29,3 +31,5 @@ QString SgmlGenerator::format()
 {
     return "SGML";
 }
+
+QT_END_NAMESPACE

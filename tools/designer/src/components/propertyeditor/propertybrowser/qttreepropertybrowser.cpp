@@ -22,7 +22,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFocusEvent>
 
-//////////////////////////////////
+QT_BEGIN_NAMESPACE
 
 class QtPropertyEditorView;
 
@@ -757,6 +757,7 @@ void QtTreePropertyBrowser::itemChanged(QtBrowserItem *item)
     d_ptr->propertyChanged(item);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qttreepropertybrowser.cpp"
 #include "qttreepropertybrowser.moc"
-

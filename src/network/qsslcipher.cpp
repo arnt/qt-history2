@@ -49,6 +49,8 @@
 
 #ifndef QT_NO_DEBUG_STREAM
 #include <QtCore/qdebug.h>
+
+QT_BEGIN_NAMESPACE
 #endif
 
 /*!
@@ -218,3 +220,5 @@ QDebug operator<<(QDebug debug, const QSslCipher &cipher)
     return debug;
 }
 #endif
+
+QT_END_NAMESPACE

@@ -18,6 +18,8 @@
 #include <qtextstream.h>
 #include <qdir.h>
 
+QT_BEGIN_NAMESPACE
+
 class MakeItem;
 
 class Configure
@@ -145,3 +147,5 @@ public:
     Configure::ProjectType qmakeTemplate;
 };
 
+
+QT_END_NAMESPACE

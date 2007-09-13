@@ -17,6 +17,8 @@
 #include <qglobal.h>
 #include <item.h>
 
+QT_BEGIN_NAMESPACE
+
 class Tile
 {
 public:
@@ -43,5 +45,7 @@ public:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Tile::TileFlags);
+
+QT_END_NAMESPACE
 
 #endif

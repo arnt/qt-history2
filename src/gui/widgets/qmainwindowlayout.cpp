@@ -40,9 +40,14 @@
 
 #include <private/qlayoutengine_p.h>
 #ifdef Q_WS_MAC
-#include <private/qcore_mac_p.h>
+#   include <private/qcore_mac_p.h>
 #endif
 
+#ifdef Q_DEBUG_MAINWINDOW_LAYOUT
+#   include <QTextStream>
+#endif
+
+QT_BEGIN_NAMESPACE
 
 /******************************************************************************
 ** debug
@@ -50,7 +55,7 @@
 
 #if defined(Q_DEBUG_MAINWINDOW_LAYOUT) && !defined(QT_NO_DOCKWIDGET)
 
-#include <QTextStream>
+static QTextStream qout(stderr, QIODevice::WriteOnly);
 
 static void dumpLayout(QTextStream &qout, const QDockAreaLayoutInfo &layout, QString indent);
 
@@ -543,7 +548,7 @@ void QMainWindowLayoutState::saveState(QDataStream &stream) const
 }
 
 template <typename T>
-static QList<T> findChildren(const QObject *o)
+static QList<T> findChildrenHelper(const QObject *o)
 {
     const QObjectList &list = o->children();
     QList<T> result;
@@ -562,7 +567,7 @@ bool QMainWindowLayoutState::restoreState(QDataStream &stream,
                                         const QMainWindowLayoutState &oldState)
 {
 #ifndef QT_NO_DOCKWIDGET
-    QList<QDockWidget *> dockWidgets = ::findChildren<QDockWidget*>(mainWindow);
+    QList<QDockWidget *> dockWidgets = findChildrenHelper<QDockWidget*>(mainWindow);
     if (!dockAreaLayout.restoreState(stream, dockWidgets))
         return false;
 
@@ -584,7 +589,7 @@ bool QMainWindowLayoutState::restoreState(QDataStream &stream,
 #endif
 
 #ifndef QT_NO_TOOLBAR
-    QList<QToolBar *> toolBars = ::findChildren<QToolBar*>(mainWindow);
+    QList<QToolBar *> toolBars = findChildrenHelper<QToolBar*>(mainWindow);
     if (!toolBarAreaLayout.restoreState(stream, toolBars))
         return false;
 
@@ -1970,5 +1975,7 @@ bool QMainWindowLayout::usesHIToolBar(QToolBar *toolbar) const
                 && layoutState.mainWindow->unifiedTitleAndToolBarOnMac());
 #endif
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_MAINWINDOW

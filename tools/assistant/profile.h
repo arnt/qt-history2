@@ -19,6 +19,8 @@
 #include <QStringList>
 #include <QMap>
 
+QT_BEGIN_NAMESPACE
+
 class DocuParser;
 
 class Profile
@@ -59,5 +61,7 @@ public:
     QMap<QString,QString> dcfTitles;
     QStringList docs;
 };
+
+QT_END_NAMESPACE
 
 #endif // PROFILE_H

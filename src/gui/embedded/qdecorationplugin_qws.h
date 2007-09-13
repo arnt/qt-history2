@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QDecoration;
@@ -42,6 +44,8 @@ class Q_GUI_EXPORT QDecorationPlugin : public QObject, public QDecorationFactory
     virtual QStringList keys() const = 0;
     virtual QDecoration *create(const QString &key) = 0;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

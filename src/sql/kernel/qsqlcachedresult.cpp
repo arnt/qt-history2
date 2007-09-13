@@ -17,6 +17,8 @@
 #include <qdatetime.h>
 #include <qvector.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
    QSqlCachedResult is a convenience class for databases that only allow
    forward only fetching. It will cache all the results so we can iterate
@@ -264,3 +266,4 @@ QSqlCachedResult::ValueCache &QSqlCachedResult::cache()
     return d->cache;
 }
 
+QT_END_NAMESPACE

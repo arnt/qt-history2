@@ -82,6 +82,7 @@
 #ifdef QT_BEGIN_HEAD
 QT_BEGIN_HEADER
 #endif
+
 #ifdef QT_END_HEADER
 QT_END_HEADER
 #endif

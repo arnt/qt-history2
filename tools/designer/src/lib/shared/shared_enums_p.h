@@ -27,6 +27,8 @@
 
 #include "shared_global_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
     // Validation mode of text property line edits
@@ -42,5 +44,7 @@ namespace qdesigner_internal {
         // Allow only for identifier characters and colons
         ValidationObjectNameScope };
 }
+
+QT_END_NAMESPACE
 
 #endif // SHAREDENUMS_H

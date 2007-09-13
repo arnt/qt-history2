@@ -20,8 +20,8 @@
 #include <QString>
 #include <QWidget>
 
-class QMouseEvent;
-class QPaintEvent;
+QT_DECLARE_CLASS(QMouseEvent)
+QT_DECLARE_CLASS(QPaintEvent)
 
 class CharacterWidget : public QWidget
 {

@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #if defined(Q_WS_QWS)
@@ -135,6 +137,8 @@ inline int QPaintDevice::devType() const
 
 inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

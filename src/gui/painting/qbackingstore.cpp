@@ -47,6 +47,8 @@
 #include "qwindowsurface_qws_p.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   Top Level Window backing store
  *****************************************************************************/
@@ -1358,3 +1360,4 @@ void QWidgetBackingStore::updateWidget(QWidget *that, const QRegion &rgn)
     bs->dirtyRegion(wrgn, that);
 }
 
+QT_END_NAMESPACE

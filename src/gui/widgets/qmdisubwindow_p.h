@@ -37,6 +37,8 @@
 #include <QDebug>
 #include <private/qwidget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QVBoxLayout;
 class QMouseEvent;
 
@@ -306,5 +308,7 @@ public:
 };
 
 #endif // QT_NO_MDIAREA
+
+QT_END_NAMESPACE
 
 #endif // QMDISUBWINDOW_P_H

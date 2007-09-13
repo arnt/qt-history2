@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QPainterPath;
@@ -133,8 +135,12 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QMatrix &);
 #endif
 
 #ifdef QT3_SUPPORT
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <QtGui/qwmatrix.h>
+QT_END_INCLUDE_NAMESPACE
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

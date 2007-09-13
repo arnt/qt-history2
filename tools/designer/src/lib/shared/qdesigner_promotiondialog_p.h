@@ -28,6 +28,7 @@
 #include <QtGui/QDialog>
 #include <QtGui/QGroupBox>
 
+QT_BEGIN_NAMESPACE
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
@@ -126,5 +127,7 @@ namespace qdesigner_internal {
         QString m_lastSelectedBaseClass;
     };
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // PROMOTIONEDITORDIALOG_H

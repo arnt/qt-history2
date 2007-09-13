@@ -18,6 +18,7 @@
 
 #include "qabstracttextdocumentlayout_p.h"
 
+QT_BEGIN_NAMESPACE
 
 /*!
     \class QAbstractTextDocumentLayout
@@ -448,5 +449,6 @@ QPaintDevice *QAbstractTextDocumentLayout::paintDevice() const
     return d->paintDevice;
 }
 
-#include "moc_qabstracttextdocumentlayout.cpp"
+QT_END_NAMESPACE
 
+#include "moc_qabstracttextdocumentlayout.cpp"

@@ -30,6 +30,8 @@
 #include <QtCore/QVarLengthArray>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 // we use bits 15..12 of property flags
 enum {
     PROPERTY_ID      = 0 << 12,
@@ -1632,6 +1634,8 @@ QScriptQObjectData::~QScriptQObjectData()
         delete static_cast<const QScript::ConnectionQObject*>(connections.at(i));
     }
 }
+
+QT_END_NAMESPACE
 
 #include "qscriptextqobject.moc"
 

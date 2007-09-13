@@ -21,3 +21,5 @@ CONFIG ~= s/QT_+/Q_
 !contains( CONFIG, Q_DLL ) {
    message( "FAILED: ~=" )
 }
+DEFINES += QT_USE_USING_NAMESPACE
+

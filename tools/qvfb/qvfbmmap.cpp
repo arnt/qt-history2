@@ -28,6 +28,8 @@
 #include <errno.h>
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 QMMapViewProtocol::QMMapViewProtocol(int displayid, const QSize &s,
                                      int d, QObject *parent)
     : QVFbViewProtocol(displayid, parent), hdr(0), dataCache(0)
@@ -187,3 +189,5 @@ int QMMapViewProtocol::rate() const
     else
         return 0;
 }
+
+QT_END_NAMESPACE

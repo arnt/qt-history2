@@ -22,6 +22,8 @@
 
 #include <private/qtranslator_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QIODevice;
 class TranslatorPrivate;
 template <typename T> class QList;
@@ -422,5 +424,7 @@ static const int NumerusTableSize = sizeof(numerusTable) / sizeof(numerusTable[0
 
 bool getNumerusInfo(QLocale::Language language, QLocale::Country country,
                            QByteArray *rules, QStringList *forms);
+
+QT_END_NAMESPACE
 
 #endif // TRANSLATOR_H

@@ -23,6 +23,10 @@
 
 #ifndef QT_NO_THREAD
 #  include "qmutex.h"
+
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
 #endif
 
 
@@ -620,3 +624,5 @@ QEventDispatcherMac::~QEventDispatcherMac()
     }
 }
 
+
+QT_END_NAMESPACE

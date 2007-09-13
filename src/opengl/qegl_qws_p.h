@@ -29,6 +29,7 @@
 #ifndef Q_USE_EGLWINDOWSURFACE
 #include <EGL/egl.h>
 
+QT_BEGIN_NAMESPACE
 
 class QImage;
 class QRect;
@@ -42,6 +43,8 @@ public:
     static void destroyNativePixmap(NativePixmapType);
     // static NativePixmapType toNativePixmap(QPixmap *);
 };
+
+QT_END_NAMESPACE
 
 #endif
 

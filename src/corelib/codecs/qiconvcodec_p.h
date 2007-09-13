@@ -31,6 +31,8 @@
 
 #include <iconv.h>
 
+QT_BEGIN_NAMESPACE
+
 class QIconvCodec: public QTextCodec
 {
 private:
@@ -48,6 +50,8 @@ public:
 
     static iconv_t createIconv_t(const char *to, const char *from);
 };
+
+QT_END_NAMESPACE
 
 #endif // Q_OS_UNIX && !QT_NO_ICONV && !QT_BOOTSTRAPPED
 

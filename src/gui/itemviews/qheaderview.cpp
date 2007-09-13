@@ -35,6 +35,8 @@
 #ifndef QT_NO_DATASTREAM
 #include <qdatastream.h>
 
+QT_BEGIN_NAMESPACE
+
 QDataStream &operator<<(QDataStream &out, const QHeaderViewPrivate::SectionSpan &span)
 {
     span.write(out);
@@ -3291,7 +3293,7 @@ void QHeaderViewPrivate::setGlobalHeaderResizeMode(QHeaderView::ResizeMode mode)
 int QHeaderViewPrivate::viewSectionSizeHint(int logical) const
 {
     Q_Q(const QHeaderView);
-    if (QAbstractItemView *parent = ::qobject_cast<QAbstractItemView*>(q->parent())) {
+    if (QAbstractItemView *parent = qobject_cast<QAbstractItemView*>(q->parent())) {
         return (orientation == Qt::Horizontal
                 ? parent->sizeHintForColumn(logical)
                 : parent->sizeHintForRow(logical));
@@ -3389,7 +3391,10 @@ bool QHeaderViewPrivate::read(QDataStream &in)
 
     return true;
 }
-#endif
+
+QT_END_NAMESPACE
+
+#endif // QT_NO_DATASTREAEM
 
 #endif // QT_NO_ITEMVIEWS
 

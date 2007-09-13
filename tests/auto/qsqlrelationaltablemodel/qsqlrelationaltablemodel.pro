@@ -7,3 +7,6 @@ win32-g++ {
 } else:win32 {
   LIBS += ws2_32.lib
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

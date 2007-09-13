@@ -34,6 +34,8 @@
 #include "qscriptmemberfwd_p.h"
 #include "qscriptvalueimplfwd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QScriptObject
 {
 public:
@@ -70,5 +72,8 @@ public:
     QScript::Buffer<QScriptValueImpl> m_objects;
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif

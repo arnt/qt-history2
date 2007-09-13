@@ -28,6 +28,8 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerFormEditorInterface;
 
@@ -63,5 +65,7 @@ bool signalMatchesSlot(QDesignerFormEditorInterface *core, const QString &signal
 QString realObjectName(QDesignerFormEditorInterface *core, QObject *object);
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // SIGNALSLOTUTILS_P_H

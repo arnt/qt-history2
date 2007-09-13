@@ -28,6 +28,8 @@
 #include "QtGui/qinputcontext.h"
 #include "QtCore/qt_windows.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWinInputContext : public QInputContext
 {
     Q_OBJECT
@@ -57,5 +59,7 @@ private:
     void init();
     bool recursionGuard;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWININPUTCONTEXT_P_H

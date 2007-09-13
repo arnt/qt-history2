@@ -8,6 +8,8 @@
 Q_DECLARE_METATYPE(QEvent*)
 DECLARE_POINTER_METATYPE(QMouseEvent)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newMouseEvent(QScriptEngine *eng, QMouseEvent *me)
 {
     return QScript::wrapPointer(eng, me);
@@ -133,3 +135,5 @@ QScriptValue constructMouseEventClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

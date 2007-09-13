@@ -13,6 +13,8 @@
 
 #include "abstractdialoggui_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerDialogGuiInterface
     \since 4.4
@@ -97,3 +99,5 @@ QDesignerDialogGuiInterface::~QDesignerDialogGuiInterface()
     Opens a file dialog as child of \a parent using the parameters \a caption, \a dir, \a filter, \a selectedFilter and \a options
     that prompts the user for a file. Returns a file selected by the user. The file does not have to exist.
 */
+
+QT_END_NAMESPACE

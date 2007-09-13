@@ -16,6 +16,8 @@
 
 #ifndef QT_NO_TEXTCODEC
 
+QT_BEGIN_NAMESPACE
+
 QUtf8Codec::~QUtf8Codec()
 {
 }
@@ -411,5 +413,7 @@ QList<QByteArray> QUtf16LECodec::aliases() const
     QList<QByteArray> list;
     return list;
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_TEXTCODEC

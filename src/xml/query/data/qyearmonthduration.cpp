@@ -16,6 +16,8 @@
 
 #include "qyearmonthduration_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 YearMonthDuration::YearMonthDuration(const bool isPositiveP,
@@ -153,3 +155,5 @@ MSecondProperty YearMonthDuration::mseconds() const
 
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

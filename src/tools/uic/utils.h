@@ -19,6 +19,8 @@
 #include <QtCore/QList>
 #include <QtCore/QHash>
 
+QT_BEGIN_NAMESPACE
+
 inline bool toBool(const QString &str)
 { return str.toLower() == QLatin1String("true"); }
 
@@ -92,5 +94,7 @@ inline QStringList unique(const QStringList &lst)
         h.insert(lst.at(i), true);
     return h.keys();
 }
+
+QT_END_NAMESPACE
 
 #endif // UTILS_H

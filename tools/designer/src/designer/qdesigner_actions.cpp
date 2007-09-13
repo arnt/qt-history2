@@ -79,6 +79,8 @@
 #include <QtGui/QDesktopWidget>
 #include <QtXml/QDomDocument>
 
+QT_BEGIN_NAMESPACE
+
 //#ifdef Q_WS_MAC
 #  define NONMODAL_PREVIEW
 //#endif
@@ -1417,3 +1419,5 @@ void QDesignerActions::printPreviewImage()
 
     showStatusBarMessage(tr("Printed %1...").arg(QFileInfo(fw->fileName()).fileName()));
 }
+
+QT_END_NAMESPACE

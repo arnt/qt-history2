@@ -16,8 +16,8 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QMenu;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QMenu)
 class PrintPanel;
 
 class MainWindow : public QMainWindow

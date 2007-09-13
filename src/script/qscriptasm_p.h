@@ -33,6 +33,8 @@
 
 #include "qscriptvalueimplfwd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTextStream;
 
 class QScriptInstruction
@@ -136,5 +138,7 @@ private:
 
 } // namespace QScript
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
-#endif
+#endif // QSCRIPTASM_P_H

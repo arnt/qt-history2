@@ -16,15 +16,19 @@
 
 #include <QtCore/qglobal.h>
 
+#ifndef QT_NO_SQL
+#   include <Qt3Support/q3valuelist.h>
+#   include <QtSql/qsqlrecord.h>
+#   include <Qt3Support/q3sqlfieldinfo.h>
+#endif
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Qt3Support)
 
 #ifndef QT_NO_SQL
-
-#include <Qt3Support/q3valuelist.h>
-#include <QtSql/qsqlrecord.h>
-#include <Qt3Support/q3sqlfieldinfo.h>
 
 /* Q3SqlRecordInfo Class
    This class is obsolete, use QSqlRecord instead.
@@ -82,6 +86,8 @@ inline QSqlRecord Q3SqlRecordInfo::toRecord() const
 }
 
 #endif // QT_NO_SQL
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

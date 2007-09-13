@@ -17,6 +17,8 @@
 #include "codemarker.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 static QString indentStr(int indent)
 {
     QString str;
@@ -116,3 +118,5 @@ void ApiGenerator::generateNode(const Node *node, CodeMarker *marker, int indent
 
     out.flush();
 }
+
+QT_END_NAMESPACE

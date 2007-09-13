@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Svg)
 
 class QSvgWidgetPrivate;
@@ -44,6 +46,8 @@ private:
     Q_DISABLE_COPY(QSvgWidget)
     Q_DECLARE_PRIVATE(QSvgWidget)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -39,6 +39,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QCommonStyle
     \brief The QCommonStyle class encapsulates the common Look and Feel of a GUI.
@@ -4651,3 +4653,5 @@ QPixmap QCommonStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &p
     }
     return pixmap;
 }
+
+QT_END_NAMESPACE

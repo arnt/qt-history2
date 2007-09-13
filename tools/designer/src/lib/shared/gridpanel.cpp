@@ -15,6 +15,8 @@
 #include "ui_gridpanel.h"
 #include "grid_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 GridPanel::GridPanel(QWidget *parentWidget) :
@@ -87,3 +89,5 @@ void GridPanel::setResetButtonVisible(bool v)
 }
 
 }
+
+QT_END_NAMESPACE

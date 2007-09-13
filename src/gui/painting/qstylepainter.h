@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QStylePainter : public QPainter
@@ -74,6 +76,8 @@ void QStylePainter::drawItemPixmap(const QRect &r, int flags, const QPixmap &pix
 {
     wstyle->drawItemPixmap(this, r, flags, pixmap);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -17,6 +17,8 @@
 #ifndef QT_NO_ACTION
 #include "qwidgetaction_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QWidgetAction
     \since 4.2
@@ -232,7 +234,8 @@ QList<QWidget *> QWidgetAction::createdWidgets() const
     return d->createdWidgets;
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qwidgetaction.cpp"
 
 #endif // QT_NO_ACTION
-

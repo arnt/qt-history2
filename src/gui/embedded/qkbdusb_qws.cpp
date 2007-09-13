@@ -37,6 +37,7 @@
 #include <sys/vt.h>
 #endif
 
+QT_BEGIN_NAMESPACE
 
 /* USB driver */
 
@@ -372,7 +373,8 @@ void QWSUsbKbPrivate::readKeyboardData()
 #endif
 }
 
+QT_END_NAMESPACE
+
 #include "qkbdusb_qws.moc"
 
 #endif // QT_NO_QWS_KEYBOARD
-

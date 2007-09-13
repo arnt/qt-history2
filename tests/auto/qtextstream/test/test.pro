@@ -15,3 +15,6 @@ RESOURCES += ../qtextstream.qrc
 
 QT = core network qt3support
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

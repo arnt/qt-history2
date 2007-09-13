@@ -31,6 +31,8 @@
 #include <QtGui/QItemDelegate>
 #include <QtGui/QTreeView>
 
+QT_BEGIN_NAMESPACE
+
 class QTreeView;
 
 namespace qdesigner_internal {
@@ -49,5 +51,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // SHEET_DELEGATE_H

@@ -20,14 +20,17 @@
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qstringlist.h>
 
+struct IUnknown;
+struct IDispatch;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(ActiveQt)
 
 class QWidget;
 class QSettings;
-struct IUnknown;
-struct IDispatch;
 
 class QAxFactory : public QObject
 {
@@ -78,28 +81,33 @@ private:
 
 extern QAxFactory *qAxFactory();
 
+extern bool qax_startServer(QAxFactory::ServerType);
+
 inline bool QAxFactory::startServer(ServerType type)
 {
     // implementation in qaxservermain.cpp
-    extern bool qax_startServer(ServerType);
     return qax_startServer(type);
 }
+
+extern bool qax_stopServer();
 
 inline bool QAxFactory::stopServer()
 {
     // implementation in qaxservermain.cpp
-    extern bool qax_stopServer();
     return qax_stopServer();
 }
 
 #define QAXFACTORY_EXPORT(IMPL, TYPELIB, APPID)	\
+    QT_BEGIN_NAMESPACE \
     QAxFactory *qax_instantiate()		\
     {							\
         IMPL *impl = new IMPL(QUuid(TYPELIB), QUuid(APPID));	\
         return impl;					\
-    }
+    } \
+    QT_END_NAMESPACE
 
 #define QAXFACTORY_DEFAULT(Class, IIDClass, IIDInterface, IIDEvents, IIDTypeLib, IIDApp) \
+    QT_BEGIN_NAMESPACE \
     class QAxDefaultFactory : public QAxFactory \
     { \
     public: \
@@ -144,6 +152,7 @@ inline bool QAxFactory::stopServer()
     private: \
         QString className; \
     }; \
+    QT_END_NAMESPACE \
     QAXFACTORY_EXPORT(QAxDefaultFactory, IIDTypeLib, IIDApp) \
 
 template<class T>
@@ -168,6 +177,7 @@ public:
 };
 
 #define QAXFACTORY_BEGIN(IDTypeLib, IDApp) \
+    QT_BEGIN_NAMESPACE \
     class QAxFactoryList : public QAxFactory \
     { \
         QStringList factoryKeys; \
@@ -252,7 +262,10 @@ public:
     {							\
         QAxFactoryList *impl = new QAxFactoryList();	\
         return impl;					\
-    }
+    } \
+    QT_END_NAMESPACE
+
+QT_END_NAMESPACE
 
 #ifndef Q_COM_METATYPE_DECLARED
 #define Q_COM_METATYPE_DECLARED

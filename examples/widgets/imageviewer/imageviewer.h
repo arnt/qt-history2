@@ -17,11 +17,11 @@
 #include <QMainWindow>
 #include <QPrinter>
 
-class QAction;
-class QLabel;
-class QMenu;
-class QScrollArea;
-class QScrollBar;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QMenu)
+QT_DECLARE_CLASS(QScrollArea)
+QT_DECLARE_CLASS(QScrollBar)
 
 class ImageViewer : public QMainWindow
 {

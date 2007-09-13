@@ -19,6 +19,8 @@
 #include <qevent.h>
 #include <private/qframe_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QStackedWidgetPrivate : public QFramePrivate
 {
     Q_DECLARE_PUBLIC(QStackedWidget)
@@ -257,4 +259,7 @@ bool QStackedWidget::event(QEvent *e)
 {
     return QFrame::event(e);
 }
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_STACKEDWIDGET

@@ -21,6 +21,8 @@
 #include <QString>
 #include <QDataStream>
 
+QT_BEGIN_NAMESPACE
+
 QDataStream &operator>>(QDataStream &s, ContentItem &ci)
 {
     s >> ci.title;
@@ -397,6 +399,7 @@ bool DocuParser320::fatalError(const QXmlParseException& exception)
         .arg(exception.message())
         .arg(exception.lineNumber())
         .arg(exception.columnNumber());
-
     return QXmlDefaultHandler::fatalError(exception);
 }
+
+QT_END_NAMESPACE

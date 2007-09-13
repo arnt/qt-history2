@@ -18,6 +18,8 @@
 #include <QtGui/QIcon>
 #include <QtGui/QPixmap>
 
+QT_BEGIN_NAMESPACE
+
 class QComboBox;
 class QToolButton;
 class QHBoxLayout;
@@ -68,5 +70,7 @@ private:
     QHBoxLayout *m_layout;
 };
 }
+
+QT_END_NAMESPACE
 
 #endif

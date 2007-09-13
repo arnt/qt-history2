@@ -16,7 +16,7 @@
 
 #using <mscorlib.dll>
 
-class QString;
+QT_DECLARE_CLASS(QString)
 
 System::String *QStringToString(const QString &qstring);
 QString StringToQString(System::String *string);

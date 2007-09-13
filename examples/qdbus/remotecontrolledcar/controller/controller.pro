@@ -19,3 +19,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/qdbus/remotecontrolledcar/controller
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.pro *.xml
 sources.path = $$[QT_INSTALL_EXAMPLES]/qdbus/remotecontrolledcar/controller
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

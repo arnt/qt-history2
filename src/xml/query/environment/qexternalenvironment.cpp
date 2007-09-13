@@ -17,6 +17,8 @@
 
 #include "qexternalenvironment_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 /* The goal is to support serialization, backwards compatibility, import feature
@@ -65,3 +67,5 @@ QString ExternalEnvironment::retrieveProperty(const QName name)
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

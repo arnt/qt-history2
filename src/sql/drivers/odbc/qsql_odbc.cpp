@@ -29,6 +29,10 @@
 
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 // undefine this to prevent initial check of the ODBC driver
 #define ODBC_CHECK_DRIVER
 
@@ -2139,3 +2143,5 @@ QString QODBCDriver::escapeIdentifier(const QString &identifier, IdentifierType)
     res.replace(QLatin1Char('.'), QLatin1String("\".\""));
     return res;
 }
+
+QT_END_NAMESPACE

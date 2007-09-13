@@ -16,6 +16,8 @@
 
 #include "ui_tablewidgeteditor.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTableWidget;
 class QDesignerFormWindowInterface;
 
@@ -78,5 +80,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // TABLEWIDGETEDITOR_H

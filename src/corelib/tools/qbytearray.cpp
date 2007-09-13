@@ -30,6 +30,8 @@
 #include <limits.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 int qAllocMore(int alloc, int extra)
 {
     const int page = 1 << 12;
@@ -3951,3 +3953,5 @@ QByteArray QByteArray::toHex() const
     \typedef QByteArray::DataPtr
     \internal
 */
+
+QT_END_NAMESPACE

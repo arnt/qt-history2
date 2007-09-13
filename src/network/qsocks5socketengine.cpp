@@ -27,6 +27,8 @@
 #include "qcoreapplication.h"
 #include <qendian.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QSOCKS5SOCKETLAYER_DEBUG
 
 #define MAX_DATA_DUMP 256
@@ -1723,3 +1725,5 @@ QAbstractSocketEngine *QSocks5SocketEngineHandler::createSocketEngine(int socket
 }
 
 #endif // QT_NO_SOCKS5
+
+QT_END_NAMESPACE

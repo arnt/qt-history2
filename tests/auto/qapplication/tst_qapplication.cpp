@@ -178,6 +178,12 @@ public:
     }
 };
 
+#ifdef Q_WS_X11
+QT_BEGIN_NAMESPACE
+    extern void qt_x11_wait_for_window_manager( QWidget* w );
+QT_END_NAMESPACE
+#endif
+
 void tst_QApplication::alert()
 {
     int argc = 0;
@@ -190,7 +196,6 @@ void tst_QApplication::alert()
     widget.show();
     widget2.show();
 #ifdef Q_WS_X11
-    extern void qt_x11_wait_for_window_manager( QWidget* w );
     qt_x11_wait_for_window_manager(&widget);
     qt_x11_wait_for_window_manager(&widget2);
 #endif

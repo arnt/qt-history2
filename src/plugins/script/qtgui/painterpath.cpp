@@ -7,6 +7,8 @@ Q_DECLARE_METATYPE(QPainterPath*)
 Q_DECLARE_METATYPE(QPolygonF)
 Q_DECLARE_METATYPE(QList<QPolygonF>)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newPainterPath(QScriptEngine *eng, const QPainterPath &path)
 {
     return eng->newVariant(qVariantFromValue(path));
@@ -539,3 +541,5 @@ QScriptValue constructPainterPathClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

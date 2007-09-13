@@ -55,6 +55,8 @@
 #include <QUiLoader>
 #include <QTranslator>
 
+QT_BEGIN_NAMESPACE
+
 #define pagecurl_mask_width 53
 #define pagecurl_mask_height 51
 static const uchar pagecurl_mask_bits[] = {
@@ -2002,3 +2004,5 @@ void TrWindow::showTranslationSettings()
     m_translationSettingsDialog->setMessageModel(cmdl);
     m_translationSettingsDialog->exec();
 }
+
+QT_END_NAMESPACE

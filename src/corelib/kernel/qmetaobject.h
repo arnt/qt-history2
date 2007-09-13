@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 template <typename T> class QList;
@@ -125,6 +127,8 @@ private:
     friend struct QMetaObject;
 };
 Q_DECLARE_TYPEINFO(QMetaClassInfo, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

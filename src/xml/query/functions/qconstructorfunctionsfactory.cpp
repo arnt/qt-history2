@@ -24,6 +24,8 @@
 
 #include "qconstructorfunctionsfactory_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ConstructorFunctionsFactory::ConstructorFunctionsFactory(const NamePool::Ptr &np, const SchemaTypeFactory::Ptr &f) : m_typeFactory(f)
@@ -85,3 +87,5 @@ FunctionSignature::Ptr ConstructorFunctionsFactory::retrieveFunctionSignature(co
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

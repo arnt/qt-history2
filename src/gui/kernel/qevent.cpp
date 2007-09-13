@@ -22,6 +22,8 @@
 #include "qdnd_p.h"
 #include "qevent_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QInputEvent
     \ingroup events
@@ -3284,3 +3286,5 @@ QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
 */
 
 #endif
+
+QT_END_NAMESPACE

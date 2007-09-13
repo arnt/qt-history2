@@ -20,7 +20,7 @@
 Q_DECLARE_METATYPE(QSize)
 
 
-class QDialog;
+QT_DECLARE_CLASS(QDialog)
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/dialogs/qdialog.h gui/dialogs/qdialog.cpp

@@ -31,6 +31,8 @@
 
 #include "qscriptvalueimplfwd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 class Core: public QScriptFunction
@@ -71,5 +73,7 @@ private:
 } } // namespace QScript::Ecma
 
 #endif // QT_NO_SCRIPT
-#endif
 
+QT_END_NAMESPACE
+
+#endif

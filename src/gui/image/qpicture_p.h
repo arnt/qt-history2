@@ -35,6 +35,8 @@
 #include "QtCore/qrect.h"
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPaintEngine;
 
 extern const char  *qt_mfhdr_tag;
@@ -134,5 +136,7 @@ public:
 
     QPicture *q_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QPICTURE_P_H

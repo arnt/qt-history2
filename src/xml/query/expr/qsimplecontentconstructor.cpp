@@ -18,6 +18,8 @@
 
 #include "qsimplecontentconstructor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 SimpleContentConstructor::SimpleContentConstructor(const Expression::Ptr &operand) : SingleContainer(operand)
@@ -70,3 +72,5 @@ ExpressionVisitorResult::Ptr SimpleContentConstructor::accept(const ExpressionVi
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

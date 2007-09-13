@@ -15,6 +15,8 @@
 #include "qapplication.h"
 #include "qlist.h"
 
+QT_BEGIN_NAMESPACE
+
 struct QTextOptionPrivate
 {
     QList<qreal> tabStops;
@@ -260,3 +262,5 @@ QList<qreal> QTextOption::tabArray() const
 
   \sa tabStop(), setTabArray()
 */
+
+QT_END_NAMESPACE

@@ -15,6 +15,8 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAccessibleBridge
     \brief The QAccessibleBridge class is the base class for
@@ -122,5 +124,7 @@ QAccessibleBridgePlugin::~QAccessibleBridgePlugin()
 
     \sa keys()
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_ACCESSIBILITY

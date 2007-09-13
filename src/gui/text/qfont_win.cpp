@@ -32,9 +32,9 @@
 #include <private/qunicodetables_p.h>
 #include <qfontdatabase.h>
 
-
 extern HDC   shared_dc;                // common dc for all fonts
 
+QT_BEGIN_NAMESPACE
 
 // ### maybe move to qapplication_win
 QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
@@ -152,3 +152,5 @@ QString QFont::lastResortFont() const
 {
     return QString::fromLatin1("arial");
 }
+
+QT_END_NAMESPACE

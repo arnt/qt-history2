@@ -27,6 +27,8 @@
 
 #include <QtTest/qtest_global.h>
 
+QT_BEGIN_NAMESPACE
+
 class QTestData;
 class QTestTablePrivate;
 
@@ -57,5 +59,7 @@ private:
 
     QTestTablePrivate *d;
 };
+
+QT_END_NAMESPACE
 
 #endif

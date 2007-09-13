@@ -10,7 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "qpaintengine.h"
 #include "qpaintengine_p.h"
 #include "qpainter_p.h"
@@ -21,6 +20,10 @@
 #include <private/qtextengine_p.h>
 #include <private/qmath_p.h>
 #include <qvarlengtharray.h>
+#include <private/qfontengine_p.h>
+
+
+QT_BEGIN_NAMESPACE
 
 /*!
     \class QTextItem
@@ -63,8 +66,6 @@ QFont QTextItem::font() const
     return ti->f ? *ti->f : QApplication::font();
 }
 
-
-#include <private/qfontengine_p.h>
 
 /*!
   \class QPaintEngine
@@ -214,6 +215,7 @@ QFont QTextItem::font() const
     be used when drawing with native handles directly and immediate sync
     from QPainters state to the native state is required.
 */
+
 
 static QPaintEngine *qt_polygon_recursion = 0;
 struct QT_Point {
@@ -873,3 +875,5 @@ QRect QPaintEngine::systemRect() const
 {
     return d_func()->systemRect;
 }
+
+QT_END_NAMESPACE

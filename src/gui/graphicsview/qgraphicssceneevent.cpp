@@ -196,6 +196,8 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qstring.h>
 
+QT_BEGIN_NAMESPACE
+
 class QGraphicsSceneEventPrivate
 {
 public:
@@ -1459,5 +1461,7 @@ void QGraphicsSceneDragDropEvent::setMimeData(const QMimeData *data)
     Q_D(QGraphicsSceneDragDropEvent);
     d->mimeData = data;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_GRAPHICSVIEW

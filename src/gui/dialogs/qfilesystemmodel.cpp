@@ -19,6 +19,8 @@
 #include <qmessagebox.h>
 #include <qapplication.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_FILESYSTEMWATCHER
 
 /*!
@@ -1590,3 +1592,5 @@ bool QFileSystemModelPrivate::passNameFilters(const QFileSystemNode *node) const
 //#include "moc_qfilesystemmodel.cpp"
 
 #endif // QT_NO_FILESYSTEMWATCHER
+
+QT_END_NAMESPACE

@@ -20,9 +20,9 @@
 #include <QGLWidget>
 #endif
 
-class QPaintEvent;
-class QSvgRenderer;
-class QWheelEvent;
+QT_DECLARE_CLASS(QPaintEvent)
+QT_DECLARE_CLASS(QSvgRenderer)
+QT_DECLARE_CLASS(QWheelEvent)
 
 class SvgRasterView : public QWidget
 {

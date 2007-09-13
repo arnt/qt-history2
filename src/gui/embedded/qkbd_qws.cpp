@@ -20,6 +20,7 @@
 #include "qtimer.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
 
 class QWSKbPrivate : public QObject
 {
@@ -212,7 +213,8 @@ void QWSKeyboardHandler::endAutoRepeat()
     d->endAutoRepeat();
 }
 
+QT_END_NAMESPACE
+
 #include "qkbd_qws.moc"
 
 #endif // QT_NO_QWS_KEYBOARD
-

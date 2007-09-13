@@ -15,6 +15,8 @@
 
 #include "qgmonthday_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 GMonthDay::GMonthDay(const QDateTime &dateTime) : AbstractDateTime(dateTime)
@@ -65,3 +67,5 @@ ItemType::Ptr GMonthDay::type() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

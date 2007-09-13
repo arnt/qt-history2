@@ -24,6 +24,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QIODevice;
@@ -62,6 +64,8 @@ struct QWSProtocolItem
 // size = (int)type + (int)rawLenSize + simpleLen + rawLen
 #define QWS_PROTOCOL_ITEM_SIZE( item ) \
     sizeof(int) + sizeof(int) + (item).simpleLen + (item).rawLen
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

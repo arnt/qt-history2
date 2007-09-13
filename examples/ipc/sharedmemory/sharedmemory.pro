@@ -12,3 +12,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/ipc/sharedmemory
 sources.files = $$SOURCES $$HEADERS $$RESOURCES ipc.pro *.png
 sources.path = $$[QT_INSTALL_EXAMPLES]/ipc/sharedmemory
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

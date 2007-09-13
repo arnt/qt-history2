@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef QMap<QByteArray, MetaTranslatorMessage> TMM;
 typedef QList<MetaTranslatorMessage> TML;
 
@@ -227,3 +229,5 @@ int applyNumberHeuristic( MetaTranslator *tor )
     }
     return inserted;
 }
+
+QT_END_NAMESPACE

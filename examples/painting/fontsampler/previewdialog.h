@@ -21,7 +21,7 @@
 #include "ui_previewdialogbase.h"
 #include "previewlabel.h"
 
-class QTreeWidgetItem;
+QT_DECLARE_CLASS(QTreeWidgetItem)
 
 typedef QList<QTreeWidgetItem *> StyleItems;
 

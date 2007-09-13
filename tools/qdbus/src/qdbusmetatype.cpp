@@ -26,6 +26,8 @@
 #include "qdbusmetatype_p.h"
 #include "qdbusargument_p.h"
 
+QT_BEGIN_NAMESPACE
+
 Q_DECLARE_METATYPE(QList<bool>)
 Q_DECLARE_METATYPE(QList<short>)
 Q_DECLARE_METATYPE(QList<ushort>)
@@ -431,5 +433,7 @@ const char *QDBusMetaType::typeToSignature(int type)
         info->signature = signature;
     }
     return info->signature;
+
+QT_END_NAMESPACE
 }
 

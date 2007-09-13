@@ -24,6 +24,8 @@
 #include <qdebug.h>
 #include <private/qtextengine_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAbstractItemDelegate
 
@@ -328,4 +330,7 @@ bool QAbstractItemDelegate::helpEvent(QHelpEvent *event,
     }
     return false;
 }
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_ITEMVIEWS

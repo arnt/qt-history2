@@ -19,6 +19,8 @@
 #include <QtGui/QWidget>
 #include <QtGui/qevent.h>
 
+QT_BEGIN_NAMESPACE
+
 static const bool defaultSnap = true;
 static const bool defaultVisible = true;
 static const int DEFAULT_GRID = 10;
@@ -141,4 +143,7 @@ int Grid::widgetHandleAdjustY(int y) const
 {
     return m_snapY ? (y / m_deltaY) * m_deltaY + 1 : y;
 }
+
 }
+
+QT_END_NAMESPACE

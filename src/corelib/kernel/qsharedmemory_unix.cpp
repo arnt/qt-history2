@@ -27,6 +27,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+QT_BEGIN_NAMESPACE
+
 QSharedMemoryPrivate::QSharedMemoryPrivate() : QObjectPrivate(),
         memory(0), size(0), error(QSharedMemory::NoError),
         systemSemaphore(QString()), lockedByMe(false), unix_key(0)
@@ -245,3 +247,5 @@ bool QSharedMemoryPrivate::detach()
     return true;
 }
 
+
+QT_END_NAMESPACE

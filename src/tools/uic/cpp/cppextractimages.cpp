@@ -25,6 +25,8 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
+QT_BEGIN_NAMESPACE
+
 namespace CPP {
 
 ExtractImages::ExtractImages(const Option &opt)
@@ -110,3 +112,5 @@ void ExtractImages::acceptImage(DomImage *image)
 }
 
 } // namespace CPP
+
+QT_END_NAMESPACE

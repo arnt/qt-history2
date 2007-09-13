@@ -27,6 +27,8 @@
 
 #include <QtTest/qtest_global.h>
 
+QT_BEGIN_NAMESPACE
+
 class QTestLog
 {
 public:
@@ -66,5 +68,7 @@ private:
     QTestLog();
     ~QTestLog();
 };
+
+QT_END_NAMESPACE
 
 #endif

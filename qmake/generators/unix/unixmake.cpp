@@ -20,6 +20,8 @@
 #include <time.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 void
 UnixMakefileGenerator::init()
 {
@@ -815,3 +817,5 @@ UnixMakefileGenerator::escapeFilePath(const QString &path) const
     }
     return ret;
 }
+
+QT_END_NAMESPACE

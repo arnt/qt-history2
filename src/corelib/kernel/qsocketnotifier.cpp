@@ -21,6 +21,8 @@
 #include "qobject_p.h"
 #include <private/qthread_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QSocketNotifier
     \brief The QSocketNotifier class provides support for monitoring
@@ -296,3 +298,5 @@ bool QSocketNotifier::event(QEvent *e)
     }
     return false;
 }
+
+QT_END_NAMESPACE

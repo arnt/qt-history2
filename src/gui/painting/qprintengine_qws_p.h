@@ -33,6 +33,8 @@
 #include "QtCore/qbytearray.h"
 #include "private/qpaintengine_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QtopiaPrintEnginePrivate;
 class QRasterPaintEngine;
 class QPrinterPrivate;

@@ -20,6 +20,10 @@
 #include "qabstractfileengine.h"
 #include "qendian.h"
 
+extern HDC   shared_dc;                // common dc for all fonts
+
+QT_BEGIN_NAMESPACE
+
 #ifdef MAKE_TAG
 #undef MAKE_TAG
 #endif
@@ -31,7 +35,6 @@
     ((quint32)(ch1)) \
    )
 
-extern HDC   shared_dc;                // common dc for all fonts
 static HFONT stock_sysfont  = 0;
 
 static bool localizedName(const QString &name)
@@ -939,9 +942,9 @@ static QFontEngine *loadWin(const QFontPrivate *d, int script, const QFontDef &r
     QtFontDesc desc;
     for (int i = 0; i < family_list.size(); ++i) {
         QString family, foundry;
-        ::parseFontName(family_list.at(i), foundry, family);
+        parseFontName(family_list.at(i), foundry, family);
         FM_DEBUG("loadWin: >>>>>>>>>>>>>>trying to match '%s'", family.toLatin1().data());
-        ::match(script, req, family, foundry, -1, &desc);
+        QT_ADD_NAMESPACE(match)(script, req, family, foundry, -1, &desc);
         if (desc.family)
             break;
     }
@@ -1151,3 +1154,5 @@ bool QFontDatabase::removeAllApplicationFonts()
             return false;
     return true;
 }
+
+QT_END_NAMESPACE

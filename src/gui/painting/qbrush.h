@@ -25,6 +25,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 struct QBrushData;
@@ -277,6 +279,8 @@ public:
     qreal angle() const;
     void setAngle(qreal angle);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

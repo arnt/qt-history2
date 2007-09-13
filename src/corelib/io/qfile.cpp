@@ -26,6 +26,8 @@
 
 #include <errno.h>
 
+QT_BEGIN_NAMESPACE
+
 static const int QFILE_WRITEBUFFER_SIZE = 16384;
 
 static QByteArray locale_encode(const QString &f)
@@ -1500,3 +1502,5 @@ QFile::unsetError()
     Q_D(QFile);
     d->setError(QFile::NoError);
 }
+
+QT_END_NAMESPACE

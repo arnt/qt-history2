@@ -16,6 +16,8 @@
 
 #include "qtpropertybrowser.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDate;
 class QTime;
 class QDateTime;
@@ -657,5 +659,7 @@ private:
     Q_DECLARE_PRIVATE(QtCursorPropertyManager)
     Q_DISABLE_COPY(QtCursorPropertyManager)
 };
+
+QT_END_NAMESPACE
 
 #endif

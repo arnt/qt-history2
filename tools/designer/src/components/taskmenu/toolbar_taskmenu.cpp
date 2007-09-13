@@ -27,6 +27,8 @@ TRANSLATOR qdesigner_internal::ToolBarTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 ToolBarTaskMenu::ToolBarTaskMenu(QToolBar *toolbar, QObject *parent)
@@ -63,3 +65,5 @@ void ToolBarTaskMenu::editToolBar()
     }
     Q_ASSERT(0);
 }
+
+QT_END_NAMESPACE

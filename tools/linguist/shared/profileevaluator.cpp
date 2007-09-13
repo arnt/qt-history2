@@ -32,6 +32,8 @@
 #define QT_POPEN popen
 #endif
 
+QT_BEGIN_NAMESPACE
+
 QStringList ProFileEvaluator::qmake_feature_paths(/*QMakeProperty *prop=0*/)
 {
     QStringList concat;
@@ -1175,3 +1177,5 @@ void ProFileEvaluator::logMessage(MessageType mt, const char *msg, ...)
     buf[MAX_MESSAGE_LENGTH - 1] = '\0';
     logMessage(QString::fromAscii(buf), mt);
 }
+
+QT_END_NAMESPACE

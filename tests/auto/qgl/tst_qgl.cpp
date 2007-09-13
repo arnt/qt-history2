@@ -210,6 +210,10 @@ void tst_QGL::getSetCheck()
 #endif
 }
 
+QT_BEGIN_NAMESPACE
+extern QGLFormat::OpenGLVersionFlags qOpenGLVersionFlagsFromString(const QString &versionString);
+QT_END_NAMESPACE
+
 void tst_QGL::openGLVersionCheck()
 {
 #ifdef Q_WS_QWS
@@ -218,7 +222,6 @@ void tst_QGL::openGLVersionCheck()
     if (!QGLFormat::hasOpenGL())
         QSKIP("QGL not supported on this platform", SkipAll);
 
-    extern QGLFormat::OpenGLVersionFlags qOpenGLVersionFlagsFromString(const QString &versionString);
     QString versionString;
     QGLFormat::OpenGLVersionFlags expectedFlag;
     QGLFormat::OpenGLVersionFlags versionFlag;

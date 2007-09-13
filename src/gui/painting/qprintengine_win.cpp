@@ -28,6 +28,8 @@
 #include <qpicture.h>
 #include <private/qpicture_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // #define QT_DEBUG_DRAW
 
 static const struct {
@@ -2014,5 +2016,7 @@ void QWin32PrintEnginePrivate::readDevmode(HGLOBAL globalDevmode)
 
     initHDC();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER

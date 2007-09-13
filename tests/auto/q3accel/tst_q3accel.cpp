@@ -17,8 +17,8 @@
 #include <qstring.h>
 
 class AccelForm;
-class QTextEdit;
-class QMainWindow;
+QT_DECLARE_CLASS(QTextEdit)
+QT_DECLARE_CLASS(QMainWindow)
 
 //TESTED_CLASS=
 //TESTED_FILES=compat/other/q3accel.h compat/other/q3accel.cpp

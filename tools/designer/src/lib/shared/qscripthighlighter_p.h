@@ -27,6 +27,8 @@
 
 #include <QtGui/QSyntaxHighlighter>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QScriptHighlighter : public QSyntaxHighlighter
@@ -46,5 +48,9 @@ private:
     QTextCharFormat m_commentFormat;
     QTextCharFormat m_preProcessorFormat;
 };
-}
+
+} // namespace qdesigner_internal
+
+QT_END_NAMESPACE
+
 #endif

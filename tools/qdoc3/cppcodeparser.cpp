@@ -26,6 +26,8 @@
 #include "tokenizer.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 /* qmake ignore Q_OBJECT */
 
 #define COMMAND_CLASS                   Doc::alias("class")
@@ -1703,3 +1705,5 @@ void CppCodeParser::createExampleFileNodes(FakeNode *fake)
     foreach (QString exampleFile, exampleFiles)
         (void) new FakeNode(fake, exampleFile.mid(sizeOfBoringPartOfName), FakeNode::File);
 }
+
+QT_END_NAMESPACE

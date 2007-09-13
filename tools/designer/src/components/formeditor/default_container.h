@@ -24,6 +24,8 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QDockWidget>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 // ------------ QStackedWidgetContainer
@@ -176,5 +178,7 @@ typedef ExtensionFactory<QDesignerContainerExtension, QToolBox, QToolBoxContaine
 typedef ExtensionFactory<QDesignerContainerExtension, QScrollArea, QScrollAreaContainer> QScrollAreaContainerFactory;
 typedef ExtensionFactory<QDesignerContainerExtension,  QDockWidget, QDockWidgetContainer> QDockWidgetContainerFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // DEFAULT_CONTAINER_H

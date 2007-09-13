@@ -16,6 +16,8 @@
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 QSvgNode::QSvgNode(QSvgNode *parent)
     : m_parent(parent),
       m_visible(true),
@@ -292,3 +294,5 @@ qreal QSvgNode::strokeWidth() const
         return 0;
     return stroke->qpen().widthF();
 }
+
+QT_END_NAMESPACE

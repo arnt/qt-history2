@@ -60,6 +60,8 @@
 #include <qwizard.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
 extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 
@@ -246,7 +248,9 @@ public:
     QMacStyle *q;
 };
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qmacstyle_mac.moc"
+QT_END_INCLUDE_NAMESPACE
 
 /*****************************************************************************
   External functions
@@ -5629,3 +5633,5 @@ int QMacStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
     */
     return_SIZE(10, 8, 6);  // guess
 }
+
+QT_END_NAMESPACE

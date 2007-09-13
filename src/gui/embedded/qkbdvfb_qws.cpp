@@ -28,6 +28,8 @@
 #include <qsocketnotifier.h>
 #include <qapplication.h>
 
+QT_BEGIN_NAMESPACE
+
 QVFbKeyboardHandler::QVFbKeyboardHandler(const QString &device)
     : QObject()
 {
@@ -87,6 +89,7 @@ void QVFbKeyboardHandler::readKeyboardData()
     kbdIdx = surplus;
 }
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_QWS_KBD_QVFB
 #endif // QT_NO_QWS_KEYBOARD
-

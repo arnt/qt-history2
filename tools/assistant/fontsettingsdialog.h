@@ -17,6 +17,8 @@
 #include <QtCore/QObject>
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class FontPanel;
 struct FontSettings;
 class QDialogButtonBox;
@@ -43,3 +45,5 @@ private:
 
 #endif  // _FONT_SETTINGS_DIALOG_H_
 
+
+QT_END_NAMESPACE

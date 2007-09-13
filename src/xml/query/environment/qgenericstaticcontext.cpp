@@ -23,6 +23,8 @@
 
 #include "qgenericstaticcontext_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 GenericStaticContext::GenericStaticContext(const NamePool::Ptr &np,
@@ -281,3 +283,5 @@ QAbstractUriResolver::Ptr GenericStaticContext::uriResolver() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

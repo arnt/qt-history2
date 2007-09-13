@@ -31,9 +31,9 @@ public:
 };
 #endif
 
-class QTextDocument;
-class QTextEdit;
-class QVBoxLayout;
+QT_DECLARE_CLASS(QTextDocument)
+QT_DECLARE_CLASS(QTextEdit)
+QT_DECLARE_CLASS(QVBoxLayout)
 
 class ArthurFrame : public QWidget
 {

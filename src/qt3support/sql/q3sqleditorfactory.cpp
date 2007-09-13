@@ -23,6 +23,8 @@
 #include "qcombobox.h"
 #include "qdatetimeedit.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3SqlEditorFactory qsqleditorfactory.h
     \brief The Q3SqlEditorFactory class is used to create the editors
@@ -193,5 +195,7 @@ QWidget * Q3SqlEditorFactory::createEditor(QWidget * parent,
     }
     return w;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SQL

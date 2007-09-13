@@ -22,6 +22,8 @@
 #include <QSet>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
+
 class RuleDescription
 {
 public:
@@ -78,5 +80,7 @@ private:
     void addLogWarning(const QString text) const;
     void addLogError(const QString text) const;
 };
+
+QT_END_NAMESPACE
 
 #endif // PORTINGRULES_H

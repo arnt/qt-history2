@@ -17,6 +17,8 @@
 
 #include "qfirstitempredicate_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 FirstItemPredicate::FirstItemPredicate(const Expression::Ptr &source) : SingleContainer(source)
@@ -66,3 +68,5 @@ Expression::ID FirstItemPredicate::id() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

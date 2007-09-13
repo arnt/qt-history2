@@ -31,6 +31,8 @@
 #include "private/qlabel_p.h"
 #include "qapplication.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QSystemTrayIcon
     \brief The QSystemTrayIcon class provides an icon for an application in the system tray.
@@ -584,5 +586,7 @@ void qtsystray_sendActivated(QSystemTrayIcon *i, int r)
 {
     emit i->activated((QSystemTrayIcon::ActivationReason)r);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SYSTEMTRAYICON

@@ -34,6 +34,8 @@
 #include "qsvgstyle_p.h"
 #include "qsvgfont_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPainter;
 class QByteArray;
 class QSvgFont;
@@ -155,5 +157,7 @@ inline int QSvgTinyDocument::animationDuration() const
 {
     return m_animationDuration;
 }
+
+QT_END_NAMESPACE
 
 #endif // QSVGTINYDOCUMENT_P_H

@@ -23,6 +23,7 @@
 #include "private/qwidget_p.h"
 #include "qwsmanager_qws.h"
 
+QT_BEGIN_NAMESPACE
 
 /*!
     \class QDecoration
@@ -369,3 +370,5 @@ void QDecoration::startResize(QWidget *widget)
 #endif
 }
 
+
+QT_END_NAMESPACE

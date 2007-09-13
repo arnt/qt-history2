@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 // on embedded, we do not compress image data. Rationale: by mapping
 // the ready-only data directly into memory we are both faster and
 // more memory efficient
@@ -302,3 +304,5 @@ void Ui3Reader::embed(const char *project, const QStringList &images)
         out << "static StaticInitImages_" << cProject << " staticImages;\n";
     }
 }
+
+QT_END_NAMESPACE

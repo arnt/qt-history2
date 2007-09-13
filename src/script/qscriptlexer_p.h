@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 class QScriptEngine;
 class QScriptEnginePrivate;
 class QScriptNameIdImpl;
@@ -176,7 +178,8 @@ private:
 
 } // namespace QScript
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif
-
-

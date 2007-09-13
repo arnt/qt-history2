@@ -15,7 +15,7 @@
 #include <QtTest/QtTest>
 
 #ifdef Q_OS_MAC
-    #include <private/qt_mac_p.h>
+#   include <private/qt_mac_p.h>
 #endif
 
 

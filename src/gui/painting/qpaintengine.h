@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QFontEngine;
@@ -309,6 +311,8 @@ inline void QPaintEngine::clearDirty(DirtyFlags df)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextItem::RenderFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::DirtyFlags)
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

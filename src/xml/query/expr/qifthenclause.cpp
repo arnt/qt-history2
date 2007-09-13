@@ -18,6 +18,8 @@
 
 #include "qifthenclause_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 IfThenClause::IfThenClause(const Expression::Ptr &test,
@@ -110,3 +112,5 @@ Expression::ID IfThenClause::id() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

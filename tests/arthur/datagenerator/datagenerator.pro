@@ -15,3 +15,6 @@ HEADERS += datagenerator.h \
 	xmlgenerator.h
 SOURCES += main.cpp datagenerator.cpp \
 	xmlgenerator.cpp 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

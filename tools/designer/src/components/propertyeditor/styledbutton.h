@@ -16,6 +16,8 @@
 
 #include <QtGui/QPushButton>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class StyledButton : public QPushButton
@@ -55,5 +57,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // STYLEDBUTTON_H

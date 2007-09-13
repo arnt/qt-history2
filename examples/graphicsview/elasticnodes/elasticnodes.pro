@@ -14,3 +14,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/graphicsview/elasticnodes
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS elasticnodes.pro 
 sources.path = $$[QT_INSTALL_EXAMPLES]/graphicsview/elasticnodes
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -21,6 +21,8 @@
 
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QTextEdit;
 class QStackedWidget;
 class QToolBox;
@@ -282,5 +284,7 @@ public:
 #endif //QT_NO_MAINWINDOW
 
 #endif // QT_NO_ACCESSIBILITY
+
+QT_END_NAMESPACE
 
 #endif // QACESSIBLEWIDGETS_H

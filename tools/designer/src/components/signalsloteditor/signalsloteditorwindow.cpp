@@ -45,6 +45,8 @@ TRANSLATOR qdesigner_internal::ConnectionModel
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 
+QT_BEGIN_NAMESPACE
+
 template <typename T>
 static void merge(QDesignerFormWindowInterface *form, QStringList *lst, const QList<T> &elts)
 {
@@ -758,5 +760,7 @@ void SignalSlotEditorWindow::updateUi()
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #include "signalsloteditorwindow.moc"

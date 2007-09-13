@@ -48,6 +48,8 @@
 
 #include <openssl/x509.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSslCertificatePrivate
 {
 public:
@@ -86,5 +88,7 @@ public:
 
     QAtomicInt ref;
 };
+
+QT_END_NAMESPACE
 
 #endif

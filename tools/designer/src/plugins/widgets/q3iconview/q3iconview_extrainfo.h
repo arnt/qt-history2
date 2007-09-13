@@ -20,6 +20,8 @@
 
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class Q3IconView;
 class Q3IconViewItem;
 class DomItem;
@@ -59,5 +61,7 @@ protected:
 private:
     QDesignerFormEditorInterface *m_core;
 };
+
+QT_END_NAMESPACE
 
 #endif // Q3ICONVIEW_EXTRAINFO_H

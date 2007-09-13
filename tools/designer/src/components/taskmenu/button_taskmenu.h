@@ -20,6 +20,8 @@
 #include <qdesigner_taskmenu_p.h>
 #include <extensionfactory_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -51,5 +53,7 @@ private:
 
 typedef ExtensionFactory<QDesignerTaskMenuExtension, QAbstractButton, ButtonTaskMenu>  ButtonTaskMenuFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // BUTTON_TASKMENU_H

@@ -16,6 +16,8 @@
 #include "qglobal.h"
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3RangeControl qrangecontrol.h
     \brief The Q3RangeControl class provides an integer value within a range.
@@ -514,4 +516,7 @@ int Q3RangeControl::valueFromPosition(int pos, int span) const
     // no overflow because of this implicit assumption:
     // pos <= span < sqrt(INT_MAX+0.0625)+0.25 ~ sqrt(INT_MAX)
 }
-#endif
+
+QT_END_NAMESPACE
+
+#endif // QT_NO_RANGECONTROL

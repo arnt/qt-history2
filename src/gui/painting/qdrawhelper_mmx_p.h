@@ -42,6 +42,8 @@
 
 typedef __m64 m64;
 
+QT_BEGIN_NAMESPACE
+
 struct QMMXCommonIntrinsics
 {
     static inline m64 alpha(m64 x) {
@@ -650,5 +652,7 @@ struct QMMXIntrinsics : public QMMXCommonIntrinsics
     }
 };
 #endif // QT_HAVE_MMX
+
+QT_END_NAMESPACE
 
 #endif // QDRAWHELPER_MMX_P_H

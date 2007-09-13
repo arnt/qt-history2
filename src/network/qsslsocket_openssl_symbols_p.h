@@ -42,6 +42,8 @@
 
 #include "qsslsocket_openssl_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #define DUMMYARG
 
 #ifdef QT_SHARED
@@ -360,5 +362,7 @@ DSA *q_d2i_DSAPrivateKey(DSA **a, unsigned char **pp, long length);
 					(char *)(rsa))
 #define q_EVP_PKEY_assign_DSA(pkey,dsa) q_EVP_PKEY_assign((pkey),EVP_PKEY_DSA,\
 					(char *)(dsa))
+
+QT_END_NAMESPACE
 
 #endif

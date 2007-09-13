@@ -37,6 +37,8 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -111,5 +113,7 @@ inline int indexOfWidget(QLayout *layout, QWidget *widget)
 } // namespace Utils
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // LAYOUT_H

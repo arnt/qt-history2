@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QTEST_EMBED
 # define Q_TESTLIB_EXPORT
 #elif !defined(QT_SHARED)
@@ -51,6 +53,8 @@ namespace QTest
 
     int Q_TESTLIB_EXPORT qt_snprintf(char *str, int size, const char *format, ...);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

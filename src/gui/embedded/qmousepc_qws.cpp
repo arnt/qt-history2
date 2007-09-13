@@ -38,6 +38,8 @@
 
 #include <qscreen_qws.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QWS_MOUSE_DEBUG
 
 /*
@@ -718,5 +720,6 @@ void QWSPcMouseHandlerPrivate::readMouseData(int fd)
     }
 }
 
-#include "qmousepc_qws.moc"
+QT_END_NAMESPACE
 
+#include "qmousepc_qws.moc"

@@ -40,6 +40,8 @@
 #define QT_POPEN popen
 #endif
 
+QT_BEGIN_NAMESPACE
+
 //expand fucntions
 enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                   E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
@@ -121,10 +123,14 @@ QMap<QString, TestFunc> qmake_testFunctions()
     return *qmake_test_functions;
 }
 
+QT_END_NAMESPACE
+
 #ifdef QTSCRIPT_SUPPORT
 #include "qscriptvalue.h"
 #include "qscriptengine.h"
 #include "qscriptvalueiterator.h"
+
+QT_BEGIN_NAMESPACE
 
 static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *project,
                                     const QMap<QString, QStringList> &place);
@@ -203,7 +209,12 @@ static QScriptValue qscript_toArray(QScriptEngine *eng, const QStringList &elts)
         a.setProperty(i, QScriptValue(eng, elts.at(i)));
     return a;
 }
+
+QT_END_NAMESPACE
+
 #endif
+
+QT_BEGIN_NAMESPACE
 
 struct parser_info {
     QString file;
@@ -377,9 +388,9 @@ struct ParsableBlock
     struct Parse {
         QString text;
         parser_info pi;
-        Parse(const QString &t) : text(t){ pi = ::parser; }
+        Parse(const QString &t) : text(t){ pi = parser; }
     };
-    QList<Parse> parser;
+    QList<Parse> parselist;
 
     inline int ref() { return ++ref_cnt; }
     inline int deref() { return --ref_cnt; }
@@ -393,19 +404,19 @@ protected:
 bool ParsableBlock::eval(QMakeProject *p, QMap<QString, QStringList> &place)
 {
     //save state
-    parser_info pi = ::parser;
+    parser_info pi = parser;
     const int block_count = p->scope_blocks.count();
 
     //execute
     bool ret = true;
-    for(int i = 0; i < parser.count(); i++) {
-        ::parser = parser.at(i).pi;
-        if(!(ret = p->parse(parser.at(i).text, place)) || !continueBlock())
+    for(int i = 0; i < parselist.count(); i++) {
+        parser = parselist.at(i).pi;
+        if(!(ret = p->parse(parselist.at(i).text, place)) || !continueBlock())
             break;
     }
 
     //restore state
-    ::parser = pi;
+    parser = pi;
     while(p->scope_blocks.count() > block_count)
         p->scope_blocks.pop();
     return ret;
@@ -473,7 +484,7 @@ struct IteratorBlock : public ParsableBlock
         QStringList args;
         bool invert;
         parser_info pi;
-        Test(const QString &f, QStringList &a, bool i) : func(f), args(a), invert(i) { pi = ::parser; }
+        Test(const QString &f, QStringList &a, bool i) : func(f), args(a), invert(i) { pi = parser; }
     };
     QList<Test> test;
 
@@ -516,7 +527,7 @@ bool IteratorBlock::exec(QMakeProject *p, QMap<QString, QStringList> &place)
         //do the iterations
         bool succeed = true;
         for(QList<Test>::Iterator test_it = test.begin(); test_it != test.end(); ++test_it) {
-            ::parser = (*test_it).pi;
+            parser = (*test_it).pi;
             succeed = p->doProjectTest((*test_it).func, (*test_it).args, place);
             if((*test_it).invert)
                 succeed = !succeed;
@@ -813,7 +824,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place, int num
             ++d_off;
         }
         if(!append.isEmpty())
-            function->parser.append(IteratorBlock::Parse(append));
+            function->parselist.append(IteratorBlock::Parse(append));
         if(function_finished) {
             function = 0;
             s = QString(d+d_off, s.length()-d_off);
@@ -839,7 +850,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place, int num
             ++d_off;
         }
         if(!append.isEmpty())
-            scope_blocks.top().iterate->parser.append(IteratorBlock::Parse(append));
+            scope_blocks.top().iterate->parselist.append(IteratorBlock::Parse(append));
         if(iterate_finished) {
             scope_blocks.top().iterate = 0;
             bool ret = it->exec(this, place);
@@ -1055,7 +1066,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place, int num
                         else if(*(d+d_off+off) == QLatin1Char('}') && braces)
                             --braces;
                         if(!braces || d_off+off == s.length()) {
-                            iterator->parser.append(s.mid(d_off, off-1));
+                            iterator->parselist.append(s.mid(d_off, off-1));
                             if(braces > 1)
                                 iterator->scope_level += braces-1;
                             d_off += off-1;
@@ -1102,7 +1113,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place, int num
         debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d). [%s]", parser.file.toLatin1().constData(),
                   parser.line_no, scope_blocks.count(), scope_failed, s.toLatin1().constData());
     } else if(iterator) {
-        iterator->parser.append(var+s.mid(d_off));
+        iterator->parselist.append(var+s.mid(d_off));
         bool ret = iterator->exec(this, place);
         delete iterator;
         return ret;
@@ -3155,3 +3166,4 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
     return place[var];
 }
 
+QT_END_NAMESPACE

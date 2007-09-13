@@ -1,3 +1,6 @@
 SOURCES += main.cpp
 CONFIG += console
 DESTDIR = ./
+
+DEFINES += QT_USE_USING_NAMESPACE
+

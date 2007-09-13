@@ -44,6 +44,8 @@
 #define PM_DISPLAY
 #endif
 
+QT_BEGIN_NAMESPACE
+
 // This value is used to determine the length of control point vectors
 // when approximating arc segments as curves. The factor is multiplied
 // with the radius of the circle.
@@ -3120,3 +3122,5 @@ QDebug operator<<(QDebug s, const QPainterPath &p)
     return s;
 }
 #endif
+
+QT_END_NAMESPACE

@@ -17,6 +17,8 @@
 #include <QtCore/qtextcodec.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_NAMESPACE
+
 class QJpUnicodeConv;
 
 #ifdef Q_WS_X11
@@ -57,5 +59,7 @@ private:
     QJpUnicodeConv *convJP;
 };
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QFONTJPCODEC_H

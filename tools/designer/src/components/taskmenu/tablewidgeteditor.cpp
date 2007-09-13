@@ -27,6 +27,8 @@ TRANSLATOR qdesigner_internal::TableWidgetEditor
 #include <QtCore/QQueue>
 #include <QtCore/QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 TableWidgetEditor::TableWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent)
@@ -871,5 +873,4 @@ void TableWidgetEditor::on_deletePixmapRowButton_clicked()
     ui.deletePixmapRowButton->setEnabled(false);
 }
 
-
-
+QT_END_NAMESPACE

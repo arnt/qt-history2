@@ -20,6 +20,8 @@
 
 #include "qstaticfocuscontext_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 StaticFocusContext::StaticFocusContext(const ItemType::Ptr &t,
@@ -214,3 +216,5 @@ QAbstractUriResolver::Ptr StaticFocusContext::uriResolver() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

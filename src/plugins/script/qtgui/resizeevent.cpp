@@ -8,6 +8,8 @@
 Q_DECLARE_METATYPE(QEvent*)
 DECLARE_POINTER_METATYPE(QResizeEvent)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newResizeEvent(QScriptEngine *eng, QResizeEvent *re)
 {
     return QScript::wrapPointer(eng, re);
@@ -52,3 +54,5 @@ QScriptValue constructResizeEventClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

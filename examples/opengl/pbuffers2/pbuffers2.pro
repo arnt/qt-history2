@@ -19,3 +19,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/opengl/pbuffers2
 sources.files = $$SOURCES $$HEADERS $$RESOURCES pbuffers2.pro *.png *.svg
 sources.path = $$[QT_INSTALL_EXAMPLES]/opengl/pbuffers2
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

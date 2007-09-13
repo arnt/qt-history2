@@ -13,6 +13,8 @@
 
 #include "qlinkedlist.h"
 
+QT_BEGIN_NAMESPACE
+
 QLinkedListData QLinkedListData::shared_null = {
     &QLinkedListData::shared_null, &QLinkedListData::shared_null,
     Q_BASIC_ATOMIC_INITIALIZER(1), 0, true
@@ -1214,3 +1216,5 @@ QLinkedListData QLinkedListData::shared_null = {
 
     \sa fromStdList()
 */
+
+QT_END_NAMESPACE

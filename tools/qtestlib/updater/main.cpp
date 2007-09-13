@@ -15,7 +15,9 @@
 
 #include <stdio.h>
 
-void printHelp(char *argv[])
+QT_USE_NAMESPACE
+
+static void printHelp(char *argv[])
 {
     qDebug("Usage: %s [-diff] FILES", argv[0] ? argv[0] : "qtest2to4");
     qDebug("updates files from QtTestLib 2.x to QTestLib 4.1");

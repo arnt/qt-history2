@@ -10,3 +10,6 @@ target.path = $$[QT_INSTALL_EXAMPLES]/network/fortuneserver
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS fortuneserver.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/network/fortuneserver
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE
+

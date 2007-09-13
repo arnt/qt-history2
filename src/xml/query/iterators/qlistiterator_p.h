@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -171,6 +173,8 @@ namespace Patternist
         return typename ListIterator<T>::Ptr(new ListIterator<T>(qList));
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

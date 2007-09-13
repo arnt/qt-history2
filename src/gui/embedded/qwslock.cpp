@@ -32,6 +32,8 @@
 #endif
 #include <unistd.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QT_NO_SEMAPHORE
 #error QWSLock currently requires semaphores
 #endif
@@ -207,5 +209,7 @@ bool QWSLock::wait(LockType type, int timeout)
         unlock(type);
     return ok;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_MULTIPROCESS

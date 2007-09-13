@@ -126,6 +126,10 @@ int qt_servershmid = -1;
 bool qws_overrideCursor = false;
 #ifndef QT_NO_QWS_MANAGER
 #include "qdecorationfactory_qws.h"
+
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
 static QDecoration *qws_decoration = 0;
 #endif
 
@@ -3607,3 +3611,5 @@ void QApplication::setArgs(int c, char **v)
     d->argc = c;
     d->argv = v;
 }
+
+QT_END_NAMESPACE

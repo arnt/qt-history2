@@ -17,6 +17,8 @@
 
 #include "node.h"
 
+QT_BEGIN_NAMESPACE
+
 Node::~Node()
 {
     if (par)
@@ -752,3 +754,5 @@ bool TargetNode::isInnerNode() const
 {
     return false;
 }
+
+QT_END_NAMESPACE

@@ -15,6 +15,8 @@
 
 #include <QtGui>
 
+QT_BEGIN_NAMESPACE
+
 AmbientProperties::AmbientProperties(QWidget *parent)
 : QDialog(parent), container(0)
 {
@@ -91,3 +93,5 @@ void AmbientProperties::on_buttonEnabled_toggled(bool on)
     enabledSample->setEnabled( on );
     container->setEnabled( on );
 }
+
+QT_END_NAMESPACE

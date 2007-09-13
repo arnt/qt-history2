@@ -15,6 +15,8 @@
 #include <new>
 #include "qvarlengtharray.h"
 
+QT_BEGIN_NAMESPACE
+
 QString QCFString::toQString(CFStringRef str)
 {
     if(!str)
@@ -48,3 +50,5 @@ QCFString::operator CFStringRef() const
         const_cast<QCFString*>(this)->type = toCFStringRef(string);
     return type;
 }
+
+QT_END_NAMESPACE

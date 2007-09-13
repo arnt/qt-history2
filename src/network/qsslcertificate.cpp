@@ -108,6 +108,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     Constructs a QSslCertificate by reading \a format encoded data
     from \a device and using the first certificate found. You can
@@ -712,3 +714,5 @@ QDebug operator<<(QDebug debug, QSslCertificate::SubjectInfo info)
     return debug;
 }
 #endif
+
+QT_END_NAMESPACE

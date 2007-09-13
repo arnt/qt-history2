@@ -18,8 +18,9 @@ Q_DECLARE_METATYPE(QPicture)
 Q_DECLARE_METATYPE(QVector<QRectF>)
 Q_DECLARE_METATYPE(QPaintDevice*)
 Q_DECLARE_METATYPE(QPaintEngine*)
-
 DECLARE_POINTER_METATYPE(QPainter)
+
+QT_BEGIN_NAMESPACE
 
 static QScriptValue newPainter(QScriptEngine *eng, QPainter *p)
 {
@@ -1173,3 +1174,5 @@ QScriptValue constructPainterClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

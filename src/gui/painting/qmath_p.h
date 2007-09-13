@@ -27,6 +27,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 static const double Q_PI   = 3.14159265358979323846;   // pi
 static const double Q_2PI  = 6.28318530717958647693;   // 2*pi
 static const double Q_PI2  = 1.57079632679489661923;   // pi/2
@@ -90,5 +92,7 @@ inline qreal qLog(qreal v)
 #endif
         return log(v);
 }
+
+QT_END_NAMESPACE
 
 #endif // QMATH_P_H

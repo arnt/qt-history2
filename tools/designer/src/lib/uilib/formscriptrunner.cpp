@@ -21,6 +21,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { debugFormScriptRunner = 0 };
 }
@@ -175,3 +177,5 @@ void QFormScriptRunner::clearErrors()
 #ifdef QFORMINTERNAL_NAMESPACE
 } // namespace QFormInternal
 #endif
+
+QT_END_NAMESPACE

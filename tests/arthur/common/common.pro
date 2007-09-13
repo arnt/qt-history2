@@ -16,3 +16,6 @@
 #TARGET = testcommon
 
 #include(common.pri)
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -16,6 +16,8 @@
 
 #include "qanyuri_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 AnyURI::AnyURI(const QString &s) : AtomicString(s)
@@ -55,3 +57,5 @@ Item AnyURI::fromLexical(const QString &value)
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

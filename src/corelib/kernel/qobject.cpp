@@ -34,6 +34,8 @@
 #include <ctype.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 static int DIRECT_CONNECTION_ONLY = 0;
 
 Q_GLOBAL_STATIC(QReadWriteLock, qt_object_read_write_lock)
@@ -421,7 +423,7 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
  */
 void QObjectPrivate::clearGuards(QObject *object)
 {
-    GuardHash *hash = ::guardHash();
+    GuardHash *hash = guardHash();
     if (hash) {
         QWriteLocker locker(guardHashLock());
         GuardHash::iterator it = hash->find(object);
@@ -633,7 +635,7 @@ QObject::QObject(QObject *parent)
     : d_ptr(new QObjectPrivate)
 {
     Q_D(QObject);
-    ::qt_addObject(d_ptr->q_ptr = this);
+    qt_addObject(d_ptr->q_ptr = this);
     d->threadData = (parent && !parent->thread()) ? parent->d_func()->threadData : QThreadData::current();
     d->threadData->ref();
     if (!check_parent_thread(parent, parent ? parent->d_func()->threadData : 0, d->threadData))
@@ -652,7 +654,7 @@ QObject::QObject(QObject *parent, const char *name)
     : d_ptr(new QObjectPrivate)
 {
     Q_D(QObject);
-    ::qt_addObject(d_ptr->q_ptr = this);
+    qt_addObject(d_ptr->q_ptr = this);
     d->threadData = (parent && !parent->thread()) ? parent->d_func()->threadData : QThreadData::current();
     d->threadData->ref();
     if (!check_parent_thread(parent, parent ? parent->d_func()->threadData : 0, d->threadData))
@@ -668,7 +670,7 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
     : d_ptr(&dd)
 {
     Q_D(QObject);
-    ::qt_addObject(d_ptr->q_ptr = this);
+    qt_addObject(d_ptr->q_ptr = this);
     d->threadData = (parent && !parent->thread()) ? parent->d_func()->threadData : QThreadData::current();
     d->threadData->ref();
     if (!check_parent_thread(parent, parent ? parent->d_func()->threadData : 0, d->threadData))
@@ -781,7 +783,7 @@ QObject::~QObject()
 
     {
         QWriteLocker locker(QObjectPrivate::readWriteLock());
-        ::qt_removeObject(this);
+        qt_removeObject(this);
 
         /*
           theoretically, we cannot check d->postedEvents without
@@ -2508,7 +2510,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
 
     int *types = 0;
     if ((type == Qt::QueuedConnection || type == Qt::BlockingQueuedConnection)
-            && !(types = ::queuedConnectionTypes(smeta->method(signal_index).parameterTypes())))
+            && !(types = queuedConnectionTypes(smeta->method(signal_index).parameterTypes())))
         return false;
 
 #ifndef QT_NO_DEBUG
@@ -2950,7 +2952,7 @@ static void queued_activate(QObject *sender, int signal, const QObjectPrivate::C
     if (!c.argumentTypes || c.argumentTypes != &DIRECT_CONNECTION_ONLY) {
         QMetaMethod m = sender->metaObject()->method(signal);
         QObjectPrivate::Connection &x = const_cast<QObjectPrivate::Connection &>(c);
-        int *tmp = ::queuedConnectionTypes(m.parameterTypes());
+        int *tmp = queuedConnectionTypes(m.parameterTypes());
         if (!tmp) // cannot queue arguments
             tmp = &DIRECT_CONNECTION_ONLY;
         if (!x.argumentTypes.testAndSetOrdered(0, tmp)) {
@@ -2988,10 +2990,10 @@ static void blocking_activate(QObject *sender, int signal, const QObjectPrivate:
     }
 
 #ifdef QT_NO_THREAD
-    ::queued_activate(sender, signal, c, argv);
+    queued_activate(sender, signal, c, argv);
 #else
     QSemaphore semaphore;
-    ::queued_activate(sender, signal, c, argv, &semaphore);
+    queued_activate(sender, signal, c, argv, &semaphore);
     QObjectPrivate::signalSlotLock()->unlock();
     semaphore.acquire();
     QObjectPrivate::signalSlotLock()->lockForRead();
@@ -3042,10 +3044,10 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
                  && (currentThreadData != sender->d_func()->threadData
                      || c->receiver->d_func()->threadData != sender->d_func()->threadData))
                 || (c->connectionType == Qt::QueuedConnection)) {
-                ::queued_activate(sender, signal, *c, argv);
+                queued_activate(sender, signal, *c, argv);
                 continue;
             } else if (c->connectionType == Qt::BlockingQueuedConnection) {
-                ::blocking_activate(sender, signal, *c, argv);
+                blocking_activate(sender, signal, *c, argv);
                 continue;
             }
 
@@ -3689,5 +3691,7 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
 
     Synonym for QList<QObject *>.
 */
+
+QT_END_NAMESPACE
 
 #include "moc_qobject.cpp"

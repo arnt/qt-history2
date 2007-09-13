@@ -40,6 +40,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 QWidget *QWSManagerPrivate::active = 0;
 QPoint QWSManagerPrivate::mousePos;
 
@@ -540,5 +542,7 @@ bool QWSManagerPrivate::newCachedRegion(const QPoint &pos)
 //           reg, pos.x(), pos.y(), rec.x(), rec.y(), rec.right(), rec.bottom());
     return true;
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_QWS_MANAGER

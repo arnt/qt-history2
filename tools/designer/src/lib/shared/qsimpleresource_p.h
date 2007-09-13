@@ -28,6 +28,8 @@
 #include "shared_global_p.h"
 #include "abstractformbuilder.h"
 
+QT_BEGIN_NAMESPACE
+
 class DomScript;
 
 class QDesignerFormEditorInterface;
@@ -111,5 +113,7 @@ public:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif

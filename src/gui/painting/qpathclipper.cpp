@@ -41,6 +41,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define QDEBUG_CLIPPER
 #ifdef QDEBUG_CLIPPER
 static QDebug operator<<(QDebug str, const QBezier &b)
@@ -1884,3 +1886,4 @@ bool QPathClipper::contains()
     return d->subjectPath.contains(d->clipPath.elementAt(0));
 }
 
+QT_END_NAMESPACE

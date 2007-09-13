@@ -23,6 +23,8 @@ TRANSLATOR qdesigner_internal::TabOrderEditorTool
 #include <QtCore/QEvent>
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 TabOrderEditorTool::TabOrderEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
@@ -85,3 +87,4 @@ QAction *TabOrderEditorTool::action() const
     return m_action;
 }
 
+QT_END_NAMESPACE

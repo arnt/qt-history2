@@ -25,7 +25,9 @@
 
 #include "qexpressionfactory_p.h"
 
-using namespace Patternist;
+QT_BEGIN_NAMESPACE
+
+namespace Patternist {
 
 /**
  * @short The entry point to the parser.
@@ -134,5 +136,9 @@ Expression::Ptr ExpressionFactory::createExpression(QIODevice *const device,
 void ExpressionFactory::processTreePass(const Expression::Ptr &, const CompilationStage)
 {
 }
+
+} // namespace Patternist
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

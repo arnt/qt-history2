@@ -49,6 +49,8 @@
 
 #include <private/qringbuffer_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSslSocketPrivate : public QTcpSocketPrivate
 {
     Q_DECLARE_PUBLIC(QSslSocket)
@@ -112,5 +114,7 @@ public:
     virtual void disconnected() = 0;
     virtual QSslCipher sessionCipher() const = 0;
 };
+
+QT_END_NAMESPACE
 
 #endif

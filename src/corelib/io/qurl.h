@@ -14,15 +14,17 @@
 #ifndef QURL_H
 #define QURL_H
 
+#include <QtCore/qbytearray.h>
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qpair.h>
 #include <QtCore/qstring.h>
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
-class QByteArray;
 class QUrlPrivate;
 class QDataStream;
 
@@ -224,6 +226,8 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QUrl &);
 #ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QUrl &);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

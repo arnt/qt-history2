@@ -17,6 +17,8 @@
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerFormEditorInterface;
 class QModelIndex;
@@ -59,5 +61,6 @@ private:
 
 } // namespace qdesigner_internal
 
-#endif // SIGNALSLOTEDITORWINDOW_H
+QT_END_NAMESPACE
 
+#endif // SIGNALSLOTEDITORWINDOW_H

@@ -22,6 +22,7 @@
 #include "qfileinfo.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
 
 struct QSvgCacheEntry
 {
@@ -199,3 +200,5 @@ bool QSvgIconEngine::write(QDataStream &out) const
     }
     return true;
 }
+
+QT_END_NAMESPACE

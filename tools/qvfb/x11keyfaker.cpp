@@ -24,6 +24,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+QT_BEGIN_NAMESPACE
+
 X11KeyFaker::X11KeyFaker(const QString& displayName, QObject *parent)
     : QObject(parent)
 {
@@ -593,3 +595,5 @@ void X11KeyFaker::readyRead()
 	}
     }
 }
+
+QT_END_NAMESPACE

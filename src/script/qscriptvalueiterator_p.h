@@ -27,6 +27,8 @@
 
 #include "qscriptvalue.h"
 
+QT_BEGIN_NAMESPACE
+
 class QScriptValueIteratorPrivate
 {
     Q_DECLARE_PUBLIC(QScriptValueIterator)
@@ -45,5 +47,7 @@ public:
     bool forward;
     int nextIndex;
 };
+
+QT_END_NAMESPACE
 
 #endif // QSCRIPTVALUEITERATOR_P_H

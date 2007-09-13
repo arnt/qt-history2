@@ -14,6 +14,8 @@
 #include "qdecorationplugin_qws.h"
 #include "qdecoration_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDecorationPlugin
     \ingroup qws
@@ -82,3 +84,5 @@ QDecorationPlugin::QDecorationPlugin(QObject *parent)
 QDecorationPlugin::~QDecorationPlugin()
 {
 }
+
+QT_END_NAMESPACE

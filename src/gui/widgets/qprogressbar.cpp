@@ -23,6 +23,8 @@
 #endif
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 class QProgressBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QProgressBar)
@@ -555,5 +557,7 @@ QString QProgressBar::format() const
     Q_D(const QProgressBar);
     return d->format;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PROGRESSBAR

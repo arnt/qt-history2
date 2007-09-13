@@ -43,6 +43,8 @@
 #include "qtcpsocket.h"
 #include "qhostaddress.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     Creates a QTcpSocket object in state \c UnconnectedState.
 
@@ -80,3 +82,5 @@ QTcpSocket::QTcpSocket(QTcpSocketPrivate &dd, QObject *parent)
 {
     d_func()->isBuffered = true;
 }
+
+QT_END_NAMESPACE

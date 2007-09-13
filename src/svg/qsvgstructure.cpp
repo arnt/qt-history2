@@ -19,6 +19,8 @@
 #include "qlocale.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 QSvgG::QSvgG(QSvgNode *parent)
     : QSvgStructureNode(parent)
 {
@@ -274,3 +276,5 @@ QSvgNode * QSvgStructureNode::previousSiblingNode(QSvgNode *n) const
     }
     return prev;
 }
+
+QT_END_NAMESPACE

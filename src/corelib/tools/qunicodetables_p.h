@@ -29,6 +29,8 @@
 
 #include <QtCore/qchar.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QUnicodeTables {
     struct Properties {
         ushort category : 8;
@@ -148,7 +150,8 @@ namespace QUnicodeTables {
     Q_CORE_EXPORT_INLINE int QT_FASTCALL script(const QChar &ch) {
         return script(ch.unicode());
     }
-
-
 }
+
+QT_END_NAMESPACE
+
 #endif

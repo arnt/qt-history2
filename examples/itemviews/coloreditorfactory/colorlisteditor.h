@@ -16,8 +16,8 @@
 
 #include <QComboBox>
 
-class QColor;
-class QWidget;
+QT_DECLARE_CLASS(QColor)
+QT_DECLARE_CLASS(QWidget)
 
 class ColorListEditor : public QComboBox
 {

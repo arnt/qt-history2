@@ -32,6 +32,8 @@
 
 #include "qpagesetupdialog.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPrinter;
 
 class QAbstractPageSetupDialogPrivate : public QDialogPrivate
@@ -50,5 +52,7 @@ public:
 };
 
 #endif // QT_NO_PRINTDIALOG
+
+QT_END_NAMESPACE
 
 #endif // QABSTRACTPAGESETUPDIALOG_P_H

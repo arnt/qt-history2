@@ -20,6 +20,8 @@
 #include <qevent.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
     \internal
     class QColumnViewGrip
@@ -159,5 +161,6 @@ originalXLocation(-1)
 {
 }
 
-#endif // QT_NO_QCOLUMNVIEW
+QT_END_NAMESPACE
 
+#endif // QT_NO_QCOLUMNVIEW

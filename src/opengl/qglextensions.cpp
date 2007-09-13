@@ -13,6 +13,8 @@
 
 #include "qgl_p.h"
 
+QT_BEGIN_NAMESPACE
+
 bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
 {
     if (glIsRenderbufferEXT != 0)
@@ -87,3 +89,5 @@ bool qt_resolve_frag_program_extensions(QGLContext *ctx)
         && glGenProgramsARB
         && glProgramLocalParameter4fvARB;
 }
+
+QT_END_NAMESPACE

@@ -37,6 +37,7 @@
 #include <QtGui/QUndoCommand>
 #include <QtGui/QWindowStateChangeEvent>
 
+QT_BEGIN_NAMESPACE
 
 QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags),
@@ -263,3 +264,5 @@ void QDesignerFormWindow::geometryChanged()
         m_editor->core()->propertyEditor()->setPropertyValue(QLatin1String("geometry"), sheet->property(sheet->indexOf(QLatin1String("geometry"))));
     }
 }
+
+QT_END_NAMESPACE

@@ -14,14 +14,16 @@
 #ifndef Patternist_AtomicComparator_H
 #define Patternist_AtomicComparator_H
 
-class QString;
-
 #include <QFlags>
 
 #include "qitem_p.h"
 #include "qatomictypedispatch_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QString;
 
 namespace Patternist
 {
@@ -164,6 +166,8 @@ namespace Patternist
     };
     Q_DECLARE_OPERATORS_FOR_FLAGS(AtomicComparator::Operators)
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

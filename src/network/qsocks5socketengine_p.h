@@ -28,6 +28,8 @@
 #include "qabstractsocketengine_p.h"
 #include "qnetworkproxy.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_SOCKS5
 
 class QSocks5SocketEnginePrivate;
@@ -240,5 +242,7 @@ public:
     virtual QAbstractSocketEngine *createSocketEngine(int socketDescripter, QObject *parent);
 };
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_SOCKS5
 #endif // QSOCKS5SOCKETENGINE_H

@@ -28,6 +28,8 @@
 #include "shared_global_p.h"
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+
 class QMimeData;
 
 namespace qdesigner_internal {
@@ -60,4 +62,7 @@ private:
     QString m_filePath;
 };
 }
+
+QT_END_NAMESPACE
+
 #endif // RESOURCEMIMEDATA_H

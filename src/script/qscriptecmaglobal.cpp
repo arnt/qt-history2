@@ -26,6 +26,8 @@
 #include <QtCore/QVarLengthArray>
 #include <QtCore/qnumeric.h>
 
+QT_BEGIN_NAMESPACE
+
 extern Q_CORE_EXPORT qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
 
 static inline char toHex(char c)
@@ -576,5 +578,7 @@ QScriptValueImpl Global::method_gc(QScriptContextPrivate *,
 
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

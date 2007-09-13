@@ -12,8 +12,7 @@
 #include <q3dragobject.h>
 
 //TESTED_FILES=
-
-class Q3UriDrag;
+QT_DECLARE_CLASS(Q3UriDrag)
 
 class tst_Q3UriDrag : public QObject
 {

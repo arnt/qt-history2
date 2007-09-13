@@ -17,6 +17,8 @@
 #include <QtGui/QLayout>
 #include <QtCore/qplugin.h>
 
+QT_BEGIN_NAMESPACE
+
 Q3GroupBoxPlugin::Q3GroupBoxPlugin(QObject *parent)
     : QObject(parent),
       m_initialized(false)
@@ -83,3 +85,5 @@ void Q3GroupBoxPlugin::initialize(QDesignerFormEditorInterface *core)
     m_initialized = true;
 }
 
+
+QT_END_NAMESPACE

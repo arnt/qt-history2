@@ -20,16 +20,6 @@
 
 QT_BEGIN_HEADER
 
-QT_MODULE(OpenGL)
-
-#ifdef QT3_SUPPORT
-#define QGL_VERSION        460
-#define QGL_VERSION_STR        "4.6"
-Q_OPENGL_EXPORT inline QT3_SUPPORT const char *qGLVersion() {
-    return QGL_VERSION_STR;
-}
-#endif
-
 #if defined(Q_WS_WIN)
 # include <QtCore/qt_windows.h>
 #endif
@@ -50,6 +40,18 @@ typedef GLfloat GLdouble;
 # ifndef QT_LSB
 #   include <GL/glu.h>
 # endif
+#endif
+
+QT_BEGIN_NAMESPACE
+
+QT_MODULE(OpenGL)
+
+#ifdef QT3_SUPPORT
+#define QGL_VERSION        460
+#define QGL_VERSION_STR        "4.6"
+Q_OPENGL_EXPORT inline QT3_SUPPORT const char *qGLVersion() {
+    return QGL_VERSION_STR;
+}
 #endif
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
@@ -456,6 +458,8 @@ inline bool QGLFormat::sampleBuffers() const
 {
     return testOption(QGL::SampleBuffers);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

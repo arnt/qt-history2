@@ -28,6 +28,8 @@
 #include "qevent.h"
 #include "qdialog_p.h"
 
+QT_BEGIN_NAMESPACE
+
 // This internal class adds extra validation to a QSpinBox by emitting textChanged(bool)
 // after events that may potentially change the visible text. Return or Enter key presses
 // are not propagated if the visible text is invalid. Instead, the visible text is modified
@@ -139,7 +141,9 @@ signals:
     void textChanged(bool);
 };
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qinputdialog.moc"
+QT_END_INCLUDE_NAMESPACE
 
 class QInputDialogPrivate : public QDialogPrivate
 {
@@ -554,4 +558,6 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
     The \a name parameter is ignored.
 */
 
-#endif
+QT_END_NAMESPACE
+
+#endif // QT_NO_INPUTDIALOG

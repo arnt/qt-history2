@@ -30,6 +30,8 @@
 #include "q3url.h"
 #include "qhttp.h"
 
+QT_BEGIN_NAMESPACE
+
 //#define Q3HTTP_DEBUG
 
 class Q3HttpPrivate
@@ -2338,5 +2340,7 @@ void Q3Http::clientStateChanged( int state )
 	}
     }
 }
+
+QT_END_NAMESPACE
 
 #endif

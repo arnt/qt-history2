@@ -28,6 +28,8 @@
 #include "QtCore/qobject.h"
 #include "QtGui/qabstracttextdocumentlayout.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTextImageFormat;
 
 class Q_GUI_EXPORT QTextImageHandler : public QObject,
@@ -44,5 +46,7 @@ public:
     typedef QImage (*ExternalImageLoaderFunction)(const QString &name, const QString &context);
     static ExternalImageLoaderFunction externalLoader;
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTIMAGEHANDLER_P_H

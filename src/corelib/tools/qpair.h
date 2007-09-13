@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 template <class T1, class T2>
@@ -89,6 +91,8 @@ inline QDataStream& operator<<(QDataStream& s, const QPair<T1, T2>& p)
     return s;
 }
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

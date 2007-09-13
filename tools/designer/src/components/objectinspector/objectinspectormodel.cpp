@@ -35,6 +35,8 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 #include <QtCore/QSet>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { DataRole = 1000 };
 }
@@ -358,5 +360,7 @@ namespace qdesigner_internal {
         const QString nameProperty = layoutOfQLayoutWidget(object) ? QLatin1String("layoutName") : QLatin1String("objectName");
         m_formWindow->commandHistory()->push(createTextPropertyCommand(nameProperty, value.toString(), object, m_formWindow));
         return true;
+
+QT_END_NAMESPACE
     }
 }

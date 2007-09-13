@@ -16,6 +16,8 @@
 
 #include "qaggregator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 SequenceType::Ptr Aggregator::staticType() const
@@ -37,3 +39,5 @@ SequenceType::Ptr Aggregator::staticType() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

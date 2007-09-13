@@ -30,6 +30,8 @@
 #include <QtGui/QWidget>
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     typedef QList<DomWidgetData*> DomWidgetDataList;
     typedef QList<DomProperty*> DomPropertyList;
@@ -303,3 +305,5 @@ bool FormBuilderClipboard::empty() const
     return m_widgets.empty() && m_actions.empty();
 }
 }
+
+QT_END_NAMESPACE

@@ -16,6 +16,10 @@
 #include <private/qevent_p.h>
 #include <private/qlocale_p.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 
 QKeyMapperPrivate::QKeyMapperPrivate()
 {
@@ -41,3 +45,5 @@ QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
         result << int(e->text().at(0).unicode() + e->modifiers());
     return result;
 }
+
+QT_END_NAMESPACE

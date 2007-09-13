@@ -18,6 +18,7 @@
 #include "qtextdocument_p.h"
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
 
 class QTextListPrivate : public QTextBlockGroupPrivate
 {
@@ -228,3 +229,4 @@ void QTextList::add(const QTextBlock &block)
     block.docHandle()->setBlockFormat(block, block, fmt, QTextDocumentPrivate::SetFormat);
 }
 
+QT_END_NAMESPACE

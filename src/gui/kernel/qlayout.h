@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QLayout;
@@ -199,9 +201,13 @@ inline void QLayoutIterator::deleteCurrent() { delete  layout->takeAt(index); }
 
 //### support old includes
 #if 1 //def QT3_SUPPORT
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <QtGui/qboxlayout.h>
 #include <QtGui/qgridlayout.h>
+QT_END_INCLUDE_NAMESPACE
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -21,6 +21,8 @@
 #include <QtGui/QIcon>
 #include <Qt3Support/Q3TextEdit>
 
+QT_BEGIN_NAMESPACE
+
 Q3TextEditPlugin::Q3TextEditPlugin(QObject *parent)
         : QObject(parent), m_initialized(false)
 {}
@@ -86,3 +88,5 @@ QString Q3TextEditPlugin::domXml() const
 }
 
 
+
+QT_END_NAMESPACE

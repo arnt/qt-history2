@@ -20,6 +20,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QTextTableCell qtexttable.h
     \brief The QTextTableCell class represents the properties of a
@@ -1192,3 +1194,4 @@ void QTextTable::setFormat(const QTextTableFormat &format)
     \sa setFormat()
 */
 
+QT_END_NAMESPACE

@@ -18,9 +18,9 @@
 #include <QtNetwork/QAbstractSocket>
 #include <QtNetwork/QSslSocket>
 
-class QSslSocket;
-class QToolButton;
-class Ui_Form;
+QT_DECLARE_CLASS(QSslSocket)
+QT_DECLARE_CLASS(QToolButton)
+QT_DECLARE_CLASS(Ui_Form)
 
 class SslClient : public QWidget
 {

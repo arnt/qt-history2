@@ -16,6 +16,8 @@
 #include "qdatastream.h"
 #include "q3valuelist.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class Q3LNode qglist.h
   \reentrant
@@ -1236,3 +1238,5 @@ Q3PtrCollection::Item Q3GListIterator::operator-=( uint jumps )
 	curNode = curNode->prev;
     return curNode ? curNode->getData() : 0;
 }
+
+QT_END_NAMESPACE

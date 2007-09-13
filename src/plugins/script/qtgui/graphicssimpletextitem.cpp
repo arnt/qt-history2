@@ -6,7 +6,8 @@
 #include "../global.h"
 
 DECLARE_POINTER_METATYPE(QGraphicsSimpleTextItem)
-Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
+
+QT_BEGIN_NAMESPACE
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -67,3 +68,7 @@ QScriptValue constructGraphicsSimpleTextItemClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)

@@ -28,6 +28,8 @@
 #include "qt_windows.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #define QDATETIMEEDIT_HIDDEN_CHAR QLatin1Char('0')
 
 class Q_COMPAT_EXPORT QNumberSection
@@ -396,7 +398,7 @@ public:
     void changeEvent(QEvent *e)
     {
 	if (e->type() == QEvent::EnabledChange && isEnabled()) {
-	    Q3DateEdit *de = ::qobject_cast<Q3DateEdit*>(parentWidget());
+	    Q3DateEdit *de = qobject_cast<Q3DateEdit*>(parentWidget());
 	    if (de) {
 		setUpEnabled(de->date() < de->maxValue());
 		setDownEnabled(de->date() > de->minValue());
@@ -2802,6 +2804,8 @@ bool Q3DateTimeEdit::autoAdvance() const
     Returns the internal widget used for editing the time part of the
     datetime.
 */
+
+QT_END_NAMESPACE
 
 #include "q3datetimeedit.moc"
 

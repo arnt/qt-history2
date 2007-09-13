@@ -30,6 +30,8 @@
 
 #include <QtCore/QObject>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QDesignerFormWindowManagerInterface;
@@ -84,5 +86,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_INTEGRATION_H

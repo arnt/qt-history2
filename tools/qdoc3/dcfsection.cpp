@@ -18,6 +18,8 @@
 #include "dcfsection.h"
 #include "htmlgenerator.h"
 
+QT_BEGIN_NAMESPACE
+
 void appendDcfSubSection( DcfSection *dcfSect, const DcfSection& sub )
 {
     dcfSect->subsections.append( sub );
@@ -77,3 +79,5 @@ void generateDcfSections( const DcfSection& rootSect, const QString& fileName,
     out << "</DCF>\n";
     out.flush();
 }
+
+QT_END_NAMESPACE

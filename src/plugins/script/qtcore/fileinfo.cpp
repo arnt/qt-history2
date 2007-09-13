@@ -14,6 +14,8 @@ Q_DECLARE_METATYPE(QFile*)
 Q_DECLARE_METATYPE(QDir)
 Q_DECLARE_METATYPE(QDir*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newFileInfo(QScriptEngine *eng, const QFileInfo &info)
 {
     return eng->newVariant(qVariantFromValue(info));
@@ -444,3 +446,5 @@ QScriptValue constructFileInfoClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

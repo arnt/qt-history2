@@ -20,6 +20,8 @@
 #include "qevent.h"
 #include "qlist.h"
 
+QT_BEGIN_NAMESPACE
+
 class QActionGroupPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QActionGroup)
@@ -375,5 +377,8 @@ bool QActionGroup::isVisible() const
 
 */
 
+QT_END_NAMESPACE
+
 #include "moc_qactiongroup.cpp"
+
 #endif // QT_NO_ACTION

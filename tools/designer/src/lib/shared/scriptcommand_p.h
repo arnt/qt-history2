@@ -31,6 +31,8 @@
 #include <QtCore/QList>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -57,5 +59,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_SCRIPTCOMMAND_H

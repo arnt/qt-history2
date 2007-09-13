@@ -39,6 +39,8 @@
 #include "qdebug.h"
 
 
+QT_BEGIN_NAMESPACE
+
 class QMenuBarExtension : public QToolButton
 {
 public:
@@ -2185,5 +2187,9 @@ int QMenuBar::findIdForAction(QAction *act) const
 
 // for private slots
 
+
+QT_END_NAMESPACE
+
 #include <moc_qmenubar.cpp>
+
 #endif // QT_NO_MENUBAR

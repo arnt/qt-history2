@@ -18,6 +18,8 @@
 
 #include "qexternalvariableloader_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ExternalVariableLoader::~ExternalVariableLoader()
@@ -65,3 +67,5 @@ bool ExternalVariableLoader::evaluateEBV(const QName name,
 }
 
 // vim: et:ts=4:sw=4:sts=3
+
+QT_END_NAMESPACE

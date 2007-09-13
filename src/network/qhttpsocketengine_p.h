@@ -30,6 +30,8 @@
 #include "qnetworkproxy.h"
 #include "qauthenticator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(QT_NO_NETWORKPROXY) && !defined(QT_NO_HTTP)
 
 class QTcpSocket;
@@ -145,5 +147,7 @@ public:
     virtual QAbstractSocketEngine *createSocketEngine(int socketDescripter, QObject *parent);
 };
 #endif
+
+QT_END_NAMESPACE
 
 #endif // QHTTPSOCKETENGINE_H

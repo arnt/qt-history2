@@ -16,6 +16,8 @@
 #include "qnetworkinterface_win_p.h"
 #include <qhash.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef DWORD (WINAPI *PtrGetAdaptersInfo)(PIP_ADAPTER_INFO, PULONG);
 PtrGetAdaptersInfo ptrGetAdaptersInfo = 0;
 typedef ULONG (WINAPI *PtrGetAdaptersAddresses)(ULONG, ULONG, PVOID, PIP_ADAPTER_ADDRESSES, PULONG);
@@ -307,3 +309,5 @@ QList<QNetworkInterfacePrivate *> QNetworkInterfaceManager::scan()
 {
     return interfaceListing();
 }
+
+QT_END_NAMESPACE

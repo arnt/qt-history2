@@ -28,6 +28,8 @@
 #include "qfontengine_p.h"
 #include "qabstractfontengine_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 class QCustomFontEngine;
 
 class QProxyFontEngine : public QFontEngine
@@ -73,5 +75,7 @@ private:
     QAbstractFontEngine *engine;
     QAbstractFontEngine::Capabilities engineCapabilities;
 };
+
+QT_END_NAMESPACE
 
 #endif

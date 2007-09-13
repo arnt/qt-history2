@@ -27,6 +27,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -90,6 +92,8 @@ namespace Patternist
         typedef PlainSharedPtr<TokenizeFN> Ptr;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

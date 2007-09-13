@@ -61,6 +61,7 @@
 #include <langinfo.h>
 #endif
 
+QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_TEXTCODECPLUGIN
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
@@ -1522,5 +1523,7 @@ bool QTextDecoder::hasFailure() const
 
     Use name() instead.
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_TEXTCODEC

@@ -20,6 +20,8 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QDialogButtonBox>
 
+QT_BEGIN_NAMESPACE
+
 QList<ItemDialog *> ItemDialog::openDialogs;
 
 ItemDialog::ItemDialog(QWidget *parent, const Item *item)
@@ -70,3 +72,5 @@ void ItemDialog::closeEvent(QCloseEvent *event)
         itemDialog->activateWindow();
     }
 }
+
+QT_END_NAMESPACE

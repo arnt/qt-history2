@@ -15,6 +15,8 @@
 #include <qscreenvfb_qws.h>
 #include <qstringlist.h>
 
+QT_BEGIN_NAMESPACE
+
 class ScreenVfbDriver : public QScreenDriverPlugin
 {
 public:
@@ -46,3 +48,5 @@ QScreen* ScreenVfbDriver::create(const QString& driver, int displayId)
 
 Q_EXPORT_STATIC_PLUGIN(ScreenVfbDriver)
 Q_EXPORT_PLUGIN2(qscreenvfb, ScreenVfbDriver)
+
+QT_END_NAMESPACE

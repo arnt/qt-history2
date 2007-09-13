@@ -15,6 +15,8 @@
 
 #include "qdistinctiterator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 DistinctIterator::DistinctIterator(const Item::Iterator::Ptr &seq,
@@ -81,3 +83,5 @@ const SourceLocationReflection *DistinctIterator::actualReflection() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

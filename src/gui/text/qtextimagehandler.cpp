@@ -22,6 +22,8 @@
 #include <qpalette.h>
 #include <qtextbrowser.h>
 
+QT_BEGIN_NAMESPACE
+
 // set by the mime source factory in Qt3Compat
 QTextImageHandler::ExternalImageLoaderFunction QTextImageHandler::externalLoader = 0;
 
@@ -117,3 +119,4 @@ void QTextImageHandler::drawObject(QPainter *p, const QRectF &rect, QTextDocumen
     p->drawPixmap(rect, pixmap, pixmap.rect());
 }
 
+QT_END_NAMESPACE

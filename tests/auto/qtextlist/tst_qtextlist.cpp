@@ -16,9 +16,6 @@
 #include <qtextcursor.h>
 #include "../qtextdocument/common.h"
 
-class QTextDocument;
-class QTestDocumentLayout;
-
 //TESTED_CLASS=
 //TESTED_FILES=gui/text/qtextlist.h gui/text/qtextlist.cpp
 

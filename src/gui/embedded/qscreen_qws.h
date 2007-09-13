@@ -24,6 +24,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QScreenCursor;
@@ -323,6 +325,8 @@ extern "C" QScreen * qt_get_screen(int display_id, const char* spec);
 // In non-loadable cases just aliases to qt_get_screen
 
 const unsigned char * qt_probe_bus();
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

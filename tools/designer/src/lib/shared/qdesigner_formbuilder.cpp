@@ -50,6 +50,8 @@
 
 #include <qdesigner_utils_p.h>
 
+QT_BEGIN_NAMESPACE
+
 static QString summarizeScriptErrors(const QFormScriptRunner::Errors &errors) 
 {
     QString rc =  QObject::tr("Script errors occurred:");
@@ -392,3 +394,5 @@ QPixmap QDesignerFormBuilder::createPreviewPixmap(const QDesignerFormWindowInter
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

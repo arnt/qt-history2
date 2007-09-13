@@ -33,6 +33,7 @@
 #include <errno.h>
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
 
 #ifdef Q_WS_QWS
 #error qvfb must be compiled with  the Qt/X11 package
@@ -284,3 +285,5 @@ int QShMemViewProtocol::rate() const
     else
         return 0;
 }
+
+QT_END_NAMESPACE

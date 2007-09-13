@@ -24,6 +24,8 @@ template<typename T> class QVector;
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     template<typename T> class ListIterator;
@@ -233,6 +235,8 @@ namespace Patternist
         return typename Iterator<T>::Ptr(new ListIterator<T>(result));
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

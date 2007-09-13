@@ -17,14 +17,14 @@
 #include <QMainWindow>
 #include <QModelIndex>
 
-class QAbstractItemModel;
-class QComboBox;
+QT_DECLARE_CLASS(QAbstractItemModel)
+QT_DECLARE_CLASS(QComboBox)
 class TreeModelCompleter;
-class QLabel;
-class QLineEdit;
-class QProgressBar;
-class QCheckBox;
-class QTreeView;
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QProgressBar)
+QT_DECLARE_CLASS(QCheckBox)
+QT_DECLARE_CLASS(QTreeView)
 
 class MainWindow : public QMainWindow
 {

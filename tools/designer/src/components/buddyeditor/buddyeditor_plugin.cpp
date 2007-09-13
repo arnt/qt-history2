@@ -24,6 +24,8 @@ TRANSLATOR qdesigner_internal::BuddyEditorPlugin
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 BuddyEditorPlugin::BuddyEditorPlugin()
@@ -102,3 +104,5 @@ void BuddyEditorPlugin::activeFormWindowChanged(QDesignerFormWindowInterface *fo
 {
     m_action->setEnabled(formWindow != 0);
 }
+
+QT_END_NAMESPACE

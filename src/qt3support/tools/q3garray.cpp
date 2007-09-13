@@ -29,6 +29,8 @@
 #  include "private/qmutexpool_p.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*
   If USE_MALLOC isn't defined, we use new[] and delete[] to allocate
   memory. The documentation for QMemArray<T>::assign() explicitly
@@ -776,3 +778,5 @@ void Q3GArray::deleteData(array_data *p)
 {
     delete p;
 }
+
+QT_END_NAMESPACE

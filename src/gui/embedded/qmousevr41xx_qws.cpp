@@ -32,6 +32,8 @@
 #include <errno.h>
 #include <termios.h>
 
+QT_BEGIN_NAMESPACE
+
 static const int defaultFilterSize = 3;
 
 class QWSVr41xxMouseHandlerPrivate : public QObject
@@ -213,5 +215,8 @@ void QWSVr41xxMouseHandlerPrivate::readMouseData()
         rtimer->start(50); // release unreliable
 }
 
+QT_END_NAMESPACE
+
 #include "qmousevr41xx_qws.moc"
+
 #endif //QT_NO_QWS_MOUSE_VR41

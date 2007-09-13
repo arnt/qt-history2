@@ -17,6 +17,8 @@
 #include <qdrawutil.h>
 #include "qdecorationwindows_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(QT_NO_QWS_DECORATION_WINDOWS) || defined(QT_PLUGIN)
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
@@ -373,3 +375,5 @@ void QDecorationWindows::paintButton(QPainter *painter, const QWidget *widget, i
 }
 
 #endif // QT_NO_QWS_DECORATION_WINDOWS || QT_PLUGIN
+
+QT_END_NAMESPACE

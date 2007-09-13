@@ -38,6 +38,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QTDSDriverPrivate;
 class QTDSResultPrivate;
 class QTDSDriver;
@@ -94,6 +96,8 @@ private:
     void init();
     QTDSDriverPrivate *d;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

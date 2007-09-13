@@ -18,6 +18,8 @@
 #include <private/qpaintengine_raster_p.h>
 #include <emmintrin.h>
 
+QT_BEGIN_NAMESPACE
+
 void qt_memfill32_sse2(quint32 *dest, quint32 value, int count)
 {
     if (count < 7) {
@@ -166,5 +168,7 @@ void qt_bitmapblit16_sse2(QRasterBuffer *rasterBuffer, int x, int y,
         src += stride;
     }
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_HAVE_SSE2

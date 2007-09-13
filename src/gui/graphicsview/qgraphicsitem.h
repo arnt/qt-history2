@@ -21,7 +21,11 @@
 #include <QtGui/qpainterpath.h>
 #include <QtGui/qpixmap.h>
 
+class tst_QGraphicsItem;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Gui)
 
@@ -306,15 +310,12 @@ private:
     friend class QGraphicsSceneFindItemBspTreeVisitor;
     friend class QGraphicsView;
     friend class QGraphicsViewPrivate;
-    friend class tst_QGraphicsItem;
+    friend class ::tst_QGraphicsItem;
     friend bool qt_closestLeaf(const QGraphicsItem *, const QGraphicsItem *);
     friend bool qt_closestItemFirst(const QGraphicsItem *, const QGraphicsItem *);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsItem::GraphicsItemFlags)
-Q_DECLARE_METATYPE(QGraphicsItem *)
-Q_DECLARE_METATYPE(QGraphicsScene *)
-
 inline void QGraphicsItem::setPos(qreal ax, qreal ay)
 { setPos(QPointF(ax, ay)); }
 inline void QGraphicsItem::ensureVisible(qreal ax, qreal ay, qreal w, qreal h, int xmargin, int ymargin)
@@ -892,6 +893,11 @@ template <class T> inline T qgraphicsitem_cast(const QGraphicsItem *item)
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug debug, QGraphicsItem *item);
 #endif
+
+QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QGraphicsItem *)
+Q_DECLARE_METATYPE(QGraphicsScene *)
 
 QT_END_HEADER
 

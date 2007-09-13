@@ -17,6 +17,8 @@
 
 #include "private/q3sqlmanager_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3DataViewPrivate
 {
 public:
@@ -176,4 +178,6 @@ void Q3DataView::refresh(QSqlRecord* buf)
     readFields();
 }
 
-#endif
+QT_END_NAMESPACE
+
+#endif // QT_NO_SQL_VIEW_WIDGETS

@@ -39,6 +39,8 @@
 
 #include <qplatformdefs.h>
 
+QT_BEGIN_NAMESPACE
+
 static QHostAddress addressFromSockaddr(sockaddr *sa)
 {
     QHostAddress address;
@@ -246,7 +248,9 @@ static QList<QNetworkInterfacePrivate *> interfaceListing()
 
 // platform-specific defs:
 # ifdef Q_OS_LINUX
+QT_BEGIN_INCLUDE_NAMESPACE
 #  include <features.h>
+QT_END_INCLUDE_NAMESPACE
 # endif
 
 # if defined(Q_OS_LINUX) &&  __GLIBC__ - 0 >= 2 && __GLIBC_MINOR__ - 0 >= 1
@@ -294,7 +298,9 @@ static QList<QNetworkInterfacePrivate *> createInterfaces(ifaddrs *rawList)
 }
 
 # elif defined(Q_OS_BSD4)
+QT_BEGIN_INCLUDE_NAMESPACE
 #  include <net/if_dl.h>
+QT_END_INCLUDE_NAMESPACE
 
 static QList<QNetworkInterfacePrivate *> createInterfaces(ifaddrs *rawList)
 {
@@ -406,3 +412,5 @@ QList<QNetworkInterfacePrivate *> QNetworkInterfaceManager::scan()
 {
     return interfaceListing();
 }
+
+QT_END_NAMESPACE

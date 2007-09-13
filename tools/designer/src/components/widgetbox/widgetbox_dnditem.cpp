@@ -17,6 +17,8 @@
 #include <qdesigner_formbuilder_p.h>
 #include <formscriptrunner_p.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 /*******************************************************************************
 ** WidgetBoxResource
@@ -146,3 +148,5 @@ WidgetBoxDnDItem::WidgetBoxDnDItem(QDesignerFormEditorInterface *core,
     init(dom_ui, 0, decoration, global_mouse_pos);
 }
 }
+
+QT_END_NAMESPACE

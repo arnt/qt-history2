@@ -27,6 +27,8 @@
 
 #include "QtGui/qpaintengine.h"
 
+QT_BEGIN_NAMESPACE
+
 class QOpenGLPaintEnginePrivate;
 
 class QOpenGLPaintEngine : public QPaintEngine
@@ -89,5 +91,7 @@ private:
     void drawTextureRect(int tx_width, int tx_height, const QRectF &r, const QRectF &sr, GLenum target);
     Q_DISABLE_COPY(QOpenGLPaintEngine)
 };
+
+QT_END_NAMESPACE
 
 #endif // QPAINTENGINE_OPENGL_P_H

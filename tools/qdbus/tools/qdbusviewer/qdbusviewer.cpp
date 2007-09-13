@@ -17,6 +17,8 @@
 
 #include <QtXml/QtXml>
 
+QT_BEGIN_NAMESPACE
+
 class QDBusViewModel: public QDBusModel
 {
 public:
@@ -502,5 +504,7 @@ void QDBusViewer::anchorClicked(const QUrl &url)
   a property editor opens.
 
   Right-click on a signal to connect to it. All emitted signals including their parameters
+
+QT_END_NAMESPACE
   are output in the message view on the lower side of the window.
 */

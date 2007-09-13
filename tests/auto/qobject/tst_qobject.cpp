@@ -1709,10 +1709,15 @@ namespace Foo
         virtual int rtti() const = 0;
     };
 }
+
+QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(Foo::Bar, "com.qtest.foobar")
+QT_END_NAMESPACE
 
 #define Bleh_iid "com.qtest.bleh"
+QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(Foo::Bleh, Bleh_iid)
+QT_END_NAMESPACE
 
 class FooObject: public QObject, public Foo::Bar
 {

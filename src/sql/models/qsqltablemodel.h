@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Sql)
 
 class QSqlTableModelPrivate;
@@ -103,6 +105,8 @@ protected:
     void setQuery(const QSqlQuery &query);
     QModelIndex indexInQuery(const QModelIndex &item) const;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

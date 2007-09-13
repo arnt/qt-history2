@@ -25,6 +25,8 @@
 #include "private/qobject_p.h"
 #include "private/qcoreapplication_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QFactoryLoaderPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QFactoryLoader)
@@ -172,4 +174,7 @@ QObject *QFactoryLoader::instance(const QString &key) const
     }
     return 0;
 }
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_LIBRARY

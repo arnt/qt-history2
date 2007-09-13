@@ -19,6 +19,8 @@
 
 #include "qbase64binary_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Base64Binary::Base64Binary(const QByteArray &val) : m_value(val)
@@ -197,3 +199,5 @@ QByteArray Base64Binary::asByteArray() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

@@ -16,6 +16,8 @@
 
 #include "codemodel.h"
 
+QT_BEGIN_NAMESPACE
+
 class CodeModelWalker
 {
 public:
@@ -44,5 +46,7 @@ public:
     virtual void parseArgument(CodeModel::Argument *){};
     virtual void parseNameUse(CodeModel::NameUse *){};
 };
+
+QT_END_NAMESPACE
 
 #endif

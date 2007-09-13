@@ -24,3 +24,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/tools/i18n
 sources.files = $$SOURCES $$HEADERS $$RESOURCES translations i18n.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/i18n
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

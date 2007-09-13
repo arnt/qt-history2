@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Xml)
 
 class Q_XML_EXPORT QXmlStreamStringRef {
@@ -352,6 +354,8 @@ private:
     Q_DECLARE_PRIVATE(QXmlStreamWriter)
     QXmlStreamWriterPrivate *d_ptr;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -20,6 +20,8 @@
 
 #include "qpullbridge_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \brief Bridges a Patternist::SequenceIterator to QAbstractXmlPullProvider.
   \internal
@@ -152,5 +154,7 @@ QString PullBridge::stringValue() const
     else
         return QString();
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

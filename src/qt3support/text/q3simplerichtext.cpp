@@ -17,6 +17,8 @@
 #include "q3richtext_p.h"
 #include "qapplication.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3SimpleRichTextData
 {
 public:
@@ -387,5 +389,7 @@ void Q3SimpleRichText::setDefaultFont(const QFont &f)
     d->doc->setDefaultFormat(f, QColor());
     d->doc->setText(d->doc->originalText(), d->doc->context());
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_RICHTEXT

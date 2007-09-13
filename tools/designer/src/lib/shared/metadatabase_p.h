@@ -33,6 +33,8 @@
 #include <QtCore/QStringList>
 #include <QtGui/QCursor>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QDESIGNER_SHARED_EXPORT MetaDataBaseItem: public QDesignerMetaDataBaseItemInterface
@@ -119,5 +121,7 @@ private:
     QDESIGNER_SHARED_EXPORT QString propertyComment(QDesignerFormEditorInterface* core, QObject *o, const QString &propertyName);
     QDESIGNER_SHARED_EXPORT bool setPropertyComment(QDesignerFormEditorInterface* core, QObject *o, const QString &propertyName, const QString &value);
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // METADATABASE_H

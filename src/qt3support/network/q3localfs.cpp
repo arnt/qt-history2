@@ -24,6 +24,8 @@
 #include "qpointer.h"
 #include "q3valuelist.h"
 
+QT_BEGIN_NAMESPACE
+
 //#define QLOCALFS_DEBUG
 
 
@@ -371,5 +373,7 @@ int Q3LocalFs::calcBlockSize( int totalSize ) const
 	s = 1048576;
     return s;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_NETWORKPROTOCOL

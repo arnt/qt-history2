@@ -30,12 +30,14 @@
 #include <QMacStyle>
 #endif
 
+QT_BEGIN_NAMESPACE
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
 #endif
 #if !defined(Q_WS_WIN)
 extern bool qt_tab_all_widgets;
 #endif
+QT_END_NAMESPACE
 
 static inline bool tabAllWidgets()
 {

@@ -20,3 +20,4 @@ sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.png *.svg
 sources.path = $$[QT_INSTALL_EXAMPLES]/opengl/framebufferobject
 INSTALLS += target sources
 
+DEFINES += QT_USE_USING_NAMESPACE

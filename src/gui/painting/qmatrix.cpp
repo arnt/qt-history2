@@ -21,6 +21,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QMatrix
     \brief The QMatrix class specifies 2D transformations of a
@@ -1216,3 +1218,4 @@ QDebug operator<<(QDebug dbg, const QMatrix &m)
     Use the mapRect() function instead.
 */
 
+QT_END_NAMESPACE

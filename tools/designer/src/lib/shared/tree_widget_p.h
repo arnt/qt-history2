@@ -30,6 +30,8 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QItemDelegate>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 // -------------- TreeWidgetDelegate to be used for tree widgets with alternating row colors
@@ -67,5 +69,7 @@ protected:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // TREEWIDGET_H

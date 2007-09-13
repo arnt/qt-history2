@@ -24,6 +24,8 @@
 #include <QPrintDialog>
 #include <QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 static const char *filesave[] = {
 "    14    14        4            1",
 ". c #040404",
@@ -127,3 +129,5 @@ void DocuWindow::print()
 
     browser->document()->print(&printer);
 }
+
+QT_END_NAMESPACE

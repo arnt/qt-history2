@@ -17,3 +17,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/activeqt/qutlook
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qutlook.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/activeqt/qutlook
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

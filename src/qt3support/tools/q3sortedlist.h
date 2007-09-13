@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 template<class type>
@@ -33,6 +35,8 @@ public:
     virtual int compareItems( Q3PtrCollection::Item s1, Q3PtrCollection::Item s2 )
       { if ( *((type*)s1) == *((type*)s2) ) return 0; return ( *((type*)s1) < *((type*)s2) ? -1 : 1 ); }
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

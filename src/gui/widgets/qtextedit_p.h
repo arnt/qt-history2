@@ -36,6 +36,8 @@
 #include "private/qtextcontrol_p.h"
 #include "qtextedit.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TEXTEDIT
 
 class QMimeData;
@@ -129,5 +131,7 @@ private:
 
     mutable QTextDocumentFragment fragment;
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTEDIT_P_H

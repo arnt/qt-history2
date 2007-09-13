@@ -14,6 +14,8 @@
 #include <qstring.h>
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
 
 enum Compiler {
     CC_UNKNOWN = 0,
@@ -49,3 +51,5 @@ private:
     static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey);
 };
 
+
+QT_END_NAMESPACE

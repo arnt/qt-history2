@@ -19,9 +19,9 @@
 #include <QModelIndex>
 #include <QSize>
 
-class QAbstractItemModel;
-class QObject;
-class QPainter;
+QT_DECLARE_CLASS(QAbstractItemModel)
+QT_DECLARE_CLASS(QObject)
+QT_DECLARE_CLASS(QPainter)
 
 static const int ItemSize = 256;
 

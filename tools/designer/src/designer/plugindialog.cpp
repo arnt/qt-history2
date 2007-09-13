@@ -26,6 +26,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QPluginLoader>
 
+QT_BEGIN_NAMESPACE
+
 PluginDialog::PluginDialog(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDialog(parent
 #ifdef Q_WS_MAC
@@ -169,3 +171,5 @@ void  PluginDialog::updateCustomWidgetPlugins()
         populateTreeWidget();
     }
 }
+
+QT_END_NAMESPACE

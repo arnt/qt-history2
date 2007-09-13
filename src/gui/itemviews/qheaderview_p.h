@@ -28,9 +28,12 @@
 #include "private/qabstractitemview_p.h"
 
 #ifndef QT_NO_ITEMVIEWS
+
 #include "QtCore/qbitarray.h"
 #include "QtGui/qapplication.h"
 #include "QtGui/qlabel.h"
+
+QT_BEGIN_NAMESPACE
 
 class QHeaderViewPrivate: public QAbstractItemViewPrivate
 {
@@ -326,6 +329,8 @@ public:
 #endif
 
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_ITEMVIEWS
 

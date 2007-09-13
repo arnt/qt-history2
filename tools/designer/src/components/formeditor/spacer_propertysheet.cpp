@@ -20,6 +20,8 @@
 
 #include <QtGui/QLayout>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal
 {
 SpacerPropertySheet::SpacerPropertySheet(Spacer *object, QObject *parent)
@@ -48,3 +50,5 @@ bool SpacerPropertySheet::dynamicPropertiesAllowed() const
     return false;
 }
 }
+
+QT_END_NAMESPACE

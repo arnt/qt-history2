@@ -25,6 +25,8 @@
 #include <ctype.h>
 #include <QTextDocument>
 
+QT_BEGIN_NAMESPACE
+
 struct Term {
     Term() : frequency(-1) {}
     Term( const QString &t, int f, QVector<Document> l ) : term( t ), frequency( f ), documents( l ) {}
@@ -547,3 +549,5 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
         return true;
     return false;
 }
+
+QT_END_NAMESPACE

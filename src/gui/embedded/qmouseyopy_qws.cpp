@@ -29,6 +29,8 @@
 #include <errno.h>
 #include <termios.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWSYopyMouseHandlerPrivate : public QObject
 {
     Q_OBJECT
@@ -147,5 +149,8 @@ void QWSYopyMouseHandlerPrivate::readMouseData()
     }
 }
 
+QT_END_NAMESPACE
+
 #include "qmouseyopy_qws.moc"
+
 #endif //QT_NO_QWS_MOUSE_YOPY

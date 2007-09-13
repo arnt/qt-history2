@@ -31,6 +31,7 @@
 #include <qinputcontextplugin.h>
 #include <qstringlist.h>
 
+QT_BEGIN_NAMESPACE
 
 QMultiInputContextPlugin::QMultiInputContextPlugin()
 {
@@ -76,5 +77,7 @@ QString QMultiInputContextPlugin::description( const QString &key )
 
 Q_EXPORT_STATIC_PLUGIN(QMultiInputContextPlugin)
 Q_EXPORT_PLUGIN2(qimsw_multi, QMultiInputContextPlugin)
+
+QT_END_NAMESPACE
 
 #endif

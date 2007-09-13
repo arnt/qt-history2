@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_QWS_MOUSE_TSLIB) || defined(QT_PLUGIN)
@@ -41,6 +43,8 @@ protected:
     QWSTslibMouseHandlerPrivate *d;
 };
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_QWS_MOUSE_TSLIB
 QT_END_HEADER
 

@@ -24,6 +24,8 @@
 #include "private/q3membuf_p.h"
 #include "qt_windows.h"
 
+QT_BEGIN_NAMESPACE
+
 //#define QT_Q3PROCESS_DEBUG
 
 /***********************************************************************
@@ -636,5 +638,7 @@ Q3Process::PID Q3Process::processIdentifier()
 {
     return d->pid;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PROCESS

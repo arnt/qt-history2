@@ -22,6 +22,8 @@
 #include <private/qapplication_p.h>
 #include <private/qshortcutmap_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #define QAPP_CHECK(functionName) \
     if (!qApp) { \
         qWarning("QShortcut: Initialize QApplication before calling '" functionName "'."); \
@@ -373,3 +375,5 @@ bool QShortcut::event(QEvent *e)
     return handled;
 }
 #endif // QT_NO_SHORTCUT
+
+QT_END_NAMESPACE

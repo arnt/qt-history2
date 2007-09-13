@@ -16,6 +16,8 @@
 
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
 bool qax_ownQApp = false;
 HHOOK qax_hhook = 0;
 
@@ -103,3 +105,5 @@ EXTERN_C BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpvRese
     
     return true;
 }
+
+QT_END_NAMESPACE

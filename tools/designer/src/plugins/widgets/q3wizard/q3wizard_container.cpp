@@ -16,6 +16,8 @@
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 Q3WizardContainer::Q3WizardContainer(Q3Wizard *wizard, QObject *parent)
     : QObject(parent),
       m_wizard(wizard)
@@ -76,3 +78,5 @@ QObject *Q3WizardContainerFactory::createExtension(QObject *object, const QStrin
     return 0;
 }
 
+
+QT_END_NAMESPACE

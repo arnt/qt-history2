@@ -26,6 +26,8 @@
 #include <qlist.h>
 #include <qiterator.h>
 
+QT_BEGIN_NAMESPACE
+
 #define COMMAND_VERSION                 Doc::alias("version")
 
 LinguistGenerator::LinguistGenerator()
@@ -211,3 +213,5 @@ QString LinguistGenerator::simplified(const QString &text) const
     
     return lines.join("\n");
 }
+
+QT_END_NAMESPACE

@@ -17,6 +17,8 @@
 #include "qcommonstyle.h"
 #include "qstyle_p.h"
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -37,5 +39,7 @@ public:
     inline QCommonStylePrivate()
     { }
 };
+
+QT_END_NAMESPACE
 
 #endif //QCOMMONSTYLE_P_H

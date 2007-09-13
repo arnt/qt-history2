@@ -18,6 +18,8 @@
 
 #include "qqnamevalue_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 QNameValue::QNameValue(const NamePool::Ptr &np, const QName name) : m_qName(name),
@@ -44,3 +46,5 @@ ItemType::Ptr QNameValue::type() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

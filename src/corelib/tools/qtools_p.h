@@ -27,7 +27,11 @@
 
 #include "QtCore/qglobal.h"
 
+QT_BEGIN_NAMESPACE
+
 // implemented in qbytearray.cpp
 int Q_CORE_EXPORT qAllocMore(int alloc, int extra);
+
+QT_END_NAMESPACE
 
 #endif // QTOOLS_P_H

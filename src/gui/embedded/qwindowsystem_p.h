@@ -33,6 +33,8 @@
 #include "qwscommand_qws_p.h"
 #include "QtCore/qbasictimer.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWSServerPrivate : public QObjectPrivate {
     friend class QCopChannel;
     friend class QWSMouseHandler;
@@ -277,4 +279,7 @@ private:
     bool doClientIsActive;
     QList<QWSClient*> pendingDoClients;
 };
+
+QT_END_NAMESPACE
+
 #endif

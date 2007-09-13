@@ -20,6 +20,8 @@
 
 #include <qstring.h>
 
+QT_BEGIN_NAMESPACE
+
 // ### get rid of that class
 
 /*
@@ -95,5 +97,7 @@ inline bool operator<=( const CodeChunk& c, const CodeChunk& d ) {
 inline bool operator>=( const CodeChunk& c, const CodeChunk& d ) {
     return !( c < d );
 }
+
+QT_END_NAMESPACE
 
 #endif

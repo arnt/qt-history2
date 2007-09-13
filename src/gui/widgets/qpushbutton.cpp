@@ -37,6 +37,8 @@
 #include "private/qabstractbutton_p.h"
 
 
+QT_BEGIN_NAMESPACE
+
 class QPushButtonPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QPushButton)
@@ -707,5 +709,6 @@ QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent
     Use menu() instead.
 */
 
+QT_END_NAMESPACE
 
 #include "moc_qpushbutton.cpp"

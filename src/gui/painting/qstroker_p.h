@@ -29,6 +29,8 @@
 #include "private/qdatabuffer_p.h"
 #include "private/qnumeric_p.h"
 
+QT_BEGIN_NAMESPACE
+
 // #define QFIXED_IS_26_6
 
 #if defined QFIXED_IS_26_6
@@ -342,5 +344,7 @@ inline void QDashStroker::end()
     QStrokerOps::end();
     m_stroker->end();
 }
+
+QT_END_NAMESPACE
 
 #endif // QSTROKER_P_H

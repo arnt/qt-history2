@@ -35,6 +35,7 @@
 
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
 
 static const QWSKeyMap sl5000KeyMap[] = {
     {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  }, // 00
@@ -322,6 +323,6 @@ void QWSSL5000KeyboardHandler::doKey(uchar code)
         endAutoRepeat();
 }
 
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_KBD_SL5000
-

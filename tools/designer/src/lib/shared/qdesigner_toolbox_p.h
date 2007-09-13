@@ -29,6 +29,8 @@
 #include "qdesigner_propertysheet_p.h"
 #include <QtGui/QPalette>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
     class PromotionTaskMenu;
 }
@@ -94,5 +96,7 @@ private:
 };
 
 typedef QDesignerPropertySheetFactory<QToolBox, QToolBoxWidgetPropertySheet> QToolBoxWidgetPropertySheetFactory;
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_TOOLBOX_H

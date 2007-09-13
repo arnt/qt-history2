@@ -32,6 +32,8 @@
 #include "itemdialog.h"
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 static const int TileWidth = 32;
 static const int TileHeight = 32;
 
@@ -335,3 +337,5 @@ void Oubliette::showVictory()
     if (value == 1)
         QApplication::instance()->quit();
 }
+
+QT_END_NAMESPACE

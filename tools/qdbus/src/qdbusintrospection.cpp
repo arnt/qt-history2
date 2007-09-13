@@ -14,6 +14,8 @@
 #include "qdbusintrospection_p.h"
 #include "qdbusxmlparser_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDBusIntrospection
     \brief Information about introspected objects and interfaces on D-Bus.
@@ -389,5 +391,7 @@ QDBusIntrospection::parseObjectTree(const QString &xml, const QString &service, 
     QSharedDataPointer<QDBusIntrospection::ObjectTree> retval = parser.objectTree();
     if (!retval)
         return QDBusIntrospection::ObjectTree();
+
+QT_END_NAMESPACE
     return *retval;
 }

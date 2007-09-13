@@ -19,3 +19,4 @@ SOURCES	  = main.cpp \
             util.cpp
 FORMS     = mydialog.ui
 
+DEFINES += QT_USE_USING_NAMESPACE

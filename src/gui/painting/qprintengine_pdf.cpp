@@ -34,6 +34,8 @@
 #include "qprintengine_pdf_p.h"
 #include "private/qdrawhelper_p.h"
 
+QT_BEGIN_NAMESPACE
+
 extern qint64 qt_pixmap_id(const QPixmap &pixmap);
 extern qint64 qt_image_id(const QImage &image);
 
@@ -1033,5 +1035,7 @@ int QPdfEnginePrivate::addXrefEntry(int object, bool printostr)
 
     return object;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER

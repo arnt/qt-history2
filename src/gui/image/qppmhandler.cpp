@@ -20,6 +20,8 @@
 #include <qvector.h>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   PBM/PGM/PPM (ASCII and RAW) image read/write functions
  *****************************************************************************/
@@ -455,5 +457,7 @@ QByteArray QPpmHandler::name() const
 {
     return subType.isEmpty() ? QByteArray("ppm") : subType;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_IMAGEFORMAT_PPM

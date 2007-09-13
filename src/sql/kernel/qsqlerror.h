@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Sql)
 
 class Q_SQL_EXPORT QSqlError
@@ -66,6 +68,8 @@ private:
 #ifndef QT_NO_DEBUG_STREAM
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlError &);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -28,6 +28,8 @@
 #include "private/qframe_p.h"
 #include "qabstractscrollarea.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_SCROLLAREA
 
 class QScrollBar;
@@ -103,5 +105,7 @@ private:
 };
 
 #endif // QT_NO_SCROLLAREA
+
+QT_END_NAMESPACE
 
 #endif // QABSTRACTSCROLLAREA_P_H

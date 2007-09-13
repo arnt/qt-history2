@@ -13,6 +13,8 @@
 
 #include "abstractobjectinspector.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerObjectInspectorInterface
 
@@ -84,3 +86,5 @@ QDesignerFormEditorInterface *QDesignerObjectInspectorInterface::core() const
 
     Sets the currently selected form window to \a formWindow.
 */
+
+QT_END_NAMESPACE

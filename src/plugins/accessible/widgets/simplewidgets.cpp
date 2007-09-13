@@ -26,14 +26,16 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 
+#ifdef Q_OS_MAC
+#include <qfocusframe.h>
+#endif
+
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_ACCESSIBILITY
 
 using namespace QAccessible2;
 extern QList<QWidget*> childWidgets(const QWidget *widget, bool includeTopLevel = false);
-
-#ifdef Q_OS_MAC
-#include <qfocusframe.h>
-#endif
 
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 QString Q_GUI_EXPORT qt_accHotKey(const QString &text);
@@ -723,6 +725,9 @@ void QAccessibleLineEdit::scrollToSubstring(int startIndex, int endIndex)
     lineEdit()->setCursorPosition(startIndex);
 }
 
-
 #endif // QT_NO_LINEEDIT
+
 #endif // QT_NO_ACCESSIBILITY
+
+QT_END_NAMESPACE
+

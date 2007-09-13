@@ -20,6 +20,8 @@
 
 #include "codemarker.h"
 
+QT_BEGIN_NAMESPACE
+
 class JavaCodeMarker : public CodeMarker
 {
 public:
@@ -44,5 +46,7 @@ public:
     QString functionEndRegExp( const QString& funcName );
     const Node *resolveTarget( const QString& target, const Tree *tree, const Node *relative );
 };
+
+QT_END_NAMESPACE
 
 #endif

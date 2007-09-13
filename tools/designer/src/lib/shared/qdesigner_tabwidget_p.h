@@ -31,6 +31,8 @@
 #include <QtCore/QPointer>
 #include <QtGui/QIcon>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QTabWidget;
 class QTabBar;
@@ -108,5 +110,7 @@ private:
 };
 
 typedef QDesignerPropertySheetFactory<QTabWidget, QTabWidgetPropertySheet> QTabWidgetPropertySheetFactory;
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_TABWIDGET_H

@@ -13,6 +13,8 @@
 
 #include "dialoggui_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 DialogGui::DialogGui()
@@ -64,3 +66,5 @@ QString DialogGui::getSaveFileName(QWidget *parent, const QString &caption, cons
     return QFileDialog::getSaveFileName(parent, caption, dir, filter, selectedFilter, options);
 }
 }
+
+QT_END_NAMESPACE

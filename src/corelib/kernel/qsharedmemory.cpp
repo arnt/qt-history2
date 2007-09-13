@@ -17,6 +17,8 @@
 #include <qdir.h>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \internal
 
@@ -431,3 +433,5 @@ QString QSharedMemory::errorString() const
     return d->errorString;
 }
 
+
+QT_END_NAMESPACE

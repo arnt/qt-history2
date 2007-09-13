@@ -35,6 +35,8 @@
 # define QMAC_SHIFT QChar(kShiftUnicode)
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_WS_MAC
 static bool qt_sequence_no_mnemonics = true;
 #else
@@ -1353,3 +1355,5 @@ QDebug operator<<(QDebug dbg, const QKeySequence &p)
     \fn DataPtr &QKeySequence::data_ptr()
     \internal
 */
+
+QT_END_NAMESPACE

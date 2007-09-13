@@ -19,23 +19,22 @@
 #include <QtCore/QDate>
 #include <QtCore/QLocale>
 
+QT_BEGIN_NAMESPACE
+
 class QtEnumPropertyType
 {
 };
 
-Q_DECLARE_METATYPE(QtEnumPropertyType)
 
 class QtFlagPropertyType
 {
 };
 
-Q_DECLARE_METATYPE(QtFlagPropertyType)
 
 class QtGroupPropertyType
 {
 };
 
-Q_DECLARE_METATYPE(QtGroupPropertyType)
 
 /*!
     Returns the type id for an enum property.
@@ -2215,5 +2214,11 @@ void QtVariantEditorFactory::disconnectPropertyManager(QtVariantPropertyManager 
     while (itFlag.hasNext())
         d_ptr->m_checkBoxFactory->removePropertyManager(itFlag.next()->subBoolPropertyManager());
 }
+
+QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QtEnumPropertyType)
+Q_DECLARE_METATYPE(QtFlagPropertyType)
+Q_DECLARE_METATYPE(QtGroupPropertyType)
 
 #include "moc_qtvariantproperty.cpp"

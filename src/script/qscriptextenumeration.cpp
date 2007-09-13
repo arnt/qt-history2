@@ -23,6 +23,8 @@
 
 #include <QtCore/QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ext {
 
 EnumerationClassData::EnumerationClassData(QScriptClassInfo *classInfo):
@@ -190,5 +192,7 @@ void Enumeration::Instance::next(QScriptContextPrivate *context, QScriptValueImp
 }
 
 } } // namespace QScript::Ext
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

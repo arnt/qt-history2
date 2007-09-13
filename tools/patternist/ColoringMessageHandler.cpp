@@ -17,6 +17,8 @@
 
 #include "ColoringMessageHandler.h"
 
+QT_BEGIN_NAMESPACE
+
 ColoringMessageHandler::ColoringMessageHandler()
 {
     m_classToColor.insert(QLatin1String("XQuery-data"), Data);
@@ -135,5 +137,7 @@ QString ColoringMessageHandler::colorifyDescription(const QString &in) const
                "The output from Patternist must be well-formed.");
     return result;
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

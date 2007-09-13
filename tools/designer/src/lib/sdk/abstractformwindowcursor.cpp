@@ -13,6 +13,8 @@
 
 #include "abstractformwindowcursor.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerFormWindowCursorInterface
 
@@ -223,3 +225,5 @@ bool QDesignerFormWindowCursorInterface::isWidgetSelected(QWidget *widget) const
 
     \sa setProperty(), setWidgetProperty()
 */
+
+QT_END_NAMESPACE

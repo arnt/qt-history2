@@ -15,6 +15,8 @@
 
 #include "qvfbprotocol.h"
 
+QT_BEGIN_NAMESPACE
+
 class QVFbHeader;
 class QTimer;
 class QMMapViewProtocol : public QVFbViewProtocol
@@ -52,5 +54,7 @@ private:
     unsigned char *dataCache;
     QTimer *mRefreshTimer;
 };
+
+QT_END_NAMESPACE
 
 #endif

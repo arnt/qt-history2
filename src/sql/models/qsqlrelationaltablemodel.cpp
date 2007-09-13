@@ -27,6 +27,8 @@
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QSqlRelation
     \brief The QSqlRelation class stores information about an SQL foreign key.
@@ -599,3 +601,4 @@ bool QSqlRelationalTableModel::removeColumns(int column, int count, const QModel
     return QSqlTableModel::removeColumns(column, count, parent);
 }
 
+QT_END_NAMESPACE

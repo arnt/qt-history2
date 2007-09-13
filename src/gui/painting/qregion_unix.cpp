@@ -20,6 +20,8 @@
 #include "qbitmap.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
  *   clip region
  */
@@ -82,14 +84,14 @@ struct QRegionPrivate {
     inline bool canPrepend(const QRegionPrivate *r) const;
 };
 
-static inline bool isEmpty(const QRegionPrivate *preg)
+static inline bool isEmptyHelper(const QRegionPrivate *preg)
 {
     return !preg || preg->numRects == 0;
 }
 
 void QRegionPrivate::append(const QRegionPrivate *r)
 {
-    Q_ASSERT(!isEmpty(r));
+    Q_ASSERT(!isEmptyHelper(r));
 
     QRect *destRect = rects.data() + numRects;
     const QRect *srcRect = r->rects.constData();
@@ -170,7 +172,7 @@ void QRegionPrivate::prepend(const QRegionPrivate *r)
 
 bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
 {
-    Q_ASSERT(!isEmpty(r));
+    Q_ASSERT(!isEmptyHelper(r));
 
     const QRect *rFirst = r->rects.constData();
     const QRect *myLast = rects.constData() + (numRects - 1);
@@ -198,9 +200,13 @@ bool QRegionPrivate::canPrepend(const QRegionPrivate *r) const
 }
 
 #if defined(Q_WS_X11)
+QT_BEGIN_INCLUDE_NAMESPACE
 # include "qregion_x11.cpp"
+QT_END_INCLUDE_NAMESPACE
 #elif defined(Q_WS_MAC)
+QT_BEGIN_INCLUDE_NAMESPACE
 # include "qregion_mac.cpp"
+QT_END_INCLUDE_NAMESPACE
 #elif defined(Q_WS_QWS)
 static QRegionPrivate qrp;
 QRegion::QRegionData QRegion::shared_empty = {Q_BASIC_ATOMIC_INITIALIZER(1), &qrp};
@@ -276,7 +282,9 @@ SOFTWARE.
 #ifndef _XREGION_H
 #define _XREGION_H
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <limits.h>
+QT_END_INCLUDE_NAMESPACE
 
 /*  1 if two BOXs overlap.
  *  0 if two BOXs do not overlap.
@@ -416,7 +424,7 @@ static void UnionRectWithRegion(register const QRect *rect, const QRegionPrivate
     QRegionPrivate region(*rect);
 
     Q_ASSERT(EqualRegion(source, &dest));
-    Q_ASSERT(!isEmpty(&region));
+    Q_ASSERT(!isEmptyHelper(&region));
 
     if (dest.numRects == 0)
         dest = region;
@@ -1003,7 +1011,7 @@ static void miUnionO(register QRegionPrivate &dest, register const QRect *r1, co
 
 static void UnionRegion(const QRegionPrivate *reg1, const QRegionPrivate *reg2, QRegionPrivate &dest)
 {
-    Q_ASSERT(!isEmpty(reg1) && !isEmpty(reg2));
+    Q_ASSERT(!isEmptyHelper(reg1) && !isEmptyHelper(reg2));
     Q_ASSERT(!reg1->contains(*reg2));
     Q_ASSERT(!reg2->contains(*reg1));
     Q_ASSERT(!EqualRegion(reg1, reg2));
@@ -1182,8 +1190,8 @@ static void miSubtractO(register QRegionPrivate &dest, register const QRect *r1,
 static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS,
                            register QRegionPrivate &dest)
 {
-    Q_ASSERT(!isEmpty(regM));
-    Q_ASSERT(!isEmpty(regS));
+    Q_ASSERT(!isEmptyHelper(regM));
+    Q_ASSERT(!isEmptyHelper(regS));
     Q_ASSERT(EXTENTCHECK(&regM->extents, &regS->extents));
     Q_ASSERT(!regS->contains(*regM));
     Q_ASSERT(!EqualRegion(regM, regS));
@@ -1202,7 +1210,7 @@ static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS,
 
 static void XorRegion(QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate &dest)
 {
-    Q_ASSERT(!isEmpty(sra) && !isEmpty(srb));
+    Q_ASSERT(!isEmptyHelper(sra) && !isEmptyHelper(srb));
     Q_ASSERT(EXTENTCHECK(&sra->extents, &srb->extents));
     Q_ASSERT(!EqualRegion(sra, srb));
 
@@ -1213,12 +1221,12 @@ static void XorRegion(QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate &
     if (!sra->contains(*srb))
         SubtractRegion(srb, sra, trb);
 
-    Q_ASSERT(isEmpty(&trb) || !tra.contains(trb));
-    Q_ASSERT(isEmpty(&tra) || !trb.contains(tra));
+    Q_ASSERT(isEmptyHelper(&trb) || !tra.contains(trb));
+    Q_ASSERT(isEmptyHelper(&tra) || !trb.contains(tra));
 
-    if (isEmpty(&tra)) {
+    if (isEmptyHelper(&tra)) {
         dest = trb;
-    } else if (isEmpty(&trb)) {
+    } else if (isEmptyHelper(&trb)) {
         dest = tra;
     } else if (tra.canAppend(&trb)) {
         dest = tra;
@@ -1258,7 +1266,7 @@ static bool PointInRegion(QRegionPrivate *pRegion, int x, int y)
 {
     int i;
 
-    if (isEmpty(pRegion))
+    if (isEmptyHelper(pRegion))
         return false;
     if (!pRegion->extents.contains(x, y))
         return false;
@@ -2543,7 +2551,7 @@ bool QRegion::contains(const QRect &r) const
 
 void QRegion::translate(int dx, int dy)
 {
-    if (::isEmpty(d->qt_rgn))
+    if (isEmptyHelper(d->qt_rgn))
         return;
 
     detach();
@@ -2583,9 +2591,9 @@ void QRegion::translate(int dx, int dy)
 
 QRegion QRegion::unite(const QRegion &r) const
 {
-    if (::isEmpty(d->qt_rgn))
+    if (isEmptyHelper(d->qt_rgn))
         return r;
-    if (::isEmpty(r.d->qt_rgn))
+    if (isEmptyHelper(r.d->qt_rgn))
         return *this;
 
     if (d->qt_rgn->contains(*r.d->qt_rgn)) {
@@ -2614,9 +2622,9 @@ QRegion QRegion::unite(const QRegion &r) const
 
 QRegion& QRegion::operator+=(const QRegion &r)
 {
-    if (::isEmpty(d->qt_rgn))
+    if (isEmptyHelper(d->qt_rgn))
         return *this = r;
-    if (::isEmpty(r.d->qt_rgn))
+    if (isEmptyHelper(r.d->qt_rgn))
         return *this;
 
     if (d->qt_rgn->contains(*r.d->qt_rgn)) {
@@ -2659,7 +2667,7 @@ QRegion& QRegion::operator+=(const QRegion &r)
 QRegion QRegion::intersect(const QRegion &r) const
 {
     QRegion result;
-    if (::isEmpty(d->qt_rgn) || ::isEmpty(r.d->qt_rgn)
+    if (isEmptyHelper(d->qt_rgn) || isEmptyHelper(r.d->qt_rgn)
         || !EXTENTCHECK(&d->qt_rgn->extents, &r.d->qt_rgn->extents))
         return result;
 
@@ -2708,7 +2716,7 @@ QRegion QRegion::intersect(const QRegion &r) const
 
 QRegion QRegion::subtract(const QRegion &r) const
 {
-    if (::isEmpty(d->qt_rgn) || ::isEmpty(r.d->qt_rgn))
+    if (isEmptyHelper(d->qt_rgn) || isEmptyHelper(r.d->qt_rgn))
         return *this;
     if (r.d->qt_rgn->contains(*d->qt_rgn))
         return QRegion();
@@ -2746,9 +2754,9 @@ QRegion QRegion::subtract(const QRegion &r) const
 
 QRegion QRegion::eor(const QRegion &r) const
 {
-    if (::isEmpty(d->qt_rgn)) {
+    if (isEmptyHelper(d->qt_rgn)) {
         return r;
-    } else if (::isEmpty(r.d->qt_rgn)) {
+    } else if (isEmptyHelper(r.d->qt_rgn)) {
         return *this;
     } else if (!EXTENTCHECK(&d->qt_rgn->extents, &r.d->qt_rgn->extents)) {
         return (*this + r);
@@ -2780,7 +2788,7 @@ QRect QRegion::boundingRect() const
 */
 bool qt_region_strictContains(const QRegion &region, const QRect &rect)
 {
-    if (::isEmpty(region.d->qt_rgn) || !rect.isValid())
+    if (isEmptyHelper(region.d->qt_rgn) || !rect.isValid())
         return false;
 
 #if 0 // TEST_INNERRECT
@@ -2890,3 +2898,5 @@ bool QRegion::operator==(const QRegion &r) const
     else
         return EqualRegion(d->qt_rgn, r.d->qt_rgn);
 }
+
+QT_END_NAMESPACE

@@ -13,6 +13,8 @@
 
 #include "qvariablereference_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 VariableReference::VariableReference(const VariableSlotID slotP) : m_slot(slotP)
@@ -26,3 +28,5 @@ Expression::Properties VariableReference::properties() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

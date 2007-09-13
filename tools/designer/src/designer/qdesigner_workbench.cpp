@@ -58,6 +58,8 @@
 #include <QtGui/QMdiArea>
 #include <QtGui/QMdiSubWindow>
 
+QT_BEGIN_NAMESPACE
+
 static QMdiSubWindow *mdiSubWindowOf(const QWidget *w)
 {
     QMdiSubWindow *rc = qobject_cast<QMdiSubWindow *>(w->parentWidget());
@@ -1338,3 +1340,5 @@ void QDesignerWorkbench::updateToolBarMenu()
         m_toolbarMenu->addAction(it.value()->toggleViewAction());
     }
 }
+
+QT_END_NAMESPACE

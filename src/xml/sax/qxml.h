@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Xml)
 
 class QXmlNamespaceSupport;
@@ -387,6 +389,8 @@ private:
 
 inline int QXmlAttributes::count() const
 { return length(); }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

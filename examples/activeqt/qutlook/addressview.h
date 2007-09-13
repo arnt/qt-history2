@@ -17,10 +17,10 @@
 #include <QWidget>
 
 class AddressBookModel;
-class QLineEdit;
-class QModelIndex;
-class QPushButton;
-class QTreeView;
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QModelIndex)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTreeView)
 
 class AddressView : public QWidget
 {

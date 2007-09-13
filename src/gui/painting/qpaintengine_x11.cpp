@@ -50,6 +50,8 @@
 #include <private/qtessellator_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
@@ -2164,3 +2166,4 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 }
 #endif // !QT_NO_XRENDER
 
+QT_END_NAMESPACE

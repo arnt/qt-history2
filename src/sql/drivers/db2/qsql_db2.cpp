@@ -38,6 +38,10 @@
 
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 static const int COLNAMESIZE = 255;
 static const SQLSMALLINT qParamType[4] = { SQL_PARAM_INPUT, SQL_PARAM_INPUT, SQL_PARAM_OUTPUT, SQL_PARAM_INPUT_OUTPUT };
 
@@ -1499,3 +1503,5 @@ QVariant QDB2Driver::handle() const
     return QVariant(qRegisterMetaType<SQLHANDLE>("SQLHANDLE"), &d->hDbc);
 }
 
+
+QT_END_NAMESPACE

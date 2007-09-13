@@ -29,6 +29,9 @@
 #include "private/qfsfileengine_p.h" // for longFileName and win95FileName
 
 #ifndef QT_NO_PROCESS
+
+QT_BEGIN_NAMESPACE
+
 //#define QPROCESS_DEBUG
 
 #define NOTIFYTIMEOUT 100
@@ -808,5 +811,6 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     return success;
 }
 
-#endif // QT_NO_PROCESS
+QT_END_NAMESPACE
 
+#endif // QT_NO_PROCESS

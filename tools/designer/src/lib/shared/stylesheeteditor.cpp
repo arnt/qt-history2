@@ -29,6 +29,8 @@ TRANSLATOR qdesigner_internal::StyleSheetEditorDialog
 #include <QtGui/QVBoxLayout>
 #include "private/qcssparser_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static const char *styleSheetProperty = "styleSheet";
 
 namespace qdesigner_internal {
@@ -129,3 +131,5 @@ void StyleSheetPropertyEditorDialog::applyStyleSheet()
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

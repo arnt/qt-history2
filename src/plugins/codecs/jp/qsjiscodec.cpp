@@ -23,6 +23,8 @@
 #include "qsjiscodec.h"
 #include "qlist.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TEXTCODEC
 enum {
     Esc = 0x1b
@@ -193,3 +195,5 @@ QList<QByteArray> QSjisCodec::_aliases()
     return list;
 }
 #endif // QT_NO_TEXTCODEC
+
+QT_END_NAMESPACE

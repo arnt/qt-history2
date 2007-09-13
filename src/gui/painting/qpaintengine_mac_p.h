@@ -32,6 +32,7 @@
 #include "private/qpaintengine_p.h"
 #include "private/qpolygonclipper_p.h"
 
+QT_BEGIN_NAMESPACE
 
 class QCoreGraphicsPaintEnginePrivate;
 class QCoreGraphicsPaintEngine : public QPaintEngine
@@ -154,5 +155,7 @@ public:
         CGContextSetTextMatrix(hd, xform);
     }
 };
+
+QT_END_NAMESPACE
 
 #endif // QPAINTENGINE_MAC_P_H

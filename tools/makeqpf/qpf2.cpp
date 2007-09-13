@@ -17,6 +17,9 @@
 #include <private/qfontengine_p.h>
 #include <QFile>
 #include <qendian.h>
+
+QT_BEGIN_NAMESPACE
+
 #include "../../src/gui/text/qpfutil.cpp"
 
 int QPF::debugVerbosity = 0;
@@ -733,3 +736,4 @@ void QPF::dumpGlyph(const uchar *data, const QFontEngineQPF::Glyph *glyph)
     fprintf(stderr, "----\n");
 }
 
+QT_END_NAMESPACE

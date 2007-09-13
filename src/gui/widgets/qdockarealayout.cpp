@@ -30,6 +30,8 @@
 
 #ifndef QT_NO_DOCKWIDGET
 
+QT_BEGIN_NAMESPACE
+
 enum { StateFlagVisible = 1, StateFlagFloating = 2 };
 
 /******************************************************************************
@@ -585,7 +587,7 @@ void QDockAreaLayoutInfo::fitItems()
     }
 }
 
-static QInternal::DockPosition dockPos(const QRect &rect, const QPoint &_pos,
+static QInternal::DockPosition dockPosHelper(const QRect &rect, const QPoint &_pos,
                                         Qt::Orientation o,
                                         bool nestingEnabled,
                                         QDockAreaLayoutInfo::TabMode tabMode)
@@ -738,7 +740,7 @@ QList<int> QDockAreaLayoutInfo::gapIndex(const QPoint& _pos,
     Q_ASSERT(!item_rect.isNull());
 
     QInternal::DockPosition dock_pos
-        = ::dockPos(item_rect, _pos, o, nestingEnabled, tabMode);
+        = dockPosHelper(item_rect, _pos, o, nestingEnabled, tabMode);
 
     switch (dock_pos) {
         case QInternal::LeftDock:
@@ -796,7 +798,7 @@ static inline int grow(QLayoutStruct &ls, int delta)
     return ls.size - old_size;
 }
 
-static int separatorMove(QVector<QLayoutStruct> &list, int index, int delta, int sep)
+static int separatorMoveHelper(QVector<QLayoutStruct> &list, int index, int delta, int sep)
 {
     // adjust sizes
     int pos = -1;
@@ -899,7 +901,7 @@ int QDockAreaLayoutInfo::separatorMove(int index, int delta, QVector<QLayoutStru
 
     QVector<QLayoutStruct> list = *cache;
 
-    delta = ::separatorMove(list, index, delta, sep);
+    delta = separatorMoveHelper(list, index, delta, sep);
 
     for (int i = 0; i < item_list.size(); ++i) {
         QDockAreaLayoutItem &item = item_list[i];
@@ -2987,7 +2989,7 @@ int QDockAreaLayout::separatorMove(QList<int> separator, const QPoint &origin,
                         : Qt::Vertical;
 
     delta = pick(o, dest - origin);
-    delta = ::separatorMove(list, sep_index, delta, sep);
+    delta = separatorMoveHelper(list, sep_index, delta, sep);
 
     if (index == QInternal::LeftDock || index == QInternal::RightDock)
         setGrid(0, &list);
@@ -3109,5 +3111,7 @@ void QDockAreaLayout::keepSize(QDockWidget *w)
     if (item.size != -1)
         item.flags |= QDockAreaLayoutItem::KeepSize;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DOCKWIDGET

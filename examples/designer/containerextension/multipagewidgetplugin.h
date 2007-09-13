@@ -16,8 +16,8 @@
 
 #include <QtDesigner/QDesignerCustomWidgetInterface>
 
-class QIcon;
-class QWidget;
+QT_DECLARE_CLASS(QIcon)
+QT_DECLARE_CLASS(QWidget)
 
 class MultiPageWidgetPlugin: public QObject, public QDesignerCustomWidgetInterface
 {

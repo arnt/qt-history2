@@ -25,6 +25,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+QT_BEGIN_NAMESPACE
+
 static bool encodingIsUtf8( const QXmlAttributes& atts )
 {
     for ( int i = 0; i < atts.length(); i++ ) {
@@ -811,3 +813,5 @@ QStringList MetaTranslator::normalizedTranslations(const MetaTranslatorMessage& 
     }
     return translations;    
 }
+
+QT_END_NAMESPACE

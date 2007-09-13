@@ -16,6 +16,8 @@
 
 #include "qoptimizationpasses_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 OptimizationPass::List OptimizationPasses::comparisonPasses;
@@ -150,3 +152,5 @@ void OptimizationPasses::Coordinator::init()
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

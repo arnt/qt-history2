@@ -16,6 +16,8 @@
 
 #include "winmakefile.h"
 
+QT_BEGIN_NAMESPACE
+
 class NmakeMakefileGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
@@ -40,5 +42,7 @@ public:
 
 inline NmakeMakefileGenerator::~NmakeMakefileGenerator()
 { }
+
+QT_END_NAMESPACE
 
 #endif // MSVC_NMAKE_H

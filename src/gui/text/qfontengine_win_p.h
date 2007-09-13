@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <QtCore/qconfig.h>
+
+QT_BEGIN_NAMESPACE
+
 class QFontEngineWin : public QFontEngine
 {
 public:
@@ -107,5 +111,7 @@ public:
 
     QStringList fallbacks;
 };
+
+QT_END_NAMESPACE
 
 #endif // QFONTENGINE_WIN_P_H

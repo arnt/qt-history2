@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_TREEVIEW
 
+QT_BEGIN_NAMESPACE
+
 struct QTreeViewItem
 {
     QTreeViewItem() : expanded(false), spanning(false), total(0), level(0), height(0) {}
@@ -166,6 +168,8 @@ public:
     int hoverBranch;
 
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_TREEVIEW
 

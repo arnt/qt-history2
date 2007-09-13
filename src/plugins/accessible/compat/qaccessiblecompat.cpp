@@ -19,6 +19,8 @@
 #include <q3iconview.h>
 #include <q3listbox.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
 \fn Q3AccessibleScrollView::Q3AccessibleScrollView(QWidget* widget, Role role)
 
@@ -809,3 +811,5 @@ QVector<int> QAccessibleListBox::selection() const
     array.resize(size);
     return array;
 }
+
+QT_END_NAMESPACE

@@ -24,6 +24,8 @@
 
 #include "qqnamefns_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Item QNameFN::evaluateSingleton(const DynamicContext::Ptr &context) const
@@ -158,3 +160,5 @@ Item::Iterator::Ptr InScopePrefixesFN::evaluateSequence(const DynamicContext::Pt
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

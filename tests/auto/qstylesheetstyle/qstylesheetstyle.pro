@@ -12,3 +12,6 @@ CONFIG += console qtestlib
 # Input
 SOURCES += tst_qstylesheetstyle.cpp 
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

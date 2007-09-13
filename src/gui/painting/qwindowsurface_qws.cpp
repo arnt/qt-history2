@@ -28,6 +28,8 @@
 #include <private/qbackingstore_p.h>
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef Q_BACKINGSTORE_SUBSURFACES
 
 typedef QMap<int, QWSWindowSurface*> SurfaceMap;
@@ -1305,3 +1307,5 @@ void QWSDirectPainterSurface::unlock()
 }
 
 #endif // QT_NO_DIRECTPAINTER
+
+QT_END_NAMESPACE

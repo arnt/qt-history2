@@ -27,6 +27,8 @@
 #include "qtextengine_p.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 extern float qt_mac_defaultDpi_x(); //qpaintdevice_mac.cpp
 
 int qt_mac_pixelsize(const QFontDef &def, int dpi)
@@ -122,3 +124,5 @@ QString QFont::lastResortFont() const
 {
     return QString::fromLatin1("Geneva");
 }
+
+QT_END_NAMESPACE

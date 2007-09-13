@@ -23,6 +23,8 @@
 #include "qglpixelbuffer.h"
 #include "qglpixelbuffer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef GLX_VERSION_1_3
 #define GLX_RGBA_BIT            0x00000002
 #define GLX_PBUFFER_BIT         0x00000004
@@ -248,3 +250,5 @@ bool QGLPixelBuffer::hasOpenGLPbuffers()
     }
     return pbuf && ctx;
 }
+
+QT_END_NAMESPACE

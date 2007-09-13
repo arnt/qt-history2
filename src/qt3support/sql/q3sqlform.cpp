@@ -22,6 +22,8 @@
 #include "qwidget.h"
 #include "qhash.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3SqlFormPrivate
 {
 public:
@@ -367,5 +369,7 @@ void Q3SqlForm::clearMap()
 {
     d->map.clear();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SQL

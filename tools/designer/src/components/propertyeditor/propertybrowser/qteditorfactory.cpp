@@ -26,6 +26,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 // ---------- EditorFactoryPrivate :
 // Base class for editor factory private classes. Manages mapping of properties to editors and vice versa.
 
@@ -2209,6 +2211,8 @@ void QtCursorEditorFactory::disconnectPropertyManager(QtCursorPropertyManager *m
     disconnect(manager, SIGNAL(valueChanged(QtProperty *, const QCursor &)),
                 this, SLOT(slotPropertyChanged(QtProperty *, const QCursor &)));
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qteditorfactory.cpp"
 #include "qteditorfactory.moc"

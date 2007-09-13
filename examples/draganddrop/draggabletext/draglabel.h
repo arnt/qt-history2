@@ -16,9 +16,9 @@
 
 #include <QLabel>
 
-class QDragEnterEvent;
-class QDragMoveEvent;
-class QFrame;
+QT_DECLARE_CLASS(QDragEnterEvent)
+QT_DECLARE_CLASS(QDragMoveEvent)
+QT_DECLARE_CLASS(QFrame)
 
 class DragLabel : public QLabel
 {

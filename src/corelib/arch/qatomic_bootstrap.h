@@ -16,6 +16,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 inline bool QBasicAtomicInt::ref()
 {
     return ++_q_value != 0;
@@ -35,6 +37,8 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValu
     }
     return false;
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -6,3 +6,6 @@ DESTDIR		= ./
 
 infile($(QTDIR)/.qmake.cache, CONFIG, debug):CONFIG += debug
 infile($(QTDIR)/.qmake.cache, CONFIG, release):CONFIG += release
+
+DEFINES += QT_USE_USING_NAMESPACE
+

@@ -142,6 +142,8 @@
 #include "QtGui/qheaderview.h"
 #include "QtGui/qdesktopwidget.h"
 
+QT_BEGIN_NAMESPACE
+
 QCompletionModel::QCompletionModel(QCompleterPrivate *c, QObject *parent)
     : QAbstractProxyModel(*new QCompletionModelPrivate, parent),
       c(c), engine(0), showAll(false)
@@ -1683,6 +1685,8 @@ QStringList QCompleter::splitPath(const QString& path) const
     the user. It is also sent if complete() is called with the completionMode()
     set to QCOmpleter::InlineCompletion. The item's \a text is given.
 */
+
+QT_END_NAMESPACE
 
 #include "moc_qcompleter.cpp"
 

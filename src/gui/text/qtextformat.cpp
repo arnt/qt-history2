@@ -20,6 +20,8 @@
 #include <qmap.h>
 #include <qhash.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QTextLength
     \brief The QTextLength class encapsulates the different types of length
@@ -2642,3 +2644,4 @@ void QTextFormatCollection::setDefaultFont(const QFont &f)
             formats[i].d->resolveFont(defaultFnt);
 }
 
+QT_END_NAMESPACE

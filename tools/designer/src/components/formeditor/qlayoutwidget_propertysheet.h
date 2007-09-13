@@ -18,6 +18,8 @@
 #include <extensionfactory_p.h>
 #include <qlayout_widget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QLayoutWidgetPropertySheet: public QDesignerPropertySheet
@@ -36,5 +38,7 @@ public:
 
 typedef QDesignerPropertySheetFactory<QLayoutWidget, QLayoutWidgetPropertySheet> QLayoutWidgetPropertySheetFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QLAYOUTWIDGET_PROPERTYSHEET_H

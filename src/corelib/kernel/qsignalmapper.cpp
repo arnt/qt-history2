@@ -16,6 +16,8 @@
 #include "qhash.h"
 #include "qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QSignalMapperPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QSignalMapper)
@@ -299,5 +301,9 @@ void QSignalMapper::map(QObject *sender)
     \sa setMapping()
 */
 
+QT_END_NAMESPACE
+
 #include "moc_qsignalmapper.cpp"
+
 #endif // QT_NO_SIGNALMAPPER
+

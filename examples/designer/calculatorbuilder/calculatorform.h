@@ -16,8 +16,8 @@
 
 #include <QWidget>
 
-class QLabel;
-class QSpinBox;
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QSpinBox)
 
 class CalculatorForm : public QWidget
 {

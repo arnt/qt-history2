@@ -31,6 +31,8 @@
 
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QMetaObject
 
@@ -2086,3 +2088,5 @@ const char* QMetaClassInfo::value() const
     Constructs a QGenericReturnArgument object with the given \a name
     and \a data.
 */
+
+QT_END_NAMESPACE

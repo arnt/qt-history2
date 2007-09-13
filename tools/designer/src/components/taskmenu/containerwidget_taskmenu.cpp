@@ -34,6 +34,8 @@ TRANSLATOR qdesigner_internal::ContainerWidgetTaskMenu
 
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 ContainerWidgetTaskMenu::ContainerWidgetTaskMenu(QWidget *widget, QObject *parent)
@@ -163,3 +165,5 @@ QObject *ContainerWidgetTaskMenuFactory::createExtension(QObject *object, const 
 
     return 0;
 }
+
+QT_END_NAMESPACE

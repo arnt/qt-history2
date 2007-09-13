@@ -50,6 +50,8 @@
 #include "qvariant.h"
 #include "qdnd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   Internal QClipboard functions for X11.
  *****************************************************************************/
@@ -1318,5 +1320,7 @@ bool qt_check_clipboard_sentinel()
 
     return doIt;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_CLIPBOARD

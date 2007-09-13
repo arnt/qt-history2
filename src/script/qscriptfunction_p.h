@@ -34,10 +34,13 @@
 #include "qscriptnodepool_p.h"
 
 #include <QtCore/QList>
+
 #ifndef QT_NO_QOBJECT
-#include <QtCore/QPointer>
-#include <QtCore/QMetaMethod>
+# include <QtCore/QPointer>
+# include <QtCore/QMetaMethod>
 #endif
+
+QT_BEGIN_NAMESPACE
 
 class QScriptContext;
 class QScriptNameIdImpl;
@@ -162,6 +165,8 @@ private:
 
 } // namespace QScript
 
-#endif // QT_NO_SCRIPT
-#endif
+QT_END_NAMESPACE
 
+#endif // QT_NO_SCRIPT
+
+#endif // QSCRIPTFUNCTION_P_H

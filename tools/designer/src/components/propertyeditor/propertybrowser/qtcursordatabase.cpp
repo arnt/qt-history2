@@ -14,6 +14,8 @@
 #include "qtcursordatabase_p.h"
 #include <QtGui/QApplication>
 
+QT_BEGIN_NAMESPACE
+
 QtCursorDatabase::QtCursorDatabase()
 {
     appendCursor(Qt::ArrowCursor, QApplication::translate("QtCursorDatabase", "Arrow", 0,
@@ -106,5 +108,4 @@ QCursor QtCursorDatabase::valueToCursor(int value) const
     return QCursor();
 }
 
-
-
+QT_END_NAMESPACE

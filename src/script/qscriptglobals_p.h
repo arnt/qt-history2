@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 class QScriptValue;
 class QScriptValueImpl;
 class QScriptClassInfo;
@@ -76,5 +78,8 @@ enum Type {
 
 } // namespace QScript
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
-#endif
+
+#endif // QSCRIPTGLOBALS_P_H

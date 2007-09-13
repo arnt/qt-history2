@@ -15,6 +15,8 @@
 
 #include "quoter.h"
 
+QT_BEGIN_NAMESPACE
+
 Quoter::Quoter()
     : silent( false ), splitPoint( "\n(?!\n|$)" ), manyEndls( "\n\n+" )
 {
@@ -215,3 +217,5 @@ QString Quoter::trimWhiteSpace( const QString& str )
     }
     return t;
 }
+
+QT_END_NAMESPACE

@@ -32,6 +32,8 @@
 #include <sys/vt.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 static const QWSKeyMap pc101KeyM[] = {
     {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_Escape,     27      , 27      , 0xffff  },
@@ -450,5 +452,6 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     extended = 0;
 }
 
-#endif // QT_NO_QWS_KEYBOARD
+QT_END_NAMESPACE
 
+#endif // QT_NO_QWS_KEYBOARD

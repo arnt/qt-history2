@@ -20,8 +20,8 @@ QT_BEGIN_HEADER
 
 #ifndef QT_NO_LOCALSERVER
 
-class QLocalSocket;
-class QLocalServerPrivate;
+QT_DECLARE_CLASS(QLocalSocket)
+QT_DECLARE_CLASS(QLocalServerPrivate)
 
 class QLocalServer : public QObject
 {

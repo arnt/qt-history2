@@ -16,6 +16,8 @@
 
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+
 struct Preferences;
 
 namespace Ui {
@@ -44,5 +46,7 @@ private:
 
     Ui::PreferencesDialog *m_ui;
 };
+
+QT_END_NAMESPACE
 
 #endif // PREFERENCESDIALOG_H

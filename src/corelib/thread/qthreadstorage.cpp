@@ -20,6 +20,8 @@
 
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 // #define THREADSTORAGE_DEBUG
 #ifdef THREADSTORAGE_DEBUG
 #  define DEBUG qDebug
@@ -273,3 +275,5 @@ void QThreadStorageData::finish(void **p)
 */
 
 #endif // QT_NO_THREAD
+
+QT_END_NAMESPACE

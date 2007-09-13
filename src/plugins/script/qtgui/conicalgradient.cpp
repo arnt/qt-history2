@@ -8,6 +8,8 @@ Q_DECLARE_METATYPE(QGradient)
 Q_DECLARE_METATYPE(QConicalGradient)
 Q_DECLARE_METATYPE(QConicalGradient*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newConicalGradient(QScriptEngine *eng, const QConicalGradient &gradient)
 {
     return eng->newVariant(qVariantFromValue(gradient));
@@ -86,3 +88,5 @@ QScriptValue constructConicalGradientClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

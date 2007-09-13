@@ -4,8 +4,10 @@
 #include <QtGui/QGraphicsRectItem>
 #include "../global.h"
 
-DECLARE_POINTER_METATYPE(QGraphicsRectItem)
 Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
+DECLARE_POINTER_METATYPE(QGraphicsRectItem)
+
+QT_BEGIN_NAMESPACE
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -70,3 +72,5 @@ QScriptValue constructGraphicsRectItemClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

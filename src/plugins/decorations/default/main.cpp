@@ -14,6 +14,8 @@
 #include <qdecorationplugin_qws.h>
 #include <qdecorationdefault_qws.h>
 
+QT_BEGIN_NAMESPACE
+
 class DecorationDefault : public QDecorationPlugin
 {
 public:
@@ -45,3 +47,5 @@ QDecoration* DecorationDefault::create(const QString& s)
 
 Q_EXPORT_STATIC_PLUGIN(DecorationDefault)
 Q_EXPORT_PLUGIN2(qdecorationdefault, DecorationDefault)
+
+QT_END_NAMESPACE

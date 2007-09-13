@@ -21,7 +21,7 @@
 
 //TESTED_FILES=gui/text/qtextcursor.cpp gui/text/qtextcursor_p.h
 
-class QTextDocument;
+QT_DECLARE_CLASS(QTextDocument)
 
 class tst_QTextCursor : public QObject
 {

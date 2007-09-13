@@ -265,6 +265,8 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 class QGraphicsViewPrivate : public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsView)
@@ -3433,5 +3435,8 @@ void QGraphicsView::resetTransform()
     setTransform(QTransform());
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qgraphicsview.cpp"
+
 #endif // QT_NO_GRAPHICSVIEW

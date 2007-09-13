@@ -17,6 +17,8 @@
 #include "ui_translatedialog.h"
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+
 class TranslateDialog : public QDialog
 {
     Q_OBJECT
@@ -47,5 +49,7 @@ private:
     Ui::TranslateDialog m_ui;
 };
 
+
+QT_END_NAMESPACE
 #endif  //TRANSLATEDIALOG_H
 

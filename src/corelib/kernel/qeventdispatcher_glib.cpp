@@ -25,6 +25,8 @@
 
 #include <glib.h>
 
+QT_BEGIN_NAMESPACE
+
 struct GPollFDWithQSocketNotifier
 {
     GPollFD pollfd;
@@ -486,3 +488,5 @@ QEventDispatcherGlib::QEventDispatcherGlib(QEventDispatcherGlibPrivate &dd, QObj
     : QAbstractEventDispatcher(dd, parent)
 {
 }
+
+QT_END_NAMESPACE

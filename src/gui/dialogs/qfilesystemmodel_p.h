@@ -30,6 +30,8 @@
 #include <QtCore/qdir.h>
 #include <QtGui/qicon.h>
 
+QT_BEGIN_NAMESPACE
+
 class ExtendedInformation;
 class QFileSystemModelPrivate;
 class QFileIconProvider;
@@ -134,6 +136,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_resolvedName(const QString &fileName, const QString &resolvedName))
 };
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qabstractitemmodel.h>
 #include <private/qabstractitemmodel_p.h>
 #include "qfileinfogatherer_p.h"
@@ -142,6 +145,7 @@ private:
 #include <qfileinfo.h>
 #include <qtimer.h>
 #include <qhash.h>
+QT_END_INCLUDE_NAMESPACE
 
 class Q_AUTOTEST_EXPORT QFileSystemModelPrivate : public QAbstractItemModelPrivate
 {
@@ -371,6 +375,8 @@ public:
 
 };
 #endif // QT_NO_FILESYSTEMWATCHER
+
+QT_END_NAMESPACE
 
 #endif
 

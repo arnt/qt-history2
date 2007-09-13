@@ -13,6 +13,8 @@
 
 #include <qshareddata.h>
 
+QT_BEGIN_NAMESPACE
+
 /*! 
     \class QSharedData
     \brief The QSharedData class is a base class for shared data objects.
@@ -308,3 +310,5 @@
     This function is automatically called by QSharedDataPointer when
     necessary. You should never need to call it yourself.
 */
+
+QT_END_NAMESPACE

@@ -14,6 +14,8 @@
 #include "qtsimplexml.h"
 #include <QDomDocument>
 
+QT_BEGIN_NAMESPACE
+
 QtSimpleXml::QtSimpleXml(const QString &name)
 {
     valid = false;
@@ -244,3 +246,5 @@ QString QtSimpleXml::errorString() const
 {
     return errorStr;
 }
+
+QT_END_NAMESPACE

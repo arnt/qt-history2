@@ -31,6 +31,8 @@
 # include <private/qcore_mac_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QToolTip
 
@@ -492,6 +494,8 @@ void QToolTip::setFont(const QFont &font)
     widget->setToolTip("");
     \endcode
 */
+
+QT_END_NAMESPACE
 
 #include "qtooltip.moc"
 #endif // QT_NO_TOOLTIP

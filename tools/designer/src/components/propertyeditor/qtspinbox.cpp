@@ -15,6 +15,8 @@
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 QtSpinBox::QtSpinBox(QWidget *parent)
@@ -46,3 +48,4 @@ void QtDoubleSpinBox::fixup(QString &input) const
     input = textFromValue(val);
 }
 
+QT_END_NAMESPACE

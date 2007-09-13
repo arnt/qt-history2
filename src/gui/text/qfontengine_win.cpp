@@ -52,6 +52,13 @@
    )
 
 typedef BOOL (WINAPI *PtrGetCharWidthI)(HDC, UINT, UINT, LPWORD, LPINT);
+
+HDC   shared_dc            = 0;                // common dc for all fonts
+
+QT_BEGIN_NAMESPACE
+
+static HFONT stock_sysfont  = 0;
+
 static PtrGetCharWidthI ptrGetCharWidthI = 0;
 static bool resolvedGetCharWidthI = false;
 
@@ -109,16 +116,13 @@ static inline quint16 getUShort(unsigned char *p)
     return val;
 }
 
-
-HDC   shared_dc            = 0;                // common dc for all fonts
-static HFONT stock_sysfont  = 0;
-
 static inline HFONT systemFont()
 {
     if (stock_sysfont == 0)
         stock_sysfont = (HFONT)GetStockObject(SYSTEM_FONT);
     return stock_sysfont;
 }
+
 
 // general font engine
 
@@ -979,7 +983,10 @@ QFontEngine::FaceId QFontEngineWin::faceId() const
 {
     return _faceId;
 }
+
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qdebug.h>
+QT_END_INCLUDE_NAMESPACE
 
 int QFontEngineWin::synthesized() const
 {
@@ -1185,3 +1192,4 @@ void QFontEngineMultiWin::loadEngine(int at)
     engines[at]->fontDef = fontDef;
 }
 
+QT_END_NAMESPACE

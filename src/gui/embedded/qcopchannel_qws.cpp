@@ -27,6 +27,8 @@
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 typedef QMap<QString, QList<QWSClient*> > QCopServerMap;
 static QCopServerMap *qcopServerMap = 0;
 
@@ -591,6 +593,9 @@ void QCopChannel::sendLocally(const QString& ch, const QString& msg,
 	    channel->receive(msg, data);
     }
 }
+
+QT_END_NAMESPACE
+
 #include "qcopchannel_qws.moc"
 
 #endif

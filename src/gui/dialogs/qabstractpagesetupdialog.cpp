@@ -18,6 +18,8 @@
 
 #include <QtGui/qprinter.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \internal
     \class QAbstractPageSetupDialog
@@ -73,5 +75,7 @@ QPrinter *QAbstractPageSetupDialog::printer()
     This virtual function is called to pop up the dialog. It must be
     reimplemented in subclasses.
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTDIALOG

@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QMenuItem : public QAction
@@ -38,6 +40,8 @@ private:
     void setId(int);
     void setSignalValue(int);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

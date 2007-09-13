@@ -21,6 +21,8 @@
 #include <qdebug.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QStyleOption
     \brief The QStyleOption class stores the parameters used by QStyle functions.
@@ -4766,3 +4768,5 @@ QDebug operator<<(QDebug debug, const QStyleOption &option)
     return debug;
 }
 #endif
+
+QT_END_NAMESPACE

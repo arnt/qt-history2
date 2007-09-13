@@ -17,3 +17,4 @@ solaris-cc*:SUBDIRS -= calculatorbuilder \
 sources.files = README *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/designer
 INSTALLS += sources
+DEFINES += QT_USE_USING_NAMESPACE

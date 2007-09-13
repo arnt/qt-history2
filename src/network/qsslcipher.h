@@ -34,6 +34,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Network)
 
 #ifndef QT_NO_OPENSSL
@@ -72,6 +74,8 @@ Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, const QSslCipher &cipher);
 #endif
 
 #endif // QT_NO_OPENSSL
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

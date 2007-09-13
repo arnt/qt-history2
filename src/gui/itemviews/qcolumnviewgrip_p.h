@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_QCOLUMNVIEW
 
+QT_BEGIN_NAMESPACE
+
 class QColumnViewGripPrivate;
 
 class Q_AUTOTEST_EXPORT QColumnViewGrip : public QWidget {
@@ -66,6 +68,8 @@ public:
 
     int originalXLocation;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QCOLUMNVIEW
 

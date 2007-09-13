@@ -18,6 +18,8 @@
 #include "qt_windows.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 /*  Keys are stored in QStrings. If the variable name starts with 'u', this is a "user"
     key, ie. "foo/bar/alpha/beta". If the variable name starts with 'r', this is a "registry"
     key, ie. "\foo\bar\alpha\beta". */
@@ -894,3 +896,5 @@ QSettingsPrivate *QSettingsPrivate::create(const QString &fileName, QSettings::F
         return new QConfFileSettingsPrivate(fileName, format);
     }
 }
+
+QT_END_NAMESPACE

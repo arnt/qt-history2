@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #if defined(QT_NO_NETWORK) || defined(QT_NO_DNS)
@@ -137,6 +139,8 @@ Q_SIGNALS:
 #endif // Q_OS_MAC
 
 #endif // QT_NO_SOUND
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

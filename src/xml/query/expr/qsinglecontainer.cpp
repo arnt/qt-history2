@@ -17,6 +17,8 @@
 
 #include "qsinglecontainer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 SingleContainer::SingleContainer(const Expression::Ptr &operand) : m_operand(operand)
@@ -46,3 +48,5 @@ bool SingleContainer::compressOperands(const StaticContext::Ptr &context)
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

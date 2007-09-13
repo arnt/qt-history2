@@ -35,6 +35,8 @@
 # include <private/qt_mac_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class QKeyMapperPrivate;
 class QKeyMapper : public QObject
 {
@@ -85,10 +87,15 @@ enum WindowsNativeModifiers {
     typedef struct tagMSG MSG;
 # endif
 #elif defined(Q_WS_MAC)
+QT_BEGIN_INCLUDE_NAMESPACE
 # include <private/qt_mac_p.h>
+QT_END_INCLUDE_NAMESPACE
 #elif defined(Q_WS_X11)
+
+QT_BEGIN_INCLUDE_NAMESPACE
 typedef ulong XID;
 typedef XID KeySym;
+QT_END_INCLUDE_NAMESPACE
 
 struct QXCoreDesc {
     int min_keycode;
@@ -171,5 +178,7 @@ public:
 };
 
 QKeyMapperPrivate *qt_keymapper_private(); // from qkeymapper.cpp
+
+QT_END_NAMESPACE
 
 #endif // QKEYMAPPER_P_H

@@ -24,6 +24,8 @@
 #include "qtimer.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 /*
   Internal class to get access to protected QWidget-members
 */
@@ -509,12 +511,6 @@ void QRollEffect::scroll()
     }
 }
 
-/*
-  Delete this after timeout
-*/
-
-#include "qeffects.moc"
-
 /*!
     Scroll widget \a w in \a time ms. \a orient may be 1 (vertical), 2
     (horizontal) or 3 (diagonal).
@@ -561,4 +557,13 @@ void qFadeEffect(QWidget* w, int time)
 
     q_blend->run(time);
 }
+
+QT_END_NAMESPACE
+
+/*
+  Delete this after timeout
+*/
+
+#include "qeffects.moc"
+
 #endif //QT_NO_EFFECTS

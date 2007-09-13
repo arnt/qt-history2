@@ -23,7 +23,11 @@
 # include <qdebug.h>
 # include "qfile.h"
 # include <ctype.h>
+#endif
 
+QT_BEGIN_NAMESPACE
+
+#ifdef QWSCOMMAND_DEBUG
 // QWSHexDump -[ start ]---------------------------------------------
 # define QWSHEXDUMP_MAX 32
 class QWSHexDump
@@ -574,3 +578,4 @@ QWSCommand *QWSCommand::factory(int type)
     return command;
 }
 
+QT_END_NAMESPACE

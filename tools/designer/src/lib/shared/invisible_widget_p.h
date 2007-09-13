@@ -29,6 +29,8 @@
 
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QDESIGNER_SHARED_EXPORT InvisibleWidget: public QWidget
@@ -39,5 +41,7 @@ public:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // INVISIBLE_WIDGET_H

@@ -18,6 +18,8 @@
 #include <private/qprintengine_win_p.h>
 #include <private/qabstractpagesetupdialog_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPageSetupDialogPrivate : public QAbstractPageSetupDialogPrivate
 {
 };
@@ -82,6 +84,7 @@ int QPageSetupDialog::exec()
     }
 
     GlobalFree(tempDevNames);
-
     return result;
 }
+
+QT_END_NAMESPACE

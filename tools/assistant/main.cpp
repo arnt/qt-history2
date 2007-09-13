@@ -36,12 +36,15 @@
 
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf(stderr, "%s\n", text); return 1; }
 
+QT_BEGIN_NAMESPACE
 
 #if !defined(QT_NO_DBUS) && defined(Q_OS_UNIX)
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusAbstractAdaptor>
 #include <QtDBus/QDBusObjectPath>
 #include "tabbedbrowser.h"
+QT_END_INCLUDE_NAMESPACE
 
 class HelpWindowAdaptor : public QDBusAbstractAdaptor
 {
@@ -211,10 +214,8 @@ void AssistantServer::incomingConnection( int socket )
     emit newConnect();
 }
 
-int main( int argc, char ** argv )
+int runAssistant( int argc, char ** argv )
 {
-    Q_INIT_RESOURCE(assistant);
-
     bool withGUI = true;
 #ifndef Q_WS_WIN
     if ( argc > 1 ) {
@@ -419,6 +420,14 @@ int main( int argc, char ** argv )
     int appExec = a.exec();
     delete (MainWindow*)mw;
     return appExec;
+}
+
+QT_END_NAMESPACE
+
+int main( int argc, char ** argv )
+{
+    Q_INIT_RESOURCE(assistant);
+    return QT_ADD_NAMESPACE(runAssistant)(argc, argv);
 }
 
 #include "main.moc"

@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_GROUPBOX
@@ -84,6 +86,8 @@ private:
 };
 
 #endif // QT_NO_GROUPBOX
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

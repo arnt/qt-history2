@@ -19,7 +19,7 @@
 #include <QHash>
 #include <QTextCharFormat>
 
-class QTextDocument;
+QT_DECLARE_CLASS(QTextDocument)
 
 class Highlighter : public QSyntaxHighlighter
 {

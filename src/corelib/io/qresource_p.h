@@ -27,6 +27,8 @@
 
 #include "QtCore/qabstractfileengine.h"
 
+QT_BEGIN_NAMESPACE
+
 class QResourceFileEnginePrivate;
 class QResourceFileEngine : public QAbstractFileEngine
 {
@@ -83,5 +85,7 @@ public:
     bool extension(Extension extension, const ExtensionOption *option = 0, ExtensionReturn *output = 0);
     bool supportsExtension(Extension extension) const;
 };
+
+QT_END_NAMESPACE
 
 #endif // QRESOURCE_P_H

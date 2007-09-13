@@ -26,6 +26,8 @@ TRANSLATOR qdesigner_internal::FormWindowBase
 #include <QtCore/qdebug.h>
 #include <QtGui/QMenu>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 Grid FormWindowBase::m_defaultGrid;
@@ -170,4 +172,7 @@ void FormWindowBase::deleteWidgetList(const QWidgetList &widget_list)
         break;
     }
 }
-}
+
+} // namespace qdesigner_internal
+
+QT_END_NAMESPACE

@@ -24,6 +24,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QVariant;
@@ -311,6 +313,8 @@ Q_GUI_EXPORT_INLINE QTransform operator +(const QTransform &a, qreal n)
 { QTransform t(a); t += n; return t; }
 Q_GUI_EXPORT_INLINE QTransform operator -(const QTransform &a, qreal n)
 { QTransform t(a); t -= n; return t; }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tetrix
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS tetrix.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/tetrix
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -23,6 +23,8 @@
 #include <QHash>
 #include <QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 using namespace TokenEngine;
 using namespace Rpp;
 
@@ -335,3 +337,5 @@ void IncludeDirectiveAnalyzer::evaluateText(const Text *textLine)
         }
     }
 }
+
+QT_END_NAMESPACE

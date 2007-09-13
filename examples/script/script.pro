@@ -8,3 +8,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/script
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS script.pro README
 sources.path = $$[QT_INSTALL_EXAMPLES]/script
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

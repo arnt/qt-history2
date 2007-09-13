@@ -42,6 +42,8 @@
 
 #include <string.h>     // for memset()
 
+QT_BEGIN_NAMESPACE
+
 // These fudge terms were needed a few places to obtain pixel-perfect results
 const int GapBetweenLogoAndRightEdge = 5;
 const int ModernHeaderTopMargin = 2;
@@ -1362,7 +1364,9 @@ void QWizardPrivate::_q_updateButtonStates()
 #ifdef Q_WS_MAC
 
 #ifdef Q_WS_MAC32
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <QuickTime/QuickTime.h>
+QT_END_INCLUDE_NAMESPACE
 typedef OSErr (*PtrQTNewDataReferenceFromCFURL)(CFURLRef, UInt32, Handle*, OSType*);
 typedef OSErr (*PtrGetGraphicsImporterForDataRefWithFlags)(Handle, OSType, ComponentInstance*, long);
 typedef ComponentResult (*PtrGraphicsImportSetFlags)(GraphicsImportComponent, long);
@@ -3490,6 +3494,8 @@ QWizard *QWizardPage::wizard() const
     Q_D(const QWizardPage);
     return d->wizard;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qwizard.cpp"
 

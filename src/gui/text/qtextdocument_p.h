@@ -47,6 +47,8 @@
 #include <iostream>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class QTextFormatCollection;
 class QTextFormat;
 class QTextBlockFormat;
@@ -345,5 +347,7 @@ private:
     const QTextDocument *doc;
     bool fragmentMarkers;
 };
+
+QT_END_NAMESPACE
 
 #endif // QTEXTDOCUMENT_P_H

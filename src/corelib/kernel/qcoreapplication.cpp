@@ -33,20 +33,23 @@
 #include <qlibraryinfo.h>
 
 #ifdef Q_OS_UNIX
-
 #  if !defined(QT_NO_GLIB)
 #    include "qeventdispatcher_glib_p.h"
 #  endif
 #  include "qeventdispatcher_unix_p.h"
 #endif
+
 #ifdef Q_OS_WIN
 #  include "qeventdispatcher_win_p.h"
 #endif
 
 #include <stdlib.h>
+
 #ifdef Q_OS_UNIX
-#include <locale.h>
+#  include <locale.h>
 #endif
+
+QT_BEGIN_NAMESPACE
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
 extern QString qAppFileName();
@@ -2207,3 +2210,5 @@ int QCoreApplication::loopLevel()
 
     \sa Q_OBJECT, QObject::tr(), QObject::trUtf8()
 */
+
+QT_END_NAMESPACE

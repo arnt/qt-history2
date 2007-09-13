@@ -16,6 +16,8 @@
 #include <QtCore/qvector.h>
 #include <QtXml/QtXml>
 
+QT_BEGIN_NAMESPACE
+
 struct QDBusItem
 {
     inline QDBusItem(QDBusModel::Type aType, const QString &aName, QDBusItem *aParent = 0)
@@ -304,5 +306,7 @@ QModelIndex QDBusModel::findObject(const QDBusObjectPath &objectPath)
         return createIndex(childIdx, 0, item);
 
     return QModelIndex();
+
+QT_END_NAMESPACE
 }
 

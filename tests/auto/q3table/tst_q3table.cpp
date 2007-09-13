@@ -20,14 +20,13 @@
 
 #define WAITS 1
 #ifdef WAITS
-
 #endif
 
 Q_DECLARE_METATYPE(QPoint)
 
 //TESTED_FILES=
 
-class Q3Table;
+QT_DECLARE_CLASS(Q3Table)
 
 class tst_Q3Table : public QObject
 {
@@ -87,7 +86,9 @@ private:
 Q_DECLARE_METATYPE(Q3Table::SelectionMode);
 
 #ifdef Q_WS_X11
+QT_BEGIN_NAMESPACE
 extern void qt_x11_wait_for_window_manager( QWidget* w );
+QT_END_NAMESPACE
 #endif
 
 #if 0

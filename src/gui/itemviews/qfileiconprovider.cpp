@@ -29,6 +29,8 @@
 #define SHGFI_ADDOVERLAYS 0x000000020
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class QFileIconProvider
 
@@ -365,5 +367,6 @@ QString QFileIconProvider::type(const QFileInfo &info) const
     return QApplication::translate("QFileDialog", "Unknown");
 }
 
-#endif
+QT_END_NAMESPACE
 
+#endif

@@ -16,6 +16,8 @@
 #include "qsqlfield.h"
 #include "qstringlist.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QSqlIndex
     \brief The QSqlIndex class provides functions to manipulate and
@@ -231,3 +233,4 @@ void QSqlIndex::setCursorName(const QString& cursorName)
     cursor = cursorName;
 }
 
+QT_END_NAMESPACE

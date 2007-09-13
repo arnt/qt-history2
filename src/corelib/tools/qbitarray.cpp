@@ -16,6 +16,8 @@
 #include <qdebug.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QBitArray
     \brief The QBitArray class provides an array of bits.
@@ -787,3 +789,5 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
     \typedef QBitArray::DataPtr
     \internal
 */
+
+QT_END_NAMESPACE

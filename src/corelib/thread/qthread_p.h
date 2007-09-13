@@ -34,6 +34,8 @@
 #include "QtCore/qhash.h"
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QAbstractEventDispatcher;
 class QEventLoop;
 
@@ -177,5 +179,7 @@ public:
 };
 
 #endif // QT_NO_THREAD
+
+QT_END_NAMESPACE
 
 #endif // QTHREAD_P_H

@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 class QScriptGrammar
 {
 public:
@@ -168,6 +170,8 @@ public:
   }
 };
 
-#endif // QT_NO_SCRIPT
-#endif // QSCRIPTGRAMMAR_P_H
+QT_END_NAMESPACE
 
+#endif // QT_NO_SCRIPT
+
+#endif // QSCRIPTGRAMMAR_P_H

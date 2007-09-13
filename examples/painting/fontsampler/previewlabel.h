@@ -18,7 +18,7 @@
 #include <QPixmap>
 #include <QSize>
 
-class QResizeEvent;
+QT_DECLARE_CLASS(QResizeEvent)
 
 class PreviewLabel : public QWidget
 {

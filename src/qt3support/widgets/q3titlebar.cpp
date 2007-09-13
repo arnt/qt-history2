@@ -36,6 +36,8 @@
 #include "private/q3titlebar_p.h"
 #include "private/qwidget_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class Q3TitleBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(Q3TitleBar)
@@ -609,5 +611,7 @@ QSize Q3TitleBar::sizeHint() const
                                           QStyle::SC_TitleBarSysMenu, this);
     return QSize(menur.width(), style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, this));
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_TITLEBAR

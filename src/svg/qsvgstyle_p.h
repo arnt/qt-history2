@@ -33,6 +33,8 @@
 #include "QtGui/qfont.h"
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPainter;
 class QSvgNode;
 class QSvgFont;
@@ -525,5 +527,7 @@ public:
 //QSvgPointEvents m_pointerEvents;
 
 // audio-level     v  	x  	'inherit' | <Number.datatype>
+
+QT_END_NAMESPACE
 
 #endif // QSVGSTYLE_P_H

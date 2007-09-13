@@ -23,6 +23,8 @@
 
 #include <QtGui/QPixmap>
 
+QT_BEGIN_NAMESPACE
+
 class QAxWidget;
 
 class QActiveXPluginObject : public QWidget
@@ -97,5 +99,7 @@ protected:
 private:
     QDesignerFormEditorInterface *m_core;
 };
+
+QT_END_NAMESPACE
 
 #endif // ACTIVEQT_EXTRAINFO_H

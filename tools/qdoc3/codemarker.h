@@ -23,6 +23,8 @@
 
 #include "node.h"
 
+QT_BEGIN_NAMESPACE
+
 class Config;
 class Tree;
 
@@ -119,5 +121,7 @@ private:
     static QString defaultLang;
     static QList<CodeMarker *> markers;
 };
+
+QT_END_NAMESPACE
 
 #endif

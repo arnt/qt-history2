@@ -29,6 +29,8 @@
 // We mean it.
 //
 
+QT_BEGIN_NAMESPACE
+
 class QScriptEngine;
 
 class QScriptEngineAgent;
@@ -43,6 +45,8 @@ public:
 
     QScriptEngineAgent *q_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 

@@ -23,6 +23,8 @@
 #include "qtimer.h"
 #include "qsystemtrayicon_p.h"
 
+QT_BEGIN_NAMESPACE
+
 Window QSystemTrayIconSys::sysTrayWindow = None;
 QList<QSystemTrayIconSys *> QSystemTrayIconSys::trayIcons;
 QCoreApplication::EventFilter QSystemTrayIconSys::oldEventFilter = 0;
@@ -268,3 +270,5 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QStri
                              QPoint(g.x() + sys->width()/2, g.y() + sys->height()/2),
                              msecs);
 }
+
+QT_END_NAMESPACE

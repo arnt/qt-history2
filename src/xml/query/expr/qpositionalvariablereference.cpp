@@ -18,6 +18,8 @@
 
 #include "qpositionalvariablereference_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 PositionalVariableReference::PositionalVariableReference(const VariableSlotID s) : VariableReference(s)
@@ -57,3 +59,5 @@ PositionalVariableReference::accept(const ExpressionVisitor::Ptr &visitor) const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

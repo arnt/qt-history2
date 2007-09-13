@@ -19,6 +19,8 @@
 
 #include <Qt3Support/Q3Table>
 
+QT_BEGIN_NAMESPACE
+
 inline QHash<QString, DomProperty *> propertyMap(const QList<DomProperty *> &properties) // ### remove me
 {
     QHash<QString, DomProperty *> map;
@@ -162,3 +164,5 @@ QObject *Q3TableExtraInfoFactory::createExtension(QObject *object, const QString
 
     return 0;
 }
+
+QT_END_NAMESPACE

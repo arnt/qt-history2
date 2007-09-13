@@ -16,6 +16,8 @@
 
 #include <QtCore/qvariant.h>
 
+QT_BEGIN_NAMESPACE
+
 class QFSFileEngineIteratorPlatformSpecificData
 {
 public:
@@ -102,3 +104,5 @@ bool QFSFileEngineIterator::hasNext() const
     }
     return !platform->done;
 }
+
+QT_END_NAMESPACE

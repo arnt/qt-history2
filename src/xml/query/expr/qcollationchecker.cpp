@@ -16,6 +16,8 @@
 
 #include "qcollationchecker_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 CollationChecker::CollationChecker(const Expression::Ptr &source) : SingleContainer(source)
@@ -47,3 +49,5 @@ ExpressionVisitorResult::Ptr CollationChecker::accept(const ExpressionVisitor::P
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

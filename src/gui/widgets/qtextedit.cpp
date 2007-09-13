@@ -15,31 +15,7 @@
 #include "qlineedit.h"
 #include "qtextbrowser.h"
 
-QStringList QTextEditMimeData::formats() const
-{
-    if (!fragment.isEmpty())
-        return QStringList() << QString::fromLatin1("text/plain") << QString::fromLatin1("text/html");
-    else
-        return QMimeData::formats();
-}
-
-QVariant QTextEditMimeData::retrieveData(const QString &mimeType, QVariant::Type type) const
-{
-    if (!fragment.isEmpty())
-        setup();
-    return QMimeData::retrieveData(mimeType, type);
-}
-
-void QTextEditMimeData::setup() const
-{
-    QTextEditMimeData *that = const_cast<QTextEditMimeData *>(this);
-    that->setData(QLatin1String("text/html"), fragment.toHtml("utf-8").toUtf8());
-    that->setText(fragment.toPlainText());
-    fragment = QTextDocumentFragment();
-}
-
 #ifndef QT_NO_TEXTEDIT
-
 #include <qfont.h>
 #include <qpainter.h>
 #include <qevent.h>
@@ -64,6 +40,34 @@ void QTextEditMimeData::setup() const
 #include <qvariant.h>
 
 #include <qinputcontext.h>
+#endif
+
+QT_BEGIN_NAMESPACE
+
+QStringList QTextEditMimeData::formats() const
+{
+    if (!fragment.isEmpty())
+        return QStringList() << QString::fromLatin1("text/plain") << QString::fromLatin1("text/html");
+    else
+        return QMimeData::formats();
+}
+
+QVariant QTextEditMimeData::retrieveData(const QString &mimeType, QVariant::Type type) const
+{
+    if (!fragment.isEmpty())
+        setup();
+    return QMimeData::retrieveData(mimeType, type);
+}
+
+void QTextEditMimeData::setup() const
+{
+    QTextEditMimeData *that = const_cast<QTextEditMimeData *>(this);
+    that->setData(QLatin1String("text/html"), fragment.toHtml("utf-8").toUtf8());
+    that->setText(fragment.toPlainText());
+    fragment = QTextDocumentFragment();
+}
+
+#ifndef QT_NO_TEXTEDIT
 
 class QTextEditControl : public QTextControl
 {
@@ -2710,6 +2714,8 @@ void QUnicodeControlCharacterMenu::menuActionTriggered()
 #endif
 }
 #endif // QT_NO_CONTEXTMENU
+
+QT_END_NAMESPACE
 
 #include "moc_qtextedit.cpp"
 #include "moc_qtextedit_p.cpp"

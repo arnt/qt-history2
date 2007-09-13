@@ -18,6 +18,8 @@
 #include <qsize.h>
 #include <qstringlist.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QProxyModel
     \obsolete
@@ -510,5 +512,8 @@ void QProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &, int, int)
     q->endRemoveColumns();
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qproxymodel.cpp"
+
 #endif // QT_NO_PROXYMODEL

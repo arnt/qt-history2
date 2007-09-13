@@ -18,6 +18,8 @@
 #include "qscriptvalue.h"
 #include "qscriptengineagent_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \since 4.4
   \class QScriptEngineAgent
@@ -375,5 +377,7 @@ QScriptEngine *QScriptEngineAgent::engine() const
     Q_D(const QScriptEngineAgent);
     return d->engine;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

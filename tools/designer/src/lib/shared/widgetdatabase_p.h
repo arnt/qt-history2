@@ -35,6 +35,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QPair>
 
+QT_BEGIN_NAMESPACE
+
 class QObject;
 class QDesignerCustomWidgetInterface;
 
@@ -161,5 +163,7 @@ QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList
         promotionCandidates(const QDesignerWidgetDataBaseInterface *db,
                             const QString &baseClassName);
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // WIDGETDATABASE_H

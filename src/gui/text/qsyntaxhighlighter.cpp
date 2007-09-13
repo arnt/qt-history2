@@ -25,6 +25,8 @@
 #include <qtextedit.h>
 #include <qtimer.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSyntaxHighlighterPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QSyntaxHighlighter)
@@ -651,6 +653,7 @@ QTextBlock QSyntaxHighlighter::currentBlock() const
     return d->currentBlock;
 }
 
+QT_END_NAMESPACE
 
 #include "moc_qsyntaxhighlighter.cpp"
 

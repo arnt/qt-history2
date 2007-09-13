@@ -23,6 +23,10 @@
 #include "qpainter.h"
 #include "qdnd_p.h"
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 static QPixmap *defaultPm = 0;
 static const int default_pm_hotx = -2;
 static const int default_pm_hoty = -16;
@@ -386,3 +390,5 @@ QStringList QDropData::formats_sys() const
 
 #endif // QT_NO_DRAGANDDROP
 
+
+QT_END_NAMESPACE

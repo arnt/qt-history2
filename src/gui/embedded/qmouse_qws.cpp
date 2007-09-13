@@ -20,6 +20,8 @@
 #include "qdebug.h"
 #include "qscreen_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QWSPointerCalibrationData
     \ingroup qws
@@ -624,3 +626,4 @@ bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &position, int button)
     return sent;
 }
 
+QT_END_NAMESPACE

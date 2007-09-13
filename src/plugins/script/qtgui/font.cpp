@@ -6,6 +6,8 @@
 
 Q_DECLARE_METATYPE(QFont*)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
     if (ctx->argumentCount() == 0)
@@ -393,3 +395,5 @@ QScriptValue constructFontClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

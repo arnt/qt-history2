@@ -11,6 +11,8 @@ Q_DECLARE_METATYPE(QIconEngineV2*)
 Q_DECLARE_METATYPE(QPixmap*)
 Q_DECLARE_METATYPE(QPainter*)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newIcon(QScriptEngine *eng, const QIcon &icon)
 {
     return eng->newVariant(qVariantFromValue(icon));
@@ -177,3 +179,5 @@ QScriptValue constructIconClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

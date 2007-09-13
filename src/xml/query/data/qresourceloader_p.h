@@ -14,7 +14,6 @@
 #ifndef Patternist_ResourceLoader_H
 #define Patternist_ResourceLoader_H
 
-class QUrl;
 #include <QSharedData>
 
 #include "qitem_p.h"
@@ -22,6 +21,10 @@ class QUrl;
 #include "qsequencetype_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QUrl;
 
 namespace Patternist
 {
@@ -257,6 +260,8 @@ namespace Patternist
         virtual SequenceType::Ptr announceCollection(const QUrl &uri);
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

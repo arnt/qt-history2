@@ -20,6 +20,8 @@
 #include "qx11info_x11.h"
 #include "qwindowsurface_x11_p.h"
 
+QT_BEGIN_NAMESPACE
+
 struct QX11WindowSurfacePrivate
 {
     QWidget *widget;
@@ -160,3 +162,4 @@ QPixmap QX11WindowSurface::grabWidget(const QWidget *widget,
     return px;
 }
 
+QT_END_NAMESPACE

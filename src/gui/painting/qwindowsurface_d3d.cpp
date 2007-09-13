@@ -24,6 +24,8 @@
 
 #include <d3d9.h>
 
+QT_BEGIN_NAMESPACE
+
 extern QDirect3DPaintEngine *qt_d3dEngine();
 
 struct QD3DWindowSurfacePrivate
@@ -133,6 +135,7 @@ bool QD3DWindowSurface::scroll(const QRegion &area, int dx, int dy)
     srcrect.bottom  = rect.height() + srcrect.top;
 
     engine->scroll(d_ptr->m_widget, srcrect, destrect);
-
     return true;
 }
+
+QT_END_NAMESPACE

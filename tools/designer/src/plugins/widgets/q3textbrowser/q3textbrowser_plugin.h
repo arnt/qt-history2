@@ -16,6 +16,8 @@
 
 #include <QtDesigner/QDesignerCustomWidgetInterface>
 
+QT_BEGIN_NAMESPACE
+
 class Q3TextBrowserPlugin: public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
@@ -37,5 +39,7 @@ public:
 private:
     bool m_initialized;
 };
+
+QT_END_NAMESPACE
 
 #endif // Q3TEXTBROWSER_PLUGIN_H

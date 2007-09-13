@@ -17,7 +17,7 @@
 #include <QIcon>
 #include <QWidget>
 
-class QLabel;
+QT_DECLARE_CLASS(QLabel)
 
 class IconPreviewArea : public QWidget
 {

@@ -19,6 +19,8 @@
 #include <QList>
 #include <QLibraryInfo>
 
+QT_BEGIN_NAMESPACE
+
 #define QT_TITLE         QLatin1String("Qt Reference Documentation")
 #define DESIGNER_TITLE   QLatin1String("Qt Designer Manual")
 #define ASSISTANT_TITLE  QLatin1String("Qt Assistant Manual")
@@ -162,3 +164,5 @@ QString Profile::loadableFilePath(const QString &fileName)
         fName.replace(0, 9, path);
     return fName;
 }
+
+QT_END_NAMESPACE

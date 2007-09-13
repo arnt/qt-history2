@@ -17,8 +17,8 @@
 #include <QDialog>
 #include "fortuneserver.h"
 
-class QLabel;
-class QPushButton;
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
 
 class Dialog : public QDialog
 {

@@ -28,6 +28,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 static quint64 xpmHash(const QString &str)
 {
     unsigned int hashValue = 0;
@@ -1244,5 +1246,7 @@ QByteArray QXpmHandler::name() const
 {
     return "xpm";
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_IMAGEFORMAT_XPM

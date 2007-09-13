@@ -15,6 +15,8 @@
 
 #include "qunicodetables_p.h"
 
+QT_USE_NAMESPACE
+
 HB_LineBreakClass HB_GetLineBreakClass(HB_UChar32 ch)
 {
     return (HB_LineBreakClass)QUnicodeTables::lineBreakClass(ch);
@@ -41,6 +43,8 @@ HB_UChar16 HB_GetMirroredChar(HB_UChar16 ch)
     return QChar::mirroredChar(ch);
 }
 
+QT_BEGIN_NAMESPACE
+
 void qGetCharAttributes(const HB_UChar16 *string, hb_uint32 stringLength,
                         const HB_ScriptItem *items, hb_uint32 numItems,
                         HB_CharAttributes *attributes)
@@ -63,3 +67,4 @@ void qHBFreeFace(HB_Face face)
     HB_FreeFace(face);
 }
 
+QT_END_NAMESPACE

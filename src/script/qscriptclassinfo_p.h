@@ -25,7 +25,6 @@
 // We mean it.
 //
 
-class QScriptEngine;
 #include "qscriptglobals_p.h"
 
 #ifndef QT_NO_SCRIPT
@@ -33,6 +32,10 @@ class QScriptEngine;
 #include "qscriptclassdata_p.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qshareddata.h>
+
+QT_BEGIN_NAMESPACE
+
+class QScriptEngine;
 
 class QScriptClassInfo
 {
@@ -62,6 +65,8 @@ private:
     friend class QScriptEnginePrivate;
     Q_DISABLE_COPY(QScriptClassInfo)
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif // QSCRIPTCLASSINFO_P_H

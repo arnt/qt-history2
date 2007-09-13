@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 /*****************************************************************************
@@ -239,6 +241,8 @@ Q_COMPAT_EXPORT inline const Q3CString operator+(char c1, const Q3CString &s2)
     tmp += s2;
     return tmp;
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

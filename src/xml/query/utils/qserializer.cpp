@@ -19,6 +19,8 @@
 
 #include "qserializer_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Serializer::Serializer(const DynamicContext::Ptr &context,
@@ -395,3 +397,5 @@ void Serializer::setCodec(QTextCodec *const outputCodec)
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

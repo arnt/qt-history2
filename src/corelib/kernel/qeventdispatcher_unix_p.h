@@ -36,6 +36,8 @@
 #include <sys/select.h>
 #endif
 #include <unistd.h>
+
+QT_BEGIN_NAMESPACE
 #if !defined(_POSIX_MONOTONIC_CLOCK)
 #  define _POSIX_MONOTONIC_CLOCK -1
 #endif
@@ -210,5 +212,7 @@ public:
     QAtomicInt wakeUps;
     bool interrupt;
 };
+
+QT_END_NAMESPACE
 
 #endif // QEVENTDISPATCHER_UNIX_P_H

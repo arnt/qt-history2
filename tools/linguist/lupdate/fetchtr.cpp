@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 /* qmake ignore Q_OBJECT */
 
 static const char MagicComment[] = "TRANSLATOR ";
@@ -616,7 +618,8 @@ static bool matchExpression()
     return true;
 }
 
-static QByteArray getFullyQualifiedClassName(const QList<QByteArray> &classes, const QStringList &namespaces, 
+static QByteArray getFullyQualifiedClassName(
+    const QList<QByteArray> &classes, const QStringList &namespaces, 
                                              const QByteArray &ident, bool hasPrefix = false)
 {
     QByteArray context = ident;
@@ -853,7 +856,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
             // at top level?
             prefix+="::";
             if ( yyBraceDepth == (int) namespaces.count() && yyParenDepth == 0 )
-                functionContext = ::getFullyQualifiedClassName(classes, namespaces, prefix);
+                functionContext = getFullyQualifiedClassName(classes, namespaces, prefix);
             yyTok = getToken();
 #ifdef DIAGNOSE_RETRANSLATABILITY
             if ( yyTok == Tok_Ident && yyBraceDepth == (int) namespaces.count() && yyParenDepth == 0 ) {
@@ -1084,3 +1087,5 @@ void lupdateApplication::fetchtr_ui( const QString &fileName, MetaTranslator *to
     delete hand;
     f.close();
 }
+
+QT_END_NAMESPACE

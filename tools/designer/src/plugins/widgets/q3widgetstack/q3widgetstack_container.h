@@ -17,6 +17,8 @@
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QExtensionFactory>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerQ3WidgetStack;
 
 class Q3WidgetStackContainer: public QObject, public QDesignerContainerExtension
@@ -48,5 +50,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
+
+QT_END_NAMESPACE
 
 #endif // Q3WIDGETSTACK_CONTAINER_H

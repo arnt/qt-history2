@@ -8,6 +8,8 @@
 Q_DECLARE_METATYPE(QEvent*)
 DECLARE_POINTER_METATYPE(QFocusEvent)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newFocusEvent(QScriptEngine *eng, QFocusEvent *fe)
 {
     return QScript::wrapPointer(eng, fe);
@@ -52,3 +54,5 @@ QScriptValue constructFocusEventClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

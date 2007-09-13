@@ -27,6 +27,8 @@ TRANSLATOR qdesigner_internal::TreeWidgetEditor
 #include <QtCore/QQueue>
 #include <QtGui/QHeaderView>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 TreeWidgetEditor::TreeWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent)
@@ -782,3 +784,5 @@ void TreeWidgetEditor::closeEditors()
     }
 }
 }
+
+QT_END_NAMESPACE

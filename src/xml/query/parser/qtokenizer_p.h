@@ -35,6 +35,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     class ParserContext;
@@ -117,6 +119,8 @@ namespace Patternist
     };
 }
 
+QT_END_NAMESPACE
+
 /**
  * Macro for the data type of semantic values; int by default.
  * See section Data Types of Semantic Values.
@@ -124,6 +128,8 @@ namespace Patternist
 #define YYSTYPE Patternist::TokenValue
 
 #include "qquerytransformparser_p.h" /* This inclusion must be after TokenValue. */
+
+QT_BEGIN_NAMESPACE
 
 namespace Patternist
 {
@@ -215,6 +221,8 @@ namespace Patternist
     };
 
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

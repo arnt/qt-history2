@@ -30,8 +30,11 @@
 
 #if !defined(QT_NO_IM)
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(QT_NO_XIM)
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qplatformdefs.h"
 
 #include "qapplication.h"
@@ -46,6 +49,7 @@
 
 #include <stdlib.h>
 #include <limits.h>
+QT_END_INCLUDE_NAMESPACE
 
 // #define QT_XIM_DEBUG
 #ifdef QT_XIM_DEBUG
@@ -767,6 +771,9 @@ QXIMInputContext::~QXIMInputContext() {}
 void QXIMInputContext::widgetDestroyed(QWidget *) {}
 QString QXIMInputContext::language() { return QString(); }
 bool QXIMInputContext::x11FilterEvent(QWidget *, XEvent *) { return true; }
+
 #endif //QT_NO_XIM
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_IM

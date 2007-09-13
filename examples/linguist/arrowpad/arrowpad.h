@@ -16,7 +16,7 @@
 
 #include <QWidget>
 
-class QPushButton;
+QT_DECLARE_CLASS(QPushButton)
 
 class ArrowPad : public QWidget
 {

@@ -14,7 +14,11 @@
 #ifndef AMBIENTPROPERTIES_H
 #define AMBIENTPROPERTIES_H
 
+#include <QtCore/qglobal.h>
+
 #include "ui_ambientproperties.h"
+
+QT_BEGIN_NAMESPACE
 
 class AmbientProperties : public QDialog, Ui::AmbientProperties
 {
@@ -33,5 +37,7 @@ public slots:
 private:
     QWidget *container;
 };
+
+QT_END_NAMESPACE
 
 #endif // AMBIENTPROPERTIES_H

@@ -15,6 +15,8 @@
 #include "tokenreplacements.h"
 #include <QByteArray>
 
+QT_BEGIN_NAMESPACE
+
 /*
     Add an entry to the tokenRuleLookup map for each token replacement rule.
 */
@@ -71,3 +73,5 @@ bool ReplaceToken::isPreprocessorDirective(const QByteArray &token)
 {
     return (token[0]=='#');
 }
+
+QT_END_NAMESPACE

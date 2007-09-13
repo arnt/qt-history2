@@ -16,6 +16,8 @@
 
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -38,5 +40,7 @@ public:
     { }
     mutable int layoutSpacingIndex;
 };
+
+QT_END_NAMESPACE
 
 #endif //QSTYLE_P_H

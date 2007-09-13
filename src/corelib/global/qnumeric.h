@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 Q_CORE_EXPORT bool qIsInf(double d);
@@ -33,6 +35,8 @@ Q_CORE_EXPORT double qInf();
 #define Q_INFINITY (::qInf())
 #define Q_SNAN (::qSNaN())
 #define Q_QNAN (::qQNaN())
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -146,4 +146,6 @@ QImage BasicToolsPlugin::filterImage(const QString &filter, const QImage &image,
     return result;
 }
 
+QT_BEGIN_NAMESPACE
 Q_EXPORT_PLUGIN2(pnp_basictools, BasicToolsPlugin)
+QT_END_NAMESPACE

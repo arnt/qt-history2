@@ -16,7 +16,6 @@
 
 #include <QtGlobal>
 
-class QString;
 /**
  * @file
  * @short Contains enumerators and typedefs applying
@@ -29,6 +28,10 @@ class QString;
  * @author Frans Englich <fenglich@trolltech.com>
  */
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QString;
 
 namespace Patternist
 {
@@ -135,6 +138,8 @@ namespace Patternist
      */
     QString escape(const QString &input);
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

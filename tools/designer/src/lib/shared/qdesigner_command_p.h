@@ -38,6 +38,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QPoint>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerContainerExtension;
 class QDesignerMetaDataBaseItemInterface;
 class QDesignerMenu;
@@ -976,5 +978,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_COMMAND_H

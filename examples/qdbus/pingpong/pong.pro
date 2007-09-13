@@ -14,3 +14,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/qdbus/pingpong
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/qdbus/pingpong
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

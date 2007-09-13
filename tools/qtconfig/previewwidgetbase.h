@@ -17,6 +17,8 @@
 #include "ui_previewwidgetbase.h"
 #include <QVariant>
 
+QT_BEGIN_NAMESPACE
+
 class PreviewWidgetBase : public QWidget, public Ui::PreviewWidgetBase
 {
     Q_OBJECT
@@ -32,5 +34,7 @@ protected slots:
     virtual void destroy();
 
 };
+
+QT_END_NAMESPACE
 
 #endif // PREVIEWWIDGETBASE_H

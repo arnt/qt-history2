@@ -17,11 +17,14 @@
 #include <QtCore/qstring.h>
 #include <QtNetwork/qabstractsocket.h>
 
+struct sockaddr;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Network)
 
-struct sockaddr;
 class QHostAddressPrivate;
 
 class Q_NETWORK_EXPORT QIPv6Address
@@ -110,6 +113,8 @@ Q_NETWORK_EXPORT uint qHash(const QHostAddress &key);
 Q_NETWORK_EXPORT QDataStream &operator<<(QDataStream &, const QHostAddress &);
 Q_NETWORK_EXPORT QDataStream &operator>>(QDataStream &, QHostAddress &);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 #endif // QHOSTADDRESS_H

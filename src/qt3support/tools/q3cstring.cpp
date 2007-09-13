@@ -21,6 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
 
 /*****************************************************************************
   Q3CString member functions
@@ -1021,6 +1022,7 @@ bool Q3CString::setExpand(uint index, char c)
     \overload
 
     \relates Q3CString
-
     Returns a string which consists of the concatenation of \a c and \a s.
 */
+
+QT_END_NAMESPACE

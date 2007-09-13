@@ -34,6 +34,8 @@
 #include <QtNetwork/qtcpserver.h>
 #include <private/qwssharedmemory_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_QWS_CURSOR
 class QVNCCursor : public QScreenCursor
 {
@@ -463,5 +465,7 @@ private:
     QRfbEncoder *encoder;
 };
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_QWS_VNC
 #endif // QSCREENVNC_P_H

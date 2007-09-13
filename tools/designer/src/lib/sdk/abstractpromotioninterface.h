@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerWidgetDataBaseItemInterface;
 
 class QDESIGNER_SDK_EXPORT QDesignerPromotionInterface
@@ -53,6 +55,8 @@ public:
 
     virtual QList<QDesignerWidgetDataBaseItemInterface *> promotionBaseClasses() const = 0;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

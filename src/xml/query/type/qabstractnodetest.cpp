@@ -13,6 +13,8 @@
 
 #include "qabstractnodetest_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 AbstractNodeTest::AbstractNodeTest(const ItemType::Ptr &primaryType) : m_primaryType(primaryType)
@@ -46,3 +48,5 @@ ItemType::Ptr AbstractNodeTest::xdtSuperType() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

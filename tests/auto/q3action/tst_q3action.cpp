@@ -11,6 +11,8 @@
 
 #include <q3action.h>
 
+QT_USE_NAMESPACE
+
 //TESTED_CLASS=
 //TESTED_FILES=compat/widgets/q3action.h compat/widgets/q3action.cpp
 

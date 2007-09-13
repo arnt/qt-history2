@@ -26,6 +26,8 @@
 #include "config.h"
 #include "pagegenerator.h"
 
+QT_BEGIN_NAMESPACE
+
 class LinguistGenerator : public PageGenerator
 {
 public:
@@ -49,5 +51,7 @@ protected:
 private:
     QString simplified(const QString &text) const;
 };
+
+QT_END_NAMESPACE
 
 #endif

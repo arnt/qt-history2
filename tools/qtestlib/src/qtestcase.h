@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 #define QVERIFY(statement) \
 do {\
     if (!QTest::qVerify((statement), #statement, "", __FILE__, __LINE__))\
@@ -285,6 +287,8 @@ namespace QTest
 }
 
 #undef QTEST_COMPARE_DECL
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

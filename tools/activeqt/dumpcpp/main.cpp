@@ -23,6 +23,8 @@
 #include <qt_windows.h>
 #include <ocidl.h>
 
+QT_BEGIN_NAMESPACE
+
 static ITypeInfo *currentTypeInfo = 0;
 
 enum ObjectCategory
@@ -1205,6 +1207,10 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     typelib->Release();
     return true;
 }
+
+QT_END_NAMESPACE
+
+QT_USE_NAMESPACE
 
 int main(int argc, char **argv)
 {

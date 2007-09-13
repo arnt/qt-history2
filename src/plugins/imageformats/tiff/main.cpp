@@ -21,6 +21,8 @@
 #endif
 #include "qtiffhandler.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTiffPlugin : public QImageIOPlugin
 {
 public:
@@ -61,5 +63,7 @@ QStringList QTiffPlugin::keys() const
 
 Q_EXPORT_STATIC_PLUGIN(QTiffPlugin)
 Q_EXPORT_PLUGIN2(qtiff, QTiffPlugin)
+
+QT_END_NAMESPACE
 
 #endif /* QT_NO_IMAGEFORMATPLUGIN */

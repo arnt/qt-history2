@@ -21,6 +21,8 @@
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>
 
+QT_BEGIN_NAMESPACE
+
 class DomConnections;
 
 namespace qdesigner_internal {
@@ -62,5 +64,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // SIGNALSLOTEDITOR_H

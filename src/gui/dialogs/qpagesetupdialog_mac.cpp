@@ -17,6 +17,8 @@
 #include <private/qprintengine_mac_p.h>
 #include <private/qabstractpagesetupdialog_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPageSetupDialogPrivate : public QAbstractPageSetupDialogPrivate
 {
     Q_DECLARE_PUBLIC(QPageSetupDialog)
@@ -101,3 +103,5 @@ int QPageSetupDialog::exec()
     }
     return d->acceptStatus ? Accepted : Rejected;
 }
+
+QT_END_NAMESPACE

@@ -19,6 +19,8 @@
 
 #include "finddialog.h"
 
+QT_BEGIN_NAMESPACE
+
 FindDialog::FindDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -48,3 +50,5 @@ void FindDialog::emitFindNext()
         where = Translations;
     emit findNext(led->text(), where, matchCase->isChecked());
 }
+
+QT_END_NAMESPACE

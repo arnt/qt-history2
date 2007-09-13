@@ -26,6 +26,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 // error strings for the regexp parser
 #define RXERR_OK         QT_TRANSLATE_NOOP("QRegExp", "no error occurred")
 #define RXERR_DISABLED   QT_TRANSLATE_NOOP("QRegExp", "disabled feature used")
@@ -4095,3 +4097,5 @@ QDataStream &operator>>(QDataStream &in, QRegExp &regExp)
     return in;
 }
 #endif
+
+QT_END_NAMESPACE

@@ -13,6 +13,8 @@
 
 #include "private/qmemrotate_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
 static const int tileSize = 32;
 #endif
@@ -467,3 +469,4 @@ QT_IMPL_MEMROTATE(quint32, quint8)
 QT_IMPL_MEMROTATE(quint16, quint8)
 QT_IMPL_MEMROTATE(quint8, quint8)
 
+QT_END_NAMESPACE

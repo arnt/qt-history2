@@ -26,6 +26,8 @@
 #include <objbase.h>
 #include <initguid.h>
 
+QT_BEGIN_NAMESPACE
+
 DEFINE_GUID(IID_IActiveIMMApp,
 0x08c0e040, 0x62d1, 0x11d1, 0x93, 0x26, 0x0, 0x60, 0xb0, 0x67, 0xb8, 0x6e);
 
@@ -685,3 +687,5 @@ QString QWinInputContext::language()
 {
     return QString();
 }
+
+QT_END_NAMESPACE

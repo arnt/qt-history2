@@ -25,6 +25,8 @@
 #include <qfileiconprovider.h>
 #include <qfiledialog.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     QUrlModel lets you have indexes from a QFileSystemModel to a list.  When QFileSystemModel
     changes them QUrlModel will automatically update.
@@ -437,5 +439,7 @@ bool QSidebar::event(QEvent * event)
     }
     return QListView::event(event);
 }
+
+QT_END_NAMESPACE
 
 #endif

@@ -27,6 +27,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ext {
 
 Variant::Variant(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
@@ -115,5 +117,7 @@ QScriptValueImpl Variant::method_valueOf(QScriptContextPrivate *context, QScript
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

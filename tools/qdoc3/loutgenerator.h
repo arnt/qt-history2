@@ -20,6 +20,8 @@
 
 #include "bookgenerator.h"
 
+QT_BEGIN_NAMESPACE
+
 class LoutGenerator : public BookGenerator
 {
 public:
@@ -31,5 +33,7 @@ public:
 protected:
     // ###
 };
+
+QT_END_NAMESPACE
 
 #endif

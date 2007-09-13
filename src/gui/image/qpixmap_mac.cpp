@@ -32,6 +32,8 @@
 #include <limits.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   Externals
  *****************************************************************************/
@@ -678,8 +680,11 @@ int QPixmap::defaultDepth()
     return 32;
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
+QT_END_INCLUDE_NAMESPACE
+
 // Load and resolve the symbols we need from OpenGL manually so QtGui doesn't have to link against the OpenGL framework.
 typedef CGLError (*PtrCGLChoosePixelFormat)(const CGLPixelFormatAttribute *, CGLPixelFormatObj *,  long *);
 typedef CGLError (*PtrCGLClearDrawable)(CGLContextObj);
@@ -1208,3 +1213,5 @@ QPixmap QPixmap::fromMacCGImageRef(CGImageRef image)
     CGContextRelease(ctx);
     return ret;
 }
+
+QT_END_NAMESPACE

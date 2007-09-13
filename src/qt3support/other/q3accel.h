@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3AccelPrivate;
@@ -72,6 +74,8 @@ private:
     friend class Q3AccelPrivate;
     friend class Q3AccelManager;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

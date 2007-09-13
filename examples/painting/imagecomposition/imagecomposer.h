@@ -17,9 +17,9 @@
 #include <QPainter>
 #include <QWidget>
 
-class QComboBox;
-class QLabel;
-class QToolButton;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QToolButton)
 
 class ImageComposer : public QWidget
 {

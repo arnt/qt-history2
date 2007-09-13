@@ -31,6 +31,8 @@ TRANSLATOR qdesigner_internal::TextEditTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 TextEditTaskMenu::TextEditTaskMenu(QTextEdit *textEdit, QObject *parent)
@@ -90,3 +92,5 @@ void TextEditTaskMenu::updateText(const QString &text)
 {
     m_formWindow->cursor()->setProperty(QLatin1String("html"), QVariant(text));
 }
+
+QT_END_NAMESPACE

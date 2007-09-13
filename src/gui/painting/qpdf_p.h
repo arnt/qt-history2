@@ -36,6 +36,8 @@
 
 #ifndef QT_NO_PRINTER
 
+QT_BEGIN_NAMESPACE
+
 #define PPK_CupsOptions QPrintEngine::PrintEnginePropertyKey(0xfe00)
 #define PPK_CupsPageRect QPrintEngine::PrintEnginePropertyKey(0xfe01)
 #define PPK_CupsPaperRect QPrintEngine::PrintEnginePropertyKey(0xfe02)
@@ -228,6 +230,9 @@ public:
     QString cupsStringPageSize;
 };
 
-#endif
-#endif
+QT_END_NAMESPACE
+
+#endif // QT_NO_PRINTER
+
+#endif // QPDF_P_H
 

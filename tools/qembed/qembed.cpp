@@ -23,6 +23,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 static void embedData( const QByteArray &input, QFile *output );
 static void embedData( const uchar* input, int size, QFile *output );
 static void embedData( const QRgb* input, int size, QFile *output );
@@ -47,7 +49,7 @@ struct EmbedImage {
     bool alpha;
 };
 
-int main( int argc, char **argv )
+int runQEmbed( int argc, char **argv )
 {
     if ( argc < 2 ) {
 	qWarning( "Usage:\n\t%s [--images] files", argv[0] );
@@ -330,4 +332,11 @@ void embedData( const QRgb* input, int n, QFile *output )
     }
     if ( s.length() )
 	output->writeBlock( (const char*)s, s.length() );
+}
+
+QT_END_NAMESPACE
+
+int main( int argc, char **argv )
+{
+    return QT_ADD_NAMESPACE(runQEmbed(argc, argv));
 }

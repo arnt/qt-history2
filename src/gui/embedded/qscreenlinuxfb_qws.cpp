@@ -44,6 +44,8 @@
 #endif
 #endif
 
+QT_BEGIN_NAMESPACE
+
 extern int qws_client_id;
 
 //#define DEBUG_CACHE
@@ -1215,5 +1217,6 @@ void QLinuxFbScreen::setPixelFormat(struct fb_var_screeninfo info)
     QScreen::setPixelFormat(format);
 }
 
-#endif // QT_NO_QWS_LINUXFB
+QT_END_NAMESPACE
 
+#endif // QT_NO_QWS_LINUXFB

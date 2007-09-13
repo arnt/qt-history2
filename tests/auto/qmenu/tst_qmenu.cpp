@@ -316,6 +316,12 @@ tst_QMenu::keyboardNavigation()
 }
 
 
+#ifdef Q_WS_MAC
+QT_BEGIN_NAMESPACE
+    extern bool qt_tab_all_widgets; // qapplication_mac.cpp
+QT_END_NAMESPACE
+#endif
+
 void tst_QMenu::focus()
 {
     QMenu menu;
@@ -325,7 +331,6 @@ void tst_QMenu::focus()
     bool fullKeyboardControl = true;
 
 #ifdef Q_WS_MAC
-    extern bool qt_tab_all_widgets; // qapplication_mac.cpp
     fullKeyboardControl = qt_tab_all_widgets;
 #endif
 

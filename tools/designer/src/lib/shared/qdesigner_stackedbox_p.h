@@ -28,6 +28,8 @@
 #include "shared_global_p.h"
 #include "qdesigner_propertysheet_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QStackedWidget;
 class QAction;
 class QMenu;
@@ -121,5 +123,7 @@ private:
 };
 
 typedef QDesignerPropertySheetFactory<QStackedWidget, QStackedWidgetPropertySheet> QStackedWidgetPropertySheetFactory;
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_STACKEDBOX_H

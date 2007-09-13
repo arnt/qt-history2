@@ -17,23 +17,27 @@
 #include "qhttp.h"
 
 #ifndef QT_NO_HTTP
+# include "private/qobject_p.h"
+# include "qtcpsocket.h"
+# include "qsslsocket.h"
+# include "qtextstream.h"
+# include "qmap.h"
+# include "qlist.h"
+# include "qstring.h"
+# include "qstringlist.h"
+# include "qbuffer.h"
+# include "private/qringbuffer_p.h"
+# include "qcoreevent.h"
+# include "qurl.h"
+# include "qnetworkproxy.h"
+# include "qauthenticator.h"
+# include "qauthenticator_p.h"
+# include "qdebug.h"
+#endif
 
-#include "private/qobject_p.h"
-#include "qtcpsocket.h"
-#include "qsslsocket.h"
-#include "qtextstream.h"
-#include "qmap.h"
-#include "qlist.h"
-#include "qstring.h"
-#include "qstringlist.h"
-#include "qbuffer.h"
-#include "private/qringbuffer_p.h"
-#include "qcoreevent.h"
-#include "qurl.h"
-#include "qnetworkproxy.h"
-#include "qauthenticator.h"
-#include "qauthenticator_p.h"
-#include "qdebug.h"
+QT_BEGIN_NAMESPACE
+
+#ifndef QT_NO_HTTP
 
 class QHttpRequest
 {
@@ -388,7 +392,7 @@ private:
     QNetworkProxy proxy;
 };
 
-#endif
+#endif // QT_NO_HTTP
 
 /****************************************************
  *
@@ -2979,6 +2983,8 @@ void QHttp::ignoreSslErrors()
         sslSocket->ignoreSslErrors();
 }
 #endif
+
+QT_END_NAMESPACE
 
 #include "moc_qhttp.cpp"
 

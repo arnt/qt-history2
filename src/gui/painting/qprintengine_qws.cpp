@@ -21,6 +21,8 @@
 #include <qdebug.h>
 #include <QCopChannel>
 
+QT_BEGIN_NAMESPACE
+
 #define MM(n) int((n * 720 + 127) / 254)
 #define IN(n) int(n * 72)
 
@@ -871,5 +873,7 @@ void QtopiaPrintBuffer::pad()
     while ( ( _data.size() % 4 ) != 0 )
 	_data.append( (char)0 );
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER

@@ -13,6 +13,8 @@
 
 #ifndef QT_NO_DESKTOPSERVICES
 
+QT_BEGIN_NAMESPACE
+
 static bool launchWebBrowser(const QUrl &url)
 {
     Q_UNUSED(url);
@@ -26,6 +28,8 @@ static bool openDocument(const QUrl &file)
     qWarning("QDesktopServices::openDocument not implemented");
     return false;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DESKTOPSERVICES
 

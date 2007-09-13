@@ -33,6 +33,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Network)
 
 namespace QSsl {
@@ -64,6 +66,8 @@ namespace QSsl {
         UnknownProtocol = -1
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

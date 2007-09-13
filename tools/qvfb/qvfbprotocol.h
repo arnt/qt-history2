@@ -16,6 +16,9 @@
 #include <QImage>
 #include <QVector>
 #include <QColor>
+
+QT_BEGIN_NAMESPACE
+
 class QVFbKeyProtocol;
 class QVFbMouseProtocol;
 class QVFbViewProtocol : public QObject
@@ -134,4 +137,7 @@ protected:
     QPoint lastPos;
     QTimer *repeater;
 };
+
+QT_END_NAMESPACE
+
 #endif

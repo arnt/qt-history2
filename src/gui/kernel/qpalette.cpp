@@ -16,7 +16,10 @@
 #include "qdatastream.h"
 #include "qvariant.h"
 
+QT_BEGIN_NAMESPACE
+
 static int qt_palette_count = 1;
+
 class QPalettePrivate {
 public:
     QPalettePrivate() : ref(1), ser_no(qt_palette_count++), detach_no(0) { }
@@ -1268,3 +1271,5 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     Returns true if this color group is not equal to \a other;
     otherwise returns false.
 */
+
+QT_END_NAMESPACE

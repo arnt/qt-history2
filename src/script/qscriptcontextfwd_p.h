@@ -33,6 +33,8 @@
 
 #include <QtCore/qobjectdefs.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
     namespace AST {
     class Node;
@@ -211,6 +213,8 @@ public:
 
     QScriptContext *q_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 #endif

@@ -10,6 +10,8 @@
 Q_DECLARE_METATYPE(QPolygon)
 Q_DECLARE_METATYPE(QPolygonF)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue ctor(QScriptContext *context, QScriptEngine *engine)
 {
     Q_UNUSED(engine);
@@ -67,3 +69,5 @@ QScriptValue constructPolygonClass(QScriptEngine *eng)
     fun.setProperty("prototype", proto);
     return fun;
 }
+
+QT_END_NAMESPACE

@@ -20,11 +20,11 @@
 
 #include "torrentclient.h"
 
-class QAction;
-class QCloseEvent;
-class QLabel;
-class QProgressDialog;
-class QSlider;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QCloseEvent)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QProgressDialog)
+QT_DECLARE_CLASS(QSlider)
 class TorrentView;
 
 class MainWindow : public QMainWindow

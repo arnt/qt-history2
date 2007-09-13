@@ -13,6 +13,8 @@
 
 #include "qbsptree_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QBspTree::QBspTree() : depth(6), visited(0) {}
 
 void QBspTree::create(int n, int d)
@@ -111,3 +113,5 @@ void QBspTree::remove(QVector<int> &leaf, const QRect &, uint, QBspTreeData data
     if (i != -1)
         leaf.remove(i);
 }
+
+QT_END_NAMESPACE

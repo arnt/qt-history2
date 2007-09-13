@@ -24,6 +24,8 @@
 #include "qvariant.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \enum QIcon::Mode
 
@@ -902,7 +904,8 @@ QDataStream &operator>>(QDataStream &s, QIcon &icon)
 static int widths[2] = { 22, 32 };
 static int heights[2] = { 22, 32 };
 
-static QSize pixmapSize(QIcon::Size which) {
+static QSize pixmapSizeHelper(QIcon::Size which)
+{
     int i = 0;
     if (which == QIcon::Large)
         i = 1;
@@ -925,7 +928,7 @@ static QSize pixmapSize(QIcon::Size which) {
     \sa pixmapSize()
 */
 QPixmap QIcon::pixmap(Size size, Mode mode, State state) const
-{ return pixmap(::pixmapSize(size), mode, state); }
+{ return pixmap(pixmapSizeHelper(size), mode, state); }
 
 /*!
     Use pixmap(QSize(...), mode, \a state), where the first argument
@@ -936,13 +939,13 @@ QPixmap QIcon::pixmap(Size size, Mode mode, State state) const
     \sa pixmapSize()
 */
 QPixmap QIcon::pixmap(Size size, bool enabled, State state) const
-{ return pixmap(::pixmapSize(size), enabled ? Normal : Disabled, state); }
+{ return pixmap(pixmapSizeHelper(size), enabled ? Normal : Disabled, state); }
 
 /*!
     Use one of the other pixmap() overloads.
 */
 QPixmap QIcon::pixmap() const
-{ return pixmap(::pixmapSize(Small), Normal, Off); }
+{ return pixmap(pixmapSizeHelper(Small), Normal, Off); }
 
 /*!
     The pixmap() function now takes a QSize instead of a QIcon::Size,
@@ -964,7 +967,7 @@ void QIcon::setPixmapSize(Size which, const QSize &size)
 */
 QSize QIcon::pixmapSize(Size which)
 {
-    return ::pixmapSize(which);
+    return pixmapSizeHelper(which);
 }
 
 /*!
@@ -998,3 +1001,5 @@ QSize QIcon::pixmapSize(Size which)
     \typedef QIcon::DataPtr
     \internal
 */
+
+QT_END_NAMESPACE

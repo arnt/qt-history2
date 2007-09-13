@@ -20,6 +20,8 @@
 
 #include "QtTest/qtestassert.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTestTablePrivate
 {
 public:
@@ -233,3 +235,4 @@ QTestTable *QTestTable::currentTestTable()
     return QTestTablePrivate::currentTestTable;
 }
 
+QT_END_NAMESPACE

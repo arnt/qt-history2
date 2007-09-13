@@ -17,3 +17,5 @@ target.path = $$[QT_INSTALL_DEMOS]/pathstroke
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.html
 sources.path = $$[QT_INSTALL_DEMOS]/pathstroke
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE

@@ -15,6 +15,8 @@
 
 #include <qapplication.h>
 
+QT_USE_NAMESPACE
+
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);

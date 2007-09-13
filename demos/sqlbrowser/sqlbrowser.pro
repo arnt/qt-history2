@@ -17,3 +17,5 @@ target.path = $$[QT_INSTALL_DEMOS]/sqlbrowser
 sources.files = $$SOURCES $$HEADERS $$FORMS *.pro
 sources.path = $$[QT_INSTALL_DEMOS]/sqlbrowser
 INSTALLS += target sources
+
+DEFINES += QT_USE_USING_NAMESPACE

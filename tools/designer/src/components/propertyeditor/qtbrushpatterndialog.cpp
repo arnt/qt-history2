@@ -18,6 +18,8 @@ TRANSLATOR qdesigner_internal::QtBrushPatternDialog
 #include "qtbrushpatterndialog.h"
 #include "ui_qtbrushpatterndialog.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 namespace qdesigner_internal {
@@ -55,3 +57,5 @@ QBrush QtBrushPatternDialog::brush() const
 {
     return d_ptr->m_ui.brushPatternEditor->brush();
 }
+
+QT_END_NAMESPACE

@@ -17,6 +17,8 @@
 #include <QtGui/QWidget>
 #include <QtCore/QSet>
 
+QT_BEGIN_NAMESPACE
+
 class QtAbstractPropertyManager;
 
 class QtProperty
@@ -262,7 +264,6 @@ private:
 
 };
 
-
+QT_END_NAMESPACE
 
 #endif
-

@@ -14,6 +14,8 @@
 #include "qdbusargument_p.h"
 #include "qdbusutil_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static void qIterAppend(DBusMessageIter *it, QByteArray *ba, int type, const void *arg)
 {
     if (ba)
@@ -490,5 +492,7 @@ bool QDBusMarshaller::appendCrossMarshalling(QDBusDemarshaller *demarshaller)
     }
 
     delete drecursed;
+
+QT_END_NAMESPACE
     return true;
 }

@@ -18,11 +18,15 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #if defined(QT3_SUPPORT)
 typedef QMatrix QWMatrix;
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

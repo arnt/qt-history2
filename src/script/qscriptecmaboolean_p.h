@@ -27,6 +27,8 @@
 
 #include "qscriptecmacore_p.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_SCRIPT
 
 namespace QScript { namespace Ecma {
@@ -53,5 +55,7 @@ protected:
 } } // namespace QScript::Ecma
 
 #endif // QT_NO_SCRIPT
-#endif
 
+QT_END_NAMESPACE
+
+#endif

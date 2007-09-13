@@ -14,7 +14,10 @@
 #ifndef PROPERTY_H
 #define PROPERTY_H
 
+#include <qglobal.h>
 #include <qstring.h>
+
+QT_BEGIN_NAMESPACE
 
 class QSettings;
 
@@ -34,5 +37,7 @@ public:
 
     bool exec();
 };
+
+QT_END_NAMESPACE
 
 #endif // PROPERTY_H

@@ -17,6 +17,8 @@
 #include <QtGui/QApplication>
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 QScriptValue constructActionEventClass(QScriptEngine *engine);
 QScriptValue constructFocusEventClass(QScriptEngine *engine);
 QScriptValue constructHoverEventClass(QScriptEngine *engine);
@@ -131,3 +133,5 @@ void QtGuiScriptPlugin::initialize(const QString &key,
 
 Q_EXPORT_STATIC_PLUGIN(QtGuiScriptPlugin)
 Q_EXPORT_PLUGIN2(qtscriptgui, QtGuiScriptPlugin)
+
+QT_END_NAMESPACE

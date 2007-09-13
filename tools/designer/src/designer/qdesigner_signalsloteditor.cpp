@@ -18,6 +18,8 @@
 #include <QtDesigner/QDesignerComponents>
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 QDesignerSignalSlotEditor::QDesignerSignalSlotEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
@@ -46,3 +48,5 @@ QRect QDesignerSignalSlotEditor::geometryHint() const
 
     return r;
 }
+
+QT_END_NAMESPACE

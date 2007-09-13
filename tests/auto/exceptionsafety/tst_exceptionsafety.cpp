@@ -9,6 +9,8 @@
 
 #include <QtTest/QtTest>
 
+QT_USE_NAMESPACE
+
 #if defined(QT_NO_EXCEPTIONS)
     QTEST_NOOP_MAIN
 #else

@@ -29,6 +29,8 @@
 # include "private/qt_mac_p.h"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 using namespace Qt;
 
 static const int coord_limit = 4000;
@@ -95,7 +97,9 @@ public:
         : QWidget (parent,name,f) {}
 };
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "q3scrollview.moc"
+QT_END_INCLUDE_NAMESPACE
 
 class Q3ScrollViewData {
 public:
@@ -2813,5 +2817,7 @@ QSize Q3ScrollView::cachedSizeHint() const
 {
     return d->use_cached_size_hint ? d->cachedSizeHint : QSize();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCROLLVIEW

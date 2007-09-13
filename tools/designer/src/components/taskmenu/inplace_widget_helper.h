@@ -18,6 +18,8 @@
 #include <QtCore/QObject>
 #include <qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -48,5 +50,7 @@ namespace qdesigner_internal {
     };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // INPLACE_WIDGETHELPER_H

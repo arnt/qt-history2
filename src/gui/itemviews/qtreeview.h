@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_TREEVIEW
@@ -196,6 +198,8 @@ private:
 };
 
 #endif // QT_NO_TREEVIEW
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

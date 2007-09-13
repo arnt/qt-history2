@@ -27,6 +27,8 @@
 
 #include <QtCore/QMultiMap>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 QDesignerDnDItem::QDesignerDnDItem(DropType type, QWidget *source) :
@@ -263,4 +265,7 @@ void QDesignerMimeData::setImageTransparency(QImage &image, int alpha)
         }
     }
 }
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

@@ -19,6 +19,8 @@
 #include <qfileinfo.h>
 #include <qmap.h>
 
+QT_BEGIN_NAMESPACE
+
 class QAssistantClientPrivate
 {
     friend class QAssistantClient;
@@ -393,3 +395,5 @@ void QAssistantClient::setArguments( const QStringList &args )
     QAssistantClientPrivate *d = data( this, true );
     d->arguments = args;
 }
+
+QT_END_NAMESPACE

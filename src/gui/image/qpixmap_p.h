@@ -37,6 +37,8 @@
 #endif
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS)
 
 struct QPixmapData { // internal pixmap data
@@ -124,5 +126,7 @@ QPixmap loadIconFromShell32( int resourceId, int size );
 #    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
 #  endif
 extern bool qt_xForm_helper(const QTransform&, int, int, int, uchar*, int, int, int, const uchar*, int, int, int);
+
+QT_END_NAMESPACE
 
 #endif // QPIXMAP_P_H

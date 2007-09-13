@@ -1069,6 +1069,8 @@ bool QDBusArgument::atEnd() const
 #include "qdbusmarshaller.cpp"
 #include "qdbusdemarshaller.cpp"
 
+QT_BEGIN_NAMESPACE
+
 // QDBusArgument operators
 
 const QDBusArgument &operator>>(const QDBusArgument &a, QVariant &v)
@@ -1309,5 +1311,7 @@ QDBusArgument &operator<<(QDBusArgument &a, const QLineF &line)
     a.endStructure();
 
     return a;
+
+QT_END_NAMESPACE
 }
 #endif

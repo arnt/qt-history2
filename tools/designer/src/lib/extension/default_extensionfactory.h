@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 class QExtensionManager;
 
 class QDESIGNER_EXTENSION_EXPORT QExtensionFactory : public QObject, public QAbstractExtensionFactory
@@ -48,6 +50,8 @@ private:
     typedef QHash<QObject*, bool> ExtendedSet;
     mutable ExtendedSet m_extended;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

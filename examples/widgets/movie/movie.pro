@@ -8,3 +8,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/movie
 sources.files = $$SOURCES $$HEADERS $$RESOURCES movie.pro images movies
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/movie
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

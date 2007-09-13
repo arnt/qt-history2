@@ -32,6 +32,8 @@
 #include "qurl.h"
 #include "qcursor.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3TextBrowser q3textbrowser.h
     \brief The Q3TextBrowser class provides a rich text browser with hypertext navigation.
@@ -492,5 +494,7 @@ void Q3TextBrowser::emitLinkClicked(const QString &s)
     if (!d->textOrSourceChanged)
         setSource(s);
 }
+
+QT_END_NAMESPACE
 
 #endif  // QT_NO_TEXTBROWSER

@@ -39,6 +39,8 @@ TRANSLATOR qdesigner_internal::Sentinel
 
 Q_DECLARE_METATYPE(QAction*)
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     typedef QList<QAction*> ActionList;
 }
@@ -428,3 +430,5 @@ Sentinel::~Sentinel()
 {
 }
 }
+
+QT_END_NAMESPACE

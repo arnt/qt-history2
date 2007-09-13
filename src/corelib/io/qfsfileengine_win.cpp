@@ -56,11 +56,15 @@ typedef INT_PTR intptr_t;
 #  define INVALID_FILE_ATTRIBUTES (DWORD (-1))
 #endif
 
+QT_BEGIN_NAMESPACE
+
 static QString readLink(const QString &link);
 
 Q_CORE_EXPORT int qt_ntfs_permission_lookup = 0;
 
+
 #if !defined(QT_NO_LIBRARY)
+QT_BEGIN_INCLUDE_NAMESPACE
 typedef DWORD (WINAPI *PtrGetNamedSecurityInfoW)(LPWSTR, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*);
 static PtrGetNamedSecurityInfoW ptrGetNamedSecurityInfoW = 0;
 typedef DECLSPEC_IMPORT BOOL (WINAPI *PtrLookupAccountSidW)(LPCWSTR, PSID, LPWSTR, LPDWORD, LPWSTR, LPDWORD, PSID_NAME_USE);
@@ -83,6 +87,7 @@ typedef BOOL (WINAPI *PtrGetUserProfileDirectoryW)( HANDLE, LPWSTR, LPDWORD);
 static PtrGetUserProfileDirectoryW ptrGetUserProfileDirectoryW = 0;
 typedef BOOL (WINAPI *PtrSetFilePointerEx)(HANDLE, LARGE_INTEGER, PLARGE_INTEGER, DWORD);
 static PtrSetFilePointerEx ptrSetFilePointerEx = 0;
+QT_END_INCLUDE_NAMESPACE
 
 
 void QFSFileEnginePrivate::resolveLibs()
@@ -1973,3 +1978,5 @@ QDateTime QFSFileEngine::fileTime(FileTime time) const
     }
     return ret;
 }
+
+QT_END_NAMESPACE

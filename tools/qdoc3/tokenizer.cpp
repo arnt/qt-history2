@@ -21,6 +21,8 @@
 #include <ctype.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 #define LANGUAGE_CPP			"Cpp"
 
 /* qmake ignore Q_OBJECT */
@@ -697,3 +699,5 @@ int StringTokenizer::getch()
 {
     return yyPos == yyLen ? EOF : yyIn[yyPos++];
 }
+
+QT_END_NAMESPACE

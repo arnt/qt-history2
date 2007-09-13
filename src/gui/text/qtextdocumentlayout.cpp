@@ -44,6 +44,10 @@
 #define DEC_INDENT do {} while(0)
 #endif
 
+QT_BEGIN_NAMESPACE
+
+extern int qt_defaultDpi();
+
 // ################ should probably add frameFormatChange notification!
 
 struct QLayoutStruct;
@@ -727,7 +731,6 @@ QFixed QTextDocumentLayoutPrivate::blockIndent(const QTextBlockFormat &blockForm
 
     qreal scale = 1;
     if (paintDevice) {
-        extern int qt_defaultDpi();
         scale = qreal(paintDevice->logicalDpiY()) / qreal(qt_defaultDpi());
     }
 
@@ -2349,7 +2352,6 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, int blockPosi
     if (previousBlockFormat) {
         qreal margin = qMax(blockFormat.topMargin(), previousBlockFormat->bottomMargin());
         if (margin > 0 && q->paintDevice()) {
-            extern int qt_defaultDpi();
             margin *= qreal(q->paintDevice()->logicalDpiY()) / qreal(qt_defaultDpi());
         }
         layoutStruct->y += QFixed::fromReal(margin);
@@ -3016,7 +3018,6 @@ qreal QTextDocumentLayoutPrivate::scaleToDevice(qreal value) const
     QPaintDevice *dev = q_func()->paintDevice();
     if (!dev)
         return value;
-    extern int qt_defaultDpi();
     return value * dev->logicalDpiY() / qreal(qt_defaultDpi());
 }
 
@@ -3025,8 +3026,9 @@ QFixed QTextDocumentLayoutPrivate::scaleToDevice(QFixed value) const
     QPaintDevice *dev = q_func()->paintDevice();
     if (!dev)
         return value;
-    extern int qt_defaultDpi();
     return value * QFixed(dev->logicalDpiY()) / QFixed(qt_defaultDpi());
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtextdocumentlayout_p.cpp"

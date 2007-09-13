@@ -315,6 +315,12 @@ void tst_QDockWidget::features()
     spy.clear();
 }
 
+#ifdef Q_WS_X11
+QT_BEGIN_NAMESPACE
+    extern void qt_x11_wait_for_window_manager(QWidget *);
+QT_END_NAMESPACE
+#endif
+
 void tst_QDockWidget::setFloating()
 {
     QMainWindow mw;
@@ -323,7 +329,6 @@ void tst_QDockWidget::setFloating()
 
     mw.show();
 #ifdef Q_WS_X11
-    extern void qt_x11_wait_for_window_manager(QWidget *);
     qt_x11_wait_for_window_manager(&mw);
 #endif
 
@@ -628,7 +633,6 @@ void tst_QDockWidget::task165177_deleteFocusWidget()
     dw->setWidget(ledit);
     mw.show();
 #ifdef Q_WS_X11
-    extern void qt_x11_wait_for_window_manager(QWidget *);
     qt_x11_wait_for_window_manager(&mw);
 #endif
     qApp->processEvents();

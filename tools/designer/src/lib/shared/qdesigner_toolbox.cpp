@@ -23,6 +23,8 @@
 #include <QtGui/QMenu>
 #include <QtCore/QHash>
 
+QT_BEGIN_NAMESPACE
+
 QToolBoxHelper::QToolBoxHelper(QToolBox *toolbox) :
     QObject(toolbox),
     m_toolbox(toolbox),
@@ -332,3 +334,5 @@ bool QToolBoxWidgetPropertySheet::checkProperty(const QString &propertyName)
     }
     return true;
 }
+
+QT_END_NAMESPACE

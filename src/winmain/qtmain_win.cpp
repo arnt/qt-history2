@@ -26,11 +26,18 @@
   initializes Qt.
 */
 
+QT_BEGIN_NAMESPACE
+
 #if defined(Q_OS_TEMP)
 extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<char *> &);
 #else
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<char *> &);
 #endif
+
+QT_END_NAMESPACE
+
+QT_USE_NAMESPACE
+
 
 #if defined(QT_NEEDS_QMAIN)
 int qMain(int, char **);

@@ -34,6 +34,8 @@
 
 Q_DECLARE_METATYPE(QAction*)
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     enum { listModeIconSize = 16, iconModeIconSize = 24 };
 }
@@ -625,4 +627,7 @@ void ActionRepositoryMimeData::accept(QDragMoveEvent *event) const
         event->accept();
     }
 }
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

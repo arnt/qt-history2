@@ -24,6 +24,8 @@
 #include <qiodevice.h>
 #include <qbytearray.h>
 
+QT_BEGIN_NAMESPACE
+
 class QMngPlugin : public QImageIOPlugin
 {
     public:
@@ -62,5 +64,7 @@ QImageIOHandler *QMngPlugin::create(QIODevice *device, const QByteArray &format)
 
 Q_EXPORT_STATIC_PLUGIN(QMngPlugin)
 Q_EXPORT_PLUGIN2(qmng, QMngPlugin)
+
+QT_END_NAMESPACE
 
 #endif // !QT_NO_IMAGEFORMATPLUGIN

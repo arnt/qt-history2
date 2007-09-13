@@ -25,6 +25,8 @@
 #include "qdbusabstractadaptor_p.h"
 #include "qdbusmetatype_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QDBusAdaptorConnector *qDBusFindAdaptorConnector(QObject *obj)
 {
     if (!obj)
@@ -343,5 +345,7 @@ int QDBusAdaptorConnector::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 void QDBusAdaptorConnector::relaySignal(QObject * _t1, const QMetaObject * _t2, int _t3, const QVariantList & _t4)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)) };
+
+QT_END_NAMESPACE
     QMetaObject::activate(this, &staticMetaObject, 2, _a);
 }

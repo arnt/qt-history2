@@ -27,6 +27,8 @@
 
 #include "qscriptobjectdata_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QScriptEnginePrivate;
 class QScriptContextPrivate;
 class QScriptClassInfo;
@@ -99,5 +101,7 @@ inline QScriptEnginePrivate *Global::engine() const
 } } // namespace QScript::Ecma
 
 #endif // QT_NO_SCRIPT
+
+QT_END_NAMESPACE
 
 #endif

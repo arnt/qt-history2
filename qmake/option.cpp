@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+QT_BEGIN_NAMESPACE
+
 //convenience
 const char *Option::application_argv0 = 0;
 QString Option::prf_ext;
@@ -671,6 +673,8 @@ qmakeAddCacheClear(qmakeCacheClearFunc func, void **data)
 
 #ifdef Q_OS_WIN
 # include <windows.h>
+
+QT_USE_NAMESPACE
 #endif
 
 QString qmake_libraryInfoFile()
@@ -733,3 +737,5 @@ QString qmake_libraryInfoFile()
         ret = QDir(QFileInfo(ret).absolutePath()).filePath("qt.conf");
     return ret;
 }
+
+QT_END_NAMESPACE

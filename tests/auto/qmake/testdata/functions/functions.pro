@@ -87,3 +87,6 @@ myTestFunction("oink baa moo")
 !equals($$list($$member(RESULT, 0)), "oink baa moo") {
      message("FAILED: myTestFunction: $$RESULT")
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

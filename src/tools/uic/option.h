@@ -16,6 +16,8 @@
 
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+
 struct Option
 {
     enum Generator
@@ -60,5 +62,7 @@ struct Option
           prefix(QLatin1String("Ui_"))
     { indent.fill(QLatin1Char(' '), 4); }
 };
+
+QT_END_NAMESPACE
 
 #endif // OPTION_H

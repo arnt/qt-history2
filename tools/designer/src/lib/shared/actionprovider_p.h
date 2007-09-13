@@ -27,6 +27,8 @@
 
 #include <QtDesigner/extension.h>
 
+QT_BEGIN_NAMESPACE
+
 class QAction;
 class QRect;
 class QPoint;
@@ -42,5 +44,7 @@ public:
     virtual void adjustIndicator(const QPoint &pos) = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerActionProviderExtension, "com.trolltech.Qt.Designer.ActionProvider")
+
+QT_END_NAMESPACE
 
 #endif // ACTIONPROVIDER_H

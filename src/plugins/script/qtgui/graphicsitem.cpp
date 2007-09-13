@@ -6,6 +6,7 @@
 #include <QtGui/QGraphicsScene>
 #include "../global.h"
 
+
 Q_DECLARE_METATYPE(QScript::Pointer<QGraphicsItem>::wrapped_pointer_type)
 Q_DECLARE_METATYPE(QList<QGraphicsItem*>)
 Q_DECLARE_METATYPE(QPainterPath)
@@ -24,6 +25,8 @@ Q_DECLARE_METATYPE(QGraphicsLineItem*)
 Q_DECLARE_METATYPE(QGraphicsPixmapItem*)
 Q_DECLARE_METATYPE(QGraphicsTextItem*)
 Q_DECLARE_METATYPE(QGraphicsSimpleTextItem*)
+
+QT_BEGIN_NAMESPACE
 
 DECLARE_BOOLEAN_GET_SET_METHODS(QGraphicsItem, acceptDrops, setAcceptDrops)
 DECLARE_BOOLEAN_GET_SET_METHODS(QGraphicsItem, acceptsHoverEvents, setAcceptsHoverEvents)
@@ -392,3 +395,5 @@ QScriptValue constructGraphicsItemClass(QScriptEngine *eng)
 
     return ctorFun;
 }
+
+QT_END_NAMESPACE

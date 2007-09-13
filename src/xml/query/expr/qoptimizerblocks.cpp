@@ -22,6 +22,8 @@
 
 #include "qoptimizerblocks_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ByIDIdentifier::ByIDIdentifier(const Expression::ID id) : m_id(id)
@@ -156,3 +158,5 @@ Expression::Ptr ByIDCreator::create(const Expression::ID id,
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

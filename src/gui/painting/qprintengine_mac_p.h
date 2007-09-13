@@ -32,6 +32,8 @@
 #include "private/qpaintengine_mac_p.h"
 #include "private/qpainter_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QPrinterPrivate;
 class QMacPrintEnginePrivate;
 class QMacPrintEngine : public QPaintEngine, public QPrintEngine
@@ -111,6 +113,8 @@ public:
     QList<QVariant> supportedResolutions() const;
 
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER
 

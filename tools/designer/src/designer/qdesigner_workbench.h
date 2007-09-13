@@ -22,6 +22,8 @@
 #include <QtCore/QList>
 #include <QtCore/QRect>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerActions;
 class QDesignerToolWindow;
 class QDesignerFormWindow;
@@ -202,5 +204,7 @@ private:
     enum State { StateInitializing, StateUp, StateClosing };
     State m_state;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_WORKBENCH_H

@@ -20,6 +20,8 @@
 #include <QtGui/qaction.h>
 
 #include "qundostack.h"
+
+QT_BEGIN_NAMESPACE
 class QUndoCommand;
 class QUndoGroup;
 
@@ -75,5 +77,7 @@ private:
 };
 #endif // QT_NO_ACTION
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_UNDOSTACK
 #endif // QUNDOSTACK_P_H

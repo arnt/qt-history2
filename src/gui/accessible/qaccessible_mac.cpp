@@ -27,6 +27,8 @@
 #include <private/qt_mac_p.h>
 #include <CoreFoundation/CoreFoundation.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   Externals
  *****************************************************************************/
@@ -1978,5 +1980,9 @@ void QAccessible::updateAccessibility(QObject *object, int child, Event reason)
     AXNotificationHIObjectNotify(notification, element.object(), element.id());
 }
 
+
+QT_END_NAMESPACE
+
 #include "qaccessible_mac.moc"
-#endif
+
+#endif // QT_NO_ACCESSIBILITY

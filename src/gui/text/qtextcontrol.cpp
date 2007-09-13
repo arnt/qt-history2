@@ -55,6 +55,8 @@
 #define ACCEL_KEY(k) QString()
 #endif
 
+QT_BEGIN_NAMESPACE
+
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)
 {
@@ -2690,6 +2692,7 @@ QRectF QTextControl::blockBoundingRect(const QTextBlock &block) const
     return d->doc->documentLayout()->blockBoundingRect(block);
 }
 
+QT_END_NAMESPACE
 
 #include "moc_qtextcontrol_p.cpp"
 

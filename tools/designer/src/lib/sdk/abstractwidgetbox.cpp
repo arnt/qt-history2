@@ -13,6 +13,8 @@
 
 #include "abstractwidgetbox.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerWidgetBoxInterface
 
@@ -324,3 +326,5 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
     \typedef QDesignerWidgetBoxInterface::WidgetList
     \internal
 */
+
+QT_END_NAMESPACE

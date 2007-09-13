@@ -29,6 +29,8 @@
 
 #include "qscriptastvisitor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QTextStream;
 class QScriptEngine;
 class QScriptEnginePrivate;
@@ -291,5 +293,6 @@ private:
 
 } // namespace QScript
 
-#endif
+QT_END_NAMESPACE
 
+#endif

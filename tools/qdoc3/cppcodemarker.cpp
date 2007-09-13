@@ -21,6 +21,8 @@
 #include "text.h"
 #include "tree.h"
 
+QT_BEGIN_NAMESPACE
+
 static int insertTagAround(QString &result, int pos, int len, const QString &tagName,
                            const QString &attributes = QString())
 {
@@ -806,3 +808,5 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
 
     return result;
 }
+
+QT_END_NAMESPACE

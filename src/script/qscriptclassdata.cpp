@@ -13,6 +13,8 @@
 
 #include "qscriptclassdata_p.h"
 
+QT_BEGIN_NAMESPACE
+
 void QScriptClassData::mark(const QScriptValueImpl &, int)
 {
 }
@@ -55,3 +57,5 @@ bool QScriptClassData::extraMember(const QScriptValueImpl &,
 {
     return false;
 }
+
+QT_END_NAMESPACE

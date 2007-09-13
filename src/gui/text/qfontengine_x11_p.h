@@ -28,6 +28,8 @@
 
 #include <private/qfontengine_ft_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QFreetypeFace;
 
 // --------------------------------------------------------------------------
@@ -133,5 +135,7 @@ protected:
 };
 
 #endif // QT_NO_FONTCONFIG
+
+QT_END_NAMESPACE
 
 #endif // QFONTENGINE_X11_P_H

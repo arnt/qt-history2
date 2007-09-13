@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QString;
@@ -31,6 +33,8 @@ public:
     static QStringList keys();
     static QWSKeyboardHandler *create(const QString&, const QString&);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

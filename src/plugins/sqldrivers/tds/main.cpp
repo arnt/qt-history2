@@ -21,6 +21,8 @@
 #endif
 #include "../../../sql/drivers/tds/qsql_tds.h"
 
+QT_BEGIN_NAMESPACE
+
 
 class QTDSDriverPlugin : public QSqlDriverPlugin
 {
@@ -55,3 +57,5 @@ QStringList QTDSDriverPlugin::keys() const
 
 Q_EXPORT_STATIC_PLUGIN(QTDSDriverPlugin)
 Q_EXPORT_PLUGIN2(qsqltds, QTDSDriverPlugin)
+
+QT_END_NAMESPACE

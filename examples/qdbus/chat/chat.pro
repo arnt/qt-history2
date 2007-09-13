@@ -17,3 +17,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/qdbus/chat
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.pro *.xml
 sources.path = $$[QT_INSTALL_EXAMPLES]/qdbus/chat
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

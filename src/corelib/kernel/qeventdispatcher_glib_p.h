@@ -30,6 +30,8 @@
 
 #include <QtCore/qhash.h>
 
+QT_BEGIN_NAMESPACE
+
 typedef struct _GMainContext GMainContext;
 class QEventDispatcherGlibPrivate;
 
@@ -79,5 +81,7 @@ public:
     GSocketNotifierSource *socketNotifierSource;
     GTimerSource *timerSource;
 };
+
+QT_END_NAMESPACE
 
 #endif // QEVENTDISPATCHER_GLIB_P_H

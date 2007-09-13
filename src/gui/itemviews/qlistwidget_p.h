@@ -31,8 +31,9 @@
 #include <private/qlistview_p.h>
 #include <private/qwidgetitemdata_p.h>
 
-
 #ifndef QT_NO_LISTWIDGET
+
+QT_BEGIN_NAMESPACE
 
 class QListModelLessThan
 {
@@ -114,7 +115,7 @@ class QListWidgetPrivate : public QListViewPrivate
     Q_DECLARE_PUBLIC(QListWidget)
 public:
     QListWidgetPrivate() : QListViewPrivate(), sortOrder(Qt::AscendingOrder), sortingEnabled(false) {}
-    inline QListModel *model() const { return ::qobject_cast<QListModel*>(q_func()->model()); }
+    inline QListModel *model() const { return qobject_cast<QListModel*>(q_func()->model()); }
     void setup();
     void _q_emitItemPressed(const QModelIndex &index);
     void _q_emitItemClicked(const QModelIndex &index);
@@ -136,6 +137,8 @@ public:
     QListWidgetItem *q;
     int id;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_LISTWIDGET
 

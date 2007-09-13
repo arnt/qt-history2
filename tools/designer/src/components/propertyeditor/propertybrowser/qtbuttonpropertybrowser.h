@@ -16,6 +16,8 @@
 
 #include "qtpropertybrowser.h"
 
+QT_BEGIN_NAMESPACE
+
 class QtButtonPropertyBrowser : public QtAbstractPropertyBrowser
 {
     Q_OBJECT
@@ -47,5 +49,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotToggled(bool))
 
 };
+
+QT_END_NAMESPACE
 
 #endif

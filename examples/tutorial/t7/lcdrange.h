@@ -16,7 +16,7 @@
 
 #include <QWidget>
 
-class QSlider;
+QT_DECLARE_CLASS(QSlider)
 
 class LCDRange : public QWidget
 {

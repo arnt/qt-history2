@@ -23,6 +23,8 @@
 
 #include <math.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -710,5 +712,7 @@ qreal QtGradientWidget::angleConical() const
 {
     return d_ptr->m_angleConical;
 }
+
 }
 
+QT_END_NAMESPACE

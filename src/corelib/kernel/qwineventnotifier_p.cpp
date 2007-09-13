@@ -18,6 +18,8 @@
 
 #include <private/qthread_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
     \class QWinEventNotifier qwineventnotifier.h
     \brief The QWinEventNotifier class provides support for the Windows Wait functions.
@@ -102,3 +104,5 @@ bool QWinEventNotifier::event(QEvent * e)
     }
     return false;
 }
+
+QT_END_NAMESPACE

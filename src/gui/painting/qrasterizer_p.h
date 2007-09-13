@@ -31,6 +31,8 @@
 #include <private/qdrawhelper_p.h>
 #include <private/qrasterdefs_p.h>
 
+QT_BEGIN_NAMESPACE
+
 struct QSpanData;
 class QRasterBuffer;
 class QRasterizerPrivate;
@@ -55,5 +57,7 @@ public:
 private:
     QRasterizerPrivate *d;
 };
+
+QT_END_NAMESPACE
 
 #endif

@@ -16,6 +16,8 @@
 #include "option.h"
 #include <qdir.h>
 
+QT_BEGIN_NAMESPACE
+
 QMap<QString, QMap<QString, QStringList> > QMakeMetaInfo::cache_vars;
 
 QMakeMetaInfo::QMakeMetaInfo()
@@ -172,3 +174,5 @@ QMakeMetaInfo::readPkgCfgFile(const QString &f)
     fprintf(stderr, "Must implement reading in pkg-config files (%s)!!!\n", f.toLatin1().constData());
     return false;
 }
+
+QT_END_NAMESPACE

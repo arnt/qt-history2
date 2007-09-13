@@ -20,6 +20,10 @@
 #include <qwidget.h>
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
+extern char qAxModuleFilename[MAX_PATH];
+
 /*!
     \class QAxFactory
     \brief The QAxFactory class defines a factory for the creation of COM components.
@@ -331,7 +335,6 @@ bool QAxFactory::validateLicenseKey(const QString &key, const QString &licenseKe
         return true;
 
     if (licenseKey.isEmpty()) {
-        extern char qAxModuleFilename[MAX_PATH];
         QString licFile(QFile::decodeName(qAxModuleFilename));
         int lastDot = licFile.lastIndexOf(QLatin1Char('.'));
         licFile = licFile.left(lastDot) + QLatin1String(".lic");
@@ -682,3 +685,5 @@ bool QAxFactory::registerActiveObject(QObject *object)
 
     \sa QAXFACTORY_BEGIN(), QAXCLASS(), QAXTYPE()
 */
+
+QT_END_NAMESPACE

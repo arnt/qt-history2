@@ -14,7 +14,6 @@
 #ifndef Patternist_AccelTreeResourceLoader_H
 #define Patternist_AccelTreeResourceLoader_H
 
-class QIODevice;
 #include <QHash>
 
 #include "qacceltree_p.h"
@@ -23,6 +22,10 @@ class QIODevice;
 #include "qsequencereceiver_p.h"
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QIODevice;
 
 namespace Patternist
 {
@@ -52,6 +55,8 @@ namespace Patternist
         static inline QString prefixFromQName(const QString &qName);
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

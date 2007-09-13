@@ -17,6 +17,8 @@ TRANSLATOR qdesigner_internal::StyleSheetEditorDialog
 
 #include "csshighlighter_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 CssHighlighter::CssHighlighter(QTextDocument *document)
@@ -149,3 +151,5 @@ void CssHighlighter::highlight(const QString &text, int start, int length, int s
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

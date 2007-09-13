@@ -19,6 +19,8 @@
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QPaintDevice
     \brief The QPaintDevice class is the base class of objects that
@@ -125,12 +127,13 @@ QPaintDevice::QPaintDevice()
     Destroys the paint device and frees window system resources.
 */
 
+extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
+
 QPaintDevice::~QPaintDevice()
 {
     if (paintingActive())
         qWarning("QPaintDevice: Cannot destroy paint device that is being "
                   "painted");
-    extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
     qt_painter_removePaintDevice(this);
 }
 
@@ -638,3 +641,4 @@ int QPaintDevice::x11AppDpiY(int screen)
     \sa  physicalDpiX(),  logicalDpiY()
 */
 
+QT_END_NAMESPACE

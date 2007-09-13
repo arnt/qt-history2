@@ -17,6 +17,8 @@
 #include <QStack>
 #include "symbols.h"
 
+QT_BEGIN_NAMESPACE
+
 class Parser
 {
 public:
@@ -72,5 +74,7 @@ inline void Parser::next(Token token, const char *msg)
     if (!test(token))
         error(msg);
 }
+
+QT_END_NAMESPACE
 
 #endif

@@ -17,6 +17,8 @@
 #include "ui_paletteeditor.h"
 #include <QtGui/QItemDelegate>
 
+QT_BEGIN_NAMESPACE
+
 class QListView;
 class QLabel;
 class QtColorButton;
@@ -169,5 +171,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // PALETTEEDITOR_H

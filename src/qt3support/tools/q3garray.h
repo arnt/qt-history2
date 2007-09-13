@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3GArray					// generic array
@@ -102,6 +104,8 @@ inline char *Q3GArray::at(uint index) const
 #endif
     return &shd->data[index];
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

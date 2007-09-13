@@ -10,3 +10,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/linguist/trollprint
 sources.files = $$SOURCES $$HEADERS $$TRANSLATIONS *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/linguist/trollprint
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

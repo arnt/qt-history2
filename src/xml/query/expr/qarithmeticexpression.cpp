@@ -24,6 +24,8 @@
 
 #include "qarithmeticexpression_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ArithmeticExpression::ArithmeticExpression(const Expression::Ptr &op1,
@@ -277,3 +279,5 @@ ExpressionVisitorResult::Ptr ArithmeticExpression::accept(const ExpressionVisito
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

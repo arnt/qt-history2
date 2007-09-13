@@ -32,6 +32,10 @@
 
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
+Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
+
 /*!
     Returns true if the string \a text is likely to be rich text;
     otherwise returns false.
@@ -612,8 +616,6 @@ qreal QTextDocument::idealWidth() const
 void QTextDocument::adjustSize()
 {
     // Pull this private function in from qglobal.cpp
-    Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
-
     QFont f = defaultFont();
     QFontMetrics fm(f);
     int mw =  fm.width(QLatin1Char('x')) * 80;
@@ -1383,6 +1385,8 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, co
     \sa QTextEdit::print()
 */
 
+extern int qt_defaultDpi();
+
 void QTextDocument::print(QPrinter *printer) const
 {
     Q_D(const QTextDocument);
@@ -1405,8 +1409,6 @@ void QTextDocument::print(QPrinter *printer) const
 
     if (d->pageSize.isValid() && !d->pageSize.isNull()
         && d->pageSize.height() != INT_MAX) {
-        extern int qt_defaultDpi();
-
         qreal sourceDpiX = qt_defaultDpi();
         qreal sourceDpiY = sourceDpiX;
 
@@ -2534,3 +2536,4 @@ QTextDocumentPrivate *QTextDocument::docHandle() const
     return const_cast<QTextDocumentPrivate *>(d);
 }
 
+QT_END_NAMESPACE

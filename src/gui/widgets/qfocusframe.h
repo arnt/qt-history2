@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QFocusFramePrivate;
@@ -44,6 +46,8 @@ private:
     Q_DECLARE_PRIVATE(QFocusFrame)
     Q_DISABLE_COPY(QFocusFrame)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -29,6 +29,8 @@
 #include "QtCore/qtranslator.h"
 #include "private/qobject_p.h"
 
+QT_BEGIN_NAMESPACE
+
 typedef QList<QTranslator*> QTranslatorList;
 
 class QAbstractEventDispatcher;
@@ -80,5 +82,7 @@ public:
     static uint attribs;
     static inline bool testAttribute(uint flag) { return attribs & (1 << flag); }
 };
+
+QT_END_NAMESPACE
 
 #endif // QCOREAPPLICATION_P_H

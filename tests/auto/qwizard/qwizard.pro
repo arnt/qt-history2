@@ -5,3 +5,6 @@ SOURCES  += tst_qwizard.cpp
 #SOURCES  += /home/jasplin/dev/research/qwizard/src/qwizard.cpp
 #HEADERS  += /home/jasplin/dev/research/qwizard/src/qwizard.h
 RESOURCES = qwizard.qrc
+
+DEFINES += QT_USE_USING_NAMESPACE
+

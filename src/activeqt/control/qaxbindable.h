@@ -16,14 +16,17 @@
 
 #include <QtGui/qwidget.h>
 
+struct IUnknown;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(ActiveQt)
 
 class QAxAggregated;
 class QIODevice;
 struct IAxServerBase;
-struct IUnknown;
 
 class QAxBindable
 {
@@ -47,6 +50,8 @@ protected:
 private:
     IAxServerBase *activex;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

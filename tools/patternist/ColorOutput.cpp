@@ -23,6 +23,8 @@
 #include <unistd.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class ColorOutputPrivate
 {
 public:
@@ -276,5 +278,7 @@ void ColorOutput::insertMapping(int colorID, const ColorCode colorCode)
 {
     d->colorMapping.insert(colorID, colorCode);
 }
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

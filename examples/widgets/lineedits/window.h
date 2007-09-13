@@ -16,8 +16,8 @@
 
 #include <QWidget>
 
-class QComboBox;
-class QLineEdit;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QLineEdit)
 
 class Window : public QWidget
 {

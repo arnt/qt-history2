@@ -28,6 +28,8 @@
 #include "QtCore/qglobal.h"
 #include <stdlib.h>
 
+QT_BEGIN_NAMESPACE
+
 template <class T> class QFragmentMap;
 
 class QFragment
@@ -371,5 +373,7 @@ private:
     QFragmentMap(const QFragmentMap& m);
     QFragmentMap& operator= (const QFragmentMap& m);
 };
+
+QT_END_NAMESPACE
 
 #endif // QFRAGMENTMAP_P_H

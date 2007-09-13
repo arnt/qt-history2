@@ -30,6 +30,8 @@
 #include <private/qmenubar_p.h>
 #include <private/qhiviewwidget_mac_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   QMenu debug facilities
  *****************************************************************************/
@@ -422,9 +424,9 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
     QWidget *caused = 0;
     if (GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), 0, &caused) == noErr) {
         MenuRef caused_menu = 0;
-        if (QMenu *qmenu2 = ::qobject_cast<QMenu*>(caused))
+        if (QMenu *qmenu2 = qobject_cast<QMenu*>(caused))
             caused_menu = qmenu2->macMenu();
-        else if (QMenuBar *qmenubar2 = ::qobject_cast<QMenuBar*>(caused))
+        else if (QMenuBar *qmenubar2 = qobject_cast<QMenuBar*>(caused))
             caused_menu = qmenubar2->macMenu();
         else
             caused_menu = 0;
@@ -432,13 +434,13 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
             //fire
             QWidget *widget = 0;
             GetMenuItemProperty(caused_menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget);
-            if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
+            if (QMenu *qmenu = qobject_cast<QMenu*>(widget)) {
                 if (action_e == QAction::Trigger) {
                     emit qmenu->triggered(action->action);
                 } else if (action_e == QAction::Hover) {
                     emit qmenu->hovered(action->action);
                 }
-            } else if (QMenuBar *qmenubar = ::qobject_cast<QMenuBar*>(widget)) {
+            } else if (QMenuBar *qmenubar = qobject_cast<QMenuBar*>(widget)) {
                 if (action_e == QAction::Trigger) {
                     emit qmenubar->triggered(action->action);
                 } else if (action_e == QAction::Hover) {
@@ -451,9 +453,9 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
             if (GetMenuItemProperty(caused_menu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget,
                                    sizeof(caused), 0, &caused) != noErr)
                 break;
-            if (QMenu *qmenu2 = ::qobject_cast<QMenu*>(caused))
+            if (QMenu *qmenu2 = qobject_cast<QMenu*>(caused))
                 caused_menu = qmenu2->macMenu();
-            else if (QMenuBar *qmenubar2 = ::qobject_cast<QMenuBar*>(caused))
+            else if (QMenuBar *qmenubar2 = qobject_cast<QMenuBar*>(caused))
                 caused_menu = qmenubar2->macMenu();
             else
                 caused_menu = 0;
@@ -606,7 +608,7 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 
             QWidget *widget = 0;
             if (GetMenuItemProperty(mr, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget) == noErr) {
-                if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
+                if (QMenu *qmenu = qobject_cast<QMenu*>(widget)) {
                     handled_event = true;
                     if (ekind == kEventMenuOpening) {
                         emit qmenu->aboutToShow();
@@ -1371,3 +1373,5 @@ bool QMenuPrivate::QMacMenuPrivate::merged(const QAction *action) const
     }
     return false;
 }
+
+QT_END_NAMESPACE

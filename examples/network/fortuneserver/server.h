@@ -16,9 +16,9 @@
 
 #include <QDialog>
 
-class QLabel;
-class QPushButton;
-class QTcpServer;
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTcpServer)
 
 class Server : public QDialog
 {

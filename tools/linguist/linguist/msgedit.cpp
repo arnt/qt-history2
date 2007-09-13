@@ -47,6 +47,8 @@
 #include <QtCore/QUrl>
 #include <QAbstractTextDocumentLayout>
 
+QT_BEGIN_NAMESPACE
+
 static const int MaxCandidates = 5;
 
 const char MessageEditor::backTab[] = "\a\b\f\n\r\t";
@@ -1418,3 +1420,5 @@ void MessageEditor::setTranslationLabel(const QString &str)
         te->label()->setText(str);
     }
 }
+
+QT_END_NAMESPACE

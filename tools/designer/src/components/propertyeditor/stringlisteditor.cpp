@@ -15,6 +15,8 @@
 #include <iconloader_p.h>
 #include <QtGui/QStringListModel>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 StringListEditor::StringListEditor(QWidget *parent)
@@ -178,3 +180,5 @@ void StringListEditor::editString(int index)
 {
     listView->edit(m_model->index(index, 0));
 }
+
+QT_END_NAMESPACE

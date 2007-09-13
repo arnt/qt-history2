@@ -12,6 +12,8 @@ Q_DECLARE_METATYPE(QPen)
 Q_DECLARE_METATYPE(QPen*)
 Q_DECLARE_METATYPE(QVector<qreal>)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newPen(QScriptEngine *eng, const QPen &pen)
 {
     return qScriptValueFromValue(eng, pen);
@@ -283,3 +285,5 @@ QScriptValue constructPenClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

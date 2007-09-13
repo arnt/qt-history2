@@ -14,6 +14,8 @@
 #include <qdecorationplugin_qws.h>
 #include <qdecorationwindows_qws.h>
 
+QT_BEGIN_NAMESPACE
+
 class DecorationWindows : public QDecorationPlugin
 {
 public:
@@ -45,3 +47,5 @@ QDecoration* DecorationWindows::create(const QString& s)
 
 Q_EXPORT_STATIC_PLUGIN(DecorationWindows)
 Q_EXPORT_PLUGIN2(qdecorationwindows, DecorationWindows)
+
+QT_END_NAMESPACE

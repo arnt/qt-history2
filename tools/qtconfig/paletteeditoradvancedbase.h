@@ -17,6 +17,8 @@
 #include "ui_paletteeditoradvancedbase.h"
 #include <QVariant>
 
+QT_BEGIN_NAMESPACE
+
 class ColorButton;
 
 class PaletteEditorAdvancedBase : public QDialog, public Ui::PaletteEditorAdvancedBase
@@ -42,5 +44,7 @@ protected slots:
     virtual void paletteSelected(int);
 
 };
+
+QT_END_NAMESPACE
 
 #endif // PALETTEEDITORADVANCEDBASE_H

@@ -16,6 +16,8 @@
 
 #include <QtGui/QValidator>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QLongLongValidator : public QValidator
@@ -74,5 +76,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QLONGLONGVALIDATOR_H

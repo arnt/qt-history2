@@ -21,7 +21,7 @@
 
 #include <qobject.h>
 
-class QMainWindow;
+QT_DECLARE_CLASS(QMainWindow)
 
 #include <qmenubar.h>
 

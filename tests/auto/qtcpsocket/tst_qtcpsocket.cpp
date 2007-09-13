@@ -61,7 +61,7 @@ Q_DECLARE_METATYPE(QAbstractSocket::SocketState)
 
 //TESTED_FILES=network/qtcpsocket.cpp network/qtcpsocket.h network/qabstractsocket.cpp network/qabstractsocket.h network/qabstractsocket_p.h
 
-class QTcpSocket;
+QT_DECLARE_CLASS(QTcpSocket)
 
 class tst_QTcpSocket : public QObject
 {

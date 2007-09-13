@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QDate
@@ -276,6 +278,8 @@ Q_CORE_EXPORT QDebug operator<<(QDebug, const QDate &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QTime &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QDateTime &);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

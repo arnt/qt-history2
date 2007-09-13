@@ -27,6 +27,8 @@
 
 #include "QtGui/qwidget.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TOOLBAR
 
 class QStyleOption;
@@ -52,5 +54,7 @@ public Q_SLOTS:
 };
 
 #endif // QT_NO_TOOLBAR
+
+QT_END_NAMESPACE
 
 #endif // QDYNAMICTOOLBARSEPARATOR_P_H

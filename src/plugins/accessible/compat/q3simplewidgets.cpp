@@ -16,6 +16,8 @@
 #include <q3groupbox.h>
 #include <qlabel.h>
 
+QT_BEGIN_NAMESPACE
+
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 Q3AccessibleDisplay::Q3AccessibleDisplay(QWidget *w, Role role)
@@ -100,3 +102,4 @@ int Q3AccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterf
     return QAccessibleWidget::navigate(rel, entry, target);
 }
 
+QT_END_NAMESPACE

@@ -10,3 +10,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/network/blockingfortuneclient
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS blockingfortuneclient.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/network/blockingfortuneclient
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -21,6 +21,8 @@
 #  include <stdlib.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 // Test Vectors (from FIPS PUB 180-1)
 //
 //  SHA1("abc") =
@@ -229,3 +231,5 @@ static inline void sha1ToHash(Sha1State *state, unsigned char* buffer)
     qToBigEndian(state->h3, buffer + 12);
     qToBigEndian(state->h4, buffer + 16);
 }
+
+QT_END_NAMESPACE

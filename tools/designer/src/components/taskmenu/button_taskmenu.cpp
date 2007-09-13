@@ -29,6 +29,8 @@ TRANSLATOR qdesigner_internal::ButtonTaskMenu
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)
@@ -90,3 +92,4 @@ void ButtonTaskMenu::updateSelection()
         m_editor->deleteLater();
 }
 
+QT_END_NAMESPACE

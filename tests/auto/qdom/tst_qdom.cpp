@@ -22,8 +22,8 @@
 //TESTED_CLASS=
 //TESTED_FILES=xml/qdom.h xml/qdom.cpp
 
-class QDomDocument;
-class QDomNode;
+QT_DECLARE_CLASS(QDomDocument)
+QT_DECLARE_CLASS(QDomNode)
 
 class tst_QDom : public QObject
 {

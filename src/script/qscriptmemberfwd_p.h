@@ -27,6 +27,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_SCRIPT
 
 class QScriptNameIdImpl;
@@ -87,5 +89,8 @@ namespace QScript {
 
 } // namespace QScript
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif

@@ -16,6 +16,8 @@
 #include <private/qpaintengine_opengl_p.h>
 #include <private/qglwindowsurface_qws_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWSGLPaintDevicePrivate
 {
 public:
@@ -60,3 +62,5 @@ QWSGLWindowSurface* QWSGLPaintDevice::windowSurface() const
      Q_D(const QWSGLPaintDevice);
      return static_cast<QWSGLWindowSurface*>(d->widget->windowSurface());
 }
+
+QT_END_NAMESPACE

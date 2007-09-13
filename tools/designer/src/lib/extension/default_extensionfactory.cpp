@@ -16,6 +16,8 @@
 #include <qpointer.h>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QExtensionFactory
 
@@ -173,3 +175,5 @@ QExtensionManager *QExtensionFactory::extensionManager() const
 {
     return static_cast<QExtensionManager *>(parent());
 }
+
+QT_END_NAMESPACE

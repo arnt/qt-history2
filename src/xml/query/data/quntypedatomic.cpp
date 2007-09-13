@@ -16,6 +16,8 @@
 
 #include "quntypedatomic_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 UntypedAtomic::UntypedAtomic(const QString &s) : AtomicString(s)
@@ -33,3 +35,5 @@ ItemType::Ptr UntypedAtomic::type() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

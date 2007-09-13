@@ -20,6 +20,8 @@
 #include "qfsfileengine.h"
 #include "qdiriterator.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAbstractFileEngineHandler
     \reentrant
@@ -1198,3 +1200,5 @@ void QAbstractFileEngine::setError(QFile::FileError error, const QString &errorS
     d->fileError = error;
     d->errorString = errorString;
 }
+
+QT_END_NAMESPACE

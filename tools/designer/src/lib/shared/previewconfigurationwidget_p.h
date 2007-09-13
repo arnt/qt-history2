@@ -29,6 +29,8 @@
 
 #include <QtGui/QGroupBox>
 
+QT_BEGIN_NAMESPACE
+
 class QSettings;
 
 namespace qdesigner_internal {
@@ -83,4 +85,7 @@ private:
     PreviewConfigurationWidget &operator =(const PreviewConfigurationWidget &other);
 };
 }
+
+QT_END_NAMESPACE
+
 #endif // PREVIEWCONFIGURATIONWIDGET_H

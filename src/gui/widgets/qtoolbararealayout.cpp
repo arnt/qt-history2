@@ -28,6 +28,8 @@
 
 #ifndef QT_NO_TOOLBAR
 
+QT_BEGIN_NAMESPACE
+
 QSize QToolBarAreaLayoutItem::minimumSize() const
 {
     if (skip())
@@ -1084,5 +1086,7 @@ bool QToolBarAreaLayout::isEmpty() const
     }
     return true;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_TOOLBAR

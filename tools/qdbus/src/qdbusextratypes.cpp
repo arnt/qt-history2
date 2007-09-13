@@ -14,6 +14,8 @@
 #include "qdbusextratypes.h"
 #include "qdbusutil_p.h"
 
+QT_BEGIN_NAMESPACE
+
 void QDBusObjectPath::check()
 {
     if (!QDBusUtil::isValidObjectPath(*this))
@@ -171,5 +173,7 @@ void QDBusSignature::check()
 
     Assigns the value of the given \a signature to this signature.
 
+
+QT_END_NAMESPACE
     \sa signature()
 */

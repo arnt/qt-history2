@@ -19,6 +19,8 @@
 #include "qmotifstyle.h"
 #include "qcommonstyle_p.h"
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -46,5 +48,7 @@ public:
     int animateStep;
 #endif // QT_NO_PROGRESSBAR
 };
+
+QT_END_NAMESPACE
 
 #endif //QMOTIFSTYLE_P_H

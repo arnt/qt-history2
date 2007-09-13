@@ -26,6 +26,8 @@
 #include <sys/sem.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
   Helper class
   */
@@ -102,6 +104,8 @@ private:
     key_t unix_key;
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SHAREDMEMORY
 

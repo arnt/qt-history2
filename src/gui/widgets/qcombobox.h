@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_COMBOBOX
@@ -299,6 +301,8 @@ inline void QComboBox::insertItem(int aindex, const QString &atext,
 { insertItem(aindex, QIcon(), atext, auserData); }
 
 #endif // QT_NO_COMBOBOX
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -14,6 +14,8 @@
 #include "abstractformwindow.h"
 #include "inplace_editor.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 InPlaceEditor::InPlaceEditor(QWidget *widget,
@@ -39,3 +41,5 @@ InPlaceEditor::InPlaceEditor(QWidget *widget,
 }
 
 }
+
+QT_END_NAMESPACE

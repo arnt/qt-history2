@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -98,6 +100,8 @@ namespace Patternist
         const qint8 m_increment : 2;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

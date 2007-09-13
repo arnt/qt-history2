@@ -27,6 +27,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QAction;
@@ -680,6 +682,8 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QEvent *);
 inline bool operator==(QKeyEvent *e, QKeySequence::StandardKey key){return (e ? e->matches(key) : false);}
 inline bool operator==(QKeySequence::StandardKey key, QKeyEvent *e){return (e ? e->matches(key) : false);}
 #endif // QT_NO_SHORTCUT
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

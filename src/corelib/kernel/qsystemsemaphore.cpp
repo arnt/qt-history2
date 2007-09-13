@@ -15,6 +15,8 @@
 #include "qsystemsemaphore_p.h"
 #include <qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class QSystemSemaphore
   \since 4.4
@@ -284,3 +286,5 @@ bool QSystemSemaphore::release(int n)
     return d->modifySemaphore(n);
 }
 
+
+QT_END_NAMESPACE

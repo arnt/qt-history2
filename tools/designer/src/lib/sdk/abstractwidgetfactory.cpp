@@ -15,6 +15,8 @@
 #include "abstractformeditor.h"
 #include "abstractwidgetdatabase.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerWidgetFactoryInterface
     \brief The QDesignerWidgetFactoryInterface class provides an interface that is used to control
@@ -78,3 +80,5 @@ QDesignerWidgetFactoryInterface::~QDesignerWidgetFactoryInterface()
 /*!
     \fn virtual void QDesignerWidgetFactoryInterface::initialize(QObject *object) const = 0
 */
+
+QT_END_NAMESPACE

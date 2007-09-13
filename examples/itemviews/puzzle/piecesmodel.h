@@ -20,7 +20,7 @@
 #include <QPoint>
 #include <QStringList>
 
-class QMimeData;
+QT_DECLARE_CLASS(QMimeData)
 
 class PiecesModel : public QAbstractListModel
 {

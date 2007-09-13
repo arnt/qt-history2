@@ -18,8 +18,8 @@
 #include <QMainWindow>
 #include <QPair>
 
-class QAction;
-class QTabWidget;
+QT_DECLARE_CLASS(QAction)
+QT_DECLARE_CLASS(QTabWidget)
 
 class MainWindow : public QMainWindow
 {

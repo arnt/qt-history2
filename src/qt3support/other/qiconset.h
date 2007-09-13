@@ -13,4 +13,8 @@
 
 #include <QtGui/qicon.h>
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Qt3Support)
+
+QT_END_NAMESPACE

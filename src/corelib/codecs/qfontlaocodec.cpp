@@ -17,6 +17,8 @@
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
 
+QT_BEGIN_NAMESPACE
+
 static unsigned char const unicode_to_mulelao[256] =
     {
         // U+0E80
@@ -88,7 +90,7 @@ QByteArray QFontLaoCodec::convertFromUnicode(const QChar *uc, int len, Converter
     return rstring;
 }
 
+QT_END_NAMESPACE
 
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
-

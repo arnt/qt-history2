@@ -17,11 +17,11 @@
 #include <QDialog>
 #include <QList>
 
-class QComboBox;
-class QDialogButtonBox;
-class QLabel;
-class QTextCodec;
-class QTextEdit;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QTextCodec)
+QT_DECLARE_CLASS(QTextEdit)
 
 class PreviewForm : public QDialog
 {

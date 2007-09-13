@@ -19,6 +19,8 @@
 
 #include "qt_windows.h"
 
+QT_BEGIN_NAMESPACE
+
 extern QString qt_error_string(int code);
 
 bool QLibraryPrivate::load_sys()
@@ -47,7 +49,7 @@ bool QLibraryPrivate::load_sys()
 
     SetErrorMode(oldmode);
     if (!pHnd) {
-        errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(::qt_error_string());
+        errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(qt_error_string());
     }
     if (pHnd) {
         errorString.clear();
@@ -73,7 +75,7 @@ bool QLibraryPrivate::load_sys()
 bool QLibraryPrivate::unload_sys()
 {
     if (!FreeLibrary(pHnd)) {
-        errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(::qt_error_string());
+        errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(qt_error_string());
         return false;
     }
     errorString.clear();
@@ -89,10 +91,11 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #endif
     if (!address) {
         errorString = QLibrary::tr("QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
-            QString::fromAscii(symbol)).arg(fileName).arg(::qt_error_string());
+            QString::fromAscii(symbol)).arg(fileName).arg(qt_error_string());
     } else {
         errorString.clear();
     }
     return address;
 }
 
+QT_END_NAMESPACE

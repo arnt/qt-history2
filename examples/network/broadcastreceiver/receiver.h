@@ -16,9 +16,9 @@
 
 #include <QDialog>
 
-class QLabel;
-class QPushButton;
-class QUdpSocket;
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QUdpSocket)
 
 class Receiver : public QDialog
 {

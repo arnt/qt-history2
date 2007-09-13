@@ -20,6 +20,8 @@
 
 #include "qitemverifier_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 ItemVerifier::ItemVerifier(const Expression::Ptr &operand,
@@ -93,3 +95,5 @@ ExpressionVisitorResult::Ptr ItemVerifier::accept(const ExpressionVisitor::Ptr &
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

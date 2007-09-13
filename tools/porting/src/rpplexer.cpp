@@ -16,6 +16,8 @@
 #include <QChar>
 #include <ctype.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace TokenEngine;
 
 namespace Rpp {
@@ -346,3 +348,5 @@ void RppLexer::scanKeyword(int *kind)
 }
 
 } //namespace Rpp
+
+QT_END_NAMESPACE

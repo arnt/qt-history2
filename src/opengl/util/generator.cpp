@@ -21,6 +21,10 @@
 
 #include <QtDebug>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 typedef QPair<QString, QString> QStringPair;
 
 QString readSourceFile(const QString &sourceFile, bool fragmentProgram = false)
@@ -399,3 +403,5 @@ int main()
 
     return 0;
 }
+
+QT_END_NAMESPACE

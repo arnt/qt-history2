@@ -28,6 +28,8 @@
 
 #include <private/qfont_p.h>
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
 {
@@ -618,3 +620,5 @@ DomProperty *variantToDomProperty(QAbstractFormBuilder *afb, QObject *obj,
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_NAMESPACE

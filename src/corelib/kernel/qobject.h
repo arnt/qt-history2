@@ -26,6 +26,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QEvent;
@@ -426,6 +428,8 @@ inline T qobject_cast(const QObject *object)
 #ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QObject *);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

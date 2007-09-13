@@ -23,6 +23,8 @@
 #  include <arpa/inet.h> // for htonl (LSB only)
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class QAnimationWriterData
 {
 public:
@@ -417,3 +419,5 @@ void QAnimationWriter::appendBlankFrame()
     i.fill(0);
     d->composeImage(i, QPoint(0,0));
 }
+
+QT_END_NAMESPACE

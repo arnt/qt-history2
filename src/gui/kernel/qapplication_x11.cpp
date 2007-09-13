@@ -89,6 +89,8 @@
 
 #include <private/qbackingstore_p.h>
 
+QT_BEGIN_NAMESPACE
+
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
 // Some X libraries are built with setlocale #defined to _Xsetlocale,
@@ -2187,12 +2189,12 @@ bool qt_wstate_iconified(WId winid)
 
 QString QApplicationPrivate::appName() const
 {
-    return QString::fromLocal8Bit(::appName);
+    return QString::fromLocal8Bit(QT_ADD_NAMESPACE(appName));
 }
 
 const char *QX11Info::appClass()                                // get application class
 {
-    return ::appClass;
+    return QT_ADD_NAMESPACE(appClass);
 }
 
 bool qt_nograb()                                // application no-grab option
@@ -4796,7 +4798,9 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 
 #ifndef QT_NO_SESSIONMANAGER
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <X11/SM/SMlib.h>
+QT_END_INCLUDE_NAMESPACE
 
 class QSessionManagerPrivate : public QObjectPrivate
 {
@@ -5085,7 +5089,9 @@ void QSmSocketReceiver::socketActivated(int)
 
 
 #undef Bool
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qapplication_x11.moc"
+QT_END_INCLUDE_NAMESPACE
 
 QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
     : QObject(*new QSessionManagerPrivate(this, id, key), app)
@@ -5292,3 +5298,5 @@ void QSessionManager::requestPhase2()
 }
 
 #endif // QT_NO_SESSIONMANAGER
+
+QT_END_NAMESPACE

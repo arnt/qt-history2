@@ -16,6 +16,8 @@
 
 #include "qoutputvalidator_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 OutputValidator::OutputValidator(const SequenceReceiver::Ptr &receiver,
@@ -115,3 +117,5 @@ void OutputValidator::endDocument()
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

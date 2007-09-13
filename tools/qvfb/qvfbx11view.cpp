@@ -23,6 +23,8 @@
 #include <QTemporaryFile>
 #include <X11/Xlib.h>
 
+QT_BEGIN_NAMESPACE
+
 QVFbX11View::QVFbX11View
 	(int id, int w, int h, int d, Rotation r, QWidget *parent)
     : QVFbAbstractView(parent)
@@ -350,3 +352,5 @@ void QVFbX11View::startKeyFaker()
     if (!keyFaker && xnest)
 	keyFaker = new X11KeyFaker(":" + QString::number(displayId()), this);
 }
+
+QT_END_NAMESPACE

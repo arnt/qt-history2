@@ -14,17 +14,13 @@
 #ifndef Patternist_Item_H
 #define Patternist_Item_H
 
-class QSourceLocation;
-template<typename T> class QList;
-template<typename T> class QVector;
-
-#include <QUrl>
-#include <QVariant>
-
 #include "qitemtype_p.h"
 #include "qlistiterator_p.h"
 #include "qsingletoniterator_p.h"
 #include "qplainsharedptr_p.h"
+
+#include <QUrl>
+#include <QVariant>
 
 /**
  * @file
@@ -40,6 +36,13 @@ template<typename T> class QVector;
  */
 
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+template<typename T> class QList;
+template<typename T> class QVector;
+
+class QSourceLocation;
 
 namespace Patternist
 {
@@ -922,6 +925,8 @@ namespace Patternist
 }
 
 Q_DECLARE_TYPEINFO(Patternist::Item::Iterator::Ptr, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

@@ -109,6 +109,8 @@
 #include <private/qpnghandler_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QImageIOHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/imageformats")))
@@ -159,7 +161,8 @@ static const _qt_BuiltInFormatStruct _qt_BuiltInFormats[] = {
     {_qt_NoFormat, ""}
 };
 
-static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &format)
+static QImageIOHandler *createReadHandlerHelper(QIODevice *device,
+    const QByteArray &format)
 {
     QByteArray form = format.toLower();
     QImageIOHandler *handler = 0;
@@ -480,7 +483,7 @@ bool QImageReaderPrivate::initHandler()
     }
 
     // assign a handler
-    if (!handler && (handler = ::createReadHandler(device, format)) == 0) {
+    if (!handler && (handler = createReadHandlerHelper(device, format)) == 0) {
         imageReaderError = QImageReader::UnsupportedFormatError;
         errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unsupported image format"));
         return false;
@@ -1203,7 +1206,7 @@ QByteArray QImageReader::imageFormat(const QString &fileName)
 QByteArray QImageReader::imageFormat(QIODevice *device)
 {
     QByteArray format;
-    QImageIOHandler *handler = ::createReadHandler(device, format);
+    QImageIOHandler *handler = createReadHandlerHelper(device, format);
     if (handler) {
         if (handler->canRead())
             format = handler->format();
@@ -1264,3 +1267,4 @@ QList<QByteArray> QImageReader::supportedImageFormats()
     return sortedFormats;
 }
 
+QT_END_NAMESPACE

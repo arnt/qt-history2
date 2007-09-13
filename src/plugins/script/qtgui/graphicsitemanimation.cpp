@@ -11,6 +11,8 @@ Q_DECLARE_METATYPE(QGraphicsItemAnimation*)
 Q_DECLARE_METATYPE(QGraphicsItem*)
 Q_DECLARE_METATYPE(QTimeLine*)
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue newGraphicsItemAnimation(QScriptEngine *eng, QGraphicsItemAnimation *anim)
 {
     return eng->newQObject(anim, QScriptEngine::AutoOwnership);
@@ -220,3 +222,5 @@ QScriptValue constructGraphicsItemAnimationClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

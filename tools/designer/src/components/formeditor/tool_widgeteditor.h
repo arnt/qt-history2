@@ -19,6 +19,8 @@
 #include <QtGui/qevent.h>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QAction;
 class QMainWindow;
 
@@ -68,5 +70,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // TOOL_WIDGETEDITOR_H

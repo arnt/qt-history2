@@ -16,6 +16,8 @@
 
 #include "paletteeditoradvancedbase.h"
 
+QT_BEGIN_NAMESPACE
+
 class PaletteEditorAdvanced : public PaletteEditorAdvancedBase
 {
     Q_OBJECT
@@ -74,5 +76,7 @@ private:
 
     int selectedPalette;
 };
+
+QT_END_NAMESPACE
 
 #endif

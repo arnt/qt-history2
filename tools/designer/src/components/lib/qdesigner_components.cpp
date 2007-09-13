@@ -39,23 +39,45 @@
 
 // ### keep it in sync with Q_IMPORT_PLUGIN in qplugin.h
 #define DECLARE_PLUGIN_INSTANCE(PLUGIN) \
-        class Static##PLUGIN##PluginInstance{ \
-        public: \
-                Static##PLUGIN##PluginInstance() {                      \
-                extern void qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunction); \
-                extern QObject *qt_plugin_instance_##PLUGIN(); \
-                qRegisterStaticPluginInstanceFunction(qt_plugin_instance_##PLUGIN); \
-                } \
-        };
+    extern QT_ADD_NAMESPACE(QObject) *qt_plugin_instance_##PLUGIN(); \
+    class Static##PLUGIN##PluginInstance { public: \
+        Static##PLUGIN##PluginInstance() {                      \
+            QT_ADD_NAMESPACE(qRegisterStaticPluginInstanceFunction) \
+                (&qt_plugin_instance_##PLUGIN); \
+        } \
+    };
 
 #define INIT_PLUGIN_INSTANCE(PLUGIN) \
-        do { \
-            Static##PLUGIN##PluginInstance instance; Q_UNUSED(instance); \
-        } while (0)
+    do { \
+        Static##PLUGIN##PluginInstance instance; \
+        Q_UNUSED(instance); \
+    } while (0)
 
 DECLARE_PLUGIN_INSTANCE(SignalSlotEditorPlugin)
 DECLARE_PLUGIN_INSTANCE(BuddyEditorPlugin)
 DECLARE_PLUGIN_INSTANCE(TabOrderEditorPlugin)
+
+static void initResources()
+{
+    // Q_INIT_RESOURCE only usable in functions in global namespace 
+    Q_INIT_RESOURCE(formeditor);
+    Q_INIT_RESOURCE(widgetbox);
+}
+
+
+static void initInstances()
+{
+    static bool plugins_initialized = false;
+
+    if (!plugins_initialized) {
+        INIT_PLUGIN_INSTANCE(SignalSlotEditorPlugin);
+        INIT_PLUGIN_INSTANCE(BuddyEditorPlugin);
+        INIT_PLUGIN_INSTANCE(TabOrderEditorPlugin);
+        plugins_initialized = true;
+    }
+}
+
+QT_BEGIN_NAMESPACE
 
 /*!
     \class QDesignerComponents
@@ -77,8 +99,7 @@ DECLARE_PLUGIN_INSTANCE(TabOrderEditorPlugin)
     Initializes the resources used by the components.*/
 void QDesignerComponents::initializeResources()
 {
-    Q_INIT_RESOURCE(formeditor);
-    Q_INIT_RESOURCE(widgetbox);
+    initResources();
 }
 
 /*!
@@ -92,16 +113,7 @@ void QDesignerComponents::initializePlugins(QDesignerFormEditorInterface *core)
     Constructs a form editor interface with the given \a parent.*/
 QDesignerFormEditorInterface *QDesignerComponents::createFormEditor(QObject *parent)
 {
-    static bool plugins_initialized = false;
-
-    if (!plugins_initialized) {
-        INIT_PLUGIN_INSTANCE(SignalSlotEditorPlugin);
-        INIT_PLUGIN_INSTANCE(BuddyEditorPlugin);
-        INIT_PLUGIN_INSTANCE(TabOrderEditorPlugin);
-
-        plugins_initialized = true;
-    }
-
+    initInstances();
     return new qdesigner_internal::FormEditor(parent);
 }
 
@@ -187,4 +199,6 @@ QWidget *QDesignerComponents::createSignalSlotEditor(QDesignerFormEditorInterfac
 {
     return new qdesigner_internal::SignalSlotEditorWindow(core, parent);
 }
+
+QT_END_NAMESPACE
 

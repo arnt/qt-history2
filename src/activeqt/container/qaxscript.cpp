@@ -34,6 +34,8 @@
 
 #include "../shared/qaxtypes.h"
 
+QT_BEGIN_NAMESPACE
+
 struct QAxEngineDescriptor { QString name, extension, code; };
 static QList<QAxEngineDescriptor> engines;
 
@@ -287,7 +289,7 @@ QWidget *QAxScriptSite::window() const
     QWidget *w = 0;
     QObject *p = script->parent();
     while (!w && p) {
-        w = ::qobject_cast<QWidget*>(p);
+        w = qobject_cast<QWidget*>(p);
         p = p->parent();
     }
     
@@ -1262,6 +1264,8 @@ void QAxScriptManager::objectDestroyed(QObject *o)
 */
 void QAxScriptManager::scriptError(int code, const QString &desc, int spos, const QString &stext)
 {
-    QAxScript *source = ::qobject_cast<QAxScript*>(sender());
+    QAxScript *source = qobject_cast<QAxScript*>(sender());
     emit error(source, code, desc, spos, stext);
 }
+
+QT_END_NAMESPACE

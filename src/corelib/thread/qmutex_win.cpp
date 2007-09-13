@@ -17,6 +17,8 @@
 #include <qatomic.h>
 #include "qmutex_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QMutexPrivate::QMutexPrivate(QMutex::RecursionMode mode)
     : recursive(mode == QMutex::Recursive), contenders(0), owner(0), count(0),
       event(QT_WA_INLINE(CreateEventW(0, FALSE, FALSE, 0),
@@ -39,3 +41,5 @@ bool QMutexPrivate::wait(int timeout)
 
 void QMutexPrivate::wakeUp()
 { SetEvent(event); }
+
+QT_END_NAMESPACE

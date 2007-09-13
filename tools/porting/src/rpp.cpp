@@ -15,6 +15,8 @@
 #include "rpp.h"
 #include "rppexpressionbuilder.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace TokenEngine;
 
 namespace Rpp
@@ -693,3 +695,5 @@ void Source::setFileName(const QString &fileName)
 }
 
 } // namespace Rpp
+
+QT_END_NAMESPACE

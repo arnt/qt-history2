@@ -32,6 +32,8 @@
 #include <QtCore/QList>
 #include <QtCore/QMimeData>
 
+QT_BEGIN_NAMESPACE
+
 class QDrag;
 class QImage;
 class QDropEvent;
@@ -109,6 +111,9 @@ private:
     QPoint m_globalStartPos;
     QPoint m_hotSpot;
 };
+
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_DNDITEM_H

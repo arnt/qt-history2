@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -104,6 +106,8 @@ namespace Patternist
         const QLatin1String XDT_LOCAL("http://www.w3.org/2005/xquery-local-functions");
     }
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

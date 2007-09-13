@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     class AnyAtomicType;
@@ -230,6 +232,8 @@ namespace Patternist
                                                    const SourceLocationReflection *const reflection) const = 0;
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

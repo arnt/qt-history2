@@ -21,6 +21,8 @@
 #include "qabstracttextdocumentlayout.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 // ### DOC: We ought to explain the CONCEPT of objectIndexes if
 // relevant to the public API
 /*!
@@ -1558,3 +1560,5 @@ QString QTextFragment::text() const
     }
     return result;
 }
+
+QT_END_NAMESPACE

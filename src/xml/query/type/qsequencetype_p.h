@@ -23,6 +23,8 @@ template<typename T> class QList;
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     class ItemType;
@@ -85,6 +87,8 @@ namespace Patternist
 }
 
 Q_DECLARE_TYPEINFO(Patternist::SequenceType::Ptr, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

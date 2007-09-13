@@ -28,6 +28,8 @@
 #include <QtGui/QStandardItemModel>
 #include <QtCore/QSet>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerWidgetDataBaseItemInterface;
 
@@ -62,5 +64,7 @@ namespace qdesigner_internal {
         QDesignerFormEditorInterface *m_core;
     };
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // PROMOTIONMODEL_H

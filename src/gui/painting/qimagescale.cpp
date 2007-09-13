@@ -16,6 +16,8 @@
 #include "qimage.h"
 #include "qcolor.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QImageScale {
     struct QImageScaleInfo;
 }
@@ -1006,6 +1008,7 @@ QImage qSmoothScaleImage(const QImage &src, int dw, int dh)
                           0, 0, 0, 0, dw, dh, dw, w);
 
     qimageFreeScaleInfo(scaleinfo);
-
     return buffer;
 }
+
+QT_END_NAMESPACE

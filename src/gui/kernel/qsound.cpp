@@ -19,6 +19,8 @@
 #include <private/qobject_p.h>
 #include "qsound_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static QList<QAuServer*> *servers=0;
 
 QAuServer::QAuServer(QObject* parent)
@@ -356,5 +358,6 @@ QAuBucket::~QAuBucket()
     Use the isAvailable() function instead.
 */
 
+QT_END_NAMESPACE
 
 #endif // QT_NO_SOUND

@@ -30,6 +30,8 @@
 
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerPropertyEditorInterface;
 class QMenu;
 class QActionGroup;
@@ -124,5 +126,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // ACTIONEDITOR_H

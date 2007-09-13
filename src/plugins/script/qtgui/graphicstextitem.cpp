@@ -12,6 +12,8 @@ Q_DECLARE_METATYPE(QGraphicsTextItem*)
 Q_DECLARE_METATYPE(QTextDocument*)
 Q_DECLARE_METATYPE(QTextCursor)
 
+QT_BEGIN_NAMESPACE
+
 static inline QScriptValue newGraphicsTextItem(QScriptEngine *eng, QGraphicsTextItem *item)
 {
     return eng->newQObject(item, QScriptEngine::AutoOwnership);
@@ -240,3 +242,5 @@ QScriptValue constructGraphicsTextItemClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

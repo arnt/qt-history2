@@ -24,6 +24,8 @@
 #include <private/qabstractitemmodel_p.h>
 #include <private/qabstractproxymodel_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSortFilterProxyModelLessThan
 {
 public:
@@ -2233,6 +2235,8 @@ QItemSelection QSortFilterProxyModel::mapSelectionFromSource(const QItemSelectio
   \fn QObject *QSortFilterProxyModel::parent() const
   \internal
 */
+
+QT_END_NAMESPACE
 
 #include "moc_qsortfilterproxymodel.cpp"
 

@@ -16,8 +16,13 @@
 
 #include <QtCore/qiodevice.h>
 #include <QtCore/qobject.h>
+#ifndef QT_NO_DEBUG_STREAM
+#include <QtCore/qdebug.h>
+#endif
 
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Network)
 
@@ -192,10 +197,11 @@ Q_SIGNALS:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-#include <QtCore/qdebug.h>
 Q_NETWORK_EXPORT QDebug operator<<(QDebug, QAbstractSocket::SocketError);
 Q_NETWORK_EXPORT QDebug operator<<(QDebug, QAbstractSocket::SocketState);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

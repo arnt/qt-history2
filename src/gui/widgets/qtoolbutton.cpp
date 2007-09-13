@@ -33,6 +33,8 @@
 #include <private/qaction_p.h>
 #include <private/qmenu_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QToolButtonPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QToolButton)
@@ -1142,6 +1144,9 @@ QToolButton::QToolButton(QToolButtonPrivate &dd, QWidget *parent)
 
     Use setToolButtonStyle() instead.
 */
+
+QT_END_NAMESPACE
+
 #include "moc_qtoolbutton.cpp"
 
 #endif

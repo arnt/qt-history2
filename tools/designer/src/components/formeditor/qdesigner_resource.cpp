@@ -76,6 +76,8 @@
 
 Q_DECLARE_METATYPE(QWidgetList)
 
+QT_BEGIN_NAMESPACE
+
 namespace {
     typedef QList<DomProperty*> DomPropertyList;
 }
@@ -1785,3 +1787,5 @@ void QDesignerResource::addUserDefinedScripts(QWidget *w, DomWidget *ui_widget)
         ui_widget->setElementScript(domScripts);
 }
 }
+
+QT_END_NAMESPACE

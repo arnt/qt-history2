@@ -19,6 +19,8 @@
 #include <connectionedit_p.h>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -49,5 +51,7 @@ private:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif

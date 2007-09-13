@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 struct QRegExpPrivate;
@@ -111,6 +113,8 @@ Q_DECLARE_TYPEINFO(QRegExp, Q_MOVABLE_TYPE);
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &out, const QRegExp &regExp);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &in, QRegExp &regExp);
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -51,6 +51,8 @@
 
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 // ---------------------------------------------------------------------------------
 
 namespace qdesigner_internal {
@@ -966,3 +968,5 @@ void PropertyEditor::slotValueChanged(QtProperty *property, const QVariant &valu
 }
 
 }
+
+QT_END_NAMESPACE

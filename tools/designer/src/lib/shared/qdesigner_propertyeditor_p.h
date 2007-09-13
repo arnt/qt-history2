@@ -29,6 +29,8 @@
 #include "shared_global_p.h"
 #include <QtDesigner/QDesignerPropertyEditorInterface>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 // Extends the QDesignerPropertyEditorInterface by property comment handling and
@@ -52,5 +54,7 @@ public Q_SLOTS:
 };
 
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // DESIGNERPROPERTYEDITOR_H

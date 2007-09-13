@@ -19,6 +19,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 Driver::Driver()
     : m_stdout(stdout, QFile::WriteOnly | QFile::Text)
 {
@@ -321,3 +323,5 @@ DomAction *Driver::actionByName(const QString &name) const
 {
     return m_actions.key(name);
 }
+
+QT_END_NAMESPACE

@@ -30,6 +30,8 @@
 #include <QtGui/QLabel>
 #include "shared_global_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 
 class QDialogButtonBox;
@@ -86,5 +88,7 @@ private:
 };
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // STYLESHEETEDITOR_H

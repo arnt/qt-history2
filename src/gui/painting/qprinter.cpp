@@ -41,6 +41,8 @@
 #  include "qprintdialog.h"
 #endif // QT3_SUPPORT
 
+QT_BEGIN_NAMESPACE
+
 #define ABORT_IF_ACTIVE(location) \
     if (d->printEngine->printerState() == QPrinter::Active) { \
         qWarning("%s: Cannot be changed while printer is active", location); \
@@ -1756,5 +1758,6 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
     \internal
 */
 
-#endif // QT_NO_PRINTER
+QT_END_NAMESPACE
 
+#endif // QT_NO_PRINTER

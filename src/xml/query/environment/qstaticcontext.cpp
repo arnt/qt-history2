@@ -15,6 +15,8 @@
 
 #include "qstaticcontext_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 StaticContext::~StaticContext()
@@ -22,3 +24,5 @@ StaticContext::~StaticContext()
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

@@ -16,11 +16,14 @@
 
 #include <QtCore/qobject.h>
 
+struct IUnknown;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(ActiveQt)
 
-struct IUnknown;
 struct QUuid;
 
 class QAxAggregated
@@ -53,6 +56,8 @@ private:
     ULONG WINAPI AddRef() {return controllingUnknown()->AddRef(); } \
     ULONG WINAPI Release() {return controllingUnknown()->Release(); } \
 
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

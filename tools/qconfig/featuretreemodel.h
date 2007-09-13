@@ -19,6 +19,8 @@
 #include <QHash>
 #include <QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 class Feature;
 class Node;
 
@@ -68,5 +70,7 @@ private:
     mutable QHash<QModelIndex, QModelIndex> parentMap;
     mutable QHash<const Feature*, QModelIndex> featureIndexMap;    
 };
+
+QT_END_NAMESPACE
 
 #endif // FEATURETREEMODEL_H

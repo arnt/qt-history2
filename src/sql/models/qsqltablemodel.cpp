@@ -25,6 +25,8 @@
 
 #include <qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 /*! \internal
     Populates our record with values.
 */
@@ -1290,3 +1292,5 @@ bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
     }
     return false;
 }
+
+QT_END_NAMESPACE

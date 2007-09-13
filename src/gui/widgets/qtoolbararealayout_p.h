@@ -29,6 +29,8 @@
 #include <QSize>
 #include <QRect>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TOOLBAR
 
 class QToolBar;
@@ -152,5 +154,7 @@ public:
     bool isEmpty() const;
 };
 
+
+QT_END_NAMESPACE
 #endif // QT_NO_TOOLBAR
 #endif // QTOOLBARAREALAYOUT_P_H

@@ -21,6 +21,8 @@
 
 #include "qnumeric_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 AtomicValue::Ptr Numeric::fromLexical(const QString &number)
@@ -47,3 +49,5 @@ xsDouble Numeric::nearByInt(const xsDouble val)
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

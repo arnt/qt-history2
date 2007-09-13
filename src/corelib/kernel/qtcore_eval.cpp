@@ -18,6 +18,8 @@
 #include <qcoreapplication.h>
 #include "keydec.h"
 
+QT_BEGIN_NAMESPACE
+
 static const char * const dont_mess_with_me =
     "\nQt %1 Evaluation License\n"
     "Copyright (C) 1992-$THISYEAR$ $TROLLTECH$.\n"
@@ -182,6 +184,7 @@ void qt_core_eval_init(uint type)
 
 #ifdef QT_BUILD_GUI_LIB
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <qdialog.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -189,6 +192,8 @@ void qt_core_eval_init(uint type)
 #include <qpushbutton.h>
 #include <qtimer.h>
 #include <qapplication.h>
+QT_END_INCLUDE_NAMESPACE
+
 
 static const char * const qtlogo_eval_xpm[] = {
 /* width height ncolors chars_per_pixel */
@@ -390,3 +395,5 @@ void qt_eval_init_widget(QWidget *w)
     }
 }
 #endif
+
+QT_END_NAMESPACE

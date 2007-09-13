@@ -16,10 +16,14 @@
 
 #include <QString>
 
+QT_BEGIN_NAMESPACE
+
 class Parser
 {
 public:
     static QString cleanArgs( const QString &func );
 };
+
+QT_END_NAMESPACE
 
 #endif // PARSER_H

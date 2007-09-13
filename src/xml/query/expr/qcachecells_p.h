@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
 
@@ -93,6 +95,8 @@ namespace Patternist
 
 Q_DECLARE_TYPEINFO(Patternist::ItemCacheCell, Q_MOVABLE_TYPE);
 Q_DECLARE_TYPEINFO(Patternist::ItemSequenceCacheCell, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

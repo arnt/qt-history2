@@ -35,6 +35,8 @@
 #include "activeqt_extrainfo.h"
 #include <qaxtypes.h>
 
+QT_BEGIN_NAMESPACE
+
 /* XPM */
 static const char *widgetIcon[]={
 "22 22 6 1",
@@ -430,5 +432,7 @@ private:
 };
 
 Q_EXPORT_PLUGIN(QActiveXPlugin)
+
+QT_END_NAMESPACE
 
 #include "plugin.moc"

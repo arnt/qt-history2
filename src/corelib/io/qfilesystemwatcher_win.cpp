@@ -20,6 +20,8 @@
 #include <qset.h>
 #include <qdatetime.h>
 
+QT_BEGIN_NAMESPACE
+
 QWindowsFileSystemWatcherEngine::QWindowsFileSystemWatcherEngine()
     : msg(0)
 {
@@ -285,3 +287,5 @@ void QWindowsFileSystemWatcherEngine::wakeup()
     msg = '@';
     SetEvent(handles.at(0));
 }
+
+QT_END_NAMESPACE

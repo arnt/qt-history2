@@ -22,6 +22,8 @@
 #include "qvariant.h"
 #include "qwidget_p.h"
 
+QT_BEGIN_NAMESPACE
+
 inline static QRect fromLayoutItemRect(QWidgetPrivate *priv, const QRect &rect)
 {
     return priv->fromOrToLayoutItemRect(rect, -1);
@@ -642,3 +644,5 @@ bool QWidgetItem::isEmpty() const
 {
     return wid->isHidden() || wid->isWindow();
 }
+
+QT_END_NAMESPACE

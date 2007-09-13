@@ -12,10 +12,13 @@
 ****************************************************************************/
 
 #include <private/qprintengine_mac_p.h>
-extern int qt_defaultDpi();
 #include <qdebug.h>
 
 #ifndef QT_NO_PRINTER
+
+QT_BEGIN_NAMESPACE
+
+extern int qt_defaultDpi();
 
 QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode) : QPaintEngine(*(new QMacPrintEnginePrivate))
 {
@@ -744,5 +747,7 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
     }
     return ret;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PRINTER

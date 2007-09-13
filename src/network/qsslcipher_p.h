@@ -28,6 +28,8 @@
 
 #include "qsslcipher.h"
 
+QT_BEGIN_NAMESPACE
+
 //  W A R N I N G
 //  -------------
 //
@@ -58,3 +60,5 @@ public:
     QString protocolString;
     QSsl::SslProtocol protocol;
 };
+
+QT_END_NAMESPACE

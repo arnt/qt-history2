@@ -124,6 +124,8 @@
 #include "qabstractsocket_p.h"
 #include "qudpsocket.h"
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_UDPSOCKET
 
 #if defined(QT_NO_IPV6)
@@ -386,3 +388,5 @@ qint64 QUdpSocket::readDatagram(char *data, qint64 maxSize, QHostAddress *addres
     return readBytes;
 }
 #endif // QT_NO_UDPSOCKET
+
+QT_END_NAMESPACE

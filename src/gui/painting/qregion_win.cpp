@@ -18,6 +18,7 @@
 #include "qregion.h"
 #include "qt_windows.h"
 
+QT_BEGIN_NAMESPACE
 
 QRegion::QRegionData QRegion::shared_empty = { Q_BASIC_ATOMIC_INITIALIZER(1), 0 };
 
@@ -447,3 +448,5 @@ bool qt_region_strictContains(const QRegion &region, const QRect &rect)
     Q_UNUSED(rect);
     return false;
 }
+
+QT_END_NAMESPACE

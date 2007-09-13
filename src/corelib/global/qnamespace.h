@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 #ifndef Q_MOC_RUN
@@ -1481,6 +1483,8 @@ enum {
     QCOORD_MIN = -QCOORD_MAX - 1
 };
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

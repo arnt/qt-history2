@@ -30,6 +30,8 @@
 #include <pluginmanager_p.h>
 #include <QtDesigner/QDesignerPromotionInterface>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterfacePrivate : public  QObjectPrivate {
 public:
     QDesignerFormEditorInterfacePrivate();
@@ -477,3 +479,5 @@ void QDesignerFormEditorInterface::setDialogGui(QDesignerDialogGuiInterface *dia
     delete  d->m_dialogGui;
     d->m_dialogGui = dialogGui;
 }
+
+QT_END_NAMESPACE

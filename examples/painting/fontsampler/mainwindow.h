@@ -16,9 +16,9 @@
 
 #include "ui_mainwindowbase.h"
 
-class QTextEdit;
-class QTreeWidget;
-class QTreeWidgetItem;
+QT_DECLARE_CLASS(QTextEdit)
+QT_DECLARE_CLASS(QTreeWidget)
+QT_DECLARE_CLASS(QTreeWidgetItem)
 
 typedef QList<QTreeWidgetItem *> StyleItems;
 

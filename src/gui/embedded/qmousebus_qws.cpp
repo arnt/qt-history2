@@ -30,6 +30,8 @@
 #include <errno.h>
 #include <termios.h>
 
+QT_BEGIN_NAMESPACE
+
 /*
  * bus mouse driver (a.k.a. Logitech busmouse)
  */
@@ -201,5 +203,8 @@ void QWSBusMouseHandlerPrivate::readMouseData()
     mouseIdx = surplus;
 }
 
+QT_END_NAMESPACE
+
 #include "qmousebus_qws.moc"
+
 #endif // QT_NO_QWS_MOUSE_BUS

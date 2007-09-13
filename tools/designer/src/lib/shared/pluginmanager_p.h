@@ -31,6 +31,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QSettings>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormEditorInterface;
 class QDesignerCustomWidgetInterface;
 
@@ -86,5 +88,7 @@ private:
 
     QStringList defaultPluginPaths() const;
 };
+
+QT_END_NAMESPACE
 
 #endif // PLUGINMANAGER_H

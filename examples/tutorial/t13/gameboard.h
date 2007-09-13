@@ -16,7 +16,7 @@
 
 #include <QWidget>
 
-class QLCDNumber;
+QT_DECLARE_CLASS(QLCDNumber)
 class CannonField;
 
 class GameBoard : public QWidget

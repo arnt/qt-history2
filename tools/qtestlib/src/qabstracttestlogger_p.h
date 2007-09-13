@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 class QAbstractTestLogger
 {
 public:
@@ -63,5 +67,7 @@ public:
     static void outputString(const char *msg);
     static bool isTtyOutput();
 };
+
+QT_END_NAMESPACE
 
 #endif

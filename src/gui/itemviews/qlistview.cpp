@@ -29,6 +29,8 @@
 #include <qaccessible.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QListView
 
@@ -2839,4 +2841,7 @@ int QListView::visualIndex(const QModelIndex &index) const
     QListViewItem itm = d->indexToListViewItem(index);
     return d->itemIndex(itm);
 }
+
+QT_END_NAMESPACE
+
 #endif // QT_NO_LISTVIEW

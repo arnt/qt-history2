@@ -21,11 +21,14 @@
 #include <qdatetime.h>
 
 //#define QNATIVESOCKETENGINE_DEBUG
+#if defined(QNATIVESOCKETENGINE_DEBUG)
+#   include <qstring.h>
+#   include <qbytearray.h>
+#endif
+
+QT_BEGIN_NAMESPACE
 
 #if defined(QNATIVESOCKETENGINE_DEBUG)
-
-#include <qstring.h>
-#include <qbytearray.h>
 
 void verboseWSErrorDebug(int r)
 {
@@ -1127,3 +1130,5 @@ void QNativeSocketEnginePrivate::nativeClose()
     ::setsockopt(socketDescriptor, SOL_SOCKET, SO_DONTLINGER, (char*)&l, sizeof(l));
     ::closesocket(socketDescriptor);
 }
+
+QT_END_NAMESPACE

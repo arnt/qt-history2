@@ -45,6 +45,8 @@ TRANSLATOR qdesigner_internal::QDesignerPromotionDialog
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 
+QT_BEGIN_NAMESPACE
+
 // Add a row consisting of widget and a description label to a grid.
 static void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w, int &row) {
     QLabel *label = new QLabel(description);
@@ -426,3 +428,5 @@ namespace qdesigner_internal {
                                      tr("%1 - Error").arg(windowTitle()), message,  QMessageBox::Close);
     }
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

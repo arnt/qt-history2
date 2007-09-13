@@ -16,6 +16,8 @@
 #include <QMetaMethod>
 #include <QScriptExtensionPlugin>
 
+QT_BEGIN_NAMESPACE
+
 static QScriptValue setupDBusInterface(QScriptEngine *engine, QDBusAbstractInterface *iface);
 
 static QScriptValue do_dbus_call(QScriptContext *context, QScriptEngine *engine)
@@ -360,5 +362,7 @@ void QtDBusScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
     (void)new QScriptDBusMessageConstructor(engine, extensionObject);
 }
 
+
+QT_END_NAMESPACE
 Q_EXPORT_STATIC_PLUGIN(QtDBusScriptPlugin)
 Q_EXPORT_PLUGIN2(qtscriptdbus, QtDBusScriptPlugin)

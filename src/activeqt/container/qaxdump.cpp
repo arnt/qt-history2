@@ -21,6 +21,8 @@
 
 #include "../shared/qaxtypes.h"
 
+QT_BEGIN_NAMESPACE
+
 QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name)
 {
     QString docu;
@@ -368,3 +370,5 @@ QString qax_generateDocumentation(QAxBase *that)
         dispatch->Release();
     return docu;
 }
+
+QT_END_NAMESPACE

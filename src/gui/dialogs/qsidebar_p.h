@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-
 #ifndef QSIDEBAR_H
 #define QSIDEBAR_H
 
@@ -31,6 +30,8 @@
 #include <qurl.h>
 
 #ifndef QT_NO_FILEDIALOG
+
+QT_BEGIN_NAMESPACE
 
 class QFileSystemModel;
 class Q_AUTOTEST_EXPORT QUrlModel : public QStandardItemModel
@@ -110,7 +111,9 @@ private:
     QUrlModel *urlModel;
 };
 
-#endif
+QT_END_NAMESPACE
 
-#endif
+#endif // QT_NO_FILEDIALOG
+
+#endif // QSIDEBAR_H
 

@@ -20,6 +20,8 @@
 #include <QtCore/qvector.h>
 #include <QtCore/qvarlengtharray.h>
 
+QT_BEGIN_NAMESPACE
+
 QAhiScreen::QAhiScreen(int displayId)
     : QScreen(displayId)
 {
@@ -266,5 +268,7 @@ void QAhiScreen::solidFill(const QColor &color, const QRegion &reg)
     if (status != AhiStsOk)
         qWarning("QAhiScreen::solidFill(): AhiDrawBitBlt failed: %x", status);
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_AHI

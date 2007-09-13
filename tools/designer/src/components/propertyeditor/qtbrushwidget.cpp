@@ -14,6 +14,8 @@
 #include "qtbrushwidget.h"
 #include <QtGui/QPainter>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtBrushWidgetPrivate
@@ -132,3 +134,5 @@ void QtBrushWidget::paintEvent(QPaintEvent *e)
     p.fillRect(r, br);
 }
 }
+
+QT_END_NAMESPACE

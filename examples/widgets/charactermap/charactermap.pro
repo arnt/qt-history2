@@ -9,3 +9,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/charactermap
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS charactermap.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/charactermap
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

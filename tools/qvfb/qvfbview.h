@@ -21,6 +21,8 @@
 //#include <QGLWidget>
 //#endif
 
+QT_BEGIN_NAMESPACE
+
 class QImage;
 class QTimer;
 class QAnimationWriter;
@@ -155,5 +157,7 @@ private:
     bool emulateLcdScreen;
     Rotation rotation;
 };
+
+QT_END_NAMESPACE
 
 #endif

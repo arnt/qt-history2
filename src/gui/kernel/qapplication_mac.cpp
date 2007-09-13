@@ -81,9 +81,12 @@
 #define kThemeBrushAlternatePrimaryHighlightColor -5
 #endif
 
+QT_BEGIN_NAMESPACE
+
 //for qt_mac.h
 QPaintDevice *qt_mac_safe_pdev = 0;
 QList<QMacWindowChangeEvent*> *QMacWindowChangeEvent::change_events = 0;
+extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 
 /*****************************************************************************
   Internal variables and functions
@@ -478,7 +481,6 @@ void qt_mac_update_os_settings()
             QFont fnt(qt_mac_from_pascal_string(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
                       (bool)(f_style & ::italic));
             bool set_font = true;
-            extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
             QHash<QByteArray, QFont> *hash = qt_app_fonts_hash();
             if(!hash->isEmpty()) {
                 QHash<QByteArray, QFont>::const_iterator it
@@ -1682,7 +1684,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 window->raise();
                 if(window->windowType() != Qt::Desktop
                    && window->windowType() != Qt::Popup && !qt_mac_is_macsheet(window)
-                   && (window->isModal() || !::qobject_cast<QDockWidget *>(window))
+                   && (window->isModal() || !qobject_cast<QDockWidget *>(window))
                    && !window->isActiveWindow()) {
                    window->activateWindow();
                    if(!qt_mac_can_clickThrough(widget)) {
@@ -2539,3 +2541,5 @@ bool QApplicationPrivate::qt_mac_apply_settings()
     settings.endGroup();
     return true;
 }
+
+QT_END_NAMESPACE

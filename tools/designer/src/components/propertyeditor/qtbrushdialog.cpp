@@ -20,6 +20,8 @@ TRNASLATOR qdesigner_internal::QtBrushDialog
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 namespace qdesigner_internal {
@@ -64,5 +66,7 @@ void QtBrushDialog::setBrushManager(QDesignerBrushManagerInterface *manager)
 {
     d_ptr->m_ui.brushEditor->setBrushManager(manager);
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtbrushdialog.cpp"

@@ -21,6 +21,8 @@
 #include <QtGui/QIcon>
 #include <Qt3Support/Q3IconView>
 
+QT_BEGIN_NAMESPACE
+
 Q3IconViewPlugin::Q3IconViewPlugin(QObject *parent)
         : QObject(parent), m_initialized(false)
 {}
@@ -85,3 +87,5 @@ QString Q3IconViewPlugin::domXml() const
     ");
 }
 
+
+QT_END_NAMESPACE

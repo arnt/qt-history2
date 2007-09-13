@@ -22,6 +22,8 @@
 #include "qwidget_p.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDesktopWidgetPrivate : public QWidgetPrivate
 {
 public:
@@ -515,3 +517,5 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
 /*! \fn void QDesktopWidget::workAreaResized(int screen)
     This signal is emitted when the work area available on \a screen changes.
 */
+
+QT_END_NAMESPACE

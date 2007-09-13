@@ -21,6 +21,8 @@
 #include <QtGui/QIcon>
 #include <Qt3Support/Q3Table>
 
+QT_BEGIN_NAMESPACE
+
 Q3TablePlugin::Q3TablePlugin(QObject *parent)
         : QObject(parent), m_initialized(false)
 {}
@@ -86,3 +88,5 @@ QString Q3TablePlugin::domXml() const
 }
 
 
+
+QT_END_NAMESPACE

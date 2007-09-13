@@ -17,3 +17,6 @@ win32 {
     DESTDIR = release
   }
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

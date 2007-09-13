@@ -62,7 +62,6 @@ struct QEdge {
     bool vertical;
     bool horizontal;
 };
-Q_DECLARE_TYPEINFO(QEdge, Q_PRIMITIVE_TYPE);
 
 struct QVrtx {
     typedef QList<QEdge> Edges;
@@ -71,13 +70,17 @@ struct QVrtx {
     Edges endingEdges;
     Edges intersectingEdges;
 };
-Q_DECLARE_TYPEINFO(QVrtx, Q_PRIMITIVE_TYPE);
 
 struct QIntersectionPoint {
     qreal x;
     const QEdge *edge;
 };
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(QEdge, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(QVrtx, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(QIntersectionPoint, Q_PRIMITIVE_TYPE);
+QT_END_NAMESPACE
 
 
 // used by the edge point sort algorithm

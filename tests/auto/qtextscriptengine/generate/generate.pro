@@ -9,3 +9,6 @@ INCLUDEPATH += . /usr/include/freetype2
 # Input
 SOURCES += main.cpp
 CONFIG += qt warn_on debug  thread create_prl link_prl
+
+DEFINES += QT_USE_USING_NAMESPACE
+

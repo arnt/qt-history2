@@ -21,6 +21,10 @@
 #include <private/qkeymapper_p.h>
 #include <private/qapplication_p.h>
 
+QT_BEGIN_NAMESPACE
+
+QT_USE_NAMESPACE
+
 /*****************************************************************************
   QKeyMapper debug facilities
  *****************************************************************************/
@@ -883,3 +887,5 @@ Q_UNUSED(grab);
     }
     return false;
 }
+
+QT_END_NAMESPACE

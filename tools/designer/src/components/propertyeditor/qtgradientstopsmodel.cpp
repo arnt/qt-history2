@@ -15,6 +15,8 @@
 #include <QtGui/QColor>
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtGradientStopPrivate
@@ -388,3 +390,5 @@ void QtGradientStopsModel::deleteStops()
         removeStop(current);
 }
 }
+
+QT_END_NAMESPACE

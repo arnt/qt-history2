@@ -19,7 +19,7 @@
 
 class PiecesList;
 class PuzzleWidget;
-class QListWidgetItem;
+QT_DECLARE_CLASS(QListWidgetItem)
 
 class MainWindow : public QMainWindow
 {

@@ -18,3 +18,6 @@ callDoExport()
    message( "FAILED: global-scope exports [$$EXPORTED] != foo bar baz" )   
 }
 
+
+DEFINES += QT_USE_USING_NAMESPACE
+

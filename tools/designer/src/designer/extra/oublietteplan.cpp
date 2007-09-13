@@ -18,6 +18,8 @@
 #include <assert.h>
 #include <time.h>
 
+QT_BEGIN_NAMESPACE
+
 OublietteLevel::OublietteLevel(int width, int height, int totalFeatures)
     : m_size(width, height), m_totalFeatures(totalFeatures), m_totalItems(0)
 {
@@ -322,3 +324,5 @@ void OublietteLevel::addItemToTile(int x, int y, const Item *item)
 {
     m_map[y * m_size.width() + x].items.append(item);
 }
+
+QT_END_NAMESPACE

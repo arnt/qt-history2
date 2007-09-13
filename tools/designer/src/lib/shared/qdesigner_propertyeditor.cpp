@@ -13,6 +13,8 @@
 
 #include "qdesigner_propertyeditor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 QDesignerPropertyEditor::QDesignerPropertyEditor(QWidget *parent, Qt::WindowFlags flags) :
@@ -21,3 +23,5 @@ QDesignerPropertyEditor::QDesignerPropertyEditor(QWidget *parent, Qt::WindowFlag
 }
 
 }
+
+QT_END_NAMESPACE

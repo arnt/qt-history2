@@ -25,6 +25,8 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 RegExp::RegExp(QScriptEnginePrivate *eng):
@@ -229,5 +231,7 @@ QScriptValueImpl RegExp::method_toString(QScriptContextPrivate *context, QScript
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

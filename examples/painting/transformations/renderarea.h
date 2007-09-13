@@ -20,7 +20,7 @@
 #include <QRect>
 #include <QWidget>
 
-class QPaintEvent;
+QT_DECLARE_CLASS(QPaintEvent)
 
 enum Operation { NoTransformation, Translate, Rotate, Scale };
 

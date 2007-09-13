@@ -38,6 +38,8 @@
 extern QDirect3DPaintEngine *qt_d3dEngine();
 #endif
 
+QT_BEGIN_NAMESPACE
+
 extern int qt_defaultDpi();
 extern int qt_defaultDpiX();
 extern int qt_defaultDpiY();
@@ -778,6 +780,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
         QPainter p(dst);
         p.drawPixmap(dx, dy, *src, sx, sy, sw, sh);
     }
-
 }
 #endif
+
+QT_END_NAMESPACE

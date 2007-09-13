@@ -14,6 +14,8 @@
 #include "qbuffer.h"
 #include "private/qiodevice_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /** QBufferPrivate **/
 class QBufferPrivate : public QIODevicePrivate
 {
@@ -418,6 +420,9 @@ qint64 QBuffer::writeData(const char *data, qint64 len)
     return len;
 }
 
+QT_END_NAMESPACE
+
 #ifndef QT_NO_QOBJECT
 # include "moc_qbuffer.cpp"
 #endif
+

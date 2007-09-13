@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_PICTURE
@@ -157,6 +159,8 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPicture &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPicture &);
 
 #endif // QT_NO_PICTURE
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

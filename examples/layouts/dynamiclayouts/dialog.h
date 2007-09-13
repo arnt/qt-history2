@@ -17,12 +17,12 @@
 #include <QDialog>
 #include <QQueue>
 
-class QComboBox;
-class QDialogButtonBox;
-class QGridLayout;
-class QGroupBox;
-class QLabel;
-class QPushButton;
+QT_DECLARE_CLASS(QComboBox)
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QGridLayout)
+QT_DECLARE_CLASS(QGroupBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QPushButton)
 
 class Dialog : public QDialog
 {

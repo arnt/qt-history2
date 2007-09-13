@@ -41,6 +41,8 @@
 #include "qwidget_p.h"
 #include "qcursor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 // #define DND_DEBUG
 #ifdef DND_DEBUG
 #define DEBUG qDebug
@@ -1990,5 +1992,7 @@ QStringList QDropData::formats_sys() const
     }
     return formats;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_DRAGANDDROP

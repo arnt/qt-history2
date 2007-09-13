@@ -13,6 +13,8 @@
 
 #include "previewwidget.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 PreviewWidget::PreviewWidget(QWidget *parent)
@@ -25,3 +27,5 @@ PreviewWidget::~PreviewWidget()
 {
 }
 
+
+QT_END_NAMESPACE

@@ -29,6 +29,8 @@
 #include "QtCore/qfsfileengine.h"
 #include "private/qabstractfileengine_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QFSFileEnginePrivate : public QAbstractFileEnginePrivate
 {
     Q_DECLARE_PUBLIC(QFSFileEngine)
@@ -118,5 +120,7 @@ protected:
     QString getLink() const;
 #endif
 };
+
+QT_END_NAMESPACE
 
 #endif // QFSFILEENGINE_P_H

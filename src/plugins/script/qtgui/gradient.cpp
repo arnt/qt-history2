@@ -8,6 +8,8 @@ Q_DECLARE_METATYPE(QGradient)
 Q_DECLARE_METATYPE(QGradient*)
 Q_DECLARE_METATYPE(QGradientStops)
 
+QT_BEGIN_NAMESPACE
+
 /////////////////////////////////////////////////////////////
 
 static QScriptValue ctor(QScriptContext *, QScriptEngine *eng)
@@ -93,3 +95,5 @@ QScriptValue constructGradientClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

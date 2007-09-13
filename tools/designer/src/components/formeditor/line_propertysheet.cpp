@@ -22,6 +22,8 @@
 #include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 LinePropertySheet::LinePropertySheet(Line *object, QObject *parent)
@@ -52,3 +54,5 @@ QString LinePropertySheet::propertyGroup(int index) const
 {
     return QDesignerPropertySheet::propertyGroup(index);
 }
+
+QT_END_NAMESPACE

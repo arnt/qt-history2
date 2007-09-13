@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <QString>
 
-class QSettings;
+QT_DECLARE_CLASS(QSettings)
 
 class Framework
 {

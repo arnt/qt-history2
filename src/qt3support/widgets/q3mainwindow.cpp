@@ -38,9 +38,11 @@
 #  include <private/qt_mac_p.h>
 #endif
 
-class QHideDock;
-
 #include <private/q3mainwindow_p.h>
+
+QT_BEGIN_NAMESPACE
+
+class QHideDock;
 
 /* Q3MainWindowLayout, respects widthForHeight layouts (like the left
   and right docks are)
@@ -2418,6 +2420,8 @@ QTextStream &operator>>(QTextStream &ts, Q3MainWindow &mainWindow)
     return ts;
 }
 #endif
+
+QT_END_NAMESPACE
 
 #include "q3mainwindow.moc"
 

@@ -33,6 +33,8 @@ using namespace std;
 #endif
 
 
+QT_BEGIN_NAMESPACE
+
 struct CompilerInfo{
     Compiler compiler;
     const char *compilerStr;
@@ -646,3 +648,5 @@ bool Environment::rmdir(const QString &name)
     result &= dir.rmdir(cleanName);
     return result;
 }
+
+QT_END_NAMESPACE

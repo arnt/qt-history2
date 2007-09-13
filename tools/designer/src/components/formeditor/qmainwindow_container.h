@@ -21,6 +21,8 @@
 
 #include <QtGui/QMainWindow>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QMainWindowContainer: public QObject, public QDesignerContainerExtension
@@ -45,5 +47,7 @@ private:
 
 typedef ExtensionFactory<QDesignerContainerExtension, QMainWindow, QMainWindowContainer> QMainWindowContainerFactory;
 }  // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QMAINWINDOW_CONTAINER_H

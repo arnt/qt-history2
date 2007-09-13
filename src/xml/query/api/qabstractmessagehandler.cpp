@@ -15,6 +15,8 @@
 
 #include "qabstractmessagehandler.h"
 
+QT_BEGIN_NAMESPACE
+
 class QAbstractMessageHandlerPrivate
 {
 public:
@@ -101,5 +103,7 @@ void QAbstractMessageHandler::message(QtMsgType type,
   This function is re-implemented by the sub-class. It's called by message() and receives its arguments,
   \a type, \a description, \a identifier and \a sourceLocation from message() unmodified.
  */
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

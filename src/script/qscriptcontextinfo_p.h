@@ -32,6 +32,8 @@
 #include <QtCore/qatomic.h>
 #include <QtCore/qstring.h>
 
+QT_BEGIN_NAMESPACE
+
 class QScriptContext;
 
 class QScriptContextInfo;
@@ -59,6 +61,8 @@ public:
 
     QScriptContextInfo *q_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT
 

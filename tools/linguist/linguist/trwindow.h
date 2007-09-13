@@ -22,6 +22,8 @@
 #include <QPrinter>
 #include <QtCore/QPointer>
 #include <QtCore/QLocale>
+
+QT_BEGIN_NAMESPACE
 class QModelIndex;
 class QStringList;
 class QPixmap;
@@ -204,5 +206,7 @@ private:
     Ui::MainWindow m_ui;    // menus and actions
     Statistics *stats;
 };
+
+QT_END_NAMESPACE
 
 #endif

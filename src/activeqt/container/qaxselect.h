@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(ActiveQt)
 
 class QAxSelect : public QDialog, private Ui::QAxSelect
@@ -33,6 +35,8 @@ private Q_SLOTS:
     void on_ActiveXList_clicked(const QModelIndex &index);
     void on_ActiveXList_doubleClicked(const QModelIndex &index);
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

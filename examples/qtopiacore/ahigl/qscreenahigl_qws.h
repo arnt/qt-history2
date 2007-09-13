@@ -17,7 +17,7 @@
 #include <QGLScreen>
 #include <QWSServer>
 
-class QAhiGLScreenPrivate;
+QT_DECLARE_CLASS(QAhiGLScreenPrivate)
 
 class QAhiGLScreen : public QGLScreen
 {

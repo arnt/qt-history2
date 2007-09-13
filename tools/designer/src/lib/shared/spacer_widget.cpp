@@ -25,6 +25,8 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 Spacer::Spacer(QWidget *parent) :
@@ -178,3 +180,4 @@ void Spacer::setOrientation(Qt::Orientation o)
     updateGeometry();
 }
 
+QT_END_NAMESPACE

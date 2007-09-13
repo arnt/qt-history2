@@ -35,6 +35,10 @@
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qclipboard.h>
 
+QT_BEGIN_NAMESPACE
+
+extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
+
 enum Button { Old_Ok = 1, Old_Cancel = 2, Old_Yes = 3, Old_No = 4, Old_Abort = 5, Old_Retry = 6,
               Old_Ignore = 7, Old_YesAll = 8, Old_NoAll = 9, Old_ButtonMask = 0xFF,
               NewButtonFlag = 0xFFFFFC00 };
@@ -2157,7 +2161,6 @@ void QMessageBox::setInformativeText(const QString &text)
 #else
         label->setContentsMargins(16, 0, 0, 0);
         // apply a smaller font the information label on the mac
-        extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
         label->setFont(qt_app_fonts_hash()->value("QTipLabel"));
 #endif
         label->setWordWrap(true);
@@ -2426,5 +2429,8 @@ QPixmap QMessageBox::standardIcon(Icon icon)
   \sa show(), result()
 */
 
+QT_END_NAMESPACE
+
 #include "moc_qmessagebox.cpp"
+
 #endif // QT_NO_MESSAGEBOX

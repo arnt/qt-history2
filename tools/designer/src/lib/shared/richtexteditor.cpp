@@ -37,6 +37,8 @@ TRANSLATOR qdesigner_internal::RichTextEditorDialog
 #include "iconloader_p.h"
 #include "richtexteditor_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static bool operator < (const QColor &c1, const QColor &c2)
 {
     if (c1.red() != c2.red())
@@ -332,6 +334,6 @@ RichTextEditor *RichTextEditorDialog::editor()
 
 } // namespace qdesigner_internal
 
+QT_END_NAMESPACE
+
 #include "richtexteditor.moc"
-
-

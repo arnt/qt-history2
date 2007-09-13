@@ -27,7 +27,7 @@
 //TESTED_CLASS=
 //TESTED_FILES=compat/other/q3urloperator.h compat/other/q3urloperator.cpp
 
-class Q3NetworkOperation;
+QT_DECLARE_CLASS(Q3NetworkOperation)
 
 class tst_Q3UrlOperator : public QObject
 {

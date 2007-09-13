@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+QT_BEGIN_NAMESPACE
+
 struct block_t
 {
     static int N;
@@ -146,5 +148,7 @@ struct SmallObject
     static void *operator new(size_t size);
     static void operator delete(void *p);
 };
+
+QT_END_NAMESPACE
 
 #endif

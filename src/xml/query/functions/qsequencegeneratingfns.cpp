@@ -21,6 +21,8 @@
 
 #include "qsequencegeneratingfns_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Item::Iterator::Ptr IdFN::evaluateSequence(const DynamicContext::Ptr &context) const
@@ -195,3 +197,5 @@ Item::Iterator::Ptr CollectionFN::evaluateSequence(const DynamicContext::Ptr &co
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

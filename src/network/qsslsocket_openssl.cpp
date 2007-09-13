@@ -43,6 +43,8 @@
 #include <QtCore/qurl.h>
 #include <QtCore/qvarlengtharray.h>
 
+QT_BEGIN_NAMESPACE
+
 // Useful defines
 #define SSL_ERRORSTR() QString::fromLocal8Bit(q_ERR_error_string(q_ERR_get_error(), NULL))
 
@@ -746,3 +748,5 @@ QList<QSslCertificate> QSslSocketBackendPrivate::STACKOFX509_to_QSslCertificates
     }
     return certificates;
 }
+
+QT_END_NAMESPACE

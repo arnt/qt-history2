@@ -22,6 +22,8 @@
 #include <QtGui/QStyleOption>
 #include "versiondialog.h"
 
+QT_BEGIN_NAMESPACE
+
 class VersionLabel : public QLabel
 {
     Q_OBJECT
@@ -178,5 +180,7 @@ VersionDialog::VersionDialog(QWidget *parent)
     layout->addWidget(lbl, 0, 1, 4, 4);
     layout->addWidget(buttonBox, 4, 2, 1, 1);
 }
+
+QT_END_NAMESPACE
 
 #include "versiondialog.moc"

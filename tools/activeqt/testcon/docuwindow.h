@@ -16,6 +16,8 @@
 
 #include <QMainWindow>
 
+QT_BEGIN_NAMESPACE
+
 class QTextBrowser;
 
 class DocuWindow : public QMainWindow
@@ -31,5 +33,7 @@ public slots:
 private:
     QTextBrowser *browser;
 };
+
+QT_END_NAMESPACE
 
 #endif // DOCUWINDOW_H

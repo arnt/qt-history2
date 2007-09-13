@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -45,6 +47,8 @@ namespace Patternist
         FunctionFactory::Ptr m_functionFactory;
         QString m_defFuncNS;
     };
+
+QT_END_NAMESPACE
 }
 QT_END_HEADER 
 

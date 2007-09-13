@@ -23,6 +23,8 @@
 #include <Qt3Support/Q3MainWindow>
 #include <Qt3Support/Q3ToolBar>
 
+QT_BEGIN_NAMESPACE
+
 Q3ToolBarPlugin::Q3ToolBarPlugin(QObject *parent)
         : QObject(parent), m_initialized(false)
 {}
@@ -76,3 +78,5 @@ QString Q3ToolBarPlugin::domXml() const
 { return QString(); }
 
 
+
+QT_END_NAMESPACE

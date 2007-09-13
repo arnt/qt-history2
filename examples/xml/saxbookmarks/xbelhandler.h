@@ -17,8 +17,8 @@
 #include <QIcon>
 #include <QXmlDefaultHandler>
 
-class QTreeWidget;
-class QTreeWidgetItem;
+QT_DECLARE_CLASS(QTreeWidget)
+QT_DECLARE_CLASS(QTreeWidgetItem)
 
 class XbelHandler : public QXmlDefaultHandler
 {

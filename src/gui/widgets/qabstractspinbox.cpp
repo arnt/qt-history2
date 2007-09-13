@@ -42,6 +42,8 @@ static const int thresholdTime = 500; // ### Qt 4.1: make this a stylehint
 #  define QASBDEBUG if (false) qDebug
 #endif
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAbstractSpinBox
     \brief The QAbstractSpinBox class provides a spinbox and a line edit to
@@ -1988,5 +1990,9 @@ QVariant QAbstractSpinBoxPrivate::variantBound(const QVariant &min,
     }
 }
 
+
+QT_END_NAMESPACE
+
 #include "moc_qabstractspinbox.cpp"
+
 #endif // QT_NO_SPINBOX

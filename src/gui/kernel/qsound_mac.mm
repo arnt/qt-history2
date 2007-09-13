@@ -18,18 +18,23 @@
 #include <qdebug.h>
 #import <AppKit/AppKit.h>
 
+#include <AppKit/NSSound.h>
+
+QT_BEGIN_NAMESPACE
+
 void qt_mac_beep() 
 {
     NSBeep();
 }
 
+QT_END_NAMESPACE
+
 #ifndef QT_NO_SOUND
 
-#include <AppKit/NSSound.h>
+QT_BEGIN_NAMESPACE
 
 typedef QHash<QSound *, NSSound const *> Sounds;
 static Sounds sounds;
-
 
 class QAuServerMac : public QAuServer
 {
@@ -44,6 +49,10 @@ public:
 protected:
     NSSound *createNSSound(const QString &filename, QSound *qSound);
 };
+
+QT_END_NAMESPACE
+
+QT_USE_NAMESPACE
 
 @interface QMacSoundDelegate : NSObject {
     QSound *qSound; // may be null.
@@ -100,6 +109,8 @@ protected:
 }
 @end
 
+QT_BEGIN_NAMESPACE
+
 void QAuServerMac::play(const QString &fileName)
 {
     QMacCocoaAutoReleasePool pool;
@@ -138,6 +149,7 @@ QAuServer* qt_new_audio_server()
     return new QAuServerMac(qApp);
 }
 
+QT_END_NAMESPACE
 
 #include "qsound_mac.moc"
 

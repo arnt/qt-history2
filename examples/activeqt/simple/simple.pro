@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/activeqt/simple
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS simple.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/activeqt/simple
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -34,6 +34,8 @@
 #include <qaccessible.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(QAbstractItemModelPrivate::staticEmptyModel()),
         itemDelegate(0),
@@ -2399,7 +2401,7 @@ void QAbstractItemView::commitData(QWidget *editor)
 void QAbstractItemView::editorDestroyed(QObject *editor)
 {
     Q_D(QAbstractItemView);
-    QWidget *w = ::qobject_cast<QWidget*>(editor);
+    QWidget *w = qobject_cast<QWidget*>(editor);
     d->removeEditor(w);
     d->persistent.removeAll(w);
     if (state() == EditingState)
@@ -3463,13 +3465,13 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
 
             // Special cases for some editors containing QLineEdit
 #ifndef QT_NO_LINEEDIT
-            if (QLineEdit *le = ::qobject_cast<QLineEdit*>(w))
+            if (QLineEdit *le = qobject_cast<QLineEdit*>(w))
                 le->selectAll();
 #endif
 #ifndef QT_NO_SPINBOX
-            if (QSpinBox *sb = ::qobject_cast<QSpinBox*>(w))
+            if (QSpinBox *sb = qobject_cast<QSpinBox*>(w))
                 sb->selectAll();
-            else if (QDoubleSpinBox *dsb = ::qobject_cast<QDoubleSpinBox*>(w))
+            else if (QDoubleSpinBox *dsb = qobject_cast<QDoubleSpinBox*>(w))
                 dsb->selectAll();
 #endif
         }
@@ -3665,5 +3667,9 @@ void QAbstractItemViewPrivate::selectAll(QItemSelectionModel::SelectionFlags com
     selectionModel->select(selection, command);
 }
 
+
+QT_END_NAMESPACE
+
 #include "moc_qabstractitemview.cpp"
+
 #endif // QT_NO_ITEMVIEWS

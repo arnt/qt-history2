@@ -27,6 +27,8 @@
 #include <QRubberBand>
 #include <QtGui/QFocusFrame>
 
+QT_BEGIN_NAMESPACE
+
 static QList<QWidget*> childWidgets(const QWidget *widget)
 {
     QList<QObject*> list = widget->children();
@@ -237,7 +239,9 @@ QRect QAccessibleWidget::rect(int child) const
     return QRect(wpos.x(), wpos.y(), w->width(), w->height());
 }
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <private/qobject_p.h>
+QT_END_INCLUDE_NAMESPACE
 
 class QACConnectionObject : public QObject
 {
@@ -997,5 +1001,7 @@ QVariant QAccessibleWidgetEx::invokeMethodEx(Method method, int child, const QVa
         return QVariant();
     }
 }
+
+QT_END_NAMESPACE
 
 #endif //QT_NO_ACCESSIBILITY

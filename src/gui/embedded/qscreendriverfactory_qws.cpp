@@ -25,6 +25,8 @@
 #include "private/qfactoryloader_p.h"
 #include "qscreendriverplugin_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
 
@@ -146,6 +148,7 @@ QStringList QScreenDriverFactory::keys()
     }
 #endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
-
     return list;
 }
+
+QT_END_NAMESPACE

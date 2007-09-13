@@ -4,3 +4,6 @@ CONFIG += console
 CONFIG -= app_bundle
 TARGET = clientserver
 DESTDIR = ./
+
+DEFINES += QT_USE_USING_NAMESPACE
+

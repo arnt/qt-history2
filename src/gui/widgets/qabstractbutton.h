@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 class QButtonGroup;
@@ -142,6 +144,8 @@ private:
     Q_DISABLE_COPY(QAbstractButton)
     friend class QButtonGroup;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

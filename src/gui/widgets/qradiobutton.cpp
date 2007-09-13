@@ -22,6 +22,8 @@
 
 #include "private/qabstractbutton_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QRadioButtonPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QRadioButton)
@@ -256,3 +258,5 @@ QRadioButton::QRadioButton(const QString &text, QWidget *parent, const char* nam
 }
 
 #endif
+
+QT_END_NAMESPACE

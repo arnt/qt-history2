@@ -18,6 +18,8 @@
 
 #include <stdio.h>
 
+QT_BEGIN_NAMESPACE
+
 QString CodeMarker::defaultLang;
 QList<CodeMarker *> CodeMarker::markers;
 
@@ -446,3 +448,5 @@ QString CodeMarker::macName(const Node *node, const QString &name)
     }
 }
 
+
+QT_END_NAMESPACE

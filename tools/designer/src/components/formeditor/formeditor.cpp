@@ -43,6 +43,8 @@
 #include <qdesigner_promotion_p.h>
 #include <dialoggui_p.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 FormEditor::FormEditor(QObject *parent)
@@ -108,3 +110,5 @@ FormEditor::~FormEditor()
 {
 }
 }
+
+QT_END_NAMESPACE

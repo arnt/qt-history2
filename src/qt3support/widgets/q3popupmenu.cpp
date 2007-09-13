@@ -12,6 +12,8 @@
 ****************************************************************************/
 #include "q3popupmenu.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \fn void Q3PopupMenu::setFrameRect(QRect)
     \internal
@@ -119,3 +121,5 @@
     \fn int Q3PopupMenu::midLineWidth() const
     \internal
 */
+
+QT_END_NAMESPACE

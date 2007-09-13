@@ -25,6 +25,8 @@
 
 #include "location.h"
 
+QT_BEGIN_NAMESPACE
+
 /*
   Here come the C++ tokens we support.  The first part contains
   all-purpose tokens; then come keywords.
@@ -163,5 +165,7 @@ private:
     int yyPos;
     int yyLen;
 };
+
+QT_END_NAMESPACE
 
 #endif

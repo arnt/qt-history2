@@ -24,6 +24,9 @@
 #include <sys/shm.h>
 
 #include <sys/sem.h>
+
+QT_BEGIN_NAMESPACE
+
 // We have to define this as on some sem.h will have it
 union qt_semun {
     int val;                    /* value for SETVAL */
@@ -152,3 +155,5 @@ bool QSystemSemaphorePrivate::modifySemaphore(int count)
     return true;
 }
 
+
+QT_END_NAMESPACE

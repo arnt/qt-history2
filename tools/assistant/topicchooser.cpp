@@ -17,6 +17,8 @@
 #include <QListWidget>
 #include <QPushButton>
 
+QT_BEGIN_NAMESPACE
+
 TopicChooser::TopicChooser(QWidget *parent, const QStringList &lnkNames,
                             const QStringList &lnks, const QString &title)
     : QDialog(parent), links(lnks), linkNames(lnkNames)
@@ -67,3 +69,5 @@ void TopicChooser::on_listbox_itemActivated(QListWidgetItem *item)
     Q_UNUSED(item);
     accept();
 }
+
+QT_END_NAMESPACE

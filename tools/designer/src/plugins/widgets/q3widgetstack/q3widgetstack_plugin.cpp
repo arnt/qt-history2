@@ -20,6 +20,8 @@
 #include <QtCore/qplugin.h>
 #include "qdesigner_q3widgetstack_p.h"
 
+QT_BEGIN_NAMESPACE
+
 Q3WidgetStackPlugin::Q3WidgetStackPlugin(QObject *parent)
     : QObject(parent), m_initialized(false)
 {}
@@ -83,3 +85,5 @@ QString Q3WidgetStackPlugin::domXml() const
     </widget>\
     ");
 }
+
+QT_END_NAMESPACE

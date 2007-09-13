@@ -16,7 +16,7 @@
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/widgets/qtoolbox.h gui/widgets/qtoolbox.cpp
-class QToolBox;
+QT_DECLARE_CLASS(QToolBox)
 
 class tst_QToolBoxPrivate;
 

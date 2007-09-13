@@ -13,6 +13,8 @@
 
 #include "qabstractxmlpushcallback.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \class QAbstractXmlPushCallback
   \brief A push-based, streaming event interface for the XPath Data Model.
@@ -112,5 +114,7 @@ QAbstractXmlPushCallback::~QAbstractXmlPushCallback()
   Signals a namespace binding. In \a name, the namespace URI is the namespace URI, and the local name
   is the prefix the binding binds to.
  */
+
+QT_END_NAMESPACE
 
 // vim: et:ts=4:sw=4:sts=4

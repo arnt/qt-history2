@@ -29,6 +29,8 @@
 #include "qregion.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 void qt_format_text(const QFont &fnt, const QRectF &_r,
                     int tf, const QTextOption *opt, const QString& str, QRectF *brect,
                     int tabstops, int *, int tabarraylen,
@@ -1152,9 +1154,12 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
 
 
 #ifndef QT_NO_PICTUREIO
+
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qregexp.h"
 #include "qapplication.h"
 #include "qpictureformatplugin.h"
+QT_END_INCLUDE_NAMESPACE
 
 /*!
     \obsolete
@@ -1379,7 +1384,7 @@ static QPHList pictureHandlers;
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC(QMutex, mutex)
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, factoryLoader,
                           (QPictureFormatInterface_iid,
                            QCoreApplication::libraryPaths(),
                            QLatin1String("/pictureformats")))
@@ -1388,7 +1393,7 @@ void qt_init_picture_plugins()
 {
 #ifndef QT_NO_LIBRARY
     QMutexLocker locker(mutex());
-    QFactoryLoader *loader = ::loader();
+    QFactoryLoader *loader = factoryLoader();
     QStringList keys = loader->keys();
     for (int i = 0; i < keys.count(); ++i)
         if (QPictureFormatInterface *format = qobject_cast<QPictureFormatInterface*>(loader->instance(keys.at(i))))
@@ -1925,6 +1930,8 @@ bool QPictureIO::write()
 
     Use simple assignment instead.
 */
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PICTURE
 

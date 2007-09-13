@@ -8,3 +8,6 @@ SUBDIRS = subtest test warnings maxwarnings cmptest globaldata skipglobal skip \
 INSTALLS =
 
 QT = core
+
+DEFINES += QT_USE_USING_NAMESPACE
+

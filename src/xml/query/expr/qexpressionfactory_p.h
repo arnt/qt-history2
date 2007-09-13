@@ -14,14 +14,16 @@
 #ifndef Patternist_ExpressionFactory_H
 #define Patternist_ExpressionFactory_H
 
-class QIODevice;
+#include "qexpression_p.h"
 
 #include <QSharedData>
 #include <QUrl>
 
-#include "qexpression_p.h"
-
 QT_BEGIN_HEADER 
+
+QT_BEGIN_NAMESPACE
+
+class QIODevice;
 
 namespace Patternist
 {
@@ -147,6 +149,8 @@ namespace Patternist
         Q_DISABLE_COPY(ExpressionFactory)
     };
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

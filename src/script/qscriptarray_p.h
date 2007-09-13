@@ -34,6 +34,8 @@
 #include "qscriptvalueimplfwd_p.h"
 #include "qscriptenginefwd_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript {
 
 class Array
@@ -380,6 +382,8 @@ inline void QScript::Array::splice(qsreal start, qsreal deleteCount,
     }
 }
 
-#endif // QT_NO_SCRIPT
-#endif // QSCRIPTARRAY_P_H
+QT_END_NAMESPACE
 
+#endif // QT_NO_SCRIPT
+
+#endif // QSCRIPTARRAY_P_H

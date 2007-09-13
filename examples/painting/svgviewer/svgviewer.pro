@@ -17,3 +17,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/painting/svgviewer
 sources.files = $$SOURCES $$HEADERS $$RESOURCES svgviewer.pro files
 sources.path = $$[QT_INSTALL_EXAMPLES]/painting/svgviewer
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

@@ -11,3 +11,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/itemviews/simpletreemodel
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.txt
 sources.path = $$[QT_INSTALL_EXAMPLES]/itemviews/simpletreemodel
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

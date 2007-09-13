@@ -20,6 +20,8 @@ TRANSLATOR qdesigner_internal::QtBrushPatternEditor
 
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 namespace qdesigner_internal {
@@ -269,5 +271,7 @@ QBrush QtBrushPatternEditor::brush() const
 {
     return d_ptr->m_brush;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtbrushpatterneditor.cpp"

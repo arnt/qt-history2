@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Svg)
 
 class QSvgRendererPrivate;
@@ -75,6 +77,8 @@ Q_SIGNALS:
 private:
     Q_DECLARE_PRIVATE(QSvgRenderer)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

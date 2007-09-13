@@ -14,6 +14,8 @@
 #include "previewwidget.h"
 #include <QtEvents>
 
+QT_BEGIN_NAMESPACE
+
 PreviewWidget::PreviewWidget( QWidget *parent, const char *name )
     : PreviewWidgetBase( parent, name )
 {
@@ -50,3 +52,5 @@ bool PreviewWidget::eventFilter(QObject *, QEvent *e)
     }
     return false;
 }
+
+QT_END_NAMESPACE

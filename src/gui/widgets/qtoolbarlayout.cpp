@@ -27,6 +27,8 @@
 
 #ifndef QT_NO_TOOLBAR
 
+QT_BEGIN_NAMESPACE
+
 /******************************************************************************
 ** QToolBarItem
 */
@@ -643,5 +645,7 @@ QRect QToolBarLayout::handleRect() const
 {
     return handRect;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_TOOLBAR

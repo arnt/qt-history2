@@ -910,6 +910,8 @@ if($check_includes) {
 					    $include =~ s,.*<(.*)>.*,$1,;
 					} elsif($line =~ /".*"/) {
 					    $include =~ s,.*"(.*)".*,$1,;
+                    } elsif($line =~ /^QT_BEGIN_NAMESPACE/) {
+                        next;
 					} else {
 					    $include = 0;
 					}

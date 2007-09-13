@@ -20,6 +20,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QStack>
 
+QT_BEGIN_NAMESPACE
+
 class ProFile;
 
 class ProFileEvaluator : public AbstractProItemVisitor {
@@ -107,5 +109,7 @@ private:
 
 }; //class ProFileEvaluator
 
+
+QT_END_NAMESPACE
 #endif // PROFILEEVALUATOR_H
 

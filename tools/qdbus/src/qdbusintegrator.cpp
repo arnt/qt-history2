@@ -35,6 +35,8 @@
 
 #include "qdbusthreaddebug_p.h"
 
+QT_BEGIN_NAMESPACE
+
 static bool isDebugging;
 #define qDBusDebug              if (!::isDebugging); else qDebug
 
@@ -2007,5 +2009,7 @@ void QDBusReplyWaiter::reply(const QDBusMessage &msg)
 void QDBusReplyWaiter::error(const QDBusError &err)
 {
     replyMsg = QDBusMessage::createError(err);
+
+QT_END_NAMESPACE
     quit();
 }

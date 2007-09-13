@@ -23,6 +23,8 @@
 
 #include <QtCore/QtDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace QScript { namespace Ecma {
 
 Object::Object(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
@@ -201,5 +203,7 @@ QScriptValueImpl Object::method_defineSetter(QScriptContextPrivate *context, QSc
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

@@ -17,6 +17,8 @@
 #include "qscreen_qws.h"
 #include "qwsdisplay_qws.h"
 
+QT_BEGIN_NAMESPACE
+
 class QColormapPrivate
 {
 public:
@@ -152,3 +154,4 @@ const QVector<QColor> QColormap::colormap() const
 QColormap &QColormap::operator=(const QColormap &colormap)
 { qAtomicAssign(d, colormap.d); return *this; }
 
+QT_END_NAMESPACE

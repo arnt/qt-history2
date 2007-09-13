@@ -35,7 +35,11 @@
 #include <qmacstyle_mac.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 extern QString qt_setWindowTitle_helperHelper(const QString&, QWidget*); // qwidget.cpp
+
+extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 
 static inline bool hasFeature(const QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
 { return (dockwidget->features() & feature) == feature; }
@@ -383,7 +387,6 @@ int QDockWidgetLayout::titleHeight() const
     QFontMetrics titleFontMetrics = q->fontMetrics();
 #ifdef Q_WS_MAC
     if (qobject_cast<QMacStyle *>(q->style())) {
-        extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
         QFont font = qt_app_fonts_hash()->value("QToolButton", q->font());
         titleFontMetrics = QFontMetrics(font);
     }
@@ -683,7 +686,7 @@ void QDockWidgetPrivate::endDrag(bool abort)
         Q_ASSERT(layout != 0);
 
         if (abort || !layout->plug(state->widgetItem)) {
-            if (::hasFeature(q, QDockWidget::DockWidgetFloatable)) {
+            if (hasFeature(q, QDockWidget::DockWidgetFloatable)) {
                 if (state->ownWidgetItem)
                     delete state->widgetItem;
                 layout->restore();
@@ -743,7 +746,7 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
         if (!titleArea.contains(event->pos()))
             return;
         // check if the tool window is movable... do nothing if it is not
-        if (!::hasFeature(q, QDockWidget::DockWidgetMovable))
+        if (!hasFeature(q, QDockWidget::DockWidgetMovable))
             return;
 
         if (qobject_cast<QMainWindow*>(q->parentWidget()) == 0)
@@ -775,7 +778,7 @@ void QDockWidgetPrivate::mouseDoubleClickEvent(QMouseEvent *event)
             return;
         if (!titleArea.contains(event->pos()))
             return;
-        if (!::hasFeature(q, QDockWidget::DockWidgetFloatable))
+        if (!hasFeature(q, QDockWidget::DockWidgetFloatable))
             return;
         _q_toggleTopLevel();
     }
@@ -1496,6 +1499,9 @@ QWidget *QDockWidget::titleBarWidget() const
     return layout->widget(QDockWidgetLayout::TitleBar);
 }
 
+QT_END_NAMESPACE
+
 #include "qdockwidget.moc"
 #include "moc_qdockwidget.cpp"
+
 #endif // QT_NO_DOCKWIDGET

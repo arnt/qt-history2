@@ -21,6 +21,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Network)
 
 #ifndef QT_NO_HTTP
@@ -269,6 +271,8 @@ private:
 };
 
 #endif // QT_NO_HTTP
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

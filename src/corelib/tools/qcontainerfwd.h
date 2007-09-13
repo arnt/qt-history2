@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 template <class Key, class T> class QCache;
@@ -33,6 +35,8 @@ template <class T> class QSet;
 template <class T> class QStack;
 template<class T, int Prealloc = 256> class QVarLengthArray;
 template <class T> class QVector;
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

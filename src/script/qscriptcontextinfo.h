@@ -22,6 +22,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Script)
 
 class QScriptContext;
@@ -63,6 +65,8 @@ private:
 
     Q_DECLARE_PRIVATE(QScriptContextInfo)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

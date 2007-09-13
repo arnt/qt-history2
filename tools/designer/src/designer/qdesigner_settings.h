@@ -19,6 +19,8 @@
 #include <QtCore/QSettings>
 #include <QtCore/QStringList>
 
+QT_BEGIN_NAMESPACE
+
 struct Preferences;
 
 namespace qdesigner_internal {
@@ -77,5 +79,7 @@ private:
     void saveGeometryHelper(const QWidget *w, const QString &key);
     QStringList additionalFormTemplatePaths() const;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_SETTINGS_H

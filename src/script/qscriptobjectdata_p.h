@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 //
 //  W A R N I N G
 //  -------------
@@ -41,5 +43,8 @@ private:
     Q_DISABLE_COPY(QScriptObjectData)
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_SCRIPT
+
 #endif

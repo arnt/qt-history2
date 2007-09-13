@@ -29,6 +29,8 @@
 #include <qaccessible.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 class QTableCornerButton : public QAbstractButton
 {
     Q_OBJECT
@@ -2363,7 +2365,10 @@ int QTableView::visualIndex(const QModelIndex &index) const
     return index.row();
 }
 
+QT_END_NAMESPACE
 
 #include "qtableview.moc"
+
 #include "moc_qtableview.cpp"
+
 #endif // QT_NO_TABLEVIEW

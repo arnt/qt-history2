@@ -19,6 +19,8 @@
 #include <QStringList>
 #include <QByteArray>
 
+QT_BEGIN_NAMESPACE
+
 void addLogSourceEntry(const QString &text, const TokenEngine::TokenContainer&, const int index);
 void addLogWarning(const QString &text);
 
@@ -118,5 +120,7 @@ private:
     const TokenEngine::TokenContainer tokenContainer;
     int currentIndex;
 };
+
+QT_END_NAMESPACE
 
 #endif

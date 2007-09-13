@@ -15,6 +15,8 @@
 #include "private/qcoreapplication_p.h"
 #include <private/qcore_mac_p.h>
 
+QT_BEGIN_NAMESPACE
+
 /*****************************************************************************
   QCoreApplication utility functions
  *****************************************************************************/
@@ -32,3 +34,5 @@ QString qAppFileName()
     return appFileName;
 }
 
+
+QT_END_NAMESPACE

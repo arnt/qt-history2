@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_STYLE_CDE)
@@ -44,6 +46,8 @@ protected Q_SLOTS:
 };
 
 #endif // QT_NO_STYLE_CDE
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

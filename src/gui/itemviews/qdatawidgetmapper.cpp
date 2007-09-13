@@ -22,6 +22,8 @@
 #include "private/qobject_p.h"
 #include "private/qabstractitemmodel_p.h"
 
+QT_BEGIN_NAMESPACE
+
 class QDataWidgetMapperPrivate: public QObjectPrivate
 {
 public:
@@ -827,6 +829,8 @@ QDataWidgetMapper::SubmitPolicy QDataWidgetMapper::submitPolicy() const
     Q_D(const QDataWidgetMapper);
     return d->submitPolicy;
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qdatawidgetmapper.cpp"
 

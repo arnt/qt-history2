@@ -16,8 +16,8 @@
 
 #include <QStylePlugin>
 
-class QStringList;
-class QStyle;
+QT_DECLARE_CLASS(QStringList)
+QT_DECLARE_CLASS(QStyle)
 
 class SimpleStylePlugin : public QStylePlugin
 {

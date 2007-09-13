@@ -188,6 +188,8 @@
 #include <qimage.h>
 #include <qvariant.h>
 
+QT_BEGIN_NAMESPACE
+
 class QIODevice;
 
 class QImageIOHandlerPrivate
@@ -527,3 +529,5 @@ QImageIOPlugin::~QImageIOPlugin()
 
     \sa keys()
 */
+
+QT_END_NAMESPACE

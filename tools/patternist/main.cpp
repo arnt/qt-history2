@@ -28,6 +28,8 @@
 
 #include "main.h"
 
+QT_BEGIN_NAMESPACE
+
 typedef QVector<QPair<QString, QString> > Bindings;
 
 /*!
@@ -64,7 +66,7 @@ static Bindings parseBindings(const QStringList &input,
     return result;
 }
 
-int main(int argc, char **argv)
+int runPatternist(int argc, char **argv)
 {
     enum ExitCode
     {
@@ -146,6 +148,13 @@ int main(int argc, char **argv)
         return QueryFailure;
     else
         return Success;
+}
+
+QT_END_NAMESPACE
+
+int main(int argc, char **argv)
+{
+    return QT_ADD_NAMESPACE(runPatternist)(argc, argv);
 }
 
 // vim: et:ts=4:sw=4:sts=4

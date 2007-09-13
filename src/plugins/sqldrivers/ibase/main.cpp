@@ -15,6 +15,8 @@
 #include <qstringlist.h>
 #include "../../../sql/drivers/ibase/qsql_ibase.h"
 
+QT_BEGIN_NAMESPACE
+
 class QIBaseDriverPlugin : public QSqlDriverPlugin
 {
 public:
@@ -47,3 +49,5 @@ QStringList QIBaseDriverPlugin::keys() const
 
 Q_EXPORT_STATIC_PLUGIN(QIBaseDriverPlugin)
 Q_EXPORT_PLUGIN2(qsqlibase, QIBaseDriverPlugin)
+
+QT_END_NAMESPACE

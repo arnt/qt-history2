@@ -29,6 +29,8 @@
 
 #include <QtCore/QVariantMap>
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
 class QPaintEvent;
 
@@ -76,5 +78,7 @@ private:
     int m_deltaY;
 };
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_GRID_H

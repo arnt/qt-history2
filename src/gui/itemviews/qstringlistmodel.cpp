@@ -18,6 +18,9 @@
 #include "qstringlistmodel.h"
 
 #ifndef QT_NO_STRINGLISTMODEL
+
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QStringListModel
     \brief The QStringListModel class provides a model that supplies strings to views.
@@ -245,5 +248,7 @@ Qt::DropActions QStringListModel::supportedDropActions() const
 {
     return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_STRINGLISTMODEL

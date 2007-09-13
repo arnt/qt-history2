@@ -18,6 +18,8 @@
 
 #include <qt_windows.h>
 
+QT_BEGIN_NAMESPACE
+
 static DWORD *classRegistration = 0;
 static DWORD dwThreadID;
 static bool qAxActivity = false;
@@ -148,11 +150,14 @@ bool qax_stopServer()
     return true;
 }
 
+
 #if defined(Q_OS_TEMP)
 extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<char *> &);
 #else
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<char *> &);
 #endif
+
+QT_END_NAMESPACE
 
 #if defined(QT_NEEDS_QMAIN)
 int qMain(int, char **);
@@ -168,6 +173,8 @@ extern "C" int main(int, char **);
 
 EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR, int nShowCmd)
 {
+    QT_USE_NAMESPACE 
+
     qAxOutProcServer = true;
     GetModuleFileNameA(0, qAxModuleFilename, MAX_PATH-1);
     qAxInstance = hInstance;
@@ -232,7 +239,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR,
         qAxInit();
         if (runServer)
             QAxFactory::startServer();
-        nRet = main(argc, argv.data());
+        nRet = ::main(argc, argv.data());
         QAxFactory::stopServer();
         qAxCleanup();
         CoUninitialize();
@@ -241,5 +248,4 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR,
     
     return nRet;
 }
-
 

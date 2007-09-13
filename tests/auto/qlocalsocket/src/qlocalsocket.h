@@ -20,7 +20,7 @@ QT_BEGIN_HEADER
 
 #ifndef QT_NO_LOCALSOCKET
 
-class QLocalSocketPrivate;
+QT_DECLARE_CLASS(QLocalSocketPrivate)
 
 class QLocalSocket : public QIODevice
 {

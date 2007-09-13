@@ -27,6 +27,8 @@
 
 #include <QtTest/qtest_global.h>
 
+QT_BEGIN_NAMESPACE
+
 class QTestResultPrivate;
 class QTestData;
 
@@ -76,5 +78,7 @@ public:
 private:
     Q_DISABLE_COPY(QTestResult)
 };
+
+QT_END_NAMESPACE
 
 #endif

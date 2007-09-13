@@ -26,6 +26,8 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QExtensionManager>
 
+QT_BEGIN_NAMESPACE
+
 using namespace qdesigner_internal;
 
 TaskMenuComponent::TaskMenuComponent(QDesignerFormEditorInterface *core, QObject *parent)
@@ -57,5 +59,7 @@ TaskMenuComponent::~TaskMenuComponent()
 QDesignerFormEditorInterface *TaskMenuComponent::core() const
 {
     return m_core;
+
+QT_END_NAMESPACE
 }
 

@@ -33,6 +33,8 @@
 
 QT_BEGIN_HEADER 
 
+QT_BEGIN_NAMESPACE
+
 namespace Patternist
 {
     /**
@@ -255,7 +257,10 @@ namespace Patternist
     };
 
 #include "qdatetimefns.cpp"
+
 }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER 
 

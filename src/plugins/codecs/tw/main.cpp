@@ -19,6 +19,8 @@
 
 #include "qbig5codec.h"
 
+QT_BEGIN_NAMESPACE
+
 class TWTextCodecs : public QTextCodecPlugin
 {
 public:
@@ -104,3 +106,5 @@ Q_EXPORT_STATIC_PLUGIN(TWTextCodecs);
 Q_EXPORT_PLUGIN2(qtwcodecs, TWTextCodecs);
 
 #endif // QT_NO_TEXTCODECPLUGIN
+
+QT_END_NAMESPACE

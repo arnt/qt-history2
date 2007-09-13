@@ -33,6 +33,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QMimeData>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
 
@@ -138,5 +140,7 @@ private:
     QPointer<QWidget> m_lastFocusWidget;
     qdesigner_internal::PromotionTaskMenu* m_promotionTaskMenu;
 };
+
+QT_END_NAMESPACE
 
 #endif // QDESIGNER_MENUBAR_H

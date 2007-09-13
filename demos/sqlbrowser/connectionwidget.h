@@ -16,10 +16,10 @@
 
 #include <QWidget>
 
-class QTreeWidget;
-class QTreeWidgetItem;
-class QSqlDatabase;
-class QMenu;
+QT_DECLARE_CLASS(QTreeWidget)
+QT_DECLARE_CLASS(QTreeWidgetItem)
+QT_DECLARE_CLASS(QSqlDatabase)
+QT_DECLARE_CLASS(QMenu)
 
 class ConnectionWidget: public QWidget
 {

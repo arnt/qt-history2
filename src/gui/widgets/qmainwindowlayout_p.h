@@ -40,8 +40,10 @@
 #define Q_DEBUG_MAINWINDOW_LAYOUT
 
 #ifdef Q_DEBUG_MAINWINDOW_LAYOUT
+QT_BEGIN_NAMESPACE
 class QTextStream;
 Q_GUI_EXPORT void qt_dumpLayout(QTextStream &qout, QMainWindow *window);
+QT_END_NAMESPACE
 #endif // Q_DEBUG_MAINWINDOW_LAYOUT
 
 #ifdef Q_WS_MAC
@@ -53,6 +55,8 @@ typedef const void * CFTypeRef;
 typedef const struct __CFString * CFStringRef;
 
 #endif
+
+QT_BEGIN_NAMESPACE
 
 class QToolBar;
 class QWidgetAnimator;
@@ -272,9 +276,11 @@ private:
     bool useHIToolBar;
 #endif
 };
+QT_END_NAMESPACE
 
 #endif // QT_NO_MAINWINDOW
 
+QT_BEGIN_NAMESPACE
 static inline int pick(Qt::Orientation o, const QPoint &pos)
 { return o == Qt::Horizontal ? pos.x() : pos.y(); }
 
@@ -301,5 +307,7 @@ static inline int &rperp(Qt::Orientation o, QPoint &pos)
 
 static inline int &rperp(Qt::Orientation o, QSize &size)
 { return o == Qt::Vertical ? size.rwidth() : size.rheight(); }
+
+QT_END_NAMESPACE
 
 #endif // QDYNAMICMAINWINDOWLAYOUT_P_H

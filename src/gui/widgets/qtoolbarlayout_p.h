@@ -29,6 +29,8 @@
 #include <private/qlayoutengine_p.h>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
+
 #ifndef QT_NO_TOOLBAR
 
 class QAction;
@@ -98,5 +100,7 @@ private:
 };
 
 #endif // QT_NO_TOOLBAR
+
+QT_END_NAMESPACE
 
 #endif // QTOOLBARLAYOUT_P_H

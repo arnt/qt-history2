@@ -16,9 +16,9 @@
 
 #include <QWidget>
 
-class QPushButton;
-class QTextEdit;
-class QLineEdit;
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QTextEdit)
+QT_DECLARE_CLASS(QLineEdit)
 
 class TextFinder : public QWidget
 {

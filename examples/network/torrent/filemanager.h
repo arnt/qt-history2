@@ -14,10 +14,6 @@
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
-class QByteArray;
-class QFile;
-class QTimerEvent;
-
 #include <QBitArray>
 #include <QList>
 #include <QMutex>
@@ -25,6 +21,10 @@ class QTimerEvent;
 #include <QWaitCondition>
 
 #include "metainfo.h"
+
+QT_DECLARE_CLASS(QByteArray)
+QT_DECLARE_CLASS(QFile)
+QT_DECLARE_CLASS(QTimerEvent)
 
 class FileManager : public QThread
 {

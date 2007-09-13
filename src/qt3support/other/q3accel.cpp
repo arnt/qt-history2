@@ -24,6 +24,9 @@
 #include "qevent.h"
 #include "qkeysequence.h"
 #include "private/qapplication_p.h"
+
+QT_BEGIN_NAMESPACE
+
 using namespace Qt;
 
 /*!
@@ -217,7 +220,7 @@ bool Q3AccelManager::correctSubWindow(QWidget* w, Q3AccelPrivate* d) {
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
 #ifndef QT_NO_MAINWINDOW
-    if ((tlw->windowType() == Qt::Dialog) && tlw->parentWidget() && ::qobject_cast<QDockWidget*>(tlw))
+    if ((tlw->windowType() == Qt::Dialog) && tlw->parentWidget() && qobject_cast<QDockWidget*>(tlw))
         return tlw->parentWidget()->window() == wtlw;
 
     if (wtlw  != tlw)
@@ -971,3 +974,5 @@ bool Q3Accel::ignoreWhatsThis() const
     \fn void Q3Accel::repairEventFilter()
     \internal
 */
+
+QT_END_NAMESPACE

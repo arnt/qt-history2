@@ -16,6 +16,8 @@
 #include <QtGui>
 #include <ActiveQt>
 
+QT_BEGIN_NAMESPACE
+
 ChangeProperties::ChangeProperties(QWidget *parent)
 : QDialog(parent), activex(0)
 {
@@ -246,8 +248,10 @@ void ChangeProperties::updateProperties()
                 check->setCheckState(0, activex->propertyWritable(property.name()) ? Qt::Checked : Qt::Unchecked);
 	    }
 	}
-	listProperties->setCurrentItem(listProperties->topLevelItem(0));
+        listProperties->setCurrentItem(listProperties->topLevelItem(0));
     } else {
-	editValue->clear();
+        editValue->clear();
     }
 }
+
+QT_END_NAMESPACE

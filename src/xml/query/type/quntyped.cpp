@@ -15,6 +15,8 @@
 
 #include "quntyped_p.h"
 
+QT_BEGIN_NAMESPACE
+
 using namespace Patternist;
 
 Untyped::Untyped()
@@ -47,3 +49,5 @@ SchemaType::DerivationMethod Untyped::derivationMethod() const
 }
 
 // vim: et:ts=4:sw=4:sts=4
+
+QT_END_NAMESPACE

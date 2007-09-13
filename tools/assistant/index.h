@@ -22,6 +22,8 @@
 #include <QFile>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
+
 struct Document {
     Document( int d, int f ) : docNumber( d ), frequency( f ) {}
     Document() : docNumber( -1 ), frequency( 0 ) {}
@@ -99,3 +101,5 @@ private:
 };
 
 #endif
+
+QT_END_NAMESPACE

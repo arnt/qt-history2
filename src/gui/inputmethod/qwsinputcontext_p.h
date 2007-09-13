@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_QWS_INPUTMETHODS
 
+QT_BEGIN_NAMESPACE
+
 class QWSIMEvent;
 class QWSIMQueryEvent;
 class QWSIMInitEvent;
@@ -58,6 +60,8 @@ public:
     static bool translateIMQueryEvent(QWidget *w, const QWSIMQueryEvent *e);
     static bool translateIMInitEvent(const QWSIMInitEvent *e);
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_QWS_INPUTMETHODS
 

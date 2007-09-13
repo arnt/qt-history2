@@ -17,6 +17,8 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QItemDelegate>
 
+QT_BEGIN_NAMESPACE
+
 class MessagesItemDelegate : public QItemDelegate 
 {
 public:
@@ -67,3 +69,5 @@ void MessagesTreeView::setModel(QAbstractItemModel * model)
     header()->setResizeMode(2, QHeaderView::Stretch);
     header()->setClickable(true);
 }
+
+QT_END_NAMESPACE

@@ -16,11 +16,13 @@
 
 #include <QtGui/qstyle.h>
 
-class QCommonStylePrivate;
-
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Gui)
+
+class QCommonStylePrivate;
 
 class Q_GUI_EXPORT QCommonStyle: public QStyle
 {
@@ -65,6 +67,8 @@ private:
     Q_DECLARE_PRIVATE(QCommonStyle)
     Q_DISABLE_COPY(QCommonStyle)
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QAbstractItemModel;
@@ -340,6 +342,8 @@ inline Qt::ItemFlags QModelIndex::flags() const
 
 inline uint qHash(const QModelIndex &index)
 { return uint((index.row() << 4) + index.column() + index.internalId()); }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

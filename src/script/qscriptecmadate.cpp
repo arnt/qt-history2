@@ -30,11 +30,13 @@
 #include <math.h>
 
 #ifndef Q_WS_WIN
-#include <time.h>
-#include <sys/time.h>
+#   include <time.h>
+#   include <sys/time.h>
 #else
-#include <windows.h>
+#   include <windows.h>
 #endif
+
+QT_BEGIN_NAMESPACE
 
 static const qsreal HoursPerDay = 24.0;
 static const qsreal MinutesPerHour = 60.0;
@@ -1163,5 +1165,7 @@ QScriptValueImpl Date::method_toUTCString(QScriptContextPrivate *context, QScrip
 }
 
 } } // namespace QScript::Ecma
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

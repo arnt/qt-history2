@@ -20,6 +20,8 @@
 #include "qdbusconnection_p.h"
 #include "qdbusmetatype_p.h"
 
+QT_BEGIN_NAMESPACE
+
 bool qDBusCheckAsyncTag(const char *tag)
 {
     static const char noReplyTag[] = "Q_NOREPLY";
@@ -114,5 +116,7 @@ int qDBusParametersForMethod(const QMetaMethod &mm, QList<int>& metaTypes)
         ++inputCount;
     }
 
+
+QT_END_NAMESPACE
     return inputCount;
 }

@@ -25,6 +25,8 @@
 #include <qurl.h>
 #include "qlabel_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QLabel
     \brief The QLabel widget provides a text or image display.
@@ -1552,5 +1554,7 @@ QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 
     \sa linkHovered()
 */
+
+QT_END_NAMESPACE
 
 #include "moc_qlabel.cpp"

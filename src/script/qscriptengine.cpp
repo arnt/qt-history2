@@ -22,6 +22,8 @@
 #include "qscriptobject_p.h"
 #include "qscriptsyntaxchecker_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
   \since 4.3
   \class QScriptEngine
@@ -167,6 +169,7 @@
 */
 
 #ifdef QT_NO_QOBJECT
+
 QScriptEngine::QScriptEngine()
     : d_ptr(new QScriptEnginePrivate)
 {
@@ -1376,7 +1379,9 @@ bool qScriptDisconnect(QObject *sender, const char *signal,
     \sa qScriptConnect()
 */
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "moc_qscriptengine.cpp"
+QT_END_INCLUDE_NAMESPACE
 
 #endif // QT_NO_QOBJECT
 
@@ -1414,5 +1419,7 @@ QScriptEngineAgent *QScriptEngine::agent() const
     Q_D(const QScriptEngine);
     return d->agent();
 }
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

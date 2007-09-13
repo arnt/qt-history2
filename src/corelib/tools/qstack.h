@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 template<class T>
@@ -44,6 +46,8 @@ inline T &QStack<T>::top()
 template<class T>
 inline const T &QStack<T>::top() const
 { Q_ASSERT(!this->isEmpty()); return this->data()[this->size()-1]; }
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

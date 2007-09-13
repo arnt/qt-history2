@@ -19,3 +19,6 @@ win32 {
 } else {
     DESTDIR = ../
 }
+
+DEFINES += QT_USE_USING_NAMESPACE
+

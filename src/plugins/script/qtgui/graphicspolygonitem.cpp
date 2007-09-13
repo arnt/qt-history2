@@ -4,9 +4,11 @@
 #include <QtGui/QGraphicsPolygonItem>
 #include "../global.h"
 
-DECLARE_POINTER_METATYPE(QGraphicsPolygonItem)
 Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
 Q_DECLARE_METATYPE(QPolygonF)
+DECLARE_POINTER_METATYPE(QGraphicsPolygonItem)
+
+QT_BEGIN_NAMESPACE
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -72,3 +74,5 @@ QScriptValue constructGraphicsPolygonItemClass(QScriptEngine *eng)
 
     return eng->newFunction(ctor, proto);
 }
+
+QT_END_NAMESPACE

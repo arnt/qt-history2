@@ -40,6 +40,8 @@
 
 #if FC_VERSION >= 20402
 #include <fontconfig/fcfreetype.h>
+
+QT_BEGIN_NAMESPACE
 #endif
 #endif
 
@@ -1486,7 +1488,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
             FcPatternAdd(pattern, FC_FAMILY, value, FcTrue);
         }
         if (i == 0) {
-            ::match(script, request, family, foundry, -1, &desc);
+            QT_ADD_NAMESPACE(match)(script, request, family, foundry, -1, &desc);
             if (!foundry.isEmpty()) {
                 QByteArray cs = foundry.toUtf8();
                 value.u.s = (const FcChar8 *)cs.data();
@@ -1508,7 +1510,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
         FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
     }
     FcPatternAddBool(pattern, FC_OUTLINE, !(request.styleStrategy & QFont::PreferBitmap));
-    if (::preferScalable(request) || (desc.style && desc.style->smoothScalable))
+    if (preferScalable(request) || (desc.style && desc.style->smoothScalable))
         FcPatternAddBool(pattern, FC_SCALABLE, true);
 
     qt_addPatternProps(pattern, fp->screen, script, request);
@@ -1731,7 +1733,7 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
 {
     QtFontDesc desc;
     FM_DEBUG() << "---> loadXlfd: request is" << request.family;
-    QStringList families_and_foundries = ::familyList(request);
+    QStringList families_and_foundries = familyList(request);
     const char *stylehint = styleHint(request);
     if (stylehint)
         families_and_foundries << QString::fromLatin1(stylehint);
@@ -1739,9 +1741,9 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
     FM_DEBUG() << "loadXlfd: list is" << families_and_foundries;
     for (int i = 0; i < families_and_foundries.size(); ++i) {
         QString family, foundry;
-        ::parseFontName(families_and_foundries.at(i), foundry, family);
+        QT_ADD_NAMESPACE(parseFontName)(families_and_foundries.at(i), foundry, family);
         FM_DEBUG("loadXlfd: >>>>>>>>>>>>>>trying to match '%s' encoding=%d", family.toLatin1().data(), force_encoding_id);
-        ::match(script, request, family, foundry, force_encoding_id, &desc);
+        QT_ADD_NAMESPACE(match)(script, request, family, foundry, force_encoding_id, &desc);
         if (desc.family)
             break;
     }
@@ -2004,3 +2006,5 @@ bool QFontDatabase::removeAllApplicationFonts()
 #endif
 }
 
+
+QT_END_NAMESPACE

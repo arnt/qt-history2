@@ -16,7 +16,7 @@
 
 #include <QtDesigner/QExtensionFactory>
 
-class QExtensionManager;
+QT_DECLARE_CLASS(QExtensionManager)
 
 class MultiPageWidgetExtensionFactory: public QExtensionFactory
 {

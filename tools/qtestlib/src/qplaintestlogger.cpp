@@ -28,6 +28,8 @@
 
 #include <QtCore/QByteArray>
 
+QT_BEGIN_NAMESPACE
+
 namespace QTest {
 
 #ifdef Q_OS_WIN
@@ -228,7 +230,6 @@ void QPlainTestLogger::addIncident(IncidentTypes type, const char *description,
     QTest::printMessage(QTest::incidentType2String(type), description, file, line);
 }
 
-
 void QPlainTestLogger::addMessage(MessageTypes type, const char *message,
                                   const char *file, int line)
 {
@@ -240,3 +241,4 @@ void QPlainTestLogger::addMessage(MessageTypes type, const char *message,
     QTest::printMessage(QTest::messageType2String(type), message, file, line);
 }
 
+QT_END_NAMESPACE

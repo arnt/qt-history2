@@ -16,6 +16,8 @@
 #include "baseclass.h"
 #include "derivedclass.h"
 
+QT_USE_NAMESPACE
+
 class tst_Compiler : public QObject
 {
 Q_OBJECT

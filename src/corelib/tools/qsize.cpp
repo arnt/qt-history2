@@ -15,6 +15,8 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QSize
     \ingroup multimedia
@@ -858,3 +860,5 @@ QDebug operator<<(QDebug dbg, const QSizeF &s) {
     return dbg.space();
 }
 #endif
+
+QT_END_NAMESPACE

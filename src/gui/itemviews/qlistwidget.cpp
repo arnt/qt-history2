@@ -19,6 +19,8 @@
 #include <private/qwidgetitemdata_p.h>
 #include <private/qlistwidget_p.h>
 
+QT_BEGIN_NAMESPACE
+
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QPair<QListWidgetItem*,int>&,const QPair<QListWidgetItem*,int>&);
 
@@ -29,7 +31,9 @@ public:
     QList<QListWidgetItem*> items;
 };
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "qlistwidget.moc"
+QT_END_INCLUDE_NAMESPACE
 
 QListModel::QListModel(QListWidget *parent)
     : QAbstractListModel(parent)
@@ -77,7 +81,7 @@ void QListModel::insert(int row, QListWidgetItem *item)
     if (!item)
         return;
 
-    item->view = ::qobject_cast<QListWidget*>(QObject::parent());
+    item->view = qobject_cast<QListWidget*>(QObject::parent());
     if (item->view && item->view->isSortingEnabled()) {
         // sorted insertion
         QList<QListWidgetItem*>::iterator it;
@@ -101,7 +105,7 @@ void QListModel::insert(int row, const QStringList &labels)
     const int count = labels.count();
     if (count <= 0)
         return;
-    QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
+    QListWidget *view = qobject_cast<QListWidget*>(QObject::parent());
     if (view && view->isSortingEnabled()) {
         // sorted insertion
         for (int i = 0; i < count; ++i) {
@@ -117,7 +121,7 @@ void QListModel::insert(int row, const QStringList &labels)
         for (int i = 0; i < count; ++i) {
             QListWidgetItem *item = new QListWidgetItem(labels.at(i));
             item->d->id = row;
-            item->view = ::qobject_cast<QListWidget*>(QObject::parent());
+            item->view = qobject_cast<QListWidget*>(QObject::parent());
             items.insert(row++, item);
         }
         endInsertRows();
@@ -201,7 +205,7 @@ bool QListModel::insertRows(int row, int count, const QModelIndex &parent)
         return false;
 
     beginInsertRows(QModelIndex(), row, row + count - 1);
-    QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
+    QListWidget *view = qobject_cast<QListWidget*>(QObject::parent());
     QListWidgetItem *itm = 0;
 
     for (int r = row; r < row + count; ++r) {
@@ -366,7 +370,7 @@ void QListModel::itemChanged(QListWidgetItem *item)
 
 QStringList QListModel::mimeTypes() const
 {
-    const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
+    const QListWidget *view = qobject_cast<const QListWidget*>(QObject::parent());
     return view->mimeTypes();
 }
 
@@ -380,7 +384,7 @@ QMimeData *QListModel::mimeData(const QModelIndexList &indexes) const
     QList<QListWidgetItem*> itemlist;
     for (int i = 0; i < indexes.count(); ++i)
         itemlist << at(indexes.at(i).row());
-    const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
+    const QListWidget *view = qobject_cast<const QListWidget*>(QObject::parent());
 
     cachedIndexes = indexes;
     QMimeData *mimeData = view->mimeData(itemlist);
@@ -393,7 +397,7 @@ bool QListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                               int row, int column, const QModelIndex &index)
 {
     Q_UNUSED(column);
-    QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
+    QListWidget *view = qobject_cast<QListWidget*>(QObject::parent());
     if (index.isValid())
         row = index.row();
     else if (row == -1)
@@ -404,7 +408,7 @@ bool QListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
 Qt::DropActions QListModel::supportedDropActions() const
 {
-    const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
+    const QListWidget *view = qobject_cast<const QListWidget*>(QObject::parent());
     return view->supportedDropActions();
 }
 #endif // QT_NO_DRAGANDDROP
@@ -542,7 +546,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view, int type)
                 |Qt::ItemIsEnabled
                 |Qt::ItemIsDragEnabled)
 {
-    if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
+    if (QListModel *model = (view ? qobject_cast<QListModel*>(view->model()) : 0))
         model->insert(model->rowCount(), this);
 }
 
@@ -565,7 +569,7 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view, int typ
 {
     setData(Qt::DisplayRole, text);
     this->view = view;
-    if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
+    if (QListModel *model = (view ? qobject_cast<QListModel*>(view->model()) : 0))
         model->insert(model->rowCount(), this);
 }
 
@@ -590,7 +594,7 @@ QListWidgetItem::QListWidgetItem(const QIcon &icon,const QString &text,
     setData(Qt::DisplayRole, text);
     setData(Qt::DecorationRole, icon);
     this->view = view;
-    if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
+    if (QListModel *model = (view ? qobject_cast<QListModel*>(view->model()) : 0))
         model->insert(model->rowCount(), this);
 }
 
@@ -599,7 +603,7 @@ QListWidgetItem::QListWidgetItem(const QIcon &icon,const QString &text,
 */
 QListWidgetItem::~QListWidgetItem()
 {
-    if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
+    if (QListModel *model = (view ? qobject_cast<QListModel*>(view->model()) : 0))
         model->remove(this);
     delete d;
 }
@@ -634,7 +638,7 @@ void QListWidgetItem::setData(int role, const QVariant &value)
     }
     if (!found)
         values.append(QWidgetItemData(role, value));
-    if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
+    if (QListModel *model = (view ? qobject_cast<QListModel*>(view->model()) : 0))
         model->itemChanged(this);
 }
 
@@ -871,7 +875,7 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 */
 void QListWidgetItem::setFlags(Qt::ItemFlags aflags) {
     itemFlags = aflags;
-    if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
+    if (QListModel *model = (view ? qobject_cast<QListModel*>(view->model()) : 0))
         model->itemChanged(this);
 }
 
@@ -1822,5 +1826,8 @@ bool QListWidget::event(QEvent *e)
     return QListView::event(e);
 }
 
+QT_END_NAMESPACE
+
 #include "moc_qlistwidget.cpp"
+
 #endif // QT_NO_LISTWIDGET

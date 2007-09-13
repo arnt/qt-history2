@@ -30,6 +30,8 @@
 
 #ifndef QT_NO_PICTURE
 
+QT_BEGIN_NAMESPACE
+
 class QPicturePaintEnginePrivate;
 class QBuffer;
 
@@ -81,6 +83,8 @@ private:
 
     void writeCmdLength(int pos, const QRectF &r, bool corr);
 };
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_PICTURE
 

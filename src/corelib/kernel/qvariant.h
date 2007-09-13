@@ -23,6 +23,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 QT_MODULE(Core)
 
 class QBitArray;
@@ -392,9 +394,6 @@ public:
 typedef QList<QVariant> QVariantList;
 typedef QMap<QString, QVariant> QVariantMap;
 
-Q_DECLARE_BUILTIN_METATYPE(QVariantList, QVariantList)
-Q_DECLARE_BUILTIN_METATYPE(QVariantMap, QVariantMap)
-
 inline bool qvariant_cast_helper(const QVariant &v, QVariant::Type tp, void *ptr)
 { return QVariant::handler->convert(&v.d, tp, ptr, 0); }
 
@@ -560,6 +559,11 @@ Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant::Type);
 #endif
+
+QT_END_NAMESPACE
+
+Q_DECLARE_BUILTIN_METATYPE(QVariantList, QVariantList)
+Q_DECLARE_BUILTIN_METATYPE(QVariantMap, QVariantMap)
 
 QT_END_HEADER
 

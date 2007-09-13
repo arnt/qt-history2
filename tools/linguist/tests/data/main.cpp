@@ -2,6 +2,8 @@
 #include <QtGui>
 #include <QtCore>
 
+QT_BEGIN_NAMESPACE
+
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
@@ -31,5 +33,7 @@ int main(int argc, char **argv)
 
     w.show();
 
+
+QT_END_NAMESPACE
     return app.exec();
 }

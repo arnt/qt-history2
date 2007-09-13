@@ -16,7 +16,7 @@
 
 #include <QTextEdit>
 
-class QCompleter;
+QT_DECLARE_CLASS(QCompleter)
 
 class TextEdit : public QTextEdit
 {

@@ -13,6 +13,8 @@
 
 #include "q3paintdevicemetrics.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class Q3PaintDeviceMetrics qpaintdevicemetrics.h
     \brief The Q3PaintDeviceMetrics class provides information about a
@@ -119,3 +121,4 @@
     \internal
 */
 
+QT_END_NAMESPACE

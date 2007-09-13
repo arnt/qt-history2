@@ -20,7 +20,7 @@ QT_BEGIN_HEADER
 
 #ifndef QT_NO_SYSTEMLOCK
 
-class QSystemLockPrivate;
+QT_DECLARE_CLASS(QSystemLockPrivate)
 
 class QSystemLock
 {

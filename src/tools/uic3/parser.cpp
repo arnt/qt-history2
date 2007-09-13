@@ -15,6 +15,8 @@
 #include <QObject>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
+
 QString Parser::cleanArgs(const QString &func)
 {
     QString slot(func);
@@ -51,3 +53,5 @@ QString Parser::cleanArgs(const QString &func)
     res += QLatin1String(")");
     return res;
 }
+
+QT_END_NAMESPACE

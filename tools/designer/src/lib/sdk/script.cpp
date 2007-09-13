@@ -13,6 +13,8 @@
 
 #include "script_p.h"
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QDesignerScriptExtension
     \brief The QDesignerScriptExtension class allows you to generate a
@@ -75,3 +77,5 @@ QDesignerScriptExtension::~QDesignerScriptExtension()
 
     Applies the internal state stored in \a data to the widget while loading a form.
 */
+
+QT_END_NAMESPACE

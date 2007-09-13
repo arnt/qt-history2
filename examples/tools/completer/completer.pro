@@ -10,3 +10,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/tools/completer
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS completer.pro resources
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/completer
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

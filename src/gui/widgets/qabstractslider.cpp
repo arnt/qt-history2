@@ -21,6 +21,8 @@
 #endif
 #include <limits.h>
 
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QAbstractSlider
     \brief The QAbstractSlider class provides an integer value within a range.
@@ -866,3 +868,5 @@ bool QAbstractSlider::event(QEvent *e)
     Use setSingleStep(\a single) followed by setPageStep(\a page)
     instead.
 */
+
+QT_END_NAMESPACE

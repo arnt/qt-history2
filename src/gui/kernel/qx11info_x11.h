@@ -16,7 +16,11 @@
 
 #include <QtCore/qnamespace.h>
 
+typedef struct _XDisplay Display;
+
 QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
 
 QT_MODULE(Gui)
 
@@ -24,8 +28,6 @@ struct QX11InfoData;
 class QPaintDevice;
 class QApplicationPrivate;
 class QX11InfoPrivate;
-
-typedef struct _XDisplay Display;
 
 class Q_GUI_EXPORT QX11Info
 {
@@ -80,6 +82,8 @@ protected:
                         Qt::HANDLE colormap);
     friend void qt_cleanup();
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

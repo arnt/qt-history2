@@ -29,6 +29,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 class QDate;
 class QDateTime;
 
@@ -197,6 +199,8 @@ protected:
 
 } } // namespace QScript::Ecma
 
-#endif // QT_NO_SCRIPT
-#endif
+QT_END_NAMESPACE
 
+#endif // QT_NO_SCRIPT
+
+#endif

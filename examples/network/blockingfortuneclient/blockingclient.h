@@ -18,10 +18,10 @@
 
 #include "fortunethread.h"
 
-class QDialogButtonBox;
-class QLabel;
-class QLineEdit;
-class QPushButton;
+QT_DECLARE_CLASS(QDialogButtonBox)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QPushButton)
 
 class BlockingClient : public QDialog
 {

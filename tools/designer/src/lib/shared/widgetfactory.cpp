@@ -47,6 +47,8 @@ TRANSLATOR qdesigner_internal::WidgetFactory
 #include <QtGui/QScrollBar>
 #include <QtCore/qdebug.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 // ---------------- WidgetFactory::Strings
 WidgetFactory::Strings::Strings() :
@@ -558,3 +560,5 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
 }
 
 } // namespace qdesigner_internal
+
+QT_END_NAMESPACE

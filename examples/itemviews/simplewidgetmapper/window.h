@@ -16,13 +16,13 @@
 
 #include <QWidget>
 
-class QDataWidgetMapper;
-class QLabel;
-class QLineEdit;
-class QPushButton;
-class QSpinBox;
-class QStandardItemModel;
-class QTextEdit;
+QT_DECLARE_CLASS(QDataWidgetMapper)
+QT_DECLARE_CLASS(QLabel)
+QT_DECLARE_CLASS(QLineEdit)
+QT_DECLARE_CLASS(QPushButton)
+QT_DECLARE_CLASS(QSpinBox)
+QT_DECLARE_CLASS(QStandardItemModel)
+QT_DECLARE_CLASS(QTextEdit)
 
 class Window : public QWidget
 {

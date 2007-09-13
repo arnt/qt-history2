@@ -22,9 +22,11 @@
 #include <ctype.h>
 
 
+QT_BEGIN_NAMESPACE
+
 // ############### DON'T EXPORT HERE!!!
 Q_CORE_EXPORT char         appFileName[256];                // application file name
-Q_CORE_EXPORT char         appName[256];                        // application name
+Q_CORE_EXPORT char         theAppName[256];                        // application name
 Q_CORE_EXPORT HINSTANCE appInst        = 0;                // handle to app instance
 Q_CORE_EXPORT HINSTANCE appPrevInst        = 0;                // handle to prev app instance
 Q_CORE_EXPORT int appCmdShow = 0;
@@ -54,10 +56,10 @@ void set_winapp_name()
 #endif
         const char *p = strrchr(appFileName, '\\');        // skip path
         if (p)
-            memcpy(appName, p+1, qstrlen(p));
-        int l = qstrlen(appName);
-        if ((l > 4) && !qstricmp(appName + l - 4, ".exe"))
-            appName[l-4] = '\0';                // drop .exe extension
+            memcpy(theAppName, p+1, qstrlen(p));
+        int l = qstrlen(theAppName);
+        if ((l > 4) && !qstricmp(theAppName + l - 4, ".exe"))
+            theAppName[l-4] = '\0';                // drop .exe extension
     }
 }
 
@@ -68,9 +70,9 @@ Q_CORE_EXPORT QString qAppFileName()                // get application file name
 
 QString QCoreApplicationPrivate::appName() const
 {
-    if (!::appName[0])
+    if (!theAppName[0])
         set_winapp_name();
-    return QString::fromLatin1(::appName);
+    return QString::fromLatin1(theAppName);
 }
 
 class QWinMsgHandlerCriticalSection
@@ -207,8 +209,11 @@ void QCoreApplicationPrivate::removePostedTimerEvent(QObject *object, int timerI
   Convenience functions for convert WM_* messages into human readable strings,
   including a nifty QDebug operator<< for simpel QDebug() << msg output.
  *****************************************************************************/
+QT_BEGIN_INCLUDE_NAMESPACE
 #include <windowsx.h>
 #include "qdebug.h"
+QT_END_INCLUDE_NAMESPACE
+
 #if !defined(GET_X_LPARAM)
 #  define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
 #  define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
@@ -1011,3 +1016,5 @@ QDebug operator<<(QDebug dbg, const MSG &msg)
     return dbg.nospace();
 }
 #endif
+
+QT_END_NAMESPACE

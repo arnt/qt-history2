@@ -15,6 +15,8 @@
 
 #ifndef QT_NO_SCRIPT
 
+QT_BEGIN_NAMESPACE
+
 const char *const QScriptGrammar::spell [] = {
   "end of file", "&", "&&", "&=", "break", "case", "catch", ":", ";", "continue",
   "default", "delete", "/", "/=", "do", ".", "else", "=", "==", "===",
@@ -780,5 +782,7 @@ const int QScriptGrammar::action_check [] = {
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1};
+
+QT_END_NAMESPACE
 
 #endif // QT_NO_SCRIPT

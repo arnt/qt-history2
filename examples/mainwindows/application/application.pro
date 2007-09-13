@@ -8,3 +8,4 @@ target.path = $$[QT_INSTALL_EXAMPLES]/mainwindows/application
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS application.pro images
 sources.path = $$[QT_INSTALL_EXAMPLES]/mainwindows/application
 INSTALLS += target sources
+DEFINES += QT_USE_USING_NAMESPACE

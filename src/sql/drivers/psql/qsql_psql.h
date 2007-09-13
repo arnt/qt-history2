@@ -28,6 +28,8 @@ QT_BEGIN_HEADER
 typedef struct pg_conn PGconn;
 typedef struct pg_result PGresult;
 
+QT_BEGIN_NAMESPACE
+
 class QPSQLResultPrivate;
 class QPSQLDriverPrivate;
 class QPSQLDriver;
@@ -111,6 +113,8 @@ private:
     void init();
     QPSQLDriverPrivate *d;
 };
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

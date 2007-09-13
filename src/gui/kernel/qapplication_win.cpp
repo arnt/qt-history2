@@ -58,8 +58,6 @@
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
 #endif
-
-extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
 #endif // QT_NO_ACCESSIBILITY
 
 #if WINVER >= 0x0600
@@ -67,6 +65,7 @@ extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
 #else
 #include <winable.h>
 #endif
+
 
 #ifndef FLASHW_STOP
 typedef struct {
@@ -101,8 +100,6 @@ static PtrFlashWindowEx pFlashWindowEx = 0;
                      | PK_ORIENTATION | PK_CURSOR | PK_Z)
 #define PACKETMODE  0
 
-extern bool qt_tabletChokeMouse;
-
 #include <wintab.h>
 #ifndef CSR_TYPE
 #define CSR_TYPE 20 // Some old Wacom wintab.h may not provide this constant.
@@ -125,11 +122,25 @@ static PtrWTOverlap ptrWTOverlap = 0;
 static PtrWTPacketsGet ptrWTPacketsGet = 0;
 static PtrWTGet ptrWTGet = 0;
 
+#if defined(__CYGWIN32__)
+#define __INSIDE_CYGWIN32__
+#include <mywinsock.h>
+#endif
+
+QT_BEGIN_NAMESPACE
+
 static PACKET localPacketBuf[QT_TABLET_NPACKETQSIZE];  // our own tablet packet queue.
 HCTX qt_tablet_context;  // the hardware context for the tablet (like a window handle)
 bool qt_tablet_tilt_support;
 static void tabletInit(UINT wActiveCsr, HCTX hTab);
 static void initWinTabFunctions();        // resolve the WINTAB api functions
+
+
+#ifndef QT_NO_ACCESSIBILITY
+extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
+#endif // QT_NO_ACCESSIBILITY
+
+extern bool qt_tabletChokeMouse;
 
 typedef QHash<UINT, QTabletDeviceData> QTabletCursorInfo;
 Q_GLOBAL_STATIC(QTabletCursorInfo, tCursorInfo)
@@ -138,11 +149,6 @@ QTabletDeviceData currentTabletPointer;
 Q_CORE_EXPORT bool winPeekMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
                             UINT wMsgFilterMax, UINT wRemoveMsg);
 Q_CORE_EXPORT bool winPostMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-#if defined(__CYGWIN32__)
-#define __INSIDE_CYGWIN32__
-#include <mywinsock.h>
-#endif
 
 // support for on-the-fly changes of the XP theme engine
 #ifndef WM_THEMECHANGED
@@ -256,7 +262,9 @@ typedef struct tagTRACKMOUSEEVENT {
 #define WM_MOUSELEAVE                   0x02A3
 #endif
 
+QT_BEGIN_INCLUDE_NAMESPACE
 #include "private/qwidget_p.h"
+QT_END_INCLUDE_NAMESPACE
 
 static int translateButtonState(int s, int type, int button);
 
@@ -273,7 +281,7 @@ QRgb qt_colorref2qrgb(COLORREF col)
 
 extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
 extern void qt_syncBackingStore(QRegion rgn, QWidget *widget, bool);
-extern Q_CORE_EXPORT char      appName[];
+extern Q_CORE_EXPORT char      theAppName[];
 extern Q_CORE_EXPORT char      appFileName[];
 extern Q_CORE_EXPORT HINSTANCE appInst;                        // handle to app instance
 extern Q_CORE_EXPORT HINSTANCE appPrevInst;                        // handle to prev app instance
@@ -627,7 +635,7 @@ void qt_init(QApplicationPrivate *priv, int)
     QColormap::initialize();
     QFont::initialize();
     QCursorData::initialize();
-    qApp->setObjectName(QLatin1String(appName));
+    qApp->setObjectName(QLatin1String(theAppName));
 
     // default font
     HFONT hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
@@ -3427,3 +3435,5 @@ void QSessionManager::cancel()
 {
     sm_cancel = true;
 }
+
+QT_END_NAMESPACE

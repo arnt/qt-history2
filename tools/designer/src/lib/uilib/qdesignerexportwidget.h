@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
+
 #if 0
 // pragma for syncqt, don't remove.
 #pragma qt_class(QDesignerExportWidget)
@@ -28,6 +30,8 @@ QT_BEGIN_HEADER
 #else
 #  define QDESIGNER_WIDGET_EXPORT Q_DECL_IMPORT
 #endif
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

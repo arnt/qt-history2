@@ -20,6 +20,8 @@
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+
 class QDesignerTaskMenuExtension;
 class QDesignerFormEditorInterface;
 class QMouseEvent;
@@ -111,5 +113,6 @@ protected:
 
 }  // namespace qdesigner_internal
 
+QT_END_NAMESPACE
 
 #endif // WIDGETSELECTION_H

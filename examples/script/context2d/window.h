@@ -16,7 +16,7 @@
 
 #include <QWidget>
 class QContext2DCanvas;
-class QListWidgetItem;
+QT_DECLARE_CLASS(QListWidgetItem)
 
 class Window : public QWidget
 {

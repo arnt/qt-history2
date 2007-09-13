@@ -26,6 +26,8 @@ TRANSLATOR qdesigner_internal::QtBrushEditor
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QMenu>
 
+QT_BEGIN_NAMESPACE
+
 namespace qdesigner_internal {
 
 class QtBrushEditorPrivate
@@ -403,5 +405,7 @@ void QtBrushEditor::contextMenuEvent(QContextMenuEvent *e)
         d_ptr->m_ui.listWidget->editItem(item);
 }
 }
+
+QT_END_NAMESPACE
 
 #include "moc_qtbrusheditor.cpp"

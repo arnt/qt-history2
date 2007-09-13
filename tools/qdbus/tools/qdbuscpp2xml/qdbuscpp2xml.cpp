@@ -29,6 +29,8 @@
 
 #include "qdbusconnection.h"    // for the Export* flags
 
+QT_BEGIN_NAMESPACE
+
 // copied from dbus-protocol.h:
 static const char docTypeHeader[] =
     "<!DOCTYPE node PUBLIC \"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN\" "
@@ -412,5 +414,7 @@ int main(int argc, char **argv)
     output.write("</node>\n");
 
     return 0;
+
+QT_END_NAMESPACE
 }
 

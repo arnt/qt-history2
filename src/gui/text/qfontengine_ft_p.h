@@ -44,6 +44,8 @@
 
 #include <harfbuzz-shaper.h>
 
+QT_BEGIN_NAMESPACE
+
 struct QFreetypeFace
 {
     void computeSize(const QFontDef &fontDef, int *xsize, int *ysize, bool *outline_drawing);
@@ -267,5 +269,8 @@ private:
     mutable bool kerning_pairs_loaded;
 };
 
+QT_END_NAMESPACE
+
 #endif // QT_NO_FREETYPE
+
 #endif // QFONTENGINE_FT_P_H
