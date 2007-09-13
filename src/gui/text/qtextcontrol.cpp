@@ -1904,7 +1904,12 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos, QWidget *pare
         a->setEnabled(!d->doc->isEmpty());
     }
 
+#if defined(Q_WS_WIN)
+    extern bool qt_use_rtl_extensions;
+    if ((d->interactionFlags & Qt::TextEditable) && qt_use_rtl_extensions) {
+#else
     if (d->interactionFlags & Qt::TextEditable) {
+#endif
         menu->addSeparator();
         QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this, menu);
         menu->addMenu(ctrlCharacterMenu);
