@@ -63,6 +63,7 @@ template <const bool isDouble>
 int AbstractFloat<isDouble>::internalSignbit(const xsDouble num)
 {
     Q_ASSERT_X(false, Q_FUNC_INFO, "This hasn't been implemented. We need to reinvent std::signbit().");
+    Q_UNUSED(num);
     return 0;
 }
 
