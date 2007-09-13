@@ -30,9 +30,10 @@
 
 #include <QtCore/qhash.h>
 
+typedef struct _GMainContext GMainContext;
+
 QT_BEGIN_NAMESPACE
 
-typedef struct _GMainContext GMainContext;
 class QEventDispatcherGlibPrivate;
 
 class Q_CORE_EXPORT QEventDispatcherGlib : public QAbstractEventDispatcher
