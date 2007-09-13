@@ -143,8 +143,6 @@ private slots:
     void connectToMultiIP();
     void moveToThread0();
 
-    void httpProxyWithAuthentication();
-
 protected slots:
     void nonBlockingIMAP_hostFound();
     void nonBlockingIMAP_connected();
@@ -174,10 +172,23 @@ private:
     bool readingBody;
     QTime timer;
 
+    mutable int proxyAuthCalled;
 
     bool gotClosedSignal;
     int numConnections;
     static int loopLevel;
+};
+
+enum ProxyTests {
+    NoProxy = 0x00,
+    Socks5Proxy = 0x01,
+    HttpProxy = 0x02,
+    TypeMask = 0x0f,
+
+    NoAuth = 0x00,
+    AuthBasic = 0x10,
+    AuthNtlm = 0x20,
+    AuthMask = 0xf0
 };
 
 int tst_QTcpSocket::loopLevel = 0;
@@ -200,14 +211,20 @@ void tst_QTcpSocket::initTestCase_data()
 
     QTest::newRow("WithoutProxy") << false << 0 << false;
 #ifdef TEST_QNETWORK_PROXY
-    QTest::newRow("WithSocks5Proxy") << true << int(QNetworkProxy::Socks5Proxy) << false;
-    QTest::newRow("WithHttpProxy") << true << int(QNetworkProxy::HttpProxy) << false;
+    QTest::newRow("WithSocks5Proxy") << true << int(Socks5Proxy) << false;
+    QTest::newRow("WithHttpProxy") << true << int(HttpProxy) << false;
+
+    QTest::newRow("WithHttpProxyBasicAuth") << true << int(HttpProxy | AuthBasic) << false;
+    QTest::newRow("WithHttpProxyNtlmAuth") << true << int(HttpProxy | AuthNtlm) << false;
 #endif
 #ifndef QT_NO_OPENSSL
     QTest::newRow("WithoutProxy SSL") << false << 0 << true;
 #ifdef TEST_QNETWORK_PROXY
-    QTest::newRow("WithSocks5Proxy SSL") << true << int(QNetworkProxy::Socks5Proxy) << true;
-    QTest::newRow("WithHttpProxy SSL") << true << int(QNetworkProxy::HttpProxy) << true;
+    QTest::newRow("WithSocks5Proxy SSL") << true << int(Socks5Proxy) << true;
+    QTest::newRow("WithHttpProxy SSL") << true << int(HttpProxy) << true;
+
+    QTest::newRow("WithHttpProxyBasicAuth SSL") << true << int(HttpProxy | AuthBasic) << true;
+    QTest::newRow("WithHttpProxyNtlmAuth SSL") << true << int(HttpProxy | AuthNtlm) << true;
 #endif
 #endif
 }
@@ -218,25 +235,46 @@ void tst_QTcpSocket::init()
     if (setProxy) {
 #ifdef TEST_QNETWORK_PROXY
         QFETCH_GLOBAL(int, proxyType);
-        if (proxyType == QNetworkProxy::Socks5Proxy) {
-            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy,
-                                                             QHostInfo::fromName("fluke.troll.no").addresses().first().toString(), 1080));
-        } else if (proxyType == QNetworkProxy::HttpProxy) {
-            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::HttpProxy,
-                                                             QHostInfo::fromName("fluke.troll.no").addresses().first().toString(), 3128));
+        QString fluke = QHostInfo::fromName("fluke.troll.no").addresses().first().toString();
+        QNetworkProxy proxy;
+
+        switch (proxyType) {
+        case Socks5Proxy:
+            proxy = QNetworkProxy(QNetworkProxy::Socks5Proxy, fluke, 1080);
+            break;
+
+        case HttpProxy | NoAuth:
+            proxy = QNetworkProxy(QNetworkProxy::HttpProxy, fluke, 3128);
+            break;
+
+        case HttpProxy | AuthBasic:
+            proxy = QNetworkProxy(QNetworkProxy::HttpProxy, fluke, 3129);
+            break;
+
+        case HttpProxy | AuthNtlm:
+            proxy = QNetworkProxy(QNetworkProxy::HttpProxy, fluke, 3130);
+            break;
         }
+        QNetworkProxy::setApplicationProxy(proxy);
 #endif
     }
 }
 
 QTcpSocket *tst_QTcpSocket::newSocket() const
 {
+    QTcpSocket *socket;
 #ifndef QT_NO_OPENSSL
     QFETCH_GLOBAL(bool, ssl);
-    return ssl ? new QSslSocket : new QTcpSocket;
+    socket = ssl ? new QSslSocket : new QTcpSocket;
 #else
-    return new QTcpSocket;
+    socket = new QTcpSocket;
 #endif
+
+    proxyAuthCalled = 0;
+    connect(socket, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+            SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+            Qt::DirectConnection);
+    return socket;
 }
 
 void tst_QTcpSocket::cleanup()
@@ -247,6 +285,13 @@ void tst_QTcpSocket::cleanup()
         QNetworkProxy::setApplicationProxy(QNetworkProxy::DefaultProxy);
 #endif
     }
+}
+
+void tst_QTcpSocket::proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth)
+{
+    ++proxyAuthCalled;
+    auth->setUser("qsockstest");
+    auth->setPassword("qsockstest");
 }
 
 //----------------------------------------------------------------------------------
@@ -1032,6 +1077,8 @@ protected:
         socket = new QTcpSocket;
         connect(socket, SIGNAL(readyRead()), this, SLOT(getData()), Qt::DirectConnection);
         connect(socket, SIGNAL(disconnected()), this, SLOT(closed()), Qt::DirectConnection);
+        connect(socket, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+                SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)), Qt::DirectConnection);
 
         socket->connectToHost("fluke.troll.no", 21);
         socket->write("QUIT\r\n");
@@ -1049,6 +1096,11 @@ private slots:
     inline void closed()
     {
         quit();
+    }
+    inline void proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth)
+    {
+        auth->setUser("qsockstest");
+        auth->setPassword("qsockstest");
     }
 private:
     int exitCode;
@@ -1296,6 +1348,8 @@ public:
 #endif
         sock = new QTcpSocket;
         connect(sock, SIGNAL(connected()), this, SLOT(connectedToIt()));
+        connect(sock, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+                SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
     }
 
     inline ~Foo()
@@ -1323,6 +1377,12 @@ public slots:
     inline void exitLoop()
     {
         tst_QTcpSocket::exitLoop();
+    }
+
+    inline void proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth)
+    {
+        auth->setUser("qsockstest");
+        auth->setPassword("qsockstest");
     }
 };
 
@@ -1507,6 +1567,7 @@ void tst_QTcpSocket::readWriteFailsOnUnconnectedSocket()
     delete socket;
 }
 
+//----------------------------------------------------------------------------------
 void tst_QTcpSocket::connectionRefused()
 {
     qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
@@ -1535,6 +1596,7 @@ void tst_QTcpSocket::connectionRefused()
     delete socket;
 }
 
+//----------------------------------------------------------------------------------
 void tst_QTcpSocket::suddenRemoteDisconnect_data()
 {
     QTest::addColumn<QString>("client");
@@ -1604,7 +1666,7 @@ void tst_QTcpSocket::connectToMultiIP()
         return;
     QFETCH_GLOBAL(bool, setProxy);
     if (setProxy)
-        ;//QSKIP("This test takes too long if we also add the proxies.", SkipSingle);
+        QSKIP("This test takes too long if we also add the proxies.", SkipSingle);
 
     qDebug("Please wait, this test can take a while...");
 
@@ -1628,84 +1690,56 @@ void tst_QTcpSocket::connectToMultiIP()
     delete socket;
 }
 
-static bool proxyAuthCalled;
-void tst_QTcpSocket::proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth)
-{
-    proxyAuthCalled = true;
-    auth->setUser("foo");
-    auth->setPassword("bar");
-}
-
-void tst_QTcpSocket::httpProxyWithAuthentication()
-{
-    QFETCH_GLOBAL(bool, setProxy);
-    if (setProxy)
-        return;
-
-    QTcpSocket *socket = newSocket();
-    socket->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, "fluke.troll.no", 3129));
-
-    proxyAuthCalled = false;
-    connect(socket, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
-            SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
-    connect(socket, SIGNAL(connected()), &QTestEventLoop::instance(), SLOT(exitLoop()));
-
-#ifndef QT_NO_OPENSSL
-    QFETCH_GLOBAL(bool, ssl);
-    if (ssl) {
-        static_cast<QSslSocket *>(socket)->connectToHostEncrypted("fluke.troll.no", 443);
-    } else
-#endif
-        socket->connectToHost("fluke.troll.no", 80);
-
-    QTestEventLoop::instance().enterLoop(2);
-    delete socket;
-    QVERIFY(!QTestEventLoop::instance().timeout());
-    QVERIFY(proxyAuthCalled);
-}
-
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::moveToThread0()
 {
+    QFETCH_GLOBAL(int, proxyType);
+    if (proxyType & AuthMask)
+        return;
+
     {
         // Case 1: Moved after connecting, before waiting for connection.
-        QTcpSocket socket;
-        socket.connectToHost("fluke.troll.no", 143);
-        socket.moveToThread(0);
-        QVERIFY(socket.waitForConnected(1000));
-        socket.write("XXX LOGOUT\r\n");
-        QVERIFY(socket.waitForBytesWritten(5000));
-        QVERIFY(socket.waitForDisconnected());
+        QTcpSocket *socket = newSocket();;
+        socket->connectToHost("fluke.troll.no", 143);
+        socket->moveToThread(0);
+        QVERIFY(socket->waitForConnected(1000));
+        socket->write("XXX LOGOUT\r\n");
+        QVERIFY(socket->waitForBytesWritten(5000));
+        QVERIFY(socket->waitForDisconnected());
+        delete socket;
     }
     {
         // Case 2: Moved before connecting
-        QTcpSocket socket;
-        socket.moveToThread(0);
-        socket.connectToHost("fluke.troll.no", 143);
-        QVERIFY(socket.waitForConnected(1000));
-        socket.write("XXX LOGOUT\r\n");
-        QVERIFY(socket.waitForBytesWritten(5000));
-        QVERIFY(socket.waitForDisconnected());
+        QTcpSocket *socket = newSocket();
+        socket->moveToThread(0);
+        socket->connectToHost("fluke.troll.no", 143);
+        QVERIFY(socket->waitForConnected(1000));
+        socket->write("XXX LOGOUT\r\n");
+        QVERIFY(socket->waitForBytesWritten(5000));
+        QVERIFY(socket->waitForDisconnected());
+        delete socket;
     }
     {
         // Case 3: Moved after writing, while waiting for bytes to be written.
-        QTcpSocket socket;
-        socket.connectToHost("fluke.troll.no", 143);
-        QVERIFY(socket.waitForConnected(1000));
-        socket.write("XXX LOGOUT\r\n");
-        socket.moveToThread(0);
-        QVERIFY(socket.waitForBytesWritten(5000));
-        QVERIFY(socket.waitForDisconnected());
+        QTcpSocket *socket = newSocket();
+        socket->connectToHost("fluke.troll.no", 143);
+        QVERIFY(socket->waitForConnected(1000));
+        socket->write("XXX LOGOUT\r\n");
+        socket->moveToThread(0);
+        QVERIFY(socket->waitForBytesWritten(5000));
+        QVERIFY(socket->waitForDisconnected());
+        delete socket;
     }
     {
         // Case 4: Moved after writing, while waiting for response.
-        QTcpSocket socket;
-        socket.connectToHost("fluke.troll.no", 143);
-        QVERIFY(socket.waitForConnected(1000));
-        socket.write("XXX LOGOUT\r\n");
-        QVERIFY(socket.waitForBytesWritten(5000));
-        socket.moveToThread(0);
-        QVERIFY(socket.waitForDisconnected());
+        QTcpSocket *socket = newSocket();
+        socket->connectToHost("fluke.troll.no", 143);
+        QVERIFY(socket->waitForConnected(1000));
+        socket->write("XXX LOGOUT\r\n");
+        QVERIFY(socket->waitForBytesWritten(5000));
+        socket->moveToThread(0);
+        QVERIFY(socket->waitForDisconnected());
+        delete socket;
     }
 }
 
