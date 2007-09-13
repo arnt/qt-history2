@@ -20,6 +20,7 @@
 #include "qwsdisplay_qws.h"
 #include "qmouse_qws.h"
 #include "qcopchannel_qws.h"
+#include "qwssocket_qws.h"
 
 #include "qapplication.h"
 #include "private/qapplication_p.h"
