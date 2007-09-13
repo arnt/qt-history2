@@ -62,12 +62,8 @@ AtomicValue::Ptr AbstractFloat<isDouble>::fromLexical(const QString &strNumeric)
 template <const bool isDouble>
 int AbstractFloat<isDouble>::internalSignbit(const xsDouble num)
 {
-#ifdef Q_OS_WIN32
-    Q_ASSERT_X(false, Q_FUNC_INFO, "This hasn't been implemented on Windows. How does one implement signbit() on Windows?");
+    Q_ASSERT_X(false, Q_FUNC_INFO, "This hasn't been implemented. We need to reinvent std::signbit().");
     return 0;
-#else
-    return std::signbit(num);
-#endif
 }
 
 template <const bool isDouble>

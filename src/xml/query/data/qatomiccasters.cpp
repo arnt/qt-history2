@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#include <cmath>
-
 #include <qnumeric.h>
 
 #include "qabstractfloat_p.h"

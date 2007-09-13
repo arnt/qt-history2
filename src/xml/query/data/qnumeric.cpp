@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <cmath>
+#include <math.h>
 
 #include "qboolean_p.h"
 #include "qbuiltintypes_p.h"

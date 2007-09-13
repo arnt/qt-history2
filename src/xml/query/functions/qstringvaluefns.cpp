@@ -11,10 +11,6 @@
 **
 ****************************************************************************/
 
-#include <cmath>
-
-#include <QUrl>
-
 #include "qabstractfloat_p.h"
 #include "qcommonvalues_p.h"
 #include "qdebug_p.h"

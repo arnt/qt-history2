@@ -74,7 +74,7 @@ QString Decimal::toString(const xsDecimal value)
      * from an xs:decimal to an xs:integer and the resulting xs:integer is
      * converted to an xs:string using the rule above.
      */
-    if(Double::isEqual(std::floor(value), value))
+    if(Double::isEqual(::floor(value), value))
     {
         /* The static_cast is identical to Integer::toInteger(). */
         return QString::number(static_cast<xsInteger>(value));

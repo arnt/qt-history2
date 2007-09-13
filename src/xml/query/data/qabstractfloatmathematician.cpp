@@ -58,7 +58,7 @@ Item AbstractFloatMathematician<isDouble>::calculate(const Item &o1,
         case Substract:
             return toItem(AbstractFloat<isDouble>::fromValue(num1->toDouble() - num2->toDouble()));
         case Mod:
-            return toItem(AbstractFloat<isDouble>::fromValue(std::fmod(num1->toDouble(), num2->toDouble())));
+            return toItem(AbstractFloat<isDouble>::fromValue(::fmod(num1->toDouble(), num2->toDouble())));
         case Multiply:
             return toItem(AbstractFloat<isDouble>::fromValue(num1->toDouble() * num2->toDouble()));
         case Add:
