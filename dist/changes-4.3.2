@@ -17,6 +17,10 @@ General Improvements
 Q3ButtonGroup
     * [177677] Fixed application freeze when resetting the id of a button inside
       a button group.
+
+Q3FileDialog
+    * [165470] Fixed broken scrolling after toggling between detail/list view mode.
+
 Q3Header
     * [176202] Fixed lead when replacing icons using setLabel()
 
@@ -33,6 +37,7 @@ QTreeView
       with inactive palette role.
     * Fixes many possible crashes when there are pending changes.
     * [177165] Column minimum width could be wrong aénd not depend on the actual text in the header.
+    * [177945] Mac OSX: Fixed a crash when dragging over an empty region.
 
 QTreeWidget
     * [174396] setItemExpanded() could potentially fail.
@@ -49,6 +54,9 @@ QColumnView
     * [170753] When passing an index to select, the full path wasn't selected.
     * [170753] When deselecting an index its parent was getting deselected too.
 
+QDockWidget
+    * [174249] Fixed bug where it was possible to dock into a minimized QMainWindow.
+
 Style Sheets
     * QMainWindow now respects background-image.
     * [171858] QPushButton uses incorrect color used when text-align property is set
@@ -58,6 +66,7 @@ Style Sheets
     * Fixed QComboBox styling bug where the popup would show an extra row when
       a style sheet is used.
     * [177168] Fixed memory leak where QStyleSheetStyle is never destroyed.
+    * [172315] Fixed stack-overflow when using isActiveWindow property as selector.
 
 QFileDialog
     * Possible deadlock
@@ -84,6 +93,18 @@ Qt Script
     * QScriptEngine::evaluate() no longer throws a syntax error in the case where
       the script contains no actual statements.
     * [175714] Fixed parsing of octal numbers on Windows and Mac.
+
+QMdiSubWindow
+    * [176769] Fixed bug where the title bar font was not updated on QEvent::FontChange.
+    * [173087] Double-clicking the system menu does not close the window.
+    * [173363] Fixed bug where the title bar was not immediately updated after changing
+      the window title.
+
+QMdiArea
+    * [173391] (Windows) Fixed bug where a subWindowActivated() signal was not emitted when
+      the top-level window was minimized.
+    * [173628] Fixed bug where it was possible to get into an endless resize loop when using
+      Qt::ScrollBarAsNeeded as scroll bar policy.
 
 Third party components
 ----------------------
