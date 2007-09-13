@@ -1070,6 +1070,17 @@ void tst_QTextEdit::undoRedoShouldRepositionTextEditCursor()
 void tst_QTextEdit::lineWrapModes()
 {
     ed->setLineWrapMode(QTextEdit::NoWrap);
+    // NoWrap at the same time as having all lines that are all left aligned means we optimize to only layout once. The effect is that the width is always 0
+    QVERIFY(ed->document()->pageSize().width() == qreal(0));
+
+    QTextCursor cursor = QTextCursor(ed->document());
+    cursor.insertText(QString("A simple line"));
+    cursor.insertBlock();
+    QTextBlockFormat fmt;
+    fmt.setAlignment(Qt::AlignRight);
+    cursor.mergeBlockFormat(fmt);
+    cursor.insertText(QString("Another line"));
+    ed->show(); // relayout;
     QVERIFY(ed->document()->pageSize().width() > qreal(0));
 
     ed->setLineWrapColumnOrWidth(10);
