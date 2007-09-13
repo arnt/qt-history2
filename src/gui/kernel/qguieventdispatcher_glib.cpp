@@ -22,8 +22,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QT_USE_NAMESPACE
-
 struct GX11EventSource
 {
     GSource source;

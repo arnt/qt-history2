@@ -27,6 +27,8 @@
 
 #include <QtCore/private/qeventdispatcher_glib_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWSEventDispatcherGlibPrivate;
 
 class QWSEventDispatcherGlib : public QEventDispatcherGlib
@@ -42,5 +44,7 @@ public:
 
     void startingUp();
 };
+
+QT_END_NAMESPACE
 
 #endif // QWSEVENTDISPATCHER_GLIB_P_H

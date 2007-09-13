@@ -30,6 +30,7 @@
 
 #include <glib.h>
 
+QT_BEGIN_NAMESPACE
 
 // from qapplication_qws.cpp
 extern QWSDisplay* qt_fbdpy; // QWS `display'
@@ -168,3 +169,5 @@ void QWSEventDispatcherGlib::startingUp()
      d->qwsEventSource->q = this;
      d->qwsEventSource->d = d;
 }
+
+QT_END_NAMESPACE
