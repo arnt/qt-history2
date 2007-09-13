@@ -14,7 +14,7 @@
 #ifndef QABSTRACTMESSAGEHANDLER_H
 #define QABSTRACTMESSAGEHANDLER_H
 
-#include "qsourcelocation.h"
+#include <QtXml/QSourceLocation>
 #include <QtCore/QSharedData>
 #include <QtCore/QtGlobal>
 

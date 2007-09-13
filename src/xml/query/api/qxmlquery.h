@@ -15,10 +15,9 @@
 #define QXMLQUERY_H
 
 #include <QtCore/QUrl>
-
-#include "qabstractmessagehandler.h"
-#include "qabstracturiresolver.h"
-#include "qserializationsettings.h"
+#include <QtXml/QAbstractMessageHandler>
+#include <QtXml/QAbstractUriResolver>
+#include <QtXml/QSerializationSettings>
 
 QT_BEGIN_HEADER
 
