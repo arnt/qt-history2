@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <cmath>
+#include <math.h>
 
 #include "qabstractfloat_p.h"
 #include "qatomictype_p.h"
