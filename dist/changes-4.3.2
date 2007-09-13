@@ -106,6 +106,18 @@ QMdiArea
     * [173628] Fixed bug where it was possible to get into an endless resize loop when using
       Qt::ScrollBarAsNeeded as scroll bar policy.
 
+QTextEdit
+    * [174276] Fix resizing performance with disabled wrapping.
+
+QUtf8Codec
+    * [175794] Fix off-by-one buffer overflow
+
+QLabel
+    * Fix crash when changing contents in slot connected to linkActivated signal.
+
+QPainterPath
+    * Fix addText() with italic fonts.
+
 Third party components
 ----------------------
 
@@ -151,6 +163,7 @@ X11
       on Linux.
     * [177143] Fixed a bug where the last activated QShortcut would be
       incorrectly repeated when opressing a key with no KeySym defined.
+    * [171224] Fix Copy & Paste of Non-Ascii text from Qt 3 to Qt 4 applications.
 
 Windows
 -------
@@ -170,6 +183,7 @@ Mac OS X
 
 Qtopia Core
 -----------
+    * Preserve the font database cache across QWS server restarts.
 
 ****************************************************************************
 *                   Important Behavior Changes
