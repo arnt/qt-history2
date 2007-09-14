@@ -10,7 +10,6 @@
 #include <QtTest/QtTest>
 #include "../qsqldatabase/tst_databases.h"
 #include <QtSql>
-#include <QSignalSpy>
 
 //TESTED_CLASS=
 //TESTED_FILES=sql/models/qsqltablemodel.h sql/models/qsqltablemodel.cpp
