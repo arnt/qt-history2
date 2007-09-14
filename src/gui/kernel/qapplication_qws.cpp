@@ -1969,7 +1969,11 @@ static void init_display()
 
     if (!QApplicationPrivate::app_font) {
         QFont f;
+#ifdef QT_NO_FREETYPE
+        f = QFont(QLatin1String("helvetica"), 10);
+#else
         f = QFont(QLatin1String("DejaVu Sans"), 12);
+#endif
         QApplication::setFont(f);
     }
     qt_set_qws_resources();
