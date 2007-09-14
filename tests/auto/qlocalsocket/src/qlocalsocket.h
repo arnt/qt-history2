@@ -73,7 +73,7 @@ public:
     int socketDescriptor() const;
 
     LocalSocketState state() const;
-    bool waitForBytesWritten(int msecs);
+    bool waitForBytesWritten(int msecs = 30000);
     bool waitForConnected(int msecs = 30000);
     bool waitForDisconnected(int msecs = 30000);
     virtual bool waitForReadyRead(int msecs = 30000);
