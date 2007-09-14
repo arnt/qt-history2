@@ -18,6 +18,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QTreeWidgetItem;
+
 class QtTreePropertyBrowser : public QtAbstractPropertyBrowser
 {
     Q_OBJECT
@@ -74,6 +76,10 @@ protected:
     virtual void itemInserted(QtBrowserItem *item, QtBrowserItem *afterItem);
     virtual void itemRemoved(QtBrowserItem *item);
     virtual void itemChanged(QtBrowserItem *item);
+
+private slots:
+    void slotCurrentBrowserItemChanged(QtBrowserItem *);
+    void slotCurrentTreeItemChanged(QTreeWidgetItem *, QTreeWidgetItem *);
 
 private:
 

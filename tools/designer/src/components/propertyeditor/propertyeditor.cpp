@@ -177,14 +177,9 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     m_buttonAction = new QAction(tr("Drop Down Button View"), this);
     m_buttonAction->setCheckable(true);
     m_buttonAction->setIcon(createIconSet(QLatin1String("dropdownbutton.png")));
-/*
-    m_groupBoxAction = new QAction(tr("Group Box View"), this);
-    m_groupBoxAction->setCheckable(true);
-    m_groupBoxAction->setIcon(createIconSet(QLatin1String("widgets/groupbox.png")));
-*/
+
     actionGroup->addAction(m_treeAction);
     actionGroup->addAction(m_buttonAction);
-//    actionGroup->addAction(m_groupBoxAction);
     m_treeAction->setChecked(true);
     connect(actionGroup, SIGNAL(triggered(QAction *)),
                 this, SLOT(slotViewTriggered(QAction *)));
@@ -240,15 +235,6 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     configureMenu->addSeparator();
     configureMenu->addAction(m_treeAction);
     configureMenu->addAction(m_buttonAction);
-//    configureMenu->addAction(m_groupBoxAction);
-
-/*
-    QScrollArea *groupScroll = new QScrollArea(m_stackedWidget);
-    m_groupBrowser = new QtGroupBoxPropertyBrowser(groupScroll);
-    groupScroll->setWidgetResizable(true);
-    groupScroll->setWidget(m_groupBrowser);
-    m_groupBoxIndex = m_stackedWidget->addWidget(groupScroll);
-*/
 
     QScrollArea *buttonScroll = new QScrollArea(m_stackedWidget);
     m_buttonBrowser = new QtButtonPropertyBrowser(buttonScroll);
@@ -273,7 +259,6 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     treeFactory->setSpacing(0);
     DesignerEditorFactory *groupFactory = new DesignerEditorFactory(m_core, this);
     QtVariantPropertyManager *variantManager = m_propertyManager;
-//    m_groupBrowser->setFactoryForManager(variantManager, groupFactory);
     m_buttonBrowser->setFactoryForManager(variantManager, groupFactory);
     m_treeBrowser->setFactoryForManager(variantManager, treeFactory);
 
@@ -332,9 +317,6 @@ void PropertyEditor::storePropertiesExpansionState(const QList<QtBrowserItem *> 
 
 void PropertyEditor::storeExpansionState()
 {
-//    if (m_groupBrowser == m_currentBrowser)
-//        return;
-
     const QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
     if (m_sorting) {
         storePropertiesExpansionState(items);
@@ -386,9 +368,6 @@ void PropertyEditor::applyPropertiesExpansionState(const QList<QtBrowserItem *> 
 
 void PropertyEditor::applyExpansionState()
 {
-//    if (m_groupBrowser == m_currentBrowser)
-//        return;
-
     const QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
     if (m_sorting) {
         applyPropertiesExpansionState(items);
@@ -443,9 +422,6 @@ void PropertyEditor::fillView()
         while (itProperty.hasNext()) {
             QtVariantProperty *property = itProperty.next().value();
             m_currentBrowser->addProperty(property);
-            //QtBrowserItem *item = m_currentBrowser->addProperty(property);
-            //if (m_currentBrowser == m_treeBrowser)
-            //    m_treeBrowser->setColor(item, propertyColor(property));
         }
     } else {
         QListIterator<QtProperty *> itGroup(m_groups);
@@ -485,11 +461,6 @@ void PropertyEditor::slotViewTriggered(QAction *action)
     } else if (action == m_buttonAction) {
         m_currentBrowser = m_buttonBrowser;
         idx = m_buttonIndex;
-        /*
-    } else {
-        m_currentBrowser = m_groupBrowser;
-        idx = m_groupBoxIndex;
-        */
     }
     fillView();
     m_stackedWidget->setCurrentIndex(idx);
@@ -522,7 +493,6 @@ void PropertyEditor::slotColoring(bool coloring)
         return;
 
     m_coloring = coloring;
-    //m_treeBrowser->setMarkPropertiesWithoutValue(!coloring);
     if (m_currentBrowser == m_treeBrowser) {
         QList<QtBrowserItem *> items = m_treeBrowser->topLevelItems();
         QListIterator<QtBrowserItem *> itItem(items);
@@ -757,7 +727,6 @@ void PropertyEditor::setObject(QObject *object)
             isMainContainer = (fw->mainContainer() == widget);
         }
     }
-
     QStringList dynamicProperties;
     m_groups.clear();
 
@@ -848,7 +817,7 @@ void PropertyEditor::setObject(QObject *object)
                     groupProperty->setToolTip(groupName);
                     QtBrowserItem *item = 0;
                     if (!m_sorting)
-                        item = m_currentBrowser->insertProperty(groupProperty, lastGroup);
+                         item = m_currentBrowser->insertProperty(groupProperty, lastGroup);
                     m_nameToGroup[groupName] = groupProperty;
                     m_groups.append(groupProperty);
                     if (dynamicProperty)
@@ -908,9 +877,25 @@ void PropertyEditor::setObject(QObject *object)
     setUpdatesEnabled(wasEnabled);
 }
 
+QtBrowserItem *PropertyEditor::nonFakePropertyBrowserItem(QtBrowserItem *item) const
+{
+    // Top-level properties are QObject/QWidget groups, etc. Find first item property below
+    // which should be nonfake
+    const QList<QtBrowserItem *> topLevelItems = m_currentBrowser->topLevelItems();
+    do {
+        if (topLevelItems.contains(item->parent()))
+            return item;
+        item = item->parent();
+    } while (item);
+    return 0;
+}
+
 QString PropertyEditor::currentPropertyName() const
 {
-    qDebug() << "PropertyEditor::currentPropertyName() request";
+    if (QtBrowserItem *browserItem = m_currentBrowser->currentItem())
+        if (QtBrowserItem *topLevelItem = nonFakePropertyBrowserItem(browserItem)) {
+            return topLevelItem->property()->propertyName();
+        }
     return QString();
 }
 

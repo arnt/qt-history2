@@ -27,7 +27,6 @@ class QDesignerMetaDataBaseItemInterface;
 class QDesignerPropertySheetExtension;
 
 class QtAbstractPropertyBrowser;
-//class QtGroupBoxPropertyBrowser;
 class QtButtonPropertyBrowser;
 class QtTreePropertyBrowser;
 class QtProperty;
@@ -95,12 +94,12 @@ private:
     bool isLayoutGroup(QtProperty *group) const;
     QColor propertyColor(QtProperty *property) const;
     void updateActionsState();
+    QtBrowserItem *nonFakePropertyBrowserItem(QtBrowserItem *item) const;
 
     QDesignerFormEditorInterface *m_core;
     QDesignerPropertySheetExtension *m_propertySheet;
     QtAbstractPropertyBrowser *m_currentBrowser;
     QtButtonPropertyBrowser *m_buttonBrowser;
-//    QtGroupBoxPropertyBrowser *m_groupBrowser;
     QtTreePropertyBrowser *m_treeBrowser;
     DesignerPropertyManager *m_propertyManager;
     QPointer<QObject> m_object;
@@ -115,7 +114,6 @@ private:
     QSignalMapper *m_removeMapper;
 
     QStackedWidget *m_stackedWidget;
-//    int m_groupBoxIndex;
     int m_buttonIndex;
     int m_treeIndex;
     QAction *m_addDynamicAction;
@@ -124,7 +122,6 @@ private:
     QAction *m_sortingAction;
     QAction *m_coloringAction;
     QAction *m_treeAction;
-//    QAction *m_groupBoxAction;
     QAction *m_buttonAction;
     QLabel *m_classLabel;
 

@@ -74,23 +74,6 @@ namespace {
         ManagedWidgetSelection };
 
     typedef QVector<QObject*> QObjectVector;
-
-    // Event filter to be installed on the treeview viewport
-    // that suppresses a range selection by dragging
-    // which does not really work due to the need to maintain
-    // a consistent selection
-    class ObjectInspectorEventFilter :public QObject {
-    public:
-        ObjectInspectorEventFilter(QObject *parent) : QObject(parent) {}
-
-        bool eventFilter(QObject * /*watched*/, QEvent *event )  {
-            if (event->type() == QEvent::MouseMove) {
-                event->ignore();
-                return true;
-            }
-            return false;
-        }
-    };
 }
 
 static inline SelectionType selectionType(const QDesignerFormWindowInterface *fw, QObject *o)
@@ -135,6 +118,58 @@ QWidget *ObjectInspectorDelegate::createEditor(QWidget *parent, const QStyleOpti
     const bool isMainContainer = !index.parent().isValid();
     return new TextPropertyEditor(parent, TextPropertyEditor::EmbeddingTreeView,
                                   isMainContainer ? ValidationObjectNameScope : ValidationObjectName);
+}
+
+// ------------ ObjectInspectorTreeView:
+// - Makes the Space key start editing
+// - Suppresses a range selection by dragging or Shift-up/down, which does not really work due
+//   to the need to maintain a consistent selection.
+
+class ObjectInspectorTreeView : public TreeView {
+public:
+    ObjectInspectorTreeView(TreeWidgetDelegate *delegate);
+
+protected:
+    virtual void mouseMoveEvent (QMouseEvent * event);
+    virtual void keyPressEvent(QKeyEvent *event);
+
+};
+
+ObjectInspectorTreeView::ObjectInspectorTreeView(TreeWidgetDelegate *delegate) :
+     TreeView(delegate)
+{
+}
+
+void ObjectInspectorTreeView::mouseMoveEvent(QMouseEvent *event)
+{
+    event->ignore(); // suppress a range selection by dragging
+}
+
+void ObjectInspectorTreeView::keyPressEvent(QKeyEvent *event)
+{
+    bool handled = false;
+    switch (event->key()) {
+    case Qt::Key_Up:
+    case Qt::Key_Down: // suppress shift-up/down range selection
+        if (event->modifiers() & Qt::ShiftModifier) {
+            event->ignore();
+            handled = true;
+        }
+        break;
+    case Qt::Key_Space: { // Space pressed: Start editing
+        const QModelIndex index = currentIndex();
+        if (index.isValid() && index.column() == 0 && !model()->hasChildren(index) && model()->flags(index) & Qt::ItemIsEditable) {
+            event->accept();
+            handled = true;
+            edit(index);
+        }
+    }
+        break;
+    default:
+        break;
+    }
+    if (!handled)
+        TreeView::keyPressEvent(event);
 }
 
 // ------------ ObjectInspectorPrivate
@@ -184,7 +219,7 @@ private:
 
 ObjectInspector::ObjectInspectorPrivate::ObjectInspectorPrivate(QDesignerFormEditorInterface *core) :
     m_core(core),
-    m_treeView(new TreeView(new ObjectInspectorDelegate)),
+    m_treeView(new ObjectInspectorTreeView(new ObjectInspectorDelegate)),
     m_model(new ObjectInspectorModel(m_treeView)),
     m_withinClearSelection(false)
 {
@@ -195,7 +230,6 @@ ObjectInspector::ObjectInspectorPrivate::ObjectInspectorPrivate(QDesignerFormEdi
     m_treeView->setTextElideMode (Qt::ElideMiddle);
 
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    m_treeView->viewport()->installEventFilter(new ObjectInspectorEventFilter(m_treeView));
 }
 
 void ObjectInspector::ObjectInspectorPrivate::clearSelection()

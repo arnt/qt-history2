@@ -233,6 +233,12 @@ public:
 
     void unsetFactoryForManager(QtAbstractPropertyManager *manager);
 
+    QtBrowserItem *currentItem() const;
+    void setCurrentItem(QtBrowserItem *);
+
+Q_SIGNALS:
+    void currentItemChanged(QtBrowserItem *);
+
 public Q_SLOTS:
 
     QtBrowserItem *addProperty(QtProperty *property);

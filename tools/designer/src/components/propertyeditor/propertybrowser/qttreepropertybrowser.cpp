@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
-**
+*
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
 ** $TROLLTECH_DUAL_LICENSE$
@@ -13,6 +13,7 @@
 
 #include "qttreepropertybrowser.h"
 #include <QtCore/QSet>
+#include <QtCore/QDebug>
 #include <QtGui/QIcon>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QItemDelegate>
@@ -30,8 +31,9 @@ class QtTreePropertyBrowserPrivate
 {
     QtTreePropertyBrowser *q_ptr;
     Q_DECLARE_PUBLIC(QtTreePropertyBrowser)
-public:
 
+public:
+    QtTreePropertyBrowserPrivate();
     void init(QWidget *parent);
 
     void propertyInserted(QtBrowserItem *index, QtBrowserItem *afterIndex);
@@ -54,6 +56,9 @@ public:
     QtPropertyEditorView *treeWidget() const { return m_treeWidget; }
     bool markPropertiesWithoutValue() const { return m_markPropertiesWithoutValue; }
 
+    QtBrowserItem *currentItem() const;
+    void setCurrentItem(QtBrowserItem *browserItem, bool block);
+
 private:
     void updateItem(QTreeWidgetItem *item);
 
@@ -68,8 +73,10 @@ private:
     QtTreePropertyBrowser::ResizeMode m_resizeMode;
     class QtPropertyEditorDelegate *m_delegate;
     bool m_markPropertiesWithoutValue;
+    bool m_browserChangedBlocked;
 };
 
+// ------------ QtPropertyEditorView
 class QtPropertyEditorView : public QTreeWidget
 {
     Q_OBJECT
@@ -81,9 +88,11 @@ public:
 
     QTreeWidgetItem *indexToItem(const QModelIndex &index) const
         { return itemFromIndex(index); }
-protected:
 
+protected:
+    void keyPressEvent(QKeyEvent *event);
     void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 private:
     QtTreePropertyBrowserPrivate *m_editorPrivate;
 };
@@ -123,6 +132,33 @@ void QtPropertyEditorView::drawRow(QPainter *painter, const QStyleOptionViewItem
     painter->restore();
 }
 
+void QtPropertyEditorView::keyPressEvent(QKeyEvent *event)
+{
+    bool handled = false;
+    switch (event->key()) {
+    case Qt::Key_Space: // Trigger Edit
+        if (const QTreeWidgetItem *item = currentItem()) {
+            if (item->columnCount() >= 2 && item->flags() & Qt::ItemIsEditable) {
+                event->accept();
+                handled = true;
+                // If the current position is at column 0, move to 1.
+                QModelIndex index = currentIndex();
+                if (index.column() == 0) {
+                    index = index.sibling(index.row(), 1);
+                    setCurrentIndex(index);
+                }
+                edit(index);
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    if (!handled)
+        QTreeWidget::keyPressEvent(event);
+}
+
+// ------------ QtPropertyEditorDelegate
 class QtPropertyEditorDelegate : public QItemDelegate
 {
     Q_OBJECT
@@ -301,12 +337,19 @@ bool QtPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
     return QItemDelegate::eventFilter(object, event);
 }
 
+//  -------- QtTreePropertyBrowserPrivate implementation
+QtTreePropertyBrowserPrivate::QtTreePropertyBrowserPrivate() :
+    m_treeWidget(0),
+    m_headerVisible(true),
+    m_resizeMode(QtTreePropertyBrowser::Stretch),
+    m_delegate(0),
+    m_markPropertiesWithoutValue(false),
+    m_browserChangedBlocked(false)
+{
+}
+
 void QtTreePropertyBrowserPrivate::init(QWidget *parent)
 {
-    m_headerVisible = true;
-    m_markPropertiesWithoutValue = false;
-
-    m_resizeMode = QtTreePropertyBrowser::Stretch;
     QHBoxLayout *layout = new QHBoxLayout(parent);
     layout->setMargin(0);
     m_treeWidget = new QtPropertyEditorView(parent);
@@ -319,7 +362,7 @@ void QtTreePropertyBrowserPrivate::init(QWidget *parent)
     labels.append(QApplication::translate("QtTreePropertyBrowser", "Value", 0, QApplication::UnicodeUTF8));
     m_treeWidget->setHeaderLabels(labels);
     m_treeWidget->setAlternatingRowColors(true);
-    m_treeWidget->setEditTriggers(QAbstractItemView::CurrentChanged | QAbstractItemView::SelectedClicked);
+    m_treeWidget->setEditTriggers(QAbstractItemView::EditKeyPressed | QAbstractItemView::DoubleClicked |  QAbstractItemView::SelectedClicked);
     m_delegate = new QtPropertyEditorDelegate(parent);
     m_delegate->setEditorPrivate(this);
     m_treeWidget->setItemDelegate(m_delegate);
@@ -328,6 +371,25 @@ void QtTreePropertyBrowserPrivate::init(QWidget *parent)
 
     QObject::connect(m_treeWidget, SIGNAL(collapsed(const QModelIndex &)), q_ptr, SLOT(slotCollapsed(const QModelIndex &)));
     QObject::connect(m_treeWidget, SIGNAL(expanded(const QModelIndex &)), q_ptr, SLOT(slotExpanded(const QModelIndex &)));
+    QObject::connect(m_treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), q_ptr, SLOT(slotCurrentTreeItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
+}
+
+QtBrowserItem *QtTreePropertyBrowserPrivate::currentItem() const
+{
+    if (QTreeWidgetItem *treeItem = m_treeWidget->currentItem())
+        return m_itemToIndex.value(treeItem);
+    return 0;
+}
+
+void QtTreePropertyBrowserPrivate::setCurrentItem(QtBrowserItem *browserItem, bool block)
+{
+    const bool blocked = block ? m_treeWidget->blockSignals(true) : false;
+    if (browserItem == 0)
+        m_treeWidget->setCurrentItem(0);
+    else
+        m_treeWidget->setCurrentItem(m_indexToItem.value(browserItem));
+    if (block)
+        m_treeWidget->blockSignals(blocked);
 }
 
 QtProperty *QtTreePropertyBrowserPrivate::indexToProperty(const QModelIndex &index) const
@@ -545,6 +607,7 @@ QtTreePropertyBrowser::QtTreePropertyBrowser(QWidget *parent)
     d_ptr->q_ptr = this;
 
     d_ptr->init(this);
+    connect(this, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(slotCurrentBrowserItemChanged(QtBrowserItem*)));
 }
 
 /*!
@@ -755,6 +818,20 @@ void QtTreePropertyBrowser::itemRemoved(QtBrowserItem *item)
 void QtTreePropertyBrowser::itemChanged(QtBrowserItem *item)
 {
     d_ptr->propertyChanged(item);
+}
+
+void QtTreePropertyBrowser::slotCurrentBrowserItemChanged(QtBrowserItem *item)
+{
+    if (!d_ptr->m_browserChangedBlocked && item != d_ptr->currentItem())
+        d_ptr->setCurrentItem(item, true);
+}
+
+void QtTreePropertyBrowser::slotCurrentTreeItemChanged(QTreeWidgetItem *newItem, QTreeWidgetItem *)
+{
+    QtBrowserItem *browserItem = newItem ? d_ptr->m_itemToIndex.value(newItem) : 0;
+    d_ptr->m_browserChangedBlocked = true;
+    setCurrentItem(browserItem);
+    d_ptr->m_browserChangedBlocked = false;
 }
 
 QT_END_NAMESPACE

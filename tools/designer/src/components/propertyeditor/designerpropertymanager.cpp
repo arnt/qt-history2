@@ -1224,14 +1224,7 @@ bool DesignerPropertyManager::resetFontSubProperty(QtProperty *property)
     return true;
 }
 // -------- DesignerEditorFactory
-//
-//   ResetDecorator *m_resetDecorator;
-    bool m_changingPropertyValue;
-    QDesignerFormEditorInterface *m_core;
 
-    int m_spacing;
-
-//
 DesignerEditorFactory::DesignerEditorFactory(QDesignerFormEditorInterface *core, QObject *parent) :
     QtVariantEditorFactory(parent),
     m_resetDecorator(new ResetDecorator(this)),

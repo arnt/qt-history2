@@ -1160,6 +1160,8 @@ class QtAbstractPropertyBrowserPrivate
     QtAbstractPropertyBrowser *q_ptr;
     Q_DECLARE_PUBLIC(QtAbstractPropertyBrowser)
 public:
+    QtAbstractPropertyBrowserPrivate();
+
     void insertSubTree(QtProperty *property,
             QtProperty *parentProperty);
     void removeSubTree(QtProperty *property,
@@ -1183,7 +1185,14 @@ public:
     QMap<QtProperty *, QtBrowserItem *> m_topLevelPropertyToIndex;
     QList<QtBrowserItem *> m_topLevelIndexes;
     QMap<QtProperty *, QList<QtBrowserItem *> > m_propertyToIndexes;
+
+    QtBrowserItem *m_currentItem;
 };
+
+QtAbstractPropertyBrowserPrivate::QtAbstractPropertyBrowserPrivate() :
+   m_currentItem(0)
+{
+}
 
 void QtAbstractPropertyBrowserPrivate::insertSubTree(QtProperty *property,
             QtProperty *parentProperty)
@@ -1919,6 +1928,18 @@ void QtAbstractPropertyBrowser::unsetFactoryForManager(QtAbstractPropertyManager
     }
 }
 
-QT_END_NAMESPACE
+QtBrowserItem *QtAbstractPropertyBrowser::currentItem() const
+{
+    return d_ptr->m_currentItem;
+}
 
+void QtAbstractPropertyBrowser::setCurrentItem(QtBrowserItem *item)
+{
+    QtBrowserItem *oldItem = d_ptr->m_currentItem;
+    d_ptr->m_currentItem = item;
+    if (oldItem != item)
+        emit  currentItemChanged(item);
+}
+
+QT_END_NAMESPACE
 #include "moc_qtpropertybrowser.cpp"
