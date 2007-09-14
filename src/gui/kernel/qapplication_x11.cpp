@@ -3695,7 +3695,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 #if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET)
             QTabletDeviceDataList *tablets = qt_tablet_devices();
             for (int i = 0; i < tablets->size(); ++i) {
-                const TabletDeviceData &tab = tablets->at(i);
+                const QTabletDeviceData &tab = tablets->at(i);
                 XEvent myEv;
                 if (XCheckTypedEvent(X11->display, tab.xinput_button_press, &myEv)) {
                         if (translateXinputEvent(&myEv, &tab)) {
@@ -3733,7 +3733,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 #if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET)
             QTabletDeviceDataList *tablets = qt_tablet_devices();
             for (int i = 0; i < tablets->size(); ++i) {
-                const TabletDeviceData &tab = tablets->at(i);
+                const QTabletDeviceData &tab = tablets->at(i);
                 XEvent myEv;
                 if (XCheckTypedEvent(X11->display, tab.xinput_button_press, &myEv)) {
                         if (translateXinputEvent(&myEv, &tab)) {
