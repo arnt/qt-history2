@@ -416,12 +416,15 @@ void tst_QColumnView::scrollTo()
     view.scrollTo(index, QAbstractItemView::EnsureVisible);
     QCOMPARE(view.HorizontalOffset(), 0);
 
+    // Embedded requires that at least one widget have focus
+    QWidget w;
+    w.show();
+
     if (giveFocus)
         view.setFocus(Qt::OtherFocusReason);
     else
         view.clearFocus();
-    qApp->processEvents();
-    QCOMPARE(view.hasFocus(), giveFocus);
+    TRY_COMPARE(view.hasFocus(), giveFocus);
     // scroll to the right
     int level = 0;
     int last = view.HorizontalOffset();
