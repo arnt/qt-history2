@@ -20,7 +20,7 @@ no-png {
 }
 
 # Patternist use member templates and exceptions.
-!linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia):contains(CONFIG, exceptions_off): SUBDIRS += patternist
+!linux-icc*:!win32-msvc:!hpux-acc*:!hpuxi-acc*:!contains(QT_CONFIG,qtopia):!contains(CONFIG, exceptions_off): SUBDIRS += patternist
 
 CONFIG+=ordered
 QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"
