@@ -918,17 +918,6 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
     return best;
 }
 
-
-
-// ### remove for qt 5.0
-void Q_GUI_EXPORT qt_printdialog_add_extension_tab(QPrintDialog *,
-                                                   QWidget *,
-                                                   const QString &,
-                                                   const QString &)
-{
-    // this is replaced by public/protected API in 4.4
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 QPrintDialogPrivate::QPrintDialogPrivate()
