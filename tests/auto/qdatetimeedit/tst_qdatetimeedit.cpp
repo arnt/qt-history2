@@ -46,9 +46,6 @@
 #include <QTimeEdit>
 #include <QMetaType>
 #include <QDebug>
-#include <QTest>
-#include <QSignalSpy>
-#include <QTestEventList>
 #include <QWheelEvent>
 
 #ifdef Q_OS_WIN
