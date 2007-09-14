@@ -994,26 +994,18 @@ void tst_QHttp::caseInsensitiveKeys()
 void tst_QHttp::proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *auth)
 {
     proxyAuthCalled = true;
-    auth->setUser("foo");
-    auth->setPassword("bar");
+    auth->setUser("qsockstest");
+    auth->setPassword("qsockstest");
 }
 
 void tst_QHttp::postAuthNtlm()
 {
-    // This test is not stable enough to be run at all times.
-    // The proxy server this tries to connect to (the Win2003 Server "macondo") is
-    // constantly crashing. It does not do the actual download either -- it's only
-    // there for the NTLM negotiation testing.
-    //
-    // This was added in response to bug 176822
-    QSKIP("This test is disabled - read comments in the source code", SkipAll);
-
     QHostInfo info = QHostInfo::fromName(QHostInfo::localHostName());
     QByteArray postData("Hello World");
     QHttp http;
 
-    http.setHost("ares.troll.no");
-    http.setProxy("10.3.3.250", 8080);
+    http.setHost("fluke.troll.no");
+    http.setProxy("fluke.troll.no", 3130);
     http.post("/", postData);
 
     proxyAuthCalled = false;
