@@ -139,8 +139,8 @@ QGLPixelBuffer::~QGLPixelBuffer()
     if (current != d->qctx)
         makeCurrent();
     qgl_cleanup_glyph_cache(d->qctx);
-    delete d->qctx;
     d->cleanup();
+    delete d->qctx;
     if (current && current != d->qctx)
         current->makeCurrent();
     delete d_ptr;
@@ -314,24 +314,24 @@ QImage QGLPixelBuffer::toImage() const
     int h = d->req_size.height();
     glReadPixels(0, 0, d->req_size.width(), d->req_size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
-	// OpenGL gives RGBA; Qt wants ARGB
-	uint *p = (uint*)img.bits();
-	uint *end = p + w*h;
-	if (1) {
-	    while (p < end) {
-		uint a = *p << 24;
-		*p = (*p >> 8) | a;
-		p++;
-	    }
-	} else {
-	    while (p < end) {
-		*p = 0xFF000000 | (*p>>8);
-		++p;
-	    }
-	}
+        // OpenGL gives RGBA; Qt wants ARGB
+        uint *p = (uint*)img.bits();
+        uint *end = p + w*h;
+        if (1) {
+            while (p < end) {
+                uint a = *p << 24;
+                *p = (*p >> 8) | a;
+                p++;
+            }
+        } else {
+            while (p < end) {
+                *p = 0xFF000000 | (*p>>8);
+                ++p;
+            }
+        }
     } else {
-	// OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
-	img = img.rgbSwapped();
+        // OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
+        img = img.rgbSwapped();
     }
     return img.mirrored();
 }
