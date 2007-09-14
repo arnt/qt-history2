@@ -908,7 +908,7 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     Q_Q(QWidget);
     if (!rgn.isEmpty()) {
-        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
+        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created) || q->effectiveWinId());
         QRegion wrgn = rgn;
         if (data.wrect.isValid())
             wrgn.translate(-data.wrect.topLeft());
