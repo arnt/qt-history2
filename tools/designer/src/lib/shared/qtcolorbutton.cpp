@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qtcolorbutton.h"
+#include "qtcolorbutton_p.h"
 #include <QtGui/QColorDialog>
 #include <QtGui/QPainter>
 
@@ -60,6 +60,11 @@ QtColorButton::~QtColorButton()
     delete d_ptr;
 }
 
+void QtColorButton::slotEditColor()
+{
+    d_ptr->slotEditColor();
+}
+
 void QtColorButton::setColor(const QColor &color)
 {
     if (d_ptr->m_color == color)
@@ -88,11 +93,11 @@ bool QtColorButton::backgroundTransparent() const
 
 void QtColorButton::paintEvent(QPaintEvent *e)
 {
+    enum { corr = 2, pixSize = 20 };
     QToolButton::paintEvent(e);
     if (!isEnabled())
         return;
 
-    int pixSize = 20;
     QBrush br(d_ptr->m_color);
     if (!d_ptr->m_backgroundTransparent) {
         QPixmap pm(2 * pixSize, 2 * pixSize);
@@ -106,13 +111,10 @@ void QtColorButton::paintEvent(QPaintEvent *e)
     }
 
     QPainter p(this);
-    int corr = 2;
-    QRect r = rect().adjusted(corr, corr, -corr, -corr);
+    const QRect r = rect().adjusted(corr, corr, -corr, -corr);
     p.setBrushOrigin((r.width() % pixSize + pixSize) / 2 + corr, (r.height() % pixSize + pixSize) / 2 + corr);
     p.fillRect(r, br);
 }
 }
 
 QT_END_NAMESPACE
-
-#include "moc_qtcolorbutton.cpp"

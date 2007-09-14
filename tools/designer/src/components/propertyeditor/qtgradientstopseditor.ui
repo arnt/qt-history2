@@ -383,7 +383,7 @@
   <customwidget>
    <class>qdesigner_internal::QtColorButton</class>
    <extends>QToolButton</extends>
-   <header>qtcolorbutton.h</header>
+   <header>qtcolorbutton_p.h</header>
   </customwidget>
   <customwidget>
    <class>qdesigner_internal::QtGradientStopsWidget</class>

@@ -19,10 +19,10 @@ TRANSLATOR qdesigner_internal::PaletteModel
 */
 
 #include "paletteeditor.h"
-#include "qtcolorbutton.h"
 #include "findicondialog_p.h"
 
 #include <iconloader_p.h>
+#include <qtcolorbutton_p.h>
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>

@@ -14,13 +14,14 @@
 #ifndef QTCOLORBUTTON_H
 #define QTCOLORBUTTON_H
 
+#include "shared_global_p.h"
 #include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
 
 namespace qdesigner_internal {
 
-class QtColorButton : public QToolButton
+class  QDESIGNER_SHARED_EXPORT QtColorButton : public QToolButton
 {
     Q_OBJECT
     Q_PROPERTY(bool backgroundTransparent READ backgroundTransparent WRITE setBackgroundTransparent)
@@ -36,13 +37,17 @@ public:
 
 signals:
     void colorChanged(const QColor &color);
+
 protected:
     void paintEvent(QPaintEvent *e);
+
+private slots:
+    void slotEditColor();
+
 private:
     class QtColorButtonPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QtColorButton)
     Q_DISABLE_COPY(QtColorButton)
-    Q_PRIVATE_SLOT(d_func(), void slotEditColor())
 };
 
 }

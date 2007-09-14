@@ -58,6 +58,7 @@ HEADERS += \
     $$PWD/qdesigner_toolbar_p.h \
     $$PWD/qdesigner_menubar_p.h \
     $$PWD/qdesigner_menu_p.h \
+    $$PWD/qtcolorbutton_p.h\
     $$PWD/actionprovider_p.h \
     $$PWD/orderdialog_p.h \
     $$PWD/newactiondialog_p.h \
@@ -106,6 +107,7 @@ SOURCES += \
     $$PWD/qdesigner_objectinspector.cpp \
     $$PWD/qdesigner_integration.cpp \
     $$PWD/qdesigner_dnditem.cpp \
+    $$PWD/qtcolorbutton.cpp \
     $$PWD/qsimpleresource.cpp \
     $$PWD/invisible_widget.cpp \
     $$PWD/qlayout_widget.cpp \
