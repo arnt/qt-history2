@@ -236,6 +236,7 @@ private:
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
     friend class QMacCGContext;
+    friend class QPreviewPaintEngine;
 };
 
 
@@ -271,8 +272,8 @@ protected:
     friend class QPaintEngine;
     friend class QPainter;
     friend class QPainterPrivate;
-    friend class QMacPrintEnginePrivate;    
-    
+    friend class QMacPrintEnginePrivate;
+
     QPaintEngine::DirtyFlags dirtyFlags;
 };
 

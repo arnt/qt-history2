@@ -37,8 +37,10 @@
 QT_BEGIN_NAMESPACE
 
 class QPrintEngine;
+class QPreviewPaintEngine;
+class QPicture;
 
-class QPrinterPrivate
+class Q_GUI_EXPORT QPrinterPrivate // ### remove the export when integrating QPrintPreviewDialog
 {
     Q_DECLARE_PUBLIC(QPrinter)
 public:
@@ -61,11 +63,18 @@ public:
     }
 
     void createDefaultEngines();
+    QList<const QPicture *> previewPages() const;
+    void setPreviewMode(bool);
 
     QPrinter::PrinterMode printerMode;
     QPrinter::OutputFormat outputFormat;
     QPrintEngine *printEngine;
     QPaintEngine *paintEngine;
+
+    QPrintEngine *realPrintEngine;
+    QPaintEngine *realPaintEngine;
+    QPreviewPaintEngine *previewEngine;
+
     QPrinter *q_ptr;
 
     QAbstractPrintDialog::PrintDialogOptions options;
@@ -73,6 +82,7 @@ public:
     int minPage, maxPage, fromPage, toPage;
 
     bool use_default_engine;
+    bool had_default_engines;
 };
 
 QT_END_NAMESPACE

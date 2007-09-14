@@ -170,7 +170,7 @@ public:
 
     void setWorldMatrix(const QMatrix &matrix, bool combine = false);
     const QMatrix &worldMatrix() const;
-    
+
     void setWorldTransform(const QTransform &matrix, bool combine = false);
     const QTransform &worldTransform() const;
 
@@ -449,6 +449,7 @@ private:
     friend class QWin32PaintEnginePrivate;
     friend class QRasterPaintEngine;
     friend class QAlphaPaintEngine;
+    friend class QPreviewPaintEngine;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPainter::RenderHints)

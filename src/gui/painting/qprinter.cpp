@@ -37,11 +37,16 @@
 #include "qprintengine_pdf_p.h"
 #endif
 
+#include <qpicture.h>
+#include <private/qpaintengine_preview_p.h>
+
 #if defined(QT3_SUPPORT)
 #  include "qprintdialog.h"
 #endif // QT3_SUPPORT
 
 QT_BEGIN_NAMESPACE
+
+Q_GLOBAL_STATIC(QPreviewPaintEngine, qt_preview_paintengine)
 
 #define ABORT_IF_ACTIVE(location) \
     if (d->printEngine->printerState() == QPrinter::Active) { \
@@ -93,6 +98,32 @@ void QPrinterPrivate::createDefaultEngines()
         break;
     }
     use_default_engine = true;
+    had_default_engines = true;
+}
+
+QList<const QPicture *> QPrinterPrivate::previewPages() const
+{
+    if (previewEngine)
+        return previewEngine->pages();
+    return QList<const QPicture *>();
+}
+
+void QPrinterPrivate::setPreviewMode(bool enable)
+{
+    Q_Q(QPrinter);
+    if (enable) {
+        if (!previewEngine)
+            previewEngine = qt_preview_paintengine();
+        had_default_engines = use_default_engine;
+        use_default_engine = false;
+        realPrintEngine = printEngine;
+        realPaintEngine = paintEngine;
+        q->setEngines(previewEngine, previewEngine);
+        previewEngine->setProxyEngines(realPrintEngine, realPaintEngine);
+    } else {
+        q->setEngines(realPrintEngine, realPaintEngine);
+        use_default_engine = had_default_engines;
+    }
 }
 
 
@@ -390,6 +421,10 @@ QPrinter::QPrinter(PrinterMode mode)
     d->printerMode = mode;
     d->outputFormat = QPrinter::NativeFormat;
     d->createDefaultEngines();
+
+    d->previewEngine = 0;
+    d->realPrintEngine = 0;
+    d->realPaintEngine = 0;
 
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     if (QCUPSSupport::cupsVersion() >= 10200 && QCUPSSupport().currentPPD()) {

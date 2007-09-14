@@ -22,6 +22,7 @@ HEADERS += \
         painting/qprinter.h \
         painting/qprinter_p.h \
         painting/qprintengine.h \
+	painting/qpaintengine_preview_p.h \
         painting/qregion.h \
         painting/qstroker_p.h \
         painting/qstylepainter.h \
@@ -49,6 +50,7 @@ SOURCES += \
         painting/qpolygon.cpp \
         painting/qprintengine_pdf.cpp \
         painting/qprintengine_ps.cpp \
+	painting/qpaintengine_preview.cpp \
         painting/qprinter.cpp \
         painting/qstroker.cpp \
         painting/qstylepainter.cpp \
@@ -156,28 +158,28 @@ mac {
     HEADERS += painting/qdrawhelper_x86_p.h \
                painting/qdrawhelper_mmx_p.h \
                painting/qdrawhelper_sse_p.h
-    mmx { 
+    mmx {
 	DEFINES += QT_HAVE_MMX
 	MMX_SOURCES += painting/qdrawhelper_mmx.cpp
     }
-    3dnow { 
+    3dnow {
 	DEFINES += QT_HAVE_3DNOW
 	MMX3DNOW_SOURCES += painting/qdrawhelper_mmx3dnow.cpp
 	sse {
 	    SSE3DNOW_SOURCES += painting/qdrawhelper_sse3dnow.cpp
 	}
     }
-    sse { 
+    sse {
 	DEFINES += QT_HAVE_SSE
 	SSE_SOURCES += painting/qdrawhelper_sse.cpp
 
         DEFINES += QT_HAVE_MMXEXT
     }
-    sse2 { 
+    sse2 {
 	DEFINES += QT_HAVE_SSE2
 	SSE2_SOURCES += painting/qdrawhelper_sse2.cpp
     }
-    iwmmxt { 
+    iwmmxt {
 	DEFINES += QT_HAVE_IWMMXT
 	IWMMXT_SOURCES += painting/qdrawhelper_iwmmxt.cpp
     }

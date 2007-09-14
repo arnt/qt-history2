@@ -82,6 +82,7 @@ private:
     friend class QPicturePaintEngine;
     friend class Q3Picture;
     friend class QAlphaPaintEngine;
+    friend class QPreviewPaintEngine;
 
 public:
     typedef QPicturePrivate* DataPtr;
