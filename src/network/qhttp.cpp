@@ -2669,7 +2669,9 @@ void QHttpPrivate::_q_slotReadyRead()
                 if (willClose) {
                     if (socket) {
                         setState(QHttp::Closing);
+                        socket->blockSignals(true);
                         socket->close();
+                        socket->blockSignals(false);
                         socket->readAll();
                     }
                     _q_slotSendRequest();
