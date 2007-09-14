@@ -1,12 +1,24 @@
-#include <qdebug.h>
-#include "qpaintengine_preview_p.h"
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
+#include <private/qpaintengine_preview_p.h>
 #include <private/qpainter_p.h>
 #include <private/qpaintengine_p.h>
+#include <private/qpicture_p.h>
+
 #include <QtGui/qprintengine.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpicture.h>
-#include <private/qpicture_p.h>
 
 class QPreviewPaintEnginePrivate : public QPaintEnginePrivate
 {
@@ -39,7 +51,7 @@ QPreviewPaintEngine::~QPreviewPaintEngine()
     qDeleteAll(d->pages);
 }
 
-bool QPreviewPaintEngine::begin(QPaintDevice *dev)
+bool QPreviewPaintEngine::begin(QPaintDevice *)
 {
     Q_D(QPreviewPaintEngine);
 
