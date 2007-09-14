@@ -5124,13 +5124,40 @@ void tst_QWidget::render()
     {
         QWidget window;
         window.resize(100, 100);
-        QWidget child(&window);
-        child.resize(100, 100);
         window.show();
-        QTest::qWait(100);
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&window);
+#endif
+        QWidget child(&window);
+        child.resize(window.size());
+        child.show();
 
+        qApp->processEvents();
         QCOMPARE(QPixmap::grabWidget(&child), QPixmap::grabWidget(&window));
     }
+}
+
+// On Windows the active palette is used instead of the inactive palette even
+// though the widget is invisible. This is probably related to task 178507/168682,
+// but for the renderInvisible test it doesn't matter, we're mostly interested
+// in testing the geometry so just workaround the palette issue for now.
+static void workaroundPaletteIssue(QWidget *widget)
+{
+#ifndef Q_WS_WIN
+    return;
+#endif
+    if (!widget)
+        return;
+
+    QWidget *navigationBar = qFindChild<QWidget *>(widget, QLatin1String("qt_calendar_navigationbar"));
+    QVERIFY(navigationBar);
+
+    QPalette palette = navigationBar->palette();
+    const QColor background = palette.color(QPalette::Inactive, navigationBar->backgroundRole());
+    const QColor highlightedText = palette.color(QPalette::Inactive, QPalette::HighlightedText);
+    palette.setColor(QPalette::Active, navigationBar->backgroundRole(), background);
+    palette.setColor(QPalette::Active, QPalette::HighlightedText, highlightedText);
+    navigationBar->setPalette(palette);
 }
 
 //#define RENDER_DEBUG
@@ -5179,6 +5206,7 @@ void tst_QWidget::renderInvisible()
     qt_x11_wait_for_window_manager(calendar);
 #endif
     qApp->processEvents();
+    workaroundPaletteIssue(calendar);
 
     { // Make sure we get the same image when the calendar is explicitly hidden.
     QImage testImage(calendarSizeResized, QImage::Format_ARGB32);
@@ -5194,6 +5222,7 @@ void tst_QWidget::renderInvisible()
     // been visible, laid out or created (Qt::WA_WState_Created).
     delete calendar;
     calendar = new QCalendarWidget;
+    workaroundPaletteIssue(calendar);
 
     { // Never been visible, created or laid out.
     QImage testImage(calendarSize, QImage::Format_ARGB32);
