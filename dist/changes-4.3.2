@@ -28,6 +28,14 @@ Q3ListView
     * [125599] Fixed bug where the CPU usage would stay continuously high
       when an item was only partly visible.
 
+Q3ToolBar
+    * [176525] Ensured that the tool buttons of a vertical tool bar are
+      center-aligned instead of left-aligned.
+
+Q3Wizard
+    * [176548] Prevented crash if Q3Wizard::removePage() is called before
+      the wizard is shown.
+
 QAbstractItemView
     * [168493] Fixed drag and drop regression when parent in a tree doesn't allow dropping.
     * [174848] Fixed a crash while removing the current edited row
@@ -54,6 +62,10 @@ QColumnView
     * [170753] When passing an index to select, the full path wasn't selected.
     * [170753] When deselecting an index its parent was getting deselected too.
 
+QHeaderView
+    * [178483] Prevented crash when recomputing the layout under certain
+      conditions.
+
 QDockWidget
     * [174249] Fixed bug where it was possible to dock into a minimized QMainWindow.
 
@@ -78,6 +90,10 @@ QFileDialog
 
 QColorDialog
     * [153436] Fix a crash in QColorDialog when choosing a color in the Gray colorspace.
+
+QWizard
+    * [177716] Ensured that the commit button is enabled and disabled
+      correctly according to QWizardPage::isComplete().
 
 QMenu
     * [111348] QMenu takes focus with the QPopupMenuReson now.
@@ -117,6 +133,11 @@ QLabel
 
 QPainterPath
     * Fix addText() with italic fonts.
+
+Painting
+    * [174914] Fixed use of QPainter::setOpacity() when drawing a pixmap
+      into a 16-bit buffer using the QRasterPaintEngine.
+    * [175114] Fixed missing update after hiding a child of a hidden widget.
 
 Third party components
 ----------------------
@@ -164,6 +185,8 @@ X11
     * [177143] Fixed a bug where the last activated QShortcut would be
       incorrectly repeated when opressing a key with no KeySym defined.
     * [171224] Fix Copy & Paste of Non-Ascii text from Qt 3 to Qt 4 applications.
+    * Workaround for bug in gcc 3.4.2 that would cause 64-bit, bootstrapped
+      applications to crash on Solaris.
 
 Windows
 -------
@@ -184,6 +207,27 @@ Mac OS X
 Qtopia Core
 -----------
     * Preserve the font database cache across QWS server restarts.
+
+    * [272527] Fixed a bug in the internal crash handler that released
+      resources in some non-fatal incidents.
+    * [169569] Fixed blitting of unitialized data to the screen when
+      a window is shown and resized before the first paint event.
+    * [274291] Add support for setting the QT_QWS_FONTDIR environment variable
+      to set the font installation path.
+    * [174264] Fixed synchronization of QDirectPainter::startPainting() to
+      be able to guarantee correct result of QDirectPainter::allocatedRegion().
+    * [175994] Fixed missing updates in parent and sibling widgets when 
+      using the QWindowSurface::buffer() and QWindowSurface::flush() mechanism
+      to paint outside a paint event.
+    * [170488] Implemented true synchrononous behavior when creating a 
+      QDirectPainter with the ReservedSynchronous flag.
+    * [275284] Fixed implementation of the Hybrid OpenGL integration.
+    * [178269] Fixed loading of the VNC screen driver when compiled as 
+      a plugin.
+    * [178261] Fixed loading of the Transformed screen driver when compile as
+      a plugin.
+    * [276651] Fixed mouse calibration in some configurations using the
+      tslib mouse driver.
 
 ****************************************************************************
 *                   Important Behavior Changes
