@@ -837,7 +837,7 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
     QImage im(qRound(br.width)+2, qRound(br.height)+2, QImage::Format_RGB32);
     im.fill(0);
 
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceRef colorspace = QCoreGraphicsPaintEngine::macGenericColorSpace();
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     uint cgflags = kCGImageAlphaNoneSkipFirst;
 #ifdef kCGBitmapByteOrder32Host //only needed because CGImage.h added symbols in the minor version
@@ -850,7 +850,6 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
     CGContextRef ctx = CGBitmapContextCreate(im.bits(), im.width(), im.height(),
                                              8, im.bytesPerLine(), colorspace,
                                              cgflags);
-    CGColorSpaceRelease(colorspace);
     CGContextSetFontSize(ctx, fontDef.pixelSize);
     CGContextSetShouldAntialias(ctx, fontDef.pointSize > qt_antialiasing_threshold);
     CGAffineTransform oldTextMatrix = CGContextGetTextMatrix(ctx);

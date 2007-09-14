@@ -164,6 +164,31 @@ static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p, float off=0)
     return ret;
 }
 
+CGColorSpaceRef QCoreGraphicsPaintEngine::m_globalColorSpace = 0;
+
+CGColorSpaceRef QCoreGraphicsPaintEngine::macGenericColorSpace()
+{
+    if (!m_globalColorSpace) {
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+            m_globalColorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        } else
+#endif
+        {
+            m_globalColorSpace = CGColorSpaceCreateDeviceRGB();
+        }
+        qAddPostRoutine(QCoreGraphicsPaintEngine::cleanUpMacGenericColorSpace);
+    }
+    return m_globalColorSpace;
+}
+
+
+void QCoreGraphicsPaintEngine::cleanUpMacGenericColorSpace()
+{
+    CFRelease(m_globalColorSpace);
+    m_globalColorSpace = 0;
+}
+
 void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAffineTransform *orig_xform)
 {
     CGAffineTransform old_xform = CGAffineTransformIdentity;
@@ -761,7 +786,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
             quint32 *pantherData = pm.data->pixels + (sy * pm.width() + sx);
             QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(0, pantherData, sw*sh*sizeof(uint), 0);
             image = CGImageCreate(sw, sh, 8, 32, pm.width() * sizeof(uint),
-                                  QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                                  macGenericColorSpace(),
                                   kCGImageAlphaPremultipliedFirst, provider, 0, 0,
                                   kCGRenderingIntentDefault);
         }
@@ -816,7 +841,7 @@ CGImageRef qt_mac_createCGImageFromQImage(const QImage &img, const QImage **imag
         *imagePtr = image;
     return CGImageCreate(image->width(), image->height(), 8, 32,
                                         image->bytesPerLine(),
-                                        QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                                        QCoreGraphicsPaintEngine::macGenericColorSpace(),
                                         cgflags, dataProvider, 0, false, kCGRenderingIntentDefault);
 
 }
@@ -852,7 +877,7 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
             QCFType<CGDataProviderRef> dataProvider = CGDataProviderCreateWithData(0, pantherData,
                                                                                    sw * sh * sizeof(uint), 0);
             cgimage = CGImageCreate(sw, sh, 8, 32, image->bytesPerLine(),
-                    QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                                    macGenericColorSpace(),
                     CGImageGetAlphaInfo(cgimage), dataProvider, 0, false, kCGRenderingIntentDefault);
         }
     }
@@ -1298,13 +1323,12 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
         CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)),
                 1, 0, 4, 0, &callbacks);
-        CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
+        CGColorSpaceRef grad_colorspace = macGenericColorSpace();
         const QLinearGradient *linGrad = static_cast<const QLinearGradient*>(brush.gradient());
         const QPointF start = linGrad->start(), stop = linGrad->finalStop();
         d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(start.x(), start.y()),
                 CGPointMake(stop.x(), stop.y()), fill_func, true, true);
         CGFunctionRelease(fill_func);
-        CGColorSpaceRelease(grad_colorspace);
 #endif
     } else if(bs == Qt::RadialGradientPattern || bs == Qt::ConicalGradientPattern) {
 #ifdef QMAC_NATIVE_GRADIENTS
@@ -1321,7 +1345,7 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
                 components[0] = qt_mac_convert_color_to_cg(col.red());
                 components[1] = qt_mac_convert_color_to_cg(col.green());
                 components[2] = qt_mac_convert_color_to_cg(col.blue());
-                base_colorspace = CGColorSpaceCreateDeviceRGB();
+                base_colorspace = QCoreGraphicsPaintEngine::macGenericColorSpace();
             }
         } else {
             qpattern->as_mask = true;
@@ -1344,7 +1368,7 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
             components[0] = qt_mac_convert_color_to_cg(col.red());
             components[1] = qt_mac_convert_color_to_cg(col.green());
             components[2] = qt_mac_convert_color_to_cg(col.blue());
-            base_colorspace = CGColorSpaceCreateDeviceRGB();
+            base_colorspace = QCoreGraphicsPaintEngine::macGenericColorSpace();
         }
         int width = qpattern->width(), height = qpattern->height();
         qpattern->foreground = brush.color();
@@ -1366,8 +1390,6 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
 
         CGPatternRelease(fill_pattern);
         CGColorSpaceRelease(fill_colorspace);
-        if(base_colorspace)
-            CGColorSpaceRelease(base_colorspace);
     } else if(bs != Qt::NoBrush) {
         const QColor &col = brush.color();
         CGContextSetRGBFillColor(hd, qt_mac_convert_color_to_cg(col.red()),

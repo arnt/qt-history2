@@ -3017,9 +3017,9 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             State flags = header->state;
-            QRect ir = header->rect;            
+            QRect ir = header->rect;
             bdi.kind = kThemeListHeaderButton;
-            bdi.adornment = kThemeAdornmentNone;            
+            bdi.adornment = kThemeAdornmentNone;
             bdi.state = kThemeStateActive;
 
             if (flags & State_On)
@@ -3270,7 +3270,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     QColor textColor = btn->palette.buttonText().color();
                     CGFloat colorComp[] = { textColor.redF(), textColor.greenF(),
                                           textColor.blueF(), textColor.alphaF() };
-                    CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
+                    CGContextSetFillColorSpace(cg, QCoreGraphicsPaintEngine::macGenericColorSpace());
                     CGContextSetFillColor(cg, colorComp);
                     tti.fontID = themeId;
                     tti.horizontalFlushness = kHIThemeTextHorizontalFlushCenter;
@@ -3472,7 +3472,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 QColor textColor = myTab.palette.windowText().color();
                 CGFloat colorComp[] = { textColor.redF(), textColor.greenF(),
                                         textColor.blueF(), textColor.alphaF() };
-                CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
+                CGContextSetFillColorSpace(cg, QCoreGraphicsPaintEngine::macGenericColorSpace());
                 CGContextSetFillColor(cg, colorComp);
                 switch (qt_aqua_size_constrain(w)) {
                 default:
@@ -4551,7 +4551,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 QColor textColor = groupBox->palette.windowText().color();
                 CGFloat colorComp[] = { textColor.redF(), textColor.greenF(),
                                       textColor.blueF(), textColor.alphaF() };
-                CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
+                CGContextSetFillColorSpace(cg, QCoreGraphicsPaintEngine::macGenericColorSpace());
                 CGContextSetFillColor(cg, colorComp);
                 tti.fontID = checkable ? kThemeSystemFont : kThemeSmallSystemFont;
                 tti.horizontalFlushness = kHIThemeTextHorizontalFlushCenter;

@@ -32,7 +32,9 @@
 #include "private/qpaintengine_p.h"
 #include "private/qpolygonclipper_p.h"
 
+typedef struct CGColorSpace *CGColorSpaceRef;
 QT_BEGIN_NAMESPACE
+
 
 class QCoreGraphicsPaintEnginePrivate;
 class QCoreGraphicsPaintEngine : public QPaintEngine
@@ -45,6 +47,7 @@ public:
 
     bool begin(QPaintDevice *pdev);
     bool end();
+    static CGColorSpaceRef macGenericColorSpace();
 
     void updateState(const QPaintEngineState &state);
 
@@ -96,6 +99,8 @@ protected:
     QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr);
 
 private:
+    static CGColorSpaceRef m_globalColorSpace;
+    static void cleanUpMacGenericColorSpace();
     Q_DISABLE_COPY(QCoreGraphicsPaintEngine)
 };
 

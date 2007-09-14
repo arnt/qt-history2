@@ -655,8 +655,8 @@ void QPixmap::init(int w, int h, Type type)
     data->pixels = base_pixels;
 
     //create the cg data
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    CGDataProviderRef provider = CGDataProviderCreateWithData(base_pixels,
+    CGColorSpaceRef colorspace = QCoreGraphicsPaintEngine::macGenericColorSpace();
+    QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(base_pixels,
                                                               data->pixels, data->nbytes,
                                                               qt_mac_cgimage_data_free);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
@@ -671,8 +671,6 @@ void QPixmap::init(int w, int h, Type type)
     data->cg_data = CGImageCreate(w, h, 8, 32, data->nbytes / h, colorspace,
                                   cgflags, provider, 0, 0, kCGRenderingIntentDefault);
 
-    CGColorSpaceRelease(colorspace);
-    CGDataProviderRelease(provider);
 }
 
 int QPixmap::defaultDepth()

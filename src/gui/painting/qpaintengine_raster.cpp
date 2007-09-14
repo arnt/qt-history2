@@ -51,6 +51,7 @@
 #  include <private/qfontengine_p.h>
 #elif defined(Q_WS_MAC)
 #  include <private/qt_mac_p.h>
+#  include <private/qpaintengine_mac_p.h>
 #  if Q_BYTE_ORDER == Q_BIG_ENDIAN
 #    define BITMAPS_ARE_MSB
 #  endif
@@ -1068,7 +1069,7 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
                                                             d->rasterBuffer->buffer(),
                                                             dw*dh*sizeof(uint), 0);
             subimage = CGImageCreate(dw, dh, 8, 32, d->rasterBuffer->width() * sizeof(uint),
-                                     QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                                     QCoreGraphicsPaintEngine::macGenericColorSpace(),
                                      kCGImageAlphaPremultipliedFirst, provider, 0, 0,
                                      kCGRenderingIntentDefault);
         }
@@ -2208,9 +2209,9 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
                                                                    pantherData, sw*sh*sizeof(uint),
                                                                    0);
                 subimage = CGImageCreate(sw, sh, 8, 32, pixmap.width() * sizeof(uint),
-                                QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
-                                kCGImageAlphaPremultipliedFirst, provider, 0, 0,
-                                kCGRenderingIntentDefault);
+                                         QCoreGraphicsPaintEngine::macGenericColorSpace(),
+                                         kCGImageAlphaPremultipliedFirst, provider, 0, 0,
+                                         kCGRenderingIntentDefault);
             }
             HIViewDrawCGImage(ctx, &dest, subimage); //top left
         } else
@@ -3869,10 +3870,9 @@ QRasterBuffer::macCGContext() const
 #else
         CGImageAlphaInfo flags = CGImageGetAlphaInfo(m_data);
 #endif
-        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        CGColorSpaceRef colorspace = QCoreGraphicsPaintEngine::macGenericColorSpace();
         m_ctx = CGBitmapContextCreate(m_buffer, m_width, m_height, 8, m_width * 4, colorspace,
                                       flags);
-        CGColorSpaceRelease(colorspace);
         if(!m_ctx)
             qWarning("QPaintDevice: Unable to create context for rasterbuffer (%d/%d)",
                      m_width, m_height);
@@ -4007,7 +4007,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
         CGContextRelease(m_ctx);
         m_ctx = 0;
     }
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceRef colorspace = QCoreGraphicsPaintEngine::macGenericColorSpace();
     CGDataProviderRef provider = CGDataProviderCreateWithData(m_buffer, m_buffer, width*height*sizeof(uint),
                                                               qt_mac_raster_data_free);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
