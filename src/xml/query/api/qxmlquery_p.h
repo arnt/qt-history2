@@ -55,7 +55,7 @@ private:
     /**
      * This variable isn't an enum, because it is too large for that.
      */
-    static const quint64 PrefixMask = ((Q_UINT64_C(1) << 14) - 1) << QXmlName::PrefixOffset;
+    static const quint64 PrefixMask = ((Q_UINT64_C(1) << 14) - 1) << QXmlNamePrivateDetails::PrefixOffset;
 
 public:
     enum ComponentForUpdate
@@ -156,8 +156,8 @@ public:
 
     static inline Patternist::QName toPoolName(const QXmlName &name)
     {
-        return Patternist::QName::fromPublicCode((name.m_code & QXmlName::ExpandedNameMask) |
-                                                 ((name.m_code & PrefixMask) >> (QXmlName::PrefixOffset - Patternist::QName::PrefixOffset)));
+        return Patternist::QName::fromPublicCode((name.m_code & QXmlNamePrivateDetails::ExpandedNameMask) |
+                                                 ((name.m_code & PrefixMask) >> (QXmlNamePrivateDetails::PrefixOffset - Patternist::QName::PrefixOffset)));
     }
 
     static inline QXmlName fromPoolName(const Patternist::QName &poolName)

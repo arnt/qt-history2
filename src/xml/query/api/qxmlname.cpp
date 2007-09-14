@@ -68,7 +68,7 @@ QT_BEGIN_NAMESPACE
  */
 bool QXmlName::isNull() const
 {
-    return m_code == InvalidCode;
+    return m_code == QXmlNamePrivateDetails::InvalidCode;
 }
 
 /*!

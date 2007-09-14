@@ -32,23 +32,28 @@ static inline uint qHash(const QXmlName &name);
  * The reason these nenbers are not private inside QXmlName is that Visual
  * Studio 6.0 cannot handle it, thinking they are virtual functions. Even
  * though Patternist is disabled on this compiler, syncqt pullls in the header. */
-namespace QPrivateDetails
+namespace QXmlNamePrivateDetails
 {
+    enum
+    {
+        PrefixOffset = 50
+    };
+
     /* These cannot be enums because they are too large. */
     static const quint64 InvalidCode = Q_UINT64_C(1) << 63;
-    static const quint64 ExpandedNameMask = (Q_UINT64_C(1) << 50) - 1;
+    static const quint64 ExpandedNameMask = (Q_UINT64_C(1) << PrefixOffset) - 1;
 };
 
 class Q_XML_EXPORT QXmlName
 {
 public:
-    inline QXmlName() : m_code(QPrivateDetails::InvalidCode)
+    inline QXmlName() : m_code(QXmlNamePrivateDetails::InvalidCode)
     {
     }
 
     inline bool operator==(const QXmlName &other) const
     {
-        return (m_code & QPrivateDetails::ExpandedNameMask) == (other.m_code & QPrivateDetails::ExpandedNameMask);
+        return (m_code & QXmlNamePrivateDetails::ExpandedNameMask) == (other.m_code & QXmlNamePrivateDetails::ExpandedNameMask);
     }
 
     inline bool operator!=(const QXmlName &other) const
@@ -75,7 +80,7 @@ private:
 
 static inline uint qHash(const QXmlName &name)
 {
-    return name.m_code & QPrivateDetails::ExpandedNameMask;
+    return name.m_code & QXmlNamePrivateDetails::ExpandedNameMask;
 }
 
 Q_DECLARE_TYPEINFO(QXmlName, Q_MOVABLE_TYPE);
