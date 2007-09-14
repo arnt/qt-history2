@@ -30,10 +30,7 @@
 #include <QList>
 #include <QLocale>
 #include <QDoubleSpinBox>
-#include <QTest>
-#include <QTestEventList>
 #include <QVBoxLayout>
-#include <QSignalSpy>
 #include <QKeySequence>
 #include <QDebug>
 
