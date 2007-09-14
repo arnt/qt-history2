@@ -27,25 +27,24 @@ class QXmlNamePrivate;
 class QXmlQuery;
 static inline uint qHash(const QXmlName &name);
 
-class Q_XML_EXPORT QXmlName
+/* This namespace is not public API. */
+namespace QPrivateDetails
 {
-    enum Constants
-    {
-        PrefixOffset = 50
-    };
-
     /* These cannot be enums because they are too large. */
     static const quint64 InvalidCode = Q_UINT64_C(1) << 63;
-    static const quint64 ExpandedNameMask = (Q_UINT64_C(1) << PrefixOffset) - 1;
+    static const quint64 ExpandedNameMask = (Q_UINT64_C(1) << 50) - 1;
+};
 
+class Q_XML_EXPORT QXmlName
+{
 public:
-    inline QXmlName() : m_code(InvalidCode)
+    inline QXmlName() : m_code(QPrivateDetails::InvalidCode)
     {
     }
 
     inline bool operator==(const QXmlName &other) const
     {
-        return (m_code & ExpandedNameMask) == (other.m_code & ExpandedNameMask);
+        return (m_code & QPrivateDetails::ExpandedNameMask) == (other.m_code & QPrivateDetails::ExpandedNameMask);
     }
 
     inline bool operator!=(const QXmlName &other) const
@@ -72,7 +71,7 @@ private:
 
 static inline uint qHash(const QXmlName &name)
 {
-    return name.m_code & QXmlName::ExpandedNameMask;
+    return name.m_code & QPrivateDetails::ExpandedNameMask;
 }
 
 Q_DECLARE_TYPEINFO(QXmlName, Q_MOVABLE_TYPE);
