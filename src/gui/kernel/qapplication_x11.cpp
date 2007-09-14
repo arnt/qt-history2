@@ -3693,7 +3693,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         if (event->type == ButtonPress) {        // mouse button pressed
             buttons |= button;
 #if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET)
-            TabletDeviceDataList *tablets = qt_tablet_devices();
+            QTabletDeviceDataList *tablets = qt_tablet_devices();
             for (int i = 0; i < tablets->size(); ++i) {
                 const TabletDeviceData &tab = tablets->at(i);
                 XEvent myEv;
@@ -3731,7 +3731,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         } else {                                // mouse button released
             buttons &= ~button;
 #if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET)
-            TabletDeviceDataList *tablets = qt_tablet_devices();
+            QTabletDeviceDataList *tablets = qt_tablet_devices();
             for (int i = 0; i < tablets->size(); ++i) {
                 const TabletDeviceData &tab = tablets->at(i);
                 XEvent myEv;
