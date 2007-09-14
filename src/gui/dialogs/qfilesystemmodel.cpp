@@ -989,6 +989,9 @@ QString QFileSystemModel::filePath(const QModelIndex &index) const
     QStringList path;
     QModelIndex idx = index;
     while (idx.isValid()) {
+        QFileSystemModelPrivate::QFileSystemNode *dirNode = d->node(idx);
+        if (dirNode)
+            path.prepend(dirNode->fileName);
         path.prepend(d->name(idx));
         idx = idx.parent();
     }
