@@ -314,9 +314,8 @@ bool QHttpSocketEngine::waitForWrite(int msecs, bool *timedOut) const
     // If we're not connected yet, wait until we are, and until bytes have
     // been received (i.e., the socket has connected, we have sent the
     // greeting, and then received the response).
-    if (d->socket->state() != QAbstractSocket::ConnectedState) {
-        if (!d->socket->waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed())))
-            return false;
+    while (d->state != Connected && d->socket->waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))) {
+        // Loop while the protocol handshake is taking place.
     }
 
     // Report any error that may occur.
