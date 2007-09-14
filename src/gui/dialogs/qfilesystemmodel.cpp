@@ -992,7 +992,6 @@ QString QFileSystemModel::filePath(const QModelIndex &index) const
         QFileSystemModelPrivate::QFileSystemNode *dirNode = d->node(idx);
         if (dirNode)
             path.prepend(dirNode->fileName);
-        path.prepend(d->name(idx));
         idx = idx.parent();
     }
     QString fullPath = path.join(QDir::separator());
