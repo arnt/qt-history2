@@ -64,8 +64,12 @@ public:
     RichTextEditorDialog(QWidget *parent = 0);
     RichTextEditor *editor();
 
+private slots:
+    void tabIndexChanged(int newIndex);
+
 private:
     RichTextEditor *m_editor;
+    QTextEdit      *m_text_edit;
 };
 
 } // namespace qdesigner_internal
