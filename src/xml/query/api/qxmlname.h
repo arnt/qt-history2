@@ -27,7 +27,11 @@ class QXmlNamePrivate;
 class QXmlQuery;
 static inline uint qHash(const QXmlName &name);
 
-/* This namespace is not public API. */
+/* This namespace is not public API.
+ * 
+ * The reason these nenbers are not private inside QXmlName is that Visual
+ * Studio 6.0 cannot handle it, thinking they are virtual functions. Even
+ * though Patternist is disabled on this compiler, syncqt pullls in the header. */
 namespace QPrivateDetails
 {
     /* These cannot be enums because they are too large. */
