@@ -3,7 +3,7 @@
 ############################################################
 
 load(qttest_p4)
-QT += svg
+QT += svg xml
 
 SOURCES += tst_qsvggenerator.cpp
 

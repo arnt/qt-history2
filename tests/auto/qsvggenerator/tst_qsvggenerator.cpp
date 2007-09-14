@@ -9,6 +9,10 @@
 
 #include <QtTest/QtTest>
 
+#include <QDomDocument>
+#include <QDomElement>
+#include <QDomNode>
+
 #include <qapplication.h>
 #include <qdebug.h>
 #include <qpainter.h>
@@ -50,6 +54,36 @@ void tst_QSvgGenerator::construction()
     QCOMPARE(generator.size(), QSize(100, 100));
 }
 
+static void removeAttribute(const QDomNode &node, const QString &attribute)
+{
+    if (node.isNull())
+        return;
+
+    node.toElement().removeAttribute(attribute);
+
+    removeAttribute(node.firstChild(), attribute);
+    removeAttribute(node.nextSibling(), attribute);
+}
+
+static void compareWithoutFontInfo(const QByteArray &source, const QByteArray &reference)
+{
+    QDomDocument sourceDoc;
+    sourceDoc.setContent(source);
+
+    QDomDocument referenceDoc;
+    referenceDoc.setContent(reference);
+
+    QList<QString> fontAttributes;
+    fontAttributes << "font-family" << "font-size" << "font-weight" << "font-style";
+
+    foreach (QString attribute, fontAttributes) {
+        removeAttribute(sourceDoc, attribute);
+        removeAttribute(referenceDoc, attribute);
+    }
+
+    QCOMPARE(sourceDoc.toByteArray(), referenceDoc.toByteArray());
+}
+
 void tst_QSvgGenerator::fileName()
 {
     QString fileName = "fileName_output.svg";
@@ -71,7 +105,7 @@ void tst_QSvgGenerator::fileName()
     QFile referenceFile("referenceSvgs/" + fileName);
     QVERIFY(referenceFile.open(QIODevice::ReadOnly));
 
-    QCOMPARE(file.readAll(), referenceFile.readAll());
+    compareWithoutFontInfo(file.readAll(), referenceFile.readAll());
 }
 
 void tst_QSvgGenerator::outputDevice()
@@ -143,7 +177,7 @@ void tst_QSvgGenerator::size()
     QFile referenceFile("referenceSvgs/" + fileName);
     QVERIFY(referenceFile.open(QIODevice::ReadOnly));
 
-    QCOMPARE(file.readAll(), referenceFile.readAll());
+    compareWithoutFontInfo(file.readAll(), referenceFile.readAll());
 }
 
 QTEST_MAIN(tst_QSvgGenerator)
