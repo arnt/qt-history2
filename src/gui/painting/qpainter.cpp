@@ -7050,9 +7050,6 @@ const QTransform & QPainter::worldTransform() const
     Returns the transformation matrix combining the current
     window/viewport and world transformation.
 
-    It is advisable to use combinedTransform() instead of this
-    function to preserve the properties of perspective transformations.
-
     \sa setWorldMatrix(), setWindow(), setViewport()
 */
 
