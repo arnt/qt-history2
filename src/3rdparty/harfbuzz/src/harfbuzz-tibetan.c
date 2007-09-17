@@ -82,6 +82,7 @@ static const HB_OpenTypeFeature tibetan_features[] = {
     { HB_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
     { HB_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
     { HB_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
+    { HB_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty },
     {0, 0}
 };
 

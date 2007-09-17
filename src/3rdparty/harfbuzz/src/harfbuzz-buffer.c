@@ -218,5 +218,5 @@ hb_buffer_copy_output_glyph ( HB_Buffer buffer )
 HB_UShort
 hb_buffer_allocate_ligid( HB_Buffer buffer )
 {
-  return buffer->max_ligID++;
+  return ++buffer->max_ligID;
 }
