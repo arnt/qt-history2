@@ -65,10 +65,10 @@ QT_BEGIN_NAMESPACE
     needed on Windows nor on platforms where getpid() returns a different
     ID for each thread (most notably Linux)
 */
-class OpenSslLocks
+class QOpenSslLocks
 {
 public:
-    inline OpenSslLocks()
+    inline QOpenSslLocks()
         : initLocker(QMutex::Recursive),
           locksLocker(QMutex::Recursive)
     {
@@ -77,7 +77,7 @@ public:
         locks = new QMutex *[numLocks];
         memset(locks, 0, numLocks * sizeof(QMutex *));
     }
-    inline ~OpenSslLocks()
+    inline ~QOpenSslLocks()
     {
         QMutexLocker locker(&locksLocker);
         for (int i = 0; i < q_CRYPTO_num_locks(); ++i)
@@ -108,7 +108,7 @@ private:
     QMutex locksLocker;
     QMutex **locks;
 };
-Q_GLOBAL_STATIC(OpenSslLocks, openssl_locks)
+Q_GLOBAL_STATIC(QOpenSslLocks, openssl_locks)
 
 extern "C" {
 static void locking_function(int mode, int lockNumber, const char *, int)
