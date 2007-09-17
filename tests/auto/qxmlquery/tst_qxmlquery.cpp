@@ -57,12 +57,15 @@ private Q_SLOTS:
 private:
     static QStringList queries();
     int generatedBaselines;
+    static const char *const queriesDirectory;
 };
+
+const char *const tst_QXmlQuery::queriesDirectory = "../patternist/queries/";
 
 QStringList tst_QXmlQuery::queries()
 {
     QDir dir;
-    dir.cd(QLatin1String("../patternist/queries/"));
+    dir.cd(QLatin1String(queriesDirectory));
 
     return dir.entryList(QStringList(QLatin1String("*.xq")));
 }
@@ -114,7 +117,7 @@ void tst_QXmlQuery::evaluateToPushCallback()
     if(inputQuery == QLatin1String("wrongArity.xq"))
         QSKIP("wrongArity.xq crashes, some NamePool problem.", SkipSingle);
         
-    QFile queryFile(QLatin1String("../patternist/queries/") + inputQuery);
+    QFile queryFile(QLatin1String(queriesDirectory) + inputQuery);
     QVERIFY(queryFile.open(QIODevice::ReadOnly));
 
     QXmlQuery query;
