@@ -3490,12 +3490,11 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     QRect innerBorder = gradRect;
                     QRect r = pixmapRect.adjusted(1, 1, -1, -1);
 
-                    if (option->state & State_Enabled)
-                        qt_cleanlooks_draw_gradient(&handlePainter, gradRect,
-                                                    gradientBgStartColor,
-                                                    gradientBgStopColor,
-                                                    horizontal ? TopDown : FromLeft, option->palette.button());
-                    
+                    qt_cleanlooks_draw_gradient(&handlePainter, gradRect,
+                                                gradientBgStartColor,
+                                                gradientBgStopColor,
+                                                horizontal ? TopDown : FromLeft, option->palette.button());
+
                     handlePainter.setPen(QPen(outline.darker(110), 1));
                     handlePainter.drawLine(QPoint(r.left(), r.top() + 3), QPoint(r.left(), r.bottom() - 3));
                     handlePainter.drawLine(QPoint(r.right(), r.top() + 3), QPoint(r.right(), r.bottom() - 3));
