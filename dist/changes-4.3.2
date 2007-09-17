@@ -5,7 +5,7 @@ The Qt version 4.3 series is binary compatible with the 4.2.x, 4.1.x and
 4.0.x series. Applications compiled for Qt 4.0, 4.1 or 4.2 will continue to
 run with Qt 4.3.
 
-This version adds Academic Free License 3.0, Artistic License 2.0, Zope 2.1 
+This version adds Academic Free License 3.0, Artistic License 2.0, Zope 2.1
 and EPL to the GPL Exception.
 
 ****************************************************************************
@@ -41,7 +41,7 @@ QAbstractItemView
     * [174848] Fixed a crash while removing the current edited row
 
 QTreeView
-    * [171947] Fixed bug where an inactive QTreeView does not paint alternate color 
+    * [171947] Fixed bug where an inactive QTreeView does not paint alternate color
       with inactive palette role.
     * Fixes many possible crashes when there are pending changes.
     * [177165] Column minimum width could be wrong aénd not depend on the actual text in the header.
@@ -73,7 +73,7 @@ Style Sheets
     * QMainWindow now respects background-image.
     * [171858] QPushButton uses incorrect color used when text-align property is set
     * Fixed various bugs in QMenu styling.
-    * [168286] Fixed bug where border-radius and background-clip do not clip the 
+    * [168286] Fixed bug where border-radius and background-clip do not clip the
       background.
     * Fixed QComboBox styling bug where the popup would show an extra row when
       a style sheet is used.
@@ -134,10 +134,44 @@ QLabel
 QPainterPath
     * Fix addText() with italic fonts.
 
-Painting
+QRasterPaintEngine
     * [174914] Fixed use of QPainter::setOpacity() when drawing a pixmap
       into a 16-bit buffer using the QRasterPaintEngine.
+    * [177919] Fixed a problem with drawing bitmaps in the QRasterPaintEngine.
+    * [177654] Fixed an issue with transformed bitmaps being returned as pixmaps
+      under Windows.
+
+QCoreGraphicsPaintEngine
+    * [170352] Fixed aliased strokes that were drawn 1 pixel too far to the left on
+      Mac OS X versions < 10.4.
+    * [172006] Fixed point drawing with a scaled painter on Mac OS X.
+
+QFontEngineFT
+    * [170792] Fixed subpixel antialiasing across X11 server/clients with
+      different endianess.
+
+QX11PaintEngine
+    * [173977] Fixed drawing of tiled bitmaps into a bitmap when XRender was used
+      under X11.
+    * [175481] Fixed a crash when doing complex transforms with a QRegion.
+
+QWidget
+    * [157496] Fixed a memleak in setWindowIcon() under Windows.
     * [175114] Fixed missing update after hiding a child of a hidden widget.
+
+QGLWidget
+    * [169131] Fixed and issue with renderPixmap() where text drawn with renderText()
+      was clipped to the size of widget, not the resulting pixmap.
+    * [175513] Fixed an issue with renderText() which would case artifacts when bitmap
+      fonts were used.
+    * [172474] Fixed an issue with disappearing text when using QGLWidget::renderText()
+      together with QGLWidget::renderPixmap() under Windows.
+    * [173944] Fixed a crash when asking for a GL context with an overlay on Mac OS X.
+
+QGLPixelBuffer
+    * [179143] Fixed a memleak when a QGLPixelBuffer was deleted under
+      Windows. This would appear as a slowdown in performance to the user.
+
 
 Third party components
 ----------------------
@@ -190,6 +224,10 @@ X11
 
 Windows
 -------
+    * [172621] Fixed an issue where large pixmaps were printed incorrectly under Windows.
+    * [170000, 171239, 173213] Fixed several issues with printing under Windows, where
+      single and multipage printing were garbled.
+    * [168642] Fixed an issue with text disappearing when printing under Windows.
 
 Mac OS X
 --------
@@ -198,10 +236,11 @@ Mac OS X
     * [172475] Don't repaint OpenGL widgets when another window is resized.
     * Ensure that the maximized bit is removed when a window is resized by user interaction.
     * Note for Leopard pre-release builds: Qt 4.3.x applications run on the
-    August Leopard pre-release (build 9A527) won't show any windows because of
-    a regression in the Carbon library. This has been addressed for a futre OS
-    X release. In the meantime, if you *must* test your application against
-    this Leopard build, please contact Trolltech.
+      August Leopard pre-release (build 9A527) won't show any windows because of
+      a regression in the Carbon library. This has been addressed for a futre OS
+      X release. In the meantime, if you *must* test your application against
+      this Leopard build, please contact Trolltech.
+    * [170000] Fixed an issue where QPrinter::newPage() would reset the current QPainter state.
 
 
 Qtopia Core
@@ -216,13 +255,13 @@ Qtopia Core
       to set the font installation path.
     * [174264] Fixed synchronization of QDirectPainter::startPainting() to
       be able to guarantee correct result of QDirectPainter::allocatedRegion().
-    * [175994] Fixed missing updates in parent and sibling widgets when 
+    * [175994] Fixed missing updates in parent and sibling widgets when
       using the QWindowSurface::buffer() and QWindowSurface::flush() mechanism
       to paint outside a paint event.
-    * [170488] Implemented true synchrononous behavior when creating a 
+    * [170488] Implemented true synchrononous behavior when creating a
       QDirectPainter with the ReservedSynchronous flag.
     * [275284] Fixed implementation of the Hybrid OpenGL integration.
-    * [178269] Fixed loading of the VNC screen driver when compiled as 
+    * [178269] Fixed loading of the VNC screen driver when compiled as
       a plugin.
     * [178261] Fixed loading of the Transformed screen driver when compile as
       a plugin.
