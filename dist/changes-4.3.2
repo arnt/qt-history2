@@ -40,12 +40,16 @@ QAbstractItemView
     * [168493] Fixed drag and drop regression when parent in a tree doesn't allow dropping.
     * [174848] Fixed a crash while removing the current edited row
 
+QDataWidgetMapper
+    * [172427] Fixed a crash while submitting data from the mapped widget to the model.
+
 QTreeView
     * [171947] Fixed bug where an inactive QTreeView does not paint alternate color
       with inactive palette role.
     * Fixes many possible crashes when there are pending changes.
     * [177165] Column minimum width could be wrong aénd not depend on the actual text in the header.
     * [177945] Mac OSX: Fixed a crash when dragging over an empty region.
+    * [174437] Fixed bug where it was possible to interactively change checkstate if the item was disabled.
 
 QTreeWidget
     * [174396] setItemExpanded() could potentially fail.
@@ -87,6 +91,10 @@ QFileDialog
     * [166786] (Windows) Some files not showing up, sometimes.
     * [165289] (Windows) When starting the file dialog with a UNC path it would ignore it.
     * [140539] (Windows) Dialog no longer gets the drives when launched.
+
+QFSFileEngine
+    * [177363] Fix bug in fileTime() that returned a different time depending on if it was 
+      called during a Daylight Saving Time period or not.
 
 QColorDialog
     * [153436] Fix a crash in QColorDialog when choosing a color in the Gray colorspace.
@@ -140,6 +148,10 @@ QLabel
 QLayout
     * Fix a performance regression from 4.2 related to the introduction of QStyle::layoutSpacing().
 
+QLibrary
+    * [178304] Fixed a bug that caused a crash if we called QLibrary::errorString() before QLibrary had
+      a filename associated with it.
+
 QPainter
     * [168621] Fixed offset bug in drawing with perspective transforms.
     * [172017] Fixed drawing of non-cosmetic points with cap style FlatCap (X11 and OpenGL).
@@ -152,6 +164,9 @@ QPainterPath
 
 QPicture
     * [168621] Wrong scale when rendering to device with different X and Y DPI.
+
+QPlastiqueStyle
+    * [174104] Fixed a regression in Plastique causing spin boxes to have incorrect height.
 
 QRasterPaintEngine
     * [169997] Fixed aliased rendering of complex paths with a large number of subpaths.
@@ -169,6 +184,9 @@ QCoreGraphicsPaintEngine
 QFontDatabase
     * [176450] Added some missing tr() calls and made all strings localizable.
 
+QImage
+    * [176831] Fixed bug where converting to Format_RGB16 gave wrong colors.
+
 QX11PaintEngine
     * [173977] Fixed drawing of tiled bitmaps into a bitmap when XRender was used
       under X11.
@@ -177,6 +195,8 @@ QX11PaintEngine
 QWidget
     * [157496] Fixed a memleak in setWindowIcon() under Windows.
     * [175114] Fixed missing update after hiding a child of a hidden widget.
+    * [176455] Fix regression where a parent layout was not always invalidated if the
+      widget had a fixed size.
 
 QGLWidget
     * [169131] Fixed and issue with renderPixmap() where text drawn with renderText()
@@ -191,6 +211,22 @@ QGLPixelBuffer
     * [179143] Fixed a memleak when a QGLPixelBuffer was deleted under
       Windows. This would appear as a slowdown in performance to the user.
 
+QSqlQuery
+    * [173710] Fixed a bug that caused value() to return null-variants instead of real
+      values after reexecuting a prepared query.
+
+QSqlRelationalTableModel
+    * [176374] Fixed an unfornate change in 4.3.0. Display column names were aliased to
+      prevent duplicate column names in records in order to fix a bug in insertRecord().
+      However all display columns were always aliased - even when not necessery. From now
+      on display column names will only be aliased when there are name clashes, and only the
+      conflicting columns will be aliased.
+
+QSqlTableModel
+    * [170783] Fixed a bug that caused empty rows to be displayed in a QTableView when a
+      new model was set on the view. This was caused by QSqlTableModel emitting the
+      rowsAboutToBeInserted and rowsInserted signals even when the new model was empty.
+
 QSvgRenderer
     * [172550] Fixed incorrect linear gradient parsing for certain SVGs.
     * [175651] Fixed crash when loading SVGs with undefined urls.
@@ -200,6 +236,17 @@ Text rendering
     * [173792] Fixed transformed rendering of non-scalable/bitmap Freetype glyphs.
 
 
+QCalendarWidget
+    * [171532] Fixed keyboard navigation (pressing "w" doesn't select "Wed" cell anymore)
+    * [173852] Fixed SingleLetterDayNames mode in case of Chinese
+
+Tools
+-----
+
+Designer
+    * [175822] Fixed edit modes in case of form's resizing
+    * [174797] Fixed crash in case of redoing several commands in one go
+    
 Third party components
 ----------------------
 
@@ -218,6 +265,11 @@ Build System
       this version of the compiler, and the -no-pch workaround is no
       longer needed. Note that there is still one outstanding bug in the
       64-bit compiler that requires configuring and building with -debug.
+    * Fix bug in escape_expand that corrupted the text.
+
+I18n
+----
+    * Fix crash in lupdate/lrelease that occured if the xml parser threw an error.
 
 Linguist
 --------
@@ -279,6 +331,7 @@ Windows
     * [168642] Fixed an issue with text disappearing when printing under Windows.
     * [173219] Fixed an issue where fonts would get incorrectly scaled beyond font
       size 64.
+    * [276527] Fixed a memory leak in QWindowsVistaStyle.
 
 Mac OS X
 --------
@@ -323,6 +376,13 @@ Qtopia Core
       a plugin.
     * [276651] Fixed mouse calibration in some configurations using the
       tslib mouse driver.
+    * [173037] Fixed re-entrancy problem causing QClipboard::mimeData() to block
+    * [174076] Added environment variable QWS_CONNECTION_TIMEOUT that changes
+      the timeout for client applications connecting to the QWS server.
+    * [167661] Render some "broken" BMP images correctly.
+    * [176445] Added support for the Glib event loop (turned off by default).
+    * Added livelock protection: events from the QWS server can no longer starve local
+      timer events or posted events.
 
 ****************************************************************************
 *                   Important Behavior Changes
