@@ -62,7 +62,7 @@ private:
 QStringList tst_QXmlQuery::queries()
 {
     QDir dir;
-    dir.cd(QLatin1String("../cli/queries/"));
+    dir.cd(QLatin1String("../patternist/queries/"));
 
     return dir.entryList(QStringList(QLatin1String("*.xq")));
 }
@@ -114,7 +114,7 @@ void tst_QXmlQuery::evaluateToPushCallback()
     if(inputQuery == QLatin1String("wrongArity.xq"))
         QSKIP("wrongArity.xq crashes, some NamePool problem.", SkipSingle);
         
-    QFile queryFile(QLatin1String("../cli/queries/") + inputQuery);
+    QFile queryFile(QLatin1String("../patternist/queries/") + inputQuery);
     QVERIFY(queryFile.open(QIODevice::ReadOnly));
 
     QXmlQuery query;
@@ -154,7 +154,7 @@ void tst_QXmlQuery::evaluateToPushCallback_data() const
     QTest::addColumn<QString>("inputQuery");
 
     const QStringList qs(queries());
-    QVERIFY2(qs.size() > 0, "Failed to locate query files, something is wrong with the setup.");
+    QVERIFY2(qs.size() > 0, "Failed to locate query files, something is wrong with the auto test setup.");
 
     for(int i = 0; i < qs.size(); ++i)
         QTest::newRow(qs.at(i).toUtf8().constData()) << qs.at(i);
