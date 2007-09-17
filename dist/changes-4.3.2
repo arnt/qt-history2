@@ -128,11 +128,17 @@ QTextEdit
     * [173574] Fixed bug where floating image links would not be clickable.
     * [174276] Fix resizing performance with disabled wrapping.
 
+QTextLayout
+    * Fix a regression in the line breaking algorithm that lead to wrong results for justified text.
+
 QUtf8Codec
     * [175794] Fix off-by-one buffer overflow
 
 QLabel
     * Fix crash when changing contents in slot connected to linkActivated signal.
+
+QLayout
+    * Fix a performance regression from 4.2 related to the introduction of QStyle::layoutSpacing().
 
 QPainter
     * [168621] Fixed offset bug in drawing with perspective transforms.
@@ -160,9 +166,8 @@ QCoreGraphicsPaintEngine
       Mac OS X versions < 10.4.
     * [172006] Fixed point drawing with a scaled painter on Mac OS X.
 
-QFontEngineFT
-    * [170792] Fixed subpixel antialiasing across X11 server/clients with
-      different endianess.
+QFontDatabase
+    * [176450] Added some missing tr() calls and made all strings localizable.
 
 QX11PaintEngine
     * [173977] Fixed drawing of tiled bitmaps into a bitmap when XRender was used
@@ -222,6 +227,14 @@ General Improvements
 *                          Database Drivers                                *
 ****************************************************************************
 
+     * [175144] Fixed a build issue that prevented the QIBASE driver from being
+       built at the same time as the QODBC driver if Firebird header files older
+       than v2.0 were used.
+
+     * [177530] Fixed a regression introduced in 4.3.0 that broke stored
+       procedure support for Interbase/Firebird. When executing a procedure with
+       out parameters the values were not retrievable.
+
 ****************************************************************************
 *                               Examples                                   *
 ****************************************************************************
@@ -243,6 +256,8 @@ X11
     * [171224] Fix Copy & Paste of Non-Ascii text from Qt 3 to Qt 4 applications.
     * Workaround for bug in gcc 3.4.2 that would cause 64-bit, bootstrapped
       applications to crash on Solaris.
+    * [170792] Fixed subpixel antialiasing of fonts across X11 server/clients with
+      different endianess.
 
 Windows
 -------
@@ -270,11 +285,12 @@ Mac OS X
     * [175164] Fix regression where font base lines for labels, check boxes and radio buttons
       weren't properly aligned.
     * [173007] Fix regression where qt_mac_set_native_menubar() did not work.
+    * [130809] Bold fonts where not used correctly when generating PDFs.
 
 Qtopia Core
 -----------
     * Preserve the font database cache across QWS server restarts.
-
+    * Some startup time improvements for the server process.
     * [272527] Fixed a bug in the internal crash handler that released
       resources in some non-fatal incidents.
     * [169569] Fixed blitting of unitialized data to the screen when
