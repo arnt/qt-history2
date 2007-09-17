@@ -604,6 +604,7 @@ QSize QToolBarLayout::sizeHint() const
 QToolBarItem *QToolBarLayout::createItem(QAction *action)
 {
     bool customWidget = false;
+    bool standardButtonWidget = false;
     QWidget *widget = 0;
     QToolBar *tb = qobject_cast<QToolBar*>(parentWidget());
 
@@ -631,10 +632,13 @@ QToolBarItem *QToolBarLayout::createItem(QAction *action)
         button->setDefaultAction(action);
         QObject::connect(button, SIGNAL(triggered(QAction*)), tb, SIGNAL(actionTriggered(QAction*)));
         widget = button;
+        standardButtonWidget = true;
     }
 
     widget->hide();
     QToolBarItem *result = new QToolBarItem(widget);
+    if (standardButtonWidget)
+        result->setAlignment(Qt::AlignJustify);
     result->customWidget = customWidget;
     result->action = action;
     result->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
