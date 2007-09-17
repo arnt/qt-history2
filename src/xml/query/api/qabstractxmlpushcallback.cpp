@@ -20,6 +20,7 @@ QT_BEGIN_NAMESPACE
   \brief A push-based, streaming event interface for the XPath Data Model.
   \reentrant
   \since 4.4
+  \ingroup xml-tools
 
   QAbstractXmlPushCallback allows a stream of events representing an instance of
   the XPath Data Model -- essentially XML --

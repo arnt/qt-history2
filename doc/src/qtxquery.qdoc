@@ -2,9 +2,19 @@
 
 /*!
     \page patternist-manual.html
-    \title Patternist Manual
+    \startpage index.html QtReference Documentation
+    \title Patternist Framework
+    \previouspage QtXml
+    \nextpage QtDesigner
     \ingroup architecture
-    \brief An overview of Qt's XQuery support.
+    \brief An overview of Qt's XQuery support.  
+
+    \keyword xml
+    \keyword xpath
+    \keyword xqts
+    \keyword xquery
+    \keyword xslt
+    \keyword xsl-t
 
     XQuery is an XML-aware language that allows XML to be queried and created in
     convenient and safe ways.

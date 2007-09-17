@@ -32,6 +32,7 @@ QT_BEGIN_NAMESPACE
   \brief Represents a name for an XML node in a namespace-aware and efficient way.
   \reentrant
   \since 4.4
+  \ingroup xml-tools
 
   QXmlName represents a name in XML, such as \c body in the namespace http://www.w3.org/1999/xhtml/, in
   an efficient and safe way. Instances are created by passing strings to the QXmlQuery::createName() factory

@@ -27,6 +27,7 @@ QT_BEGIN_NAMESPACE
   \reentrant
   \since 4.4
   \brief Provides information for how serializing XML should be done.
+  \ingroup xml-tools
 
   QPreparedQuery::serialize() evaluates the query, and writes the result as XML to a QIODevice.
   Sometimes it may be of interest to customize this step, such as to change the codec that

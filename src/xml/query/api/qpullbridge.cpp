@@ -27,6 +27,7 @@ QT_BEGIN_NAMESPACE
   \internal
   \since 4.4
   \reentrant
+  \ingroup xml-tools
 
   The approach of this class is rather straight forward since Patternist::SequenceIterator
   and QAbstractXmlPullProvider are conceptually similar. While Patternist::SequenceIterator only

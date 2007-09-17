@@ -22,6 +22,7 @@ QT_BEGIN_NAMESPACE
   \reentrant
   \since 4.4
   \brief Identifies a location in a resource, using a URI, line number and column number.
+  \ingroup xml-tools
 
   QSourceLocation is a simple value based class that has three properties, uri(),
   line(), and column(), that together identifies a certain point in a resource, such

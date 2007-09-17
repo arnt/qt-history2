@@ -23,6 +23,7 @@ QT_BEGIN_NAMESPACE
   \brief A pull-based, stream interface for the XPath Data Model.
   \reentrant
   \since 4.4
+  \ingroup xml-tools
 
   QAbstractXmlPullProvider allows a stream of items from the XPath Data Model -- essentially XML --
   to be iterated over. The subclass of QAbstractXmlPullProvider provides the events, and the

@@ -29,6 +29,7 @@ QT_BEGIN_NAMESPACE
   \brief Evaluates XQuery queries.
   \reentrant
   \since 4.4
+  \ingroup xml-tools
 
   QXmlQuery is the central point for running XQuery queries. First setQuery() is called
   specifying the source code of the query, and one of the following members

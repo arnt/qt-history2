@@ -23,6 +23,7 @@ QT_BEGIN_NAMESPACE
   \brief A callback that rewrites one URI into another.
   \threadsafe
   \since 4.4
+  \ingroup xml-tools
 
   Uniform Resource Identifiers, URIs, are strings that identify
   or name a resource. That URI are not more specific than that, makes

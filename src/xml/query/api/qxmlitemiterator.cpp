@@ -25,6 +25,7 @@ QT_BEGIN_NAMESPACE
   \brief
   \reentrant
   \since 4.4
+  \ingroup xml-tools
 
  */
 

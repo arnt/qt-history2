@@ -27,6 +27,7 @@ public:
   \class QAbstractMessageHandler
   \threadsafe
   \since 4.4
+  \ingroup xml-tools
 
   \brief A callback for receiving messages.
 
