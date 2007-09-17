@@ -4627,6 +4627,9 @@ QUrl QUrl::fromEncoded(const QByteArray &input, ParsingMode parsingMode)
 */
 QString QUrl::fromPercentEncoding(const QByteArray &input)
 {
+    if (input.isNull())
+        return QString();       // preserve null
+
     QVarLengthArray<char> tmp(input.size() + 1);
 
     char *data = tmp.data();
