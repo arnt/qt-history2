@@ -20,6 +20,8 @@
 #include <QtGui/qpainter.h>
 #include <QtGui/qpicture.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPreviewPaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QPreviewPaintEngine)
@@ -182,3 +184,5 @@ QPrinter::PrinterState QPreviewPaintEngine::printerState() const
     Q_D(const QPreviewPaintEngine);
     return d->proxy_print_engine->printerState();
 }
+
+QT_END_NAMESPACE

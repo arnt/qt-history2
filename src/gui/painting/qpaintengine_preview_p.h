@@ -29,6 +29,8 @@
 #include <QtGui/qpaintengine.h>
 #include <QtGui/qprintengine.h>
 
+QT_BEGIN_NAMESPACE
+
 class QPreviewPaintEnginePrivate;
 
 class QPreviewPaintEngine : public QPaintEngine, public QPrintEngine
@@ -66,5 +68,7 @@ public:
 
     QPrinter::PrinterState printerState() const;
 };
+
+QT_END_NAMESPACE
 
 #endif
