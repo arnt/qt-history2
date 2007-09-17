@@ -269,14 +269,13 @@ static inline bool xOrder(const QScanConverter::Line *a, const QScanConverter::L
     return a->x < b->x;
 }
 
-struct True
+template <bool B>
+struct QBoolToType
 {
-    inline bool operator()() const { return true; }
-};
-
-struct False
-{
-    inline bool operator()() const { return false; }
+    inline bool operator()() const
+    {
+        return B;
+    }
 };
 
 // should be a member function but VC6 doesn't support member template functions
@@ -353,9 +352,9 @@ void QScanConverter::end()
             }
         }
         if (allVertical)
-            scanConvert(*this, True());
+            scanConvert(*this, QBoolToType<true>());
         else
-            scanConvert(*this, False());
+            scanConvert(*this, QBoolToType<false>());
     } else {
         for (int chunkTop = m_top; chunkTop <= m_bottom; chunkTop += CHUNK_SIZE) {
             prepareChunk();

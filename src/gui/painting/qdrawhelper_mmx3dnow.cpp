@@ -27,7 +27,7 @@ struct QMMX3DNOWIntrinsics : public QMMXCommonIntrinsics
     }
 };
 
-const CompositionFunctionSolid qt_functionForModeSolid_MMX3DNOW[] = {
+CompositionFunctionSolid qt_functionForModeSolid_MMX3DNOW[numCompositionFunctions] = {
     comp_func_solid_SourceOver<QMMX3DNOWIntrinsics>,
     comp_func_solid_DestinationOver<QMMX3DNOWIntrinsics>,
     comp_func_solid_Clear<QMMX3DNOWIntrinsics>,
@@ -39,22 +39,10 @@ const CompositionFunctionSolid qt_functionForModeSolid_MMX3DNOW[] = {
     comp_func_solid_DestinationOut<QMMX3DNOWIntrinsics>,
     comp_func_solid_SourceAtop<QMMX3DNOWIntrinsics>,
     comp_func_solid_DestinationAtop<QMMX3DNOWIntrinsics>,
-    comp_func_solid_XOR<QMMX3DNOWIntrinsics>,
-    comp_func_solid_Plus,
-    comp_func_solid_Multiply,
-    comp_func_solid_Screen,
-    comp_func_solid_Overlay,
-    comp_func_solid_Darken,
-    comp_func_solid_Lighten,
-    comp_func_solid_ColorDodge,
-    comp_func_solid_ColorBurn,
-    comp_func_solid_HardLight,
-    comp_func_solid_SoftLight,
-    comp_func_solid_Difference,
-    comp_func_solid_Exclusion
+    comp_func_solid_XOR<QMMX3DNOWIntrinsics>
 };
 
-const CompositionFunction qt_functionForMode_MMX3DNOW[] = {
+CompositionFunction qt_functionForMode_MMX3DNOW[numCompositionFunctions] = {
     comp_func_SourceOver<QMMX3DNOWIntrinsics>,
     comp_func_DestinationOver<QMMX3DNOWIntrinsics>,
     comp_func_Clear<QMMX3DNOWIntrinsics>,
@@ -66,19 +54,7 @@ const CompositionFunction qt_functionForMode_MMX3DNOW[] = {
     comp_func_DestinationOut<QMMX3DNOWIntrinsics>,
     comp_func_SourceAtop<QMMX3DNOWIntrinsics>,
     comp_func_DestinationAtop<QMMX3DNOWIntrinsics>,
-    comp_func_XOR<QMMX3DNOWIntrinsics>,
-    comp_func_Plus,
-    comp_func_Multiply,
-    comp_func_Screen,
-    comp_func_Overlay,
-    comp_func_Darken,
-    comp_func_Lighten,
-    comp_func_ColorDodge,
-    comp_func_ColorBurn,
-    comp_func_HardLight,
-    comp_func_SoftLight,
-    comp_func_Difference,
-    comp_func_Exclusion
+    comp_func_XOR<QMMX3DNOWIntrinsics>
 };
 
 void qt_blend_color_argb_mmx3dnow(int count, const QSpan *spans, void *userData)

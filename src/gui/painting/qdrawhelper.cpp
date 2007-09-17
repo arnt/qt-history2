@@ -774,7 +774,7 @@ static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
 };
 
 
-static uint qt_gradient_pixel(const GradientData *data, qreal pos)
+static uint qt_gradient_pixel(const QGradientData *data, qreal pos)
 {
     int ipos = qRound(pos * GRADIENT_STOPTABLE_SIZE - 1);
 
@@ -807,7 +807,7 @@ static uint qt_gradient_pixel(const GradientData *data, qreal pos)
 #define FIXPT_BITS 8
 #define FIXPT_SIZE (1<<FIXPT_BITS)
 
-static uint qt_gradient_pixel_fixed(const GradientData *data, int fixed_pos)
+static uint qt_gradient_pixel_fixed(const QGradientData *data, int fixed_pos)
 {
     int ipos = ((fixed_pos + FIXPT_SIZE / 2) >> FIXPT_BITS) - 1;
 
@@ -1465,15 +1465,15 @@ static const uint RMASK = 0x00ff0000;
 static const uint GMASK = 0x0000ff00;
 static const uint BMASK = 0x000000ff;
 
-struct FullCoverage {
+struct QFullCoverage {
     inline void store(uint *dest, const uint src) const
     {
         *dest = src;
     }
 };
 
-struct PartialCoverage {
-    inline PartialCoverage(uint const_alpha)
+struct QPartialCoverage {
+    inline QPartialCoverage(uint const_alpha)
         : ca(const_alpha)
         , ica(255 - const_alpha)
     {
@@ -1512,12 +1512,12 @@ static inline void comp_func_solid_Plus_impl(uint *dest, int length, uint color,
     }
 }
 
-void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_Plus_impl(dest, length, color, FullCoverage());
+        comp_func_solid_Plus_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_Plus_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_Plus_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -1535,12 +1535,12 @@ static inline void comp_func_Plus_impl(uint *dest, const uint *src, int length, 
     }
 }
 
-void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_Plus_impl(dest, src, length, FullCoverage());
+        comp_func_Plus_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_Plus_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_Plus_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -1574,12 +1574,12 @@ static inline void comp_func_solid_Multiply_impl(uint *dest, int length, uint co
     }
 }
 
-void QT_FASTCALL comp_func_solid_Multiply(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Multiply(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_Multiply_impl(dest, length, color, FullCoverage());
+        comp_func_solid_Multiply_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_Multiply_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_Multiply_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -1603,12 +1603,12 @@ static inline void comp_func_Multiply_impl(uint *dest, const uint *src, int leng
     }
 }
 
-void QT_FASTCALL comp_func_Multiply(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_Multiply(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_Multiply_impl(dest, src, length, FullCoverage());
+        comp_func_Multiply_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_Multiply_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_Multiply_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -1638,12 +1638,12 @@ static inline void comp_func_solid_Screen_impl(uint *dest, int length, uint colo
     }
 }
 
-void QT_FASTCALL comp_func_solid_Screen(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Screen(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_Screen_impl(dest, length, color, FullCoverage());
+        comp_func_solid_Screen_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_Screen_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_Screen_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -1667,12 +1667,12 @@ static inline void comp_func_Screen_impl(uint *dest, const uint *src, int length
     }
 }
 
-void QT_FASTCALL comp_func_Screen(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_Screen(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_Screen_impl(dest, src, length, FullCoverage());
+        comp_func_Screen_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_Screen_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_Screen_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -1713,12 +1713,12 @@ static inline void comp_func_solid_Overlay_impl(uint *dest, int length, uint col
     }
 }
 
-void QT_FASTCALL comp_func_solid_Overlay(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Overlay(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_Overlay_impl(dest, length, color, FullCoverage());
+        comp_func_solid_Overlay_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_Overlay_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_Overlay_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -1742,12 +1742,12 @@ static inline void comp_func_Overlay_impl(uint *dest, const uint *src, int lengt
     }
 }
 
-void QT_FASTCALL comp_func_Overlay(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_Overlay(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_Overlay_impl(dest, src, length, FullCoverage());
+        comp_func_Overlay_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_Overlay_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_Overlay_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -1782,12 +1782,12 @@ static inline void comp_func_solid_Darken_impl(uint *dest, int length, uint colo
     }
 }
 
-void QT_FASTCALL comp_func_solid_Darken(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Darken(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_Darken_impl(dest, length, color, FullCoverage());
+        comp_func_solid_Darken_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_Darken_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_Darken_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -1811,12 +1811,12 @@ static inline void comp_func_Darken_impl(uint *dest, const uint *src, int length
     }
 }
 
-void QT_FASTCALL comp_func_Darken(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_Darken(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_Darken_impl(dest, src, length, FullCoverage());
+        comp_func_Darken_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_Darken_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_Darken_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -1851,12 +1851,12 @@ static inline void comp_func_solid_Lighten_impl(uint *dest, int length, uint col
     }
 }
 
-void QT_FASTCALL comp_func_solid_Lighten(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Lighten(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_Lighten_impl(dest, length, color, FullCoverage());
+        comp_func_solid_Lighten_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_Lighten_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_Lighten_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -1880,12 +1880,12 @@ static inline void comp_func_Lighten_impl(uint *dest, const uint *src, int lengt
     }
 }
 
-void QT_FASTCALL comp_func_Lighten(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_Lighten(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_Lighten_impl(dest, src, length, FullCoverage());
+        comp_func_Lighten_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_Lighten_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_Lighten_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -1930,12 +1930,12 @@ static inline void comp_func_solid_ColorDodge_impl(uint *dest, int length, uint 
     }
 }
 
-void QT_FASTCALL comp_func_solid_ColorDodge(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_ColorDodge(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_ColorDodge_impl(dest, length, color, FullCoverage());
+        comp_func_solid_ColorDodge_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_ColorDodge_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_ColorDodge_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -1959,12 +1959,12 @@ static inline void comp_func_ColorDodge_impl(uint *dest, const uint *src, int le
     }
 }
 
-void QT_FASTCALL comp_func_ColorDodge(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_ColorDodge(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_ColorDodge_impl(dest, src, length, FullCoverage());
+        comp_func_ColorDodge_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_ColorDodge_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_ColorDodge_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -2010,12 +2010,12 @@ static inline void comp_func_solid_ColorBurn_impl(uint *dest, int length, uint c
     }
 }
 
-void QT_FASTCALL comp_func_solid_ColorBurn(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_ColorBurn(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_ColorBurn_impl(dest, length, color, FullCoverage());
+        comp_func_solid_ColorBurn_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_ColorBurn_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_ColorBurn_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -2039,12 +2039,12 @@ static inline void comp_func_ColorBurn_impl(uint *dest, const uint *src, int len
     }
 }
 
-void QT_FASTCALL comp_func_ColorBurn(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_ColorBurn(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_ColorBurn_impl(dest, src, length, FullCoverage());
+        comp_func_ColorBurn_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_ColorBurn_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_ColorBurn_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -2086,12 +2086,12 @@ static inline void comp_func_solid_HardLight_impl(uint *dest, int length, uint c
     }
 }
 
-void QT_FASTCALL comp_func_solid_HardLight(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_HardLight(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_HardLight_impl(dest, length, color, FullCoverage());
+        comp_func_solid_HardLight_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_HardLight_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_HardLight_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -2115,12 +2115,12 @@ static inline void comp_func_HardLight_impl(uint *dest, const uint *src, int len
     }
 }
 
-void QT_FASTCALL comp_func_HardLight(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_HardLight(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_HardLight_impl(dest, src, length, FullCoverage());
+        comp_func_HardLight_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_HardLight_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_HardLight_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -2171,12 +2171,12 @@ static inline void comp_func_solid_SoftLight_impl(uint *dest, int length, uint c
     }
 }
 
-void QT_FASTCALL comp_func_solid_SoftLight(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_SoftLight(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_SoftLight_impl(dest, length, color, FullCoverage());
+        comp_func_solid_SoftLight_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_SoftLight_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_SoftLight_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -2200,12 +2200,12 @@ static inline void comp_func_SoftLight_impl(uint *dest, const uint *src, int len
     }
 }
 
-void QT_FASTCALL comp_func_SoftLight(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_SoftLight(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_SoftLight_impl(dest, src, length, FullCoverage());
+        comp_func_SoftLight_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_SoftLight_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_SoftLight_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -2240,12 +2240,12 @@ static inline void comp_func_solid_Difference_impl(uint *dest, int length, uint 
     }
 }
 
-void QT_FASTCALL comp_func_solid_Difference(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Difference(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_Difference_impl(dest, length, color, FullCoverage());
+        comp_func_solid_Difference_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_Difference_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_Difference_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -2269,12 +2269,12 @@ static inline void comp_func_Difference_impl(uint *dest, const uint *src, int le
     }
 }
 
-void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_Difference_impl(dest, src, length, FullCoverage());
+        comp_func_Difference_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_Difference_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_Difference_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 /*
@@ -2303,12 +2303,12 @@ static inline void QT_FASTCALL comp_func_solid_Exclusion_impl(uint *dest, int le
     }
 }
 
-void QT_FASTCALL comp_func_solid_Exclusion(uint *dest, int length, uint color, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Exclusion(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_solid_Exclusion_impl(dest, length, color, FullCoverage());
+        comp_func_solid_Exclusion_impl(dest, length, color, QFullCoverage());
     else
-        comp_func_solid_Exclusion_impl(dest, length, color, PartialCoverage(const_alpha));
+        comp_func_solid_Exclusion_impl(dest, length, color, QPartialCoverage(const_alpha));
 }
 
 template <typename T>
@@ -2332,12 +2332,12 @@ static inline void comp_func_Exclusion_impl(uint *dest, const uint *src, int len
     }
 }
 
-void QT_FASTCALL comp_func_Exclusion(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_Exclusion(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255)
-        comp_func_Exclusion_impl(dest, src, length, FullCoverage());
+        comp_func_Exclusion_impl(dest, src, length, QFullCoverage());
     else
-        comp_func_Exclusion_impl(dest, src, length, PartialCoverage(const_alpha));
+        comp_func_Exclusion_impl(dest, src, length, QPartialCoverage(const_alpha));
 }
 
 static const CompositionFunctionSolid functionForModeSolid_C[] = {
@@ -2402,17 +2402,17 @@ static TextureBlendType getBlendType(const QSpanData *data)
 {
     TextureBlendType ft;
     if (data->txop <= QTransform::TxTranslate)
-        if (data->texture.type == TextureData::Tiled)
+        if (data->texture.type == QTextureData::Tiled)
             ft = BlendTiled;
         else
             ft = BlendUntransformed;
     else if (data->bilinear)
-        if (data->texture.type == TextureData::Tiled)
+        if (data->texture.type == QTextureData::Tiled)
             ft = BlendTransformedBilinearTiled;
         else
             ft = BlendTransformedBilinear;
     else
-        if (data->texture.type == TextureData::Tiled)
+        if (data->texture.type == QTextureData::Tiled)
             ft = BlendTransformedTiled;
         else
             ft = BlendTransformed;
@@ -5229,6 +5229,9 @@ void qInitDrawhelperAsm()
     qt_memfill32 = qt_memfill_template<quint32, quint32>;
     qt_memfill16 = qt_memfill_quint16; //qt_memfill_template<quint16, quint16>;
 
+    CompositionFunction *functionForModeAsm = 0;
+    CompositionFunctionSolid *functionForModeSolidAsm = 0;
+
 #ifdef QT_NO_DEBUG
     if (false) {
 #ifdef QT_HAVE_SSE2
@@ -5265,13 +5268,13 @@ void qInitDrawhelperAsm()
     }
 #ifdef QT_HAVE_MMX
     if (features & MMX) {
-        functionForMode = qt_functionForMode_MMX;
-        functionForModeSolid = qt_functionForModeSolid_MMX;
+        functionForModeAsm = qt_functionForMode_MMX;
+        functionForModeSolidAsm = qt_functionForModeSolid_MMX;
         qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_mmx;
 #ifdef QT_HAVE_3DNOW
         if (features & MMX3DNOW) {
-            functionForMode = qt_functionForMode_MMX3DNOW;
-            functionForModeSolid = qt_functionForModeSolid_MMX3DNOW;
+            functionForModeAsm = qt_functionForMode_MMX3DNOW;
+            functionForModeSolidAsm = qt_functionForModeSolid_MMX3DNOW;
             qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_mmx3dnow;
         }
 #endif // 3DNOW
@@ -5280,13 +5283,13 @@ void qInitDrawhelperAsm()
 
 #ifdef QT_HAVE_SSE
     if (features & SSE) {
-        functionForMode = qt_functionForMode_SSE;
-        functionForModeSolid = qt_functionForModeSolid_SSE;
+        functionForModeAsm = qt_functionForMode_SSE;
+        functionForModeSolidAsm = qt_functionForModeSolid_SSE;
         qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_sse;
 #ifdef QT_HAVE_3DNOW
         if (features & MMX3DNOW) {
-            functionForMode = qt_functionForMode_SSE3DNOW;
-            functionForModeSolid = qt_functionForModeSolid_SSE3DNOW;
+            functionForModeAsm = qt_functionForMode_SSE3DNOW;
+            functionForModeSolidAsm = qt_functionForModeSolid_SSE3DNOW;
             qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_sse3dnow;
         }
 #endif // 3DNOW
@@ -5295,13 +5298,27 @@ void qInitDrawhelperAsm()
 
 #ifdef QT_HAVE_IWMMXT
     if (features & IWMMXT) {
-        functionForMode = qt_functionForMode_IWMMXT;
-        functionForModeSolid = qt_functionForModeSolid_IWMMXT;
+        functionForModeAsm = qt_functionForMode_IWMMXT;
+        functionForModeSolidAsm = qt_functionForModeSolid_IWMMXT;
         qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_iwmmxt;
     }
 #endif // IWMMXT
 
 #endif // QT_NO_DEBUG
+
+    if (functionForModeAsm || functionForModeSolidAsm) {
+        Q_ASSERT(functionForModeAsm != 0);
+        Q_ASSERT(functionForModeSolidAsm != 0);
+
+        // use the default qdrawhelper implementation for the extended composition modes
+        for (int mode = 12; mode < numCompositionFunctions; ++mode) {
+            functionForModeAsm[mode] = functionForMode_C[mode];
+            functionForModeSolidAsm[mode] = functionForModeSolid_C[mode];
+        }
+
+        functionForMode = functionForModeAsm;
+        functionForModeSolid = functionForModeSolidAsm;
+    }
 }
 
 static void qt_memfill32_setup(quint32 *dest, quint32 value, int count)

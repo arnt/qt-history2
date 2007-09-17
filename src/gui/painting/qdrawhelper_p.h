@@ -48,12 +48,12 @@ QT_BEGIN_NAMESPACE
  */
 typedef QT_FT_Span QSpan;
 
-struct SolidData;
-struct TextureData;
-struct GradientData;
-struct LinearGradientData;
-struct RadialGradientData;
-struct ConicalGradientData;
+struct QSolidData;
+struct QTextureData;
+struct QGradientData;
+struct QLinearGradientData;
+struct QRadialGradientData;
+struct QConicalGradientData;
 struct QSpanData;
 class QGradient;
 class QRasterBuffer;
@@ -93,12 +93,12 @@ void qInitDrawhelperAsm();
 
 class QRasterPaintEngine;
 
-struct SolidData
+struct QSolidData
 {
     uint color;
 };
 
-struct LinearGradientData
+struct QLinearGradientData
 {
     struct {
         qreal x;
@@ -110,7 +110,7 @@ struct LinearGradientData
     } end;
 };
 
-struct RadialGradientData
+struct QRadialGradientData
 {
     struct {
         qreal x;
@@ -123,7 +123,7 @@ struct RadialGradientData
     qreal radius;
 };
 
-struct ConicalGradientData
+struct QConicalGradientData
 {
     struct {
         qreal x;
@@ -132,21 +132,21 @@ struct ConicalGradientData
     qreal angle;
 };
 
-struct GradientData
+struct QGradientData
 {
     QGradient::Spread spread;
 
     union {
-        LinearGradientData linear;
-        RadialGradientData radial;
-        ConicalGradientData conical;
+        QLinearGradientData linear;
+        QRadialGradientData radial;
+        QConicalGradientData conical;
     };
 
     // need to keep track of these as the same gradient might be used for several objects
     union {
-        LinearGradientData unresolvedLinear;
-        RadialGradientData unresolvedRadial;
-        ConicalGradientData unresolvedConical;
+        QLinearGradientData unresolvedLinear;
+        QRadialGradientData unresolvedRadial;
+        QConicalGradientData unresolvedConical;
     };
 
 #ifdef Q_WS_QWS
@@ -161,7 +161,7 @@ struct GradientData
     uint needsResolving : 1;
 };
 
-struct TextureData
+struct QTextureData
 {
     const uchar *imageData;
     const uchar *scanLine(int y) const { return imageData + y*bytesPerLine; }
@@ -203,14 +203,14 @@ struct QSpanData
     bool bilinear;
     QImage tempImage;
     union {
-        SolidData solid;
-        GradientData gradient;
-        TextureData texture;
+        QSolidData solid;
+        QGradientData gradient;
+        QTextureData texture;
     };
     void init(QRasterBuffer *rb, QRasterPaintEngine *pe = 0);
     void setup(const QBrush &brush, int alpha);
     void setupMatrix(const QTransform &matrix, int bilinear);
-    void initTexture(const QImage *image, int alpha, TextureData::Type = TextureData::Plain);
+    void initTexture(const QImage *image, int alpha, QTextureData::Type = QTextureData::Plain);
     void adjustSpanMethods();
 };
 

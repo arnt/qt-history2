@@ -572,7 +572,7 @@ static inline bool IntersectBB(const QBezier &a, const QBezier &b)
     return a.bounds().intersects(b.bounds());
 }
 #else
-int IntersectBB(const QBezier &a, const QBezier &b)
+static int IntersectBB(const QBezier &a, const QBezier &b)
 {
     // Compute bounding box for a
     qreal minax, maxax, minay, maxay;
@@ -659,9 +659,9 @@ static QDebug operator<<(QDebug dbg, const QBezier &bz)
 }
 #endif
 
-void RecursivelyIntersect(const QBezier &a, qreal t0, qreal t1, int deptha,
-			  const QBezier &b, qreal u0, qreal u1, int depthb,
-                          QVector< QList<qreal> > &parameters)
+static void RecursivelyIntersect(const QBezier &a, qreal t0, qreal t1, int deptha,
+                                 const QBezier &b, qreal u0, qreal u1, int depthb,
+                                 QVector< QList<qreal> > &parameters)
 {
 #ifdef QDEBUG_BEZIER
     static int I = 0;

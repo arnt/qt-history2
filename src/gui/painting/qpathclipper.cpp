@@ -61,7 +61,7 @@ static QDebug operator<<(QDebug str, const QBezier &b)
 }
 #endif
 
-class PathVertex
+class QPathVertex
 {
 public:
     enum Degeneracy {
@@ -102,14 +102,14 @@ public:
         LineIntersection
     };
 public:
-    inline PathVertex()
+    inline QPathVertex()
         : heap_allocated(true)
     {
 #ifdef QDEBUG_CLIPPER
         Q_ASSERT(0);
 #endif
     }
-    inline PathVertex(qreal xi, qreal yi, Type t)
+    inline QPathVertex(qreal xi, qreal yi, Type t)
         : next(0), prev(0), intersect(DNone),
           code(TNone), neighbor(0),
           cross_transfer(false),
@@ -117,13 +117,13 @@ public:
           heap_allocated(true)
     {
     }
-    ~PathVertex();
+    ~QPathVertex();
 
     Direction eat();
 
-    Direction forwardEat(PathVertex *prev);
+    Direction forwardEat(QPathVertex *prev);
 
-    Direction backwardEat(PathVertex *prev);
+    Direction backwardEat(QPathVertex *prev);
 
     Direction turnForwardEat();
 
@@ -146,19 +146,19 @@ public:
         return QPointF(x, y);
     }
 
-    void  setCouple(CoupleFlag which, PathVertex *a)
+    void  setCouple(CoupleFlag which, QPathVertex *a)
     {
 	couple.info = which;
 	couple.link = a;
     }
 public:
-    PathVertex *next;
-    PathVertex *prev;
+    QPathVertex *next;
+    QPathVertex *prev;
 
     Degeneracy    intersect;
     TraversalFlag code;
 
-    PathVertex *neighbor;
+    QPathVertex *neighbor;
 
     struct CoupleInfo {
         CoupleInfo()
@@ -166,7 +166,7 @@ public:
               link(0)
         {}
         CoupleFlag  info;
-        PathVertex *link;
+        QPathVertex *link;
     };
     CoupleInfo couple;
 
@@ -179,7 +179,7 @@ public:
     {
         type = t;
     }
-    inline Type getType(const PathVertex *prev) const
+    inline Type getType(const QPathVertex *prev) const
     {
         if (type == MoveLineTo || type == MoveCurveTo) {
             if (!prev || prev == next)
@@ -201,9 +201,9 @@ public:
     }
     inline bool isMoveTo() const
     {
-        return (type == PathVertex::MoveTo ||
-                type == PathVertex::MoveLineTo ||
-                type == PathVertex::MoveCurveTo);
+        return (type == QPathVertex::MoveTo ||
+                type == QPathVertex::MoveLineTo ||
+                type == QPathVertex::MoveCurveTo);
     }
 private:
     Type type;
@@ -215,7 +215,7 @@ public:
 };
 
 #ifdef QDEBUG_CLIPPER
-static QDebug operator<<(QDebug str, const PathVertex &b)
+static QDebug operator<<(QDebug str, const QPathVertex &b)
 {
     QString out = QString::fromLatin1("Vertex(%1 - (%2, %3),inter=%4,tf=%5)")
                   .arg(b.getRawType())
@@ -227,24 +227,24 @@ static QDebug operator<<(QDebug str, const PathVertex &b)
     return str;
 }
 
-static QDebug operator<<(QDebug str, const PathVertex::TraversalFlag &b)
+static QDebug operator<<(QDebug str, const QPathVertex::TraversalFlag &b)
 {
     QString out;
 
     switch (b) {
-    case PathVertex::TNone:
+    case QPathVertex::TNone:
         out = QString::fromLatin1("TNone");
         break;
-    case PathVertex::TEnEx:
+    case QPathVertex::TEnEx:
         out = QString::fromLatin1("TEnEx");
         break;
-    case PathVertex::TExEn:
+    case QPathVertex::TExEn:
         out = QString::fromLatin1("TExEn");
         break;
-    case PathVertex::TEn:
+    case QPathVertex::TEn:
         out = QString::fromLatin1("TEn");
         break;
-    case PathVertex::TEx:
+    case QPathVertex::TEx:
         out = QString::fromLatin1("TEx");
         break;
     }
@@ -253,7 +253,7 @@ static QDebug operator<<(QDebug str, const PathVertex::TraversalFlag &b)
 }
 #endif
 
-PathVertex::Direction PathVertex::eat()
+QPathVertex::Direction QPathVertex::eat()
 {
     switch (code) {
     case TEnEx:
@@ -272,13 +272,13 @@ PathVertex::Direction PathVertex::eat()
         setCode(TNone);
         return BackwardGo;
     case TNone :
-        Q_ASSERT(!"PathVertex::eat: is this state possible?");
+        Q_ASSERT(!"QPathVertex::eat: is this state possible?");
     }
     return ForwardGo;
 }
 
 
-PathVertex::Direction PathVertex::forwardEat(PathVertex *prev)
+QPathVertex::Direction QPathVertex::forwardEat(QPathVertex *prev)
 {
     if (prev == 0)
         Q_ASSERT(!"clip_vertex::forward_eat: is this state possible?");
@@ -310,7 +310,7 @@ PathVertex::Direction PathVertex::forwardEat(PathVertex *prev)
         break;
 
     case TNone :
-        Q_ASSERT(!"PathVertex::forwardEat: is this state possible?");
+        Q_ASSERT(!"QPathVertex::forwardEat: is this state possible?");
     }
 
     if (cross_transfer)
@@ -320,10 +320,10 @@ PathVertex::Direction PathVertex::forwardEat(PathVertex *prev)
 }
 
 
-PathVertex::Direction PathVertex::backwardEat(PathVertex *prev)
+QPathVertex::Direction QPathVertex::backwardEat(QPathVertex *prev)
 {
     if (prev == 0)
-        Q_ASSERT(!"PathVertex::backward_eat: is this state possible?");
+        Q_ASSERT(!"QPathVertex::backward_eat: is this state possible?");
 
     switch (code) {
     case TEnEx :
@@ -350,7 +350,7 @@ PathVertex::Direction PathVertex::backwardEat(PathVertex *prev)
         setCode(TNone);
         break;
     case TNone:
-        Q_ASSERT(!"PathVertex::backward_eat: is this state possible?");;
+        Q_ASSERT(!"QPathVertex::backward_eat: is this state possible?");;
     }
     if (cross_transfer)
         return ForwardTurn;
@@ -359,7 +359,7 @@ PathVertex::Direction PathVertex::backwardEat(PathVertex *prev)
 }
 
 
-PathVertex::Direction PathVertex::turnForwardEat()
+QPathVertex::Direction QPathVertex::turnForwardEat()
 {
     switch (code) {
     case TEnEx:
@@ -378,13 +378,13 @@ PathVertex::Direction PathVertex::turnForwardEat()
         setCode(TNone);
         return BackwardGo;
     case TNone :
-        Q_ASSERT(!"PathVertex::turnForwardEat: is this state possible?");
+        Q_ASSERT(!"QPathVertex::turnForwardEat: is this state possible?");
     }
     return ForwardGo;
 }
 
 
-PathVertex::Direction PathVertex::turnBackwardEat()
+QPathVertex::Direction QPathVertex::turnBackwardEat()
 {
     switch (code) {
     case TEnEx:
@@ -403,13 +403,13 @@ PathVertex::Direction PathVertex::turnBackwardEat()
         setCode(TNone);
         return BackwardGo;
     case TNone :
-        Q_ASSERT(!"PathVertex::turnBackwardEat: is this state possible?");
+        Q_ASSERT(!"QPathVertex::turnBackwardEat: is this state possible?");
     }
     return ForwardGo;
 }
 
 
-void PathVertex::setIntersect(Degeneracy d)
+void QPathVertex::setIntersect(Degeneracy d)
 {
     //don't want to reset the degenerate flag
     if (intersect == DNone || intersect == DIntersect)
@@ -417,65 +417,65 @@ void PathVertex::setIntersect(Degeneracy d)
 }
 
 
-PathVertex::~PathVertex()
+QPathVertex::~QPathVertex()
 {
 }
 
 
-struct VertexList {
+struct QVertexList {
 public:
-    static VertexList *fromPainterPath(const QPainterPath &path);
+    static QVertexList *fromPainterPath(const QPainterPath &path);
 public:
-    PathVertex *node;
+    QPathVertex *node;
 
-    PathVertex *first_node;
-    PathVertex *last_node;
-    PathVertex *current_node;
+    QPathVertex *first_node;
+    QPathVertex *last_node;
+    QPathVertex *current_node;
 
     const int PATH_CACHE_SIZE;
-    PathVertex *cache;
+    QPathVertex *cache;
     int current_cache;
 
-    inline PathVertex *allocateVertex(qreal x, qreal y, PathVertex::Type t)
+    inline QPathVertex *allocateVertex(qreal x, qreal y, QPathVertex::Type t)
     {
         if (current_cache <= (PATH_CACHE_SIZE - 1)) {
-            cache[current_cache] = PathVertex(x, y, t);
-            PathVertex *vtx = &cache[current_cache];
+            cache[current_cache] = QPathVertex(x, y, t);
+            QPathVertex *vtx = &cache[current_cache];
             vtx->heap_allocated = false;
             ++current_cache;
             return vtx;
         } else
-            return new PathVertex(x, y, t);
+            return new QPathVertex(x, y, t);
     }
 
-    VertexList(int size)
+    QVertexList(int size)
         : node(0), first_node(0),
           last_node(0), current_node(0),
           PATH_CACHE_SIZE(size), current_cache(0)
     {
-        cache = new PathVertex[PATH_CACHE_SIZE];
+        cache = new QPathVertex[PATH_CACHE_SIZE];
     }
 
-    ~VertexList()
+    ~QVertexList()
     {
         reset();
         delete [] cache;
     }
 
-    void setCurrentNode(PathVertex *a)
+    void setCurrentNode(QPathVertex *a)
     {
 	if (a)
             current_node = a;
 	else
-            Q_ASSERT(!"VertexList:: will crash!");
+            Q_ASSERT(!"QVertexList:: will crash!");
     }
 
     void reset()
     {
-	PathVertex *a = first_node;
+	QPathVertex *a = first_node;
 
 	while (a != 0) {
-	    PathVertex *n = a->next;
+	    QPathVertex *n = a->next;
             if (a->heap_allocated)
                 delete a;
 	    a = n;
@@ -504,7 +504,7 @@ public:
 	last_node->next = 0;
     }
 
-    void delNode(PathVertex *a)
+    void delNode(QPathVertex *a)
     {
 	if (a == 0) return;
 
@@ -522,7 +522,7 @@ public:
             delete a;
     }
 
-    void appendNode(PathVertex *a)
+    void appendNode(QPathVertex *a)
     {
 	a->prev = last_node;
 	if (last_node)
@@ -533,7 +533,7 @@ public:
 	current_node = a;
     }
 
-    void insertNode(PathVertex *a, PathVertex *b)
+    void insertNode(QPathVertex *a, QPathVertex *b)
     {
 	setCurrentNode(b);
 
@@ -541,7 +541,7 @@ public:
 	    insertNode(a);
     }
 
-    void insertNode(PathVertex *a)
+    void insertNode(QPathVertex *a)
     {
 	if (current_node == 0) {
 	    appendNode(a);
@@ -565,18 +565,18 @@ public:
 #endif
 };
 
-struct VertexListNavigate {
+struct QVertexListNavigate {
 
-    const VertexList &h;
+    const QVertexList &h;
 
-    PathVertex *cur;
-    PathVertex *first;
-    PathVertex *last;
-    PathVertex *prev;
+    QPathVertex *cur;
+    QPathVertex *first;
+    QPathVertex *last;
+    QPathVertex *prev;
 
-    PathVertex *lastMove;
+    QPathVertex *lastMove;
 
-    VertexListNavigate(const VertexList &hh)
+    QVertexListNavigate(const QVertexList &hh)
 	: h(hh), cur(hh.first_node),
           first(hh.first_node), last(hh.last_node),
           prev(hh.first_node->prev)
@@ -584,7 +584,7 @@ struct VertexListNavigate {
         lastMove = cur;
     }
 
-    ~VertexListNavigate()
+    ~QVertexListNavigate()
     {
     }
 
@@ -611,49 +611,49 @@ struct VertexListNavigate {
 	cur = cur ? cur->next : 0;
     }
 
-    inline PathVertex *getNextNode() const
+    inline QPathVertex *getNextNode() const
     {
-	PathVertex *nn = cur ? cur->next: 0;
+	QPathVertex *nn = cur ? cur->next: 0;
 
         if (nn && nn->isMoveTo())
             return lastMove;
         if (!nn && lastMove) {
-            if (lastMove->getRawType() == PathVertex::MoveLineTo ||
-                lastMove->getRawType() == PathVertex::MoveCurveTo)
+            if (lastMove->getRawType() == QPathVertex::MoveLineTo ||
+                lastMove->getRawType() == QPathVertex::MoveCurveTo)
                 return lastMove;
         }
 
 	return nn;
     }
 
-    inline PathVertex *getPrevNode() const
+    inline QPathVertex *getPrevNode() const
     {
         return prev;
     }
 
-    inline PathVertex *getNode() const
+    inline QPathVertex *getNode() const
     {
 	return cur;
     }
 
-    inline PathVertex *getLastMove() const
+    inline QPathVertex *getLastMove() const
     {
         return lastMove;
     }
 };
 
-VertexList *VertexList::fromPainterPath(const QPainterPath &path)
+QVertexList *QVertexList::fromPainterPath(const QPainterPath &path)
 {
-    VertexList *lst = new VertexList(path.elementCount());
+    QVertexList *lst = new QVertexList(path.elementCount());
 
     bool multipleMoves = false;
-    PathVertex *firstMove = 0;
+    QPathVertex *firstMove = 0;
     for (int i = 0; i < path.elementCount(); ++i) {
         const QPainterPath::Element &e = path.elementAt(i);
         switch(e.type) {
         case QPainterPath::MoveToElement: {
-            PathVertex *lstMove = lst->allocateVertex(e.x, e.y,
-                                                      PathVertex::MoveTo);
+            QPathVertex *lstMove = lst->allocateVertex(e.x, e.y,
+                                                      QPathVertex::MoveTo);
             lst->appendNode(lstMove);
             multipleMoves = firstMove;
             if (!firstMove)
@@ -663,10 +663,10 @@ VertexList *VertexList::fromPainterPath(const QPainterPath &path)
         case QPainterPath::LineToElement: {
             if (i == (path.elementCount() - 1) && !multipleMoves &&
                 qFuzzyCompare(firstMove->x, e.x) && qFuzzyCompare(firstMove->y, e.y)) {
-                firstMove->setType(PathVertex::MoveLineTo);
+                firstMove->setType(QPathVertex::MoveLineTo);
             } else {
                 lst->appendNode(lst->allocateVertex(e.x, e.y,
-                                                    PathVertex::LineTo));
+                                                    QPathVertex::LineTo));
             }
             break;
         }
@@ -677,13 +677,13 @@ VertexList *VertexList::fromPainterPath(const QPainterPath &path)
 #endif
             if (i == (path.elementCount() - 3) && !multipleMoves &&
                 qFuzzyCompare(firstMove->x, e.x) && qFuzzyCompare(firstMove->y, e.y)) {
-                firstMove->setType(PathVertex::MoveCurveTo);
+                firstMove->setType(QPathVertex::MoveCurveTo);
                 firstMove->ctrl1 = QPointF(e.x, e.y);
                 firstMove->ctrl2 = QPointF(path.elementAt(i+1).x, path.elementAt(i+1).y);
             } else {
-                PathVertex *vtx = lst->allocateVertex(path.elementAt(i+2).x,
+                QPathVertex *vtx = lst->allocateVertex(path.elementAt(i+2).x,
                                                       path.elementAt(i+2).y,
-                                                      PathVertex::CurveTo);
+                                                      QPathVertex::CurveTo);
                 vtx->ctrl1 = QPointF(e.x, e.y);
                 vtx->ctrl2 = QPointF(path.elementAt(i+1).x, path.elementAt(i+1).y);
                 lst->appendNode(vtx);
@@ -701,9 +701,9 @@ VertexList *VertexList::fromPainterPath(const QPainterPath &path)
 }
 
 #ifdef QDEBUG_CLIPPER
-void VertexList::dump()
+void QVertexList::dump()
 {
-    PathVertex *itr = first_node;
+    QPathVertex *itr = first_node;
 
     int i = 0;
     while (itr) {
@@ -730,7 +730,7 @@ static qreal dist(qreal x1, qreal y1, qreal x2, qreal y2)
 }
 
 
-static inline QBezier bezierFromNodes(PathVertex *p1, PathVertex *p2)
+static inline QBezier bezierFromNodes(QPathVertex *p1, QPathVertex *p2)
 {
     if (p2->isCurveTo()) {
         return QBezier::fromPoints(QPointF(p1->x, p1->y),
@@ -753,12 +753,12 @@ static inline QBezier reverseBezier(const QBezier &b)
                                QPointF(b.x1, b.y1));
 }
 
-static inline bool isBezierBetween(const PathVertex *prev,
-                                   const PathVertex *v,
+static inline bool isBezierBetween(const QPathVertex *prev,
+                                   const QPathVertex *v,
                                    QBezier &bezier)
 {
-    const PathVertex *start = prev;
-    const PathVertex *end = v;
+    const QPathVertex *start = prev;
+    const QPathVertex *end = v;
 
     bool reverse = false;
     if (v->next == prev) {
@@ -773,11 +773,11 @@ static inline bool isBezierBetween(const PathVertex *prev,
         start = prev->neighbor;
     }
 
-    const PathVertex *origStart = start;
-    const PathVertex *origEnd = end;
-    while (origStart->prev && origStart->getRawType() == PathVertex::BezierIntersection)
+    const QPathVertex *origStart = start;
+    const QPathVertex *origEnd = end;
+    while (origStart->prev && origStart->getRawType() == QPathVertex::BezierIntersection)
         origStart = origStart->prev;
-    while (origEnd->next && origEnd->getRawType() == PathVertex::BezierIntersection)
+    while (origEnd->next && origEnd->getRawType() == QPathVertex::BezierIntersection)
         origEnd = origEnd->next;
 
     if (!origEnd->isCurveTo())
@@ -796,9 +796,9 @@ static inline bool isBezierBetween(const PathVertex *prev,
 #endif
 
     qreal palpha = 0, nalpha = 1;
-    if (start->getRawType() == PathVertex::BezierIntersection)
+    if (start->getRawType() == QPathVertex::BezierIntersection)
         palpha = start->alpha;
-    if (end->getRawType() == PathVertex::BezierIntersection)
+    if (end->getRawType() == QPathVertex::BezierIntersection)
         nalpha = end->alpha;
 #ifdef QDEBUG_CLIPPER
     qDebug()<<"\t"<<palpha<<nalpha;
@@ -812,15 +812,15 @@ static inline bool isBezierBetween(const PathVertex *prev,
     return true;
 }
 
-static inline bool vertexAlreadyIntersected(PathVertex *v, qreal alpha)
+static inline bool vertexAlreadyIntersected(QPathVertex *v, qreal alpha)
 {
-    return (v->intersect != PathVertex::DNone &&
+    return (v->intersect != QPathVertex::DNone &&
             (qFuzzyCompare(alpha, qreal(1.)) ||
              qFuzzyCompare(alpha, qreal(0.))));
 }
 
-static inline bool tryInjectingBezier(const PathVertex *prev,
-                                      const PathVertex *v,
+static inline bool tryInjectingBezier(const QPathVertex *prev,
+                                      const QPathVertex *v,
                                       QPainterPath &path)
 {
     QBezier bezier;
@@ -839,21 +839,21 @@ static inline bool tryInjectingBezier(const PathVertex *prev,
     return true;
 }
 
-static inline QBezier bezierOutOfIntersection(const PathVertex *prev,
-                                              const PathVertex *curr)
+static inline QBezier bezierOutOfIntersection(const QPathVertex *prev,
+                                              const QPathVertex *curr)
 {
 #ifdef QDEBUG_CLIPPER
     Q_ASSERT(curr &&
-             (curr->getRawType() == PathVertex::BezierIntersection ||
-              curr->getRawType() == PathVertex::CurveTo ||
-              curr->getRawType() == PathVertex::MoveCurveTo));
+             (curr->getRawType() == QPathVertex::BezierIntersection ||
+              curr->getRawType() == QPathVertex::CurveTo ||
+              curr->getRawType() == QPathVertex::MoveCurveTo));
 #endif
 
     QBezier bezier = QBezier::fromPoints(prev->getPoint(),
                                          curr->ctrl1,
                                          curr->ctrl2,
                                          curr->getPoint());
-    qreal alpha = (curr->getType(prev) == PathVertex::CurveTo)
+    qreal alpha = (curr->getType(prev) == QPathVertex::CurveTo)
                   ? 1.0 : curr->alpha;
 
     bezier = bezier.bezierOnInterval(prev->alpha,
@@ -887,10 +887,10 @@ public:
         delete clipper;
     }
 
-    inline bool isEdgeIn(PathVertex *a, PathVertex *b)
+    inline bool isEdgeIn(QPathVertex *a, QPathVertex *b)
     {
-	PathVertex *c = a->neighbor;
-	PathVertex *d = b->neighbor;
+	QPathVertex *c = a->neighbor;
+	QPathVertex *d = b->neighbor;
 
 	if (!c || !d) return 0;
         //qDebug()<<"isedge in "<<a<<b;
@@ -912,24 +912,24 @@ public:
         clipper->breakRing();
     }
 
-    PathVertex *getUnprocessed()
+    QPathVertex *getUnprocessed()
     {
-        for (VertexListNavigate dh(*subject); dh ; dh.next()) {
-            PathVertex *cur = dh.getNode();
-            PathVertex::TraversalFlag now = cur->code;
+        for (QVertexListNavigate dh(*subject); dh ; dh.next()) {
+            QPathVertex *cur = dh.getNode();
+            QPathVertex::TraversalFlag now = cur->code;
 
-            if (now != PathVertex::TNone) {
+            if (now != QPathVertex::TNone) {
                 if (cur->isCoupled()) {
 
-                    PathVertex::CoupleFlag which = cur->couple.info;
-                    PathVertex *link = cur->couple.link;
+                    QPathVertex::CoupleFlag which = cur->couple.info;
+                    QPathVertex *link = cur->couple.link;
 
-                    if (link->code == PathVertex::TNone) continue;
+                    if (link->code == QPathVertex::TNone) continue;
 
-                    if (which == PathVertex::FrontElement &&
-                        now == PathVertex::TEn) continue;
-                    if (which == PathVertex::RearElement &&
-                        now == PathVertex::TEx) continue;
+                    if (which == QPathVertex::FrontElement &&
+                        now == QPathVertex::TEn) continue;
+                    if (which == QPathVertex::RearElement &&
+                        now == QPathVertex::TEx) continue;
 
                     return cur;
                 } else
@@ -940,38 +940,38 @@ public:
     }
 
 
-    bool walkResultingPath(PathVertex  *start,
-                           PathVertex  *&prev_code_owner,
-                           PathVertex  *&current,
-                           PathVertex::Direction &traversal_stat,
-                           QList<PathVertex*> &notebook)
+    bool walkResultingPath(QPathVertex  *start,
+                           QPathVertex  *&prev_code_owner,
+                           QPathVertex  *&current,
+                           QPathVertex::Direction &traversal_stat,
+                           QList<QPathVertex*> &notebook)
     {
-        if (current == start && traversal_stat != PathVertex::Stop) {
-            traversal_stat = PathVertex::Stop;
+        if (current == start && traversal_stat != QPathVertex::Stop) {
+            traversal_stat = QPathVertex::Stop;
             return false;
         }
 
-        if (current->code != PathVertex::TNone) {
+        if (current->code != QPathVertex::TNone) {
 
             switch (traversal_stat) {
-            case PathVertex::Stop:
+            case QPathVertex::Stop:
                 traversal_stat = current->eat();
                 notebook.append(current);
                 prev_code_owner = current;
                 break;
-            case PathVertex::ForwardTurn:
+            case QPathVertex::ForwardTurn:
                 traversal_stat = current->turnForwardEat();
                 prev_code_owner = current;
                 break;
-            case PathVertex::BackwardTurn:
+            case QPathVertex::BackwardTurn:
                 traversal_stat = current->turnBackwardEat();
                 prev_code_owner = current;
                 break;
-            case PathVertex::ForwardGo:
+            case QPathVertex::ForwardGo:
                 traversal_stat = current->forwardEat(prev_code_owner);
                 prev_code_owner = current;
                 break;
-            case PathVertex::BackwardGo:
+            case QPathVertex::BackwardGo:
                 traversal_stat = current->backwardEat(prev_code_owner);
                 prev_code_owner = current;
                 break;
@@ -983,15 +983,15 @@ public:
         //qDebug()<<"current is "<<current<<traversal_stat<<current->code
         //        <<current->getPoint();
         switch (traversal_stat) {
-        case PathVertex::BackwardTurn:
-        case PathVertex::ForwardTurn:
+        case QPathVertex::BackwardTurn:
+        case QPathVertex::ForwardTurn:
             current = current->neighbor;
             break;
-        case PathVertex::ForwardGo:
+        case QPathVertex::ForwardGo:
             current = current->next;
             notebook.append(current);
             break;
-        case PathVertex::BackwardGo:
+        case QPathVertex::BackwardGo:
             current = current->prev;
             notebook.append(current);
             break;
@@ -1054,9 +1054,9 @@ public:
         return LOut;
     }
 
-    static inline QPointF midPoint(PathVertex *one, PathVertex *two)
+    static inline QPointF midPoint(QPathVertex *one, QPathVertex *two)
     {
-        if (two->getRawType() != PathVertex::BezierIntersection &&
+        if (two->getRawType() != QPathVertex::BezierIntersection &&
             !two->isCurveTo()) {
             qreal xMid = (one->x+two->x)/2;
             qreal yMid = (one->y+two->y)/2;
@@ -1077,15 +1077,15 @@ public:
         }
     }
 
-    PathVertex::TraversalFlag generateCode(PathVertex::TraversalFlag code,
-                                           PathVertex *prev,
-                                           PathVertex *cur,
-                                           PathVertex *next,
+    QPathVertex::TraversalFlag generateCode(QPathVertex::TraversalFlag code,
+                                           QPathVertex *prev,
+                                           QPathVertex *cur,
+                                           QPathVertex *next,
                                            const QPainterPath & B_p,
                                            PointTest op)
     {
-        if (cur->intersect == PathVertex::DNone)
-            return PathVertex::TNone;
+        if (cur->intersect == QPathVertex::DNone)
+            return QPathVertex::TNone;
 
         PointLocation  prev_s;
         PointLocation  next_s;
@@ -1098,9 +1098,9 @@ public:
         if (isEdgeIn(prev, cur)) {
             prev_s = LOn;
         } else {
-            if (code == PathVertex::TEx || code == PathVertex::TEnEx)
+            if (code == QPathVertex::TEx || code == QPathVertex::TEnEx)
                 prev_s = LOut;
-            else if (code == PathVertex::TEn || code == PathVertex::TExEn)
+            else if (code == QPathVertex::TEn || code == QPathVertex::TExEn)
                 prev_s = LIn;
             else
                 prev_s = classifyPointLocation(midPoint(prev, cur), B_p, op);
@@ -1116,17 +1116,17 @@ public:
 #ifdef QDEBUG_CLIPPER
         qDebug()<<"XXX Generating code = "<<prev_p<<cur_p<<next_p<<prev_s<<next_s;
 #endif
-        if (prev_s == LOn  && next_s == LOn)  return PathVertex::TNone;
-        if (prev_s == LOn  && next_s == LOut) return PathVertex::TEx;
-        if (prev_s == LOn  && next_s == LIn)  return PathVertex::TEn;
-        if (prev_s == LOut && next_s == LOn)  return PathVertex::TEn;
-        if (prev_s == LIn  && next_s == LOn)  return PathVertex::TEx;
-        if (prev_s == LIn  && next_s == LOut) return PathVertex::TEx;
-        if (prev_s == LOut && next_s == LIn)  return PathVertex::TEn;
-        if (prev_s == LIn  && next_s == LIn)  return PathVertex::TExEn;
-        if (prev_s == LOut && next_s == LOut) return PathVertex::TEnEx;
+        if (prev_s == LOn  && next_s == LOn)  return QPathVertex::TNone;
+        if (prev_s == LOn  && next_s == LOut) return QPathVertex::TEx;
+        if (prev_s == LOn  && next_s == LIn)  return QPathVertex::TEn;
+        if (prev_s == LOut && next_s == LOn)  return QPathVertex::TEn;
+        if (prev_s == LIn  && next_s == LOn)  return QPathVertex::TEx;
+        if (prev_s == LIn  && next_s == LOut) return QPathVertex::TEx;
+        if (prev_s == LOut && next_s == LIn)  return QPathVertex::TEn;
+        if (prev_s == LIn  && next_s == LIn)  return QPathVertex::TExEn;
+        if (prev_s == LOut && next_s == LOut) return QPathVertex::TEnEx;
 
-        return PathVertex::TNone;
+        return QPathVertex::TNone;
     }
 
     void markForBooleanOperation()
@@ -1136,21 +1136,21 @@ public:
 
         makeRing();
 
-        PathVertex *start, *cur, *prev, *next;
+        QPathVertex *start, *cur, *prev, *next;
 
-        VertexListNavigate subjItr(*subject);
+        QVertexListNavigate subjItr(*subject);
         start = cur = subjItr.getNode();
         prev = subjItr.getPrevNode();
         next = subjItr.getNextNode();
 
-        PathVertex::TraversalFlag prev_code = PathVertex::TNone;
+        QPathVertex::TraversalFlag prev_code = QPathVertex::TNone;
 
         ///////////////////////////////////////////////////////////////////
         /// subject of the coding is subject against the region of clipper
         while (true) {
-            PathVertex::TraversalFlag code = generateCode(prev_code, prev,
+            QPathVertex::TraversalFlag code = generateCode(prev_code, prev,
                                                           cur, next, clipPath, which1);
-            if (code != PathVertex::TNone)
+            if (code != QPathVertex::TNone)
                 prev_code = code;
 
             cur->setCode(code);
@@ -1162,20 +1162,20 @@ public:
 
             if (cur == start) break;
         }
-        VertexListNavigate clipItr(*clipper);
+        QVertexListNavigate clipItr(*clipper);
         start = cur = clipItr.getNode();
         prev = clipItr.getPrevNode();
         next = clipItr.getNextNode();
 
-        prev_code = PathVertex::TNone;
+        prev_code = QPathVertex::TNone;
         //qDebug()<<"//////////////////////////////////////////////////////";
         ///////////////////////////////////////////////////////////////////
         /// subject of the coding is clipper against the region of subject
         while (true) {
-            PathVertex::TraversalFlag code = generateCode(prev_code, prev,
+            QPathVertex::TraversalFlag code = generateCode(prev_code, prev,
                                                           cur, next, subjectPath, which2);
 
-            if (code != PathVertex::TNone) prev_code = code;
+            if (code != QPathVertex::TNone) prev_code = code;
 
             cur->setCode(code);
 
@@ -1190,16 +1190,16 @@ public:
         breakRing();
     }
 
-    inline bool getNextWhichHasCode(VertexListNavigate &ln,
-                                    PathVertex *start)
+    inline bool getNextWhichHasCode(QVertexListNavigate &ln,
+                                    QPathVertex *start)
     {
 	while (1) {
 	    ln.forward();
-	    PathVertex *cur = ln.getNode();
-	    PathVertex::TraversalFlag code = cur->code;
+	    QPathVertex *cur = ln.getNode();
+	    QPathVertex::TraversalFlag code = cur->code;
 
 	    if (cur == start)                return false;
-	    if (code != PathVertex::TNone)   return true;
+	    if (code != QPathVertex::TNone)   return true;
 	}
     }
 
@@ -1212,7 +1212,7 @@ public:
                       c.x() * (a.y() - b.y()));
     }
 
-    void encodeCrossTransfer(PathVertex *c)
+    void encodeCrossTransfer(QPathVertex *c)
     {
         QPointF p  = c->getPoint();
         QPointF p1 = c->prev->getPoint();
@@ -1233,8 +1233,8 @@ public:
     {
         makeRing();
 
-        PathVertex *cur, *start, *next;
-        VertexListNavigate ln(*subject);
+        QPathVertex *cur, *start, *next;
+        QVertexListNavigate ln(*subject);
 
         start = ln.getNode();
 
@@ -1242,9 +1242,9 @@ public:
 
             start = cur = ln.getNode();
 
-            PathVertex::TraversalFlag cur_code = cur->code, next_code;
+            QPathVertex::TraversalFlag cur_code = cur->code, next_code;
 
-            if (cur_code == PathVertex::TEnEx || cur_code == PathVertex::TExEn)
+            if (cur_code == QPathVertex::TEnEx || cur_code == QPathVertex::TExEn)
                 encodeCrossTransfer(cur);
 
             while (true) {
@@ -1254,10 +1254,10 @@ public:
 
                 if (cur == next) break;
 
-                if (cur_code == PathVertex::TEn || cur_code == PathVertex::TEx) {
+                if (cur_code == QPathVertex::TEn || cur_code == QPathVertex::TEx) {
                     if (cur_code == next_code) {
-                        cur->setCouple(PathVertex::FrontElement, next);
-                        next->setCouple(PathVertex::RearElement, cur);
+                        cur->setCouple(QPathVertex::FrontElement, next);
+                        next->setCouple(QPathVertex::RearElement, cur);
                     }
                 }
 
@@ -1266,12 +1266,12 @@ public:
 
                 if (!will_be_continued) break;
 
-                if (cur_code == PathVertex::TEnEx || cur_code == PathVertex::TExEn)
+                if (cur_code == QPathVertex::TEnEx || cur_code == QPathVertex::TExEn)
                     encodeCrossTransfer(cur);
             }
         }
 
-        VertexListNavigate ln1(*clipper);
+        QVertexListNavigate ln1(*clipper);
 
         start = ln1.getNode();
 
@@ -1279,7 +1279,7 @@ public:
 
             start = cur = ln1.getNode();
 
-            PathVertex::TraversalFlag cur_code = cur->code, next_code;
+            QPathVertex::TraversalFlag cur_code = cur->code, next_code;
 
             while (true) {
                 int will_be_continued = getNextWhichHasCode(ln1, start);
@@ -1288,10 +1288,10 @@ public:
 
                 if (cur == next) break;
 
-                if (cur_code == PathVertex::TEn || cur_code == PathVertex::TEx) {
+                if (cur_code == QPathVertex::TEn || cur_code == QPathVertex::TEx) {
                     if (cur_code == next_code) {
-                        cur->setCouple(PathVertex::FrontElement, next);
-                        next->setCouple(PathVertex::RearElement, cur);
+                        cur->setCouple(QPathVertex::FrontElement, next);
+                        next->setCouple(QPathVertex::RearElement, cur);
                     }
                 }
                 cur = next;
@@ -1308,11 +1308,11 @@ public:
     struct Intersection
     {
         Intersection(qreal xx, qreal yy,
-                     PathVertex::Type t,
+                     QPathVertex::Type t,
                      qreal ap, qreal aq,
-                     PathVertex *pp1, PathVertex *pp2,
-                     PathVertex *qq1, PathVertex *qq2,
-                     VertexList *&pLst, VertexList *&qLst)
+                     QPathVertex *pp1, QPathVertex *pp2,
+                     QPathVertex *qq1, QPathVertex *qq2,
+                     QVertexList *&pLst, QVertexList *&qLst)
             : x(xx), y(yy), type(t),
               alpha_p(ap), alpha_q(aq),
               p1(pp1), p2(pp2), q1(qq1), q2(qq2),
@@ -1326,20 +1326,20 @@ public:
 #endif
         }
         qreal x, y;
-        PathVertex::Type type;
+        QPathVertex::Type type;
         qreal alpha_p, alpha_q;
 
-        PathVertex *p1, *p2;
-        PathVertex *q1, *q2;
+        QPathVertex *p1, *p2;
+        QPathVertex *q1, *q2;
 
-        VertexList *pList;
-        VertexList *qList;
+        QVertexList *pList;
+        QVertexList *qList;
 
-        PathVertex *intersection(qreal alpha,
-                                 PathVertex *one, PathVertex *two,
-                                 VertexList &lst, bool &created) const
+        QPathVertex *intersection(qreal alpha,
+                                 QPathVertex *one, QPathVertex *two,
+                                 QVertexList &lst, bool &created) const
         {
-            PathVertex *v = 0;
+            QPathVertex *v = 0;
             created = false;
             if (qFuzzyCompare(alpha, 0)) {
                 v = one;
@@ -1350,7 +1350,7 @@ public:
                 v->alpha = alpha;
                 one = one->next;
                 while (one && one != two &&
-                       (one->intersect != PathVertex::DNone &&
+                       (one->intersect != QPathVertex::DNone &&
                         alpha > one->alpha))
                     one = one->next;
                 if (one)
@@ -1363,15 +1363,15 @@ public:
         }
         void insert() const
         {
-            PathVertex::Degeneracy d = (qFuzzyCompare(alpha_p, 0) ||
+            QPathVertex::Degeneracy d = (qFuzzyCompare(alpha_p, 0) ||
                                         qFuzzyCompare(alpha_q, 0) ||
                                         qFuzzyCompare(alpha_p, 1) ||
                                         qFuzzyCompare(alpha_q, 1))
-                                       ? PathVertex::DDegenerate
-                                       : PathVertex::DIntersect;
+                                       ? QPathVertex::DDegenerate
+                                       : QPathVertex::DIntersect;
             bool  newlyCreated1 = false, newlyCreated2 = false;
-            PathVertex *sinter = intersection(alpha_p, p1, p2, *pList, newlyCreated1);
-            PathVertex *cinter = intersection(alpha_q, q1, q2, *qList, newlyCreated2);
+            QPathVertex *sinter = intersection(alpha_p, p1, p2, *pList, newlyCreated1);
+            QPathVertex *cinter = intersection(alpha_q, q1, q2, *qList, newlyCreated2);
 
             if (!newlyCreated1) {
                 if (vertexAlreadyIntersected(sinter, alpha_p)) {
@@ -1409,8 +1409,8 @@ public:
     };
     QList<Intersection> intersections;
 
-    bool intersectBeziers(PathVertex *p1, PathVertex *p2,
-                          PathVertex *q1, PathVertex *q2)
+    bool intersectBeziers(QPathVertex *p1, QPathVertex *p2,
+                          QPathVertex *q1, QPathVertex *q2)
     {
         QBezier one = bezierFromNodes(p1, p2);
         QBezier two = bezierFromNodes(q1, q2);
@@ -1432,7 +1432,7 @@ public:
             QPointF pt = one.pointAt(alpha_p);
 
             intersections.append(
-                Intersection(pt.x(), pt.y(), PathVertex::BezierIntersection,
+                Intersection(pt.x(), pt.y(), QPathVertex::BezierIntersection,
                              alpha_p, alpha_q,
                              p1, p2, q1, q2,
                              subject, clipper));
@@ -1440,8 +1440,8 @@ public:
         return true;
     }
 
-    bool intersectLines(PathVertex *p1, PathVertex *p2,
-                        PathVertex *q1, PathVertex *q2)
+    bool intersectLines(QPathVertex *p1, QPathVertex *p2,
+                        QPathVertex *q1, QPathVertex *q2)
     {
         qreal x, y, tp, tq, par;
 
@@ -1480,20 +1480,20 @@ public:
                          dist(q1->x, q1->y, q2->x, q2->y);
 
         intersections.append(
-            Intersection(x, y, PathVertex::LineIntersection, nalpha_p, nalpha_q,
+            Intersection(x, y, QPathVertex::LineIntersection, nalpha_p, nalpha_q,
                          p1, p2, q1, q2, subject, clipper));
 
         return true;
     }
 
-    void intersectEdges(PathVertex *a, PathVertex *b,
-                        PathVertex *c, PathVertex *d)
+    void intersectEdges(QPathVertex *a, QPathVertex *b,
+                        QPathVertex *c, QPathVertex *d)
     {
 #ifdef QDEBUG_CLIPPER
-        Q_ASSERT(a->intersect == PathVertex::DNone);
-        Q_ASSERT(b->intersect == PathVertex::DNone);
-        Q_ASSERT(c->intersect == PathVertex::DNone);
-        Q_ASSERT(d->intersect == PathVertex::DNone);
+        Q_ASSERT(a->intersect == QPathVertex::DNone);
+        Q_ASSERT(b->intersect == QPathVertex::DNone);
+        Q_ASSERT(c->intersect == QPathVertex::DNone);
+        Q_ASSERT(d->intersect == QPathVertex::DNone);
 #endif
 
         if (b->isCurveTo() || d->isCurveTo()) {
@@ -1502,14 +1502,14 @@ public:
             intersectLines(a, b, c, d);
         }
     }
-    bool doEdgesIntersect(PathVertex *a, PathVertex *b,
-                          PathVertex *c, PathVertex *d)
+    bool doEdgesIntersect(QPathVertex *a, QPathVertex *b,
+                          QPathVertex *c, QPathVertex *d)
     {
 #ifdef QDEBUG_CLIPPER
-        Q_ASSERT(a->intersect == PathVertex::DNone);
-        Q_ASSERT(b->intersect == PathVertex::DNone);
-        Q_ASSERT(c->intersect == PathVertex::DNone);
-        Q_ASSERT(d->intersect == PathVertex::DNone);
+        Q_ASSERT(a->intersect == QPathVertex::DNone);
+        Q_ASSERT(b->intersect == QPathVertex::DNone);
+        Q_ASSERT(c->intersect == QPathVertex::DNone);
+        Q_ASSERT(d->intersect == QPathVertex::DNone);
 #endif
 
         if (b->isCurveTo() || d->isCurveTo()) {
@@ -1529,15 +1529,15 @@ public:
             return;
         }
 
-        for (VertexListNavigate subj(*subject); subj ; subj.next()) {
-            PathVertex *a = subj.getNode();
-            PathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getLastMove();
+        for (QVertexListNavigate subj(*subject); subj ; subj.next()) {
+            QPathVertex *a = subj.getNode();
+            QPathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getLastMove();
             if (!b)
                 break;
 
-            for (VertexListNavigate obj(*clipper); obj ; obj.next()) {
-                PathVertex *c = obj.getNode();
-                PathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getLastMove();;
+            for (QVertexListNavigate obj(*clipper); obj ; obj.next()) {
+                QPathVertex *c = obj.getNode();
+                QPathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getLastMove();;
                 if (!d)
                     break;
 
@@ -1579,15 +1579,15 @@ public:
         clipper->dump();
         qDebug("---- end state info ----");
 #endif
-        for (VertexListNavigate subj(*subject); subj ; subj.next()) {
-            PathVertex *a = subj.getNode();
-            PathVertex *b = (subj.getNextNode());
+        for (QVertexListNavigate subj(*subject); subj ; subj.next()) {
+            QPathVertex *a = subj.getNode();
+            QPathVertex *b = (subj.getNextNode());
             if (!a || !b)
                 break;
 
-            for (VertexListNavigate obj(*clipper); obj ; obj.next()) {
-                PathVertex *c = obj.getNode();
-                PathVertex *d = (obj.getNextNode());
+            for (QVertexListNavigate obj(*clipper); obj ; obj.next()) {
+                QPathVertex *c = obj.getNode();
+                QPathVertex *d = (obj.getNextNode());
                 if (!c || !d)
                     break;
                 //qDebug()<<"intersecting = ";
@@ -1604,17 +1604,17 @@ public:
         return intersects;
     }
 
-    QPainterPath pathFromList(const QList<PathVertex*> &lst)
+    QPainterPath pathFromList(const QList<QPathVertex*> &lst)
     {
-        QList<PathVertex*>::const_iterator itr;
+        QList<QPathVertex*>::const_iterator itr;
         QPainterPath path;
 
         int i = 0;
-        const PathVertex *prev = 0;
+        const QPathVertex *prev = 0;
         //qDebug()<<lst;
         for (itr = lst.constBegin(); itr != lst.constEnd(); ++itr) {
-            const PathVertex *const v = *itr;
-            QList<PathVertex*>::const_iterator nextItr = itr;
+            const QPathVertex *const v = *itr;
+            QList<QPathVertex*>::const_iterator nextItr = itr;
             ++nextItr;
 #ifdef QDEBUG_CLIPPER
             qDebug()<<i<<")Vtx = "<<v->x<<","<<v->y<<" | "
@@ -1637,7 +1637,7 @@ public:
             }
             bool traversingReverse = (prev &&
                                       (prev == v->next || (prev->neighbor && prev->neighbor == v->next)));
-            bool prevWasBezier = (prev && prev->getRawType() == PathVertex::CurveTo &&
+            bool prevWasBezier = (prev && prev->getRawType() == QPathVertex::CurveTo &&
                                   v->next == prev);
 #ifdef QDEBUG_CLIPPER
             qDebug()<<"\t TR = "<<traversingReverse<<", wasBezier = "
@@ -1645,7 +1645,7 @@ public:
             qDebug()<<prev<<v->next<<prev->neighbor<<v->next;
 #endif
             switch(v->getType(prev)) {
-            case PathVertex::MoveTo:
+            case QPathVertex::MoveTo:
                 if (prevWasBezier && traversingReverse) {
                     QBezier bezier = bezierOutOfIntersection(v, prev);
                     bezier = reverseBezier(bezier);
@@ -1656,7 +1656,7 @@ public:
                     path.lineTo(v->getPoint());
                 }
                 break;
-            case PathVertex::LineTo:
+            case QPathVertex::LineTo:
                 if (prevWasBezier && traversingReverse) {
                     QBezier bezier = bezierOutOfIntersection(v, prev);
                     bezier = reverseBezier(bezier);
@@ -1667,7 +1667,7 @@ public:
                     path.lineTo(v->getPoint());
                 }
                 break;
-            case PathVertex::CurveTo: {
+            case QPathVertex::CurveTo: {
                 if (prevWasBezier && traversingReverse) {
                     QBezier bezier = bezierOutOfIntersection(v, prev);
                     bezier = reverseBezier(bezier);
@@ -1684,7 +1684,7 @@ public:
                 }
             }
                 break;
-            case PathVertex::LineIntersection:
+            case QPathVertex::LineIntersection:
                 if (prevWasBezier && traversingReverse) {
                     QBezier bezier = bezierOutOfIntersection(v, prev);
                     bezier = reverseBezier(bezier);
@@ -1695,14 +1695,14 @@ public:
                     path.lineTo(v->getPoint());
                 }
                 break;
-            case PathVertex::BezierIntersection: {
+            case QPathVertex::BezierIntersection: {
                 //since injecting failed, this should mean
                 //we're traversing a region of lines
                 path.lineTo(v->getPoint());
             }
                 break;
-            case PathVertex::MoveLineTo:
-            case PathVertex::MoveCurveTo:
+            case QPathVertex::MoveLineTo:
+            case QPathVertex::MoveCurveTo:
                 Q_ASSERT(!"Unhandled element");
                 break;
             default:
@@ -1718,8 +1718,8 @@ public:
     QPainterPath clipPath;
     Operation    op;
 
-    VertexList *subject;
-    VertexList *clipper;
+    QVertexList *subject;
+    QVertexList *clipper;
 };
 
 QPathClipper::QPathClipper()
@@ -1746,7 +1746,7 @@ void QPathClipper::setSubjectPath(const QPainterPath &path)
 {
     d->subjectPath = path;
     delete d->subject;
-    d->subject = VertexList::fromPainterPath(path);
+    d->subject = QVertexList::fromPainterPath(path);
 }
 
 
@@ -1760,7 +1760,7 @@ void QPathClipper::setClipPath(const QPainterPath &path)
 {
     d->clipPath = path;
     delete d->clipper;
-    d->clipper = VertexList::fromPainterPath(path);
+    d->clipper = QVertexList::fromPainterPath(path);
 }
 
 
@@ -1836,7 +1836,7 @@ QPainterPath QPathClipper::clip(Operation op)
 
     d->makeRing();
 
-    PathVertex *current, *start, *prev_code_owner = 0;
+    QPathVertex *current, *start, *prev_code_owner = 0;
 
     QPainterPath result;
 
@@ -1852,9 +1852,9 @@ QPainterPath QPathClipper::clip(Operation op)
         start = current;
         bool not_over = true;
 
-        PathVertex::Direction traversal_stat = PathVertex::Stop;
+        QPathVertex::Direction traversal_stat = QPathVertex::Stop;
 
-        QList<PathVertex*> vertices;
+        QList<QPathVertex*> vertices;
         while (not_over)
             not_over = d->walkResultingPath(start, prev_code_owner,
                                             current, traversal_stat, vertices);

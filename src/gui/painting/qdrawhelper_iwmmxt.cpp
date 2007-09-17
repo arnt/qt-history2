@@ -38,7 +38,7 @@ struct QIWMMXTIntrinsics : public QMMXCommonIntrinsics
     }
 };
 
-const CompositionFunctionSolid qt_functionForModeSolid_IWMMXT[] = {
+CompositionFunctionSolid qt_functionForModeSolid_IWMMXT[numCompositionFunctions] = {
     comp_func_solid_SourceOver<QIWMMXTIntrinsics>,
     comp_func_solid_DestinationOver<QIWMMXTIntrinsics>,
     comp_func_solid_Clear<QIWMMXTIntrinsics>,
@@ -50,22 +50,10 @@ const CompositionFunctionSolid qt_functionForModeSolid_IWMMXT[] = {
     comp_func_solid_DestinationOut<QIWMMXTIntrinsics>,
     comp_func_solid_SourceAtop<QIWMMXTIntrinsics>,
     comp_func_solid_DestinationAtop<QIWMMXTIntrinsics>,
-    comp_func_solid_XOR<QIWMMXTIntrinsics>,
-    comp_func_solid_Plus,
-    comp_func_solid_Multiply,
-    comp_func_solid_Screen,
-    comp_func_solid_Overlay,
-    comp_func_solid_Darken,
-    comp_func_solid_Lighten,
-    comp_func_solid_ColorDodge,
-    comp_func_solid_ColorBurn,
-    comp_func_solid_HardLight,
-    comp_func_solid_SoftLight,
-    comp_func_solid_Difference,
-    comp_func_solid_Exclusion
+    comp_func_solid_XOR<QIWMMXTIntrinsics>
 };
 
-const CompositionFunction qt_functionForMode_IWMMXT[] = {
+CompositionFunction qt_functionForMode_IWMMXT[] = {
     comp_func_SourceOver<QIWMMXTIntrinsics>,
     comp_func_DestinationOver<QIWMMXTIntrinsics>,
     comp_func_Clear<QIWMMXTIntrinsics>,
@@ -77,19 +65,7 @@ const CompositionFunction qt_functionForMode_IWMMXT[] = {
     comp_func_DestinationOut<QIWMMXTIntrinsics>,
     comp_func_SourceAtop<QIWMMXTIntrinsics>,
     comp_func_DestinationAtop<QIWMMXTIntrinsics>,
-    comp_func_XOR<QIWMMXTIntrinsics>,
-    comp_func_Plus,
-    comp_func_Multiply,
-    comp_func_Screen,
-    comp_func_Overlay,
-    comp_func_Darken,
-    comp_func_Lighten,
-    comp_func_ColorDodge,
-    comp_func_ColorBurn,
-    comp_func_HardLight,
-    comp_func_SoftLight,
-    comp_func_Difference,
-    comp_func_Exclusion
+    comp_func_XOR<QIWMMXTIntrinsics>
 };
 
 void qt_blend_color_argb_iwmmxt(int count, const QSpan *spans, void *userData)

@@ -605,7 +605,7 @@ static inline bool needsResolving(QSpanData *data)
 
 static inline void resolveGradientBounds(const QRectF &rect, QSpanData *data)
 {
-    GradientData &gradient = data->gradient;
+    QGradientData &gradient = data->gradient;
     switch(data->type) {
     case QSpanData::LinearGradient: {
         gradient.linear.origin.x = rect.x() + rect.width()  * gradient.unresolvedLinear.origin.x;
@@ -2299,7 +2299,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     QSpanData textureData;
     textureData.init(d->rasterBuffer, this);
     textureData.type = QSpanData::Texture;
-    textureData.initTexture(&image, d->opacity, TextureData::Tiled);
+    textureData.initTexture(&image, d->opacity, QTextureData::Tiled);
 
     if (d->txop > QTransform::TxTranslate) {
         QTransform copy = d->matrix;
@@ -2874,7 +2874,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         QSpanData data;
         data.init(d->rasterBuffer, this);
         data.type = QSpanData::Texture;
-        data.texture.type = TextureData::Plain;
+        data.texture.type = QTextureData::Plain;
         data.texture.imageData = d->fontRasterBuffer->buffer();
         data.texture.width = d->fontRasterBuffer->bytesPerLine() / 4;
         data.texture.height = d->fontRasterBuffer->height();
@@ -4834,7 +4834,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             gradient.spread = g->spread();
             gradient.needsResolving = g->coordinateMode() == QGradient::ObjectBoundingMode;
 
-            LinearGradientData &linearData = gradient.needsResolving ? gradient.unresolvedLinear : gradient.linear;
+            QLinearGradientData &linearData = gradient.needsResolving ? gradient.unresolvedLinear : gradient.linear;
 
             linearData.origin.x = g->start().x();
             linearData.origin.y = g->start().y();
@@ -4852,7 +4852,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             gradient.spread = g->spread();
             gradient.needsResolving = g->coordinateMode() == QGradient::ObjectBoundingMode;
 
-            RadialGradientData &radialData = gradient.needsResolving ? gradient.unresolvedRadial : gradient.radial;
+            QRadialGradientData &radialData = gradient.needsResolving ? gradient.unresolvedRadial : gradient.radial;
 
             QPointF center = g->center();
             radialData.center.x = center.x();
@@ -4873,7 +4873,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             gradient.spread = QGradient::RepeatSpread;
             gradient.needsResolving = g->coordinateMode() == QGradient::ObjectBoundingMode;
 
-            ConicalGradientData &conicalData = gradient.needsResolving ? gradient.unresolvedConical : gradient.conical;
+            QConicalGradientData &conicalData = gradient.needsResolving ? gradient.unresolvedConical : gradient.conical;
 
             QPointF center = g->center();
             conicalData.center.x = center.x();
@@ -4897,7 +4897,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
     case Qt::DiagCrossPattern:
         type = Texture;
         tempImage = rasterBuffer->colorizeBitmap(qt_imageForBrush(brushStyle, true), brush.color());
-        initTexture(&tempImage, alpha, TextureData::Tiled);
+        initTexture(&tempImage, alpha, QTextureData::Tiled);
         break;
     case Qt::TexturePattern:
         type = Texture;
@@ -4905,7 +4905,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             tempImage = rasterBuffer->colorizeBitmap(brush.textureImage(), brush.color());
         else
             tempImage = brush.textureImage();
-        initTexture(&tempImage, alpha, brush.d->forceTextureClamp ? TextureData::Plain : TextureData::Tiled);
+        initTexture(&tempImage, alpha, brush.d->forceTextureClamp ? QTextureData::Plain : QTextureData::Tiled);
         break;
 
     case Qt::NoBrush:
@@ -4981,7 +4981,7 @@ void QSpanData::setupMatrix(const QTransform &matrix, int bilin)
 
 extern const QVector<QRgb> *qt_image_colortable(const QImage &image);
 
-void QSpanData::initTexture(const QImage *image, int alpha, TextureData::Type _type)
+void QSpanData::initTexture(const QImage *image, int alpha, QTextureData::Type _type)
 {
     texture.imageData = image->bits();
     texture.width = image->width();
