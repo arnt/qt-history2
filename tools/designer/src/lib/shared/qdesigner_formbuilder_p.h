@@ -78,9 +78,6 @@ public:
     // Convenience that pops up message boxes in case of failures.
     static QWidget *createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName, const QString &appStyleSheet);
 
-    // Grab a preview image from a widget
-    static QPixmap grabPreviewPixmap(QWidget *w);
-
     // Create a preview image
     static QPixmap createPreviewPixmap(const QDesignerFormWindowInterface *fw, const QString &styleName = QString(), const QString &appStyleSheet = QString());
 

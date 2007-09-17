@@ -368,29 +368,15 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
     return widget;
 }
 
-QPixmap QDesignerFormBuilder::grabPreviewPixmap(QWidget *widget)
-{
-    // A little trick to make the widget think it is visible. This is required
-    // for example for tab widgets which otherwise don't draw their contents.
-    QWidget *fake = new QWidget(0);
-    fake->createWinId();
-    fake->setAttribute(Qt::WA_WState_Visible);
-    widget->setParent(fake, 0);
-    widget->show();
-    const QPixmap pixmap = QPixmap::grabWidget (widget);
-    fake->deleteLater();
-    return pixmap;
-}
-
-
 QPixmap QDesignerFormBuilder::createPreviewPixmap(const QDesignerFormWindowInterface *fw, const QString &styleName, const QString &appStyleSheet)
 {
     QWidget *widget = createPreview(fw, styleName, appStyleSheet);
-
     if (!widget)
         return QPixmap();
 
-    return grabPreviewPixmap(widget);
+    const QPixmap rc = QPixmap::grabWidget (widget);
+    widget->deleteLater();
+    return rc;
 }
 
 } // namespace qdesigner_internal

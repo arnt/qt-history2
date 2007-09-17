@@ -1319,10 +1319,15 @@ QPixmap QDesignerActions::createPreviewPixmap(QDesignerFormWindowInterface *fw)
     const QCursor oldCursor = core()->topLevel()->cursor();
     core()->topLevel()->setCursor(Qt::WaitCursor);
 
+
+
+    // check the preferences, observing the enabled flag of PreviewConfigurationWidgetState
     const QDesignerSettings settings;
+    qdesigner_internal::PreviewConfiguration pc = settings.previewConfigurationWidgetState().previewConfiguration(settings.previewConfiguration());
+
     QString errorMessage;
 
-    const QPixmap pixmap = m_previewManager->createPreviewPixmap(fw, settings.previewConfiguration(), &errorMessage);
+    const QPixmap pixmap = m_previewManager->createPreviewPixmap(fw, pc, &errorMessage);
     core()->topLevel()->setCursor( oldCursor);
     if (pixmap.isNull()) {
         QMessageBox::warning(fw, tr("Preview failed"), errorMessage);

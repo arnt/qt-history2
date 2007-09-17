@@ -175,11 +175,12 @@ QPixmap NewForm::formPreviewPixmap(const QString &fileName)
     const int shadow = 7;
     const int previewSize = 256;
 
-    const QPixmap pixmap = qdesigner_internal::QDesignerFormBuilder::grabPreviewPixmap(widget);
+    const QPixmap pixmap = QPixmap::grabWidget(widget);
+    widget->deleteLater();
+
     const QImage image = pixmap.toImage().scaled(previewSize - margin * 2, previewSize - margin * 2,
                                                                       Qt::KeepAspectRatio,
                                                                       Qt::SmoothTransformation);
-    widget->deleteLater();
 
     QImage dest(previewSize, previewSize, QImage::Format_ARGB32_Premultiplied);
     dest.fill(0);

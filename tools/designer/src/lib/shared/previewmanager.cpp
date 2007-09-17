@@ -436,8 +436,9 @@ QPixmap PreviewManager::createPreviewPixmap(const QDesignerFormWindowInterface *
     QWidget *widget = createPreview(fw, pc, errorMessage);
     if (!widget)
         return QPixmap();
-
-    return QDesignerFormBuilder::grabPreviewPixmap(widget);
+    const QPixmap rc = QPixmap::grabWidget(widget);
+    widget->deleteLater();
+    return rc;
 }
 
 QActionGroup *PreviewManager::createStyleActionGroup(QObject *parent, QMenu *subMenu)
