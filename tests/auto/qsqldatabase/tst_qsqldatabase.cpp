@@ -136,6 +136,8 @@ private slots:
     void odbc_uniqueidentifier(); // For task 141822
     void odbc_uintfield_data() { generic_data(); }
     void odbc_uintfield();
+    void odbc_bindBoolean_data() { generic_data(); }
+    void odbc_bindBoolean();
 
     void oci_serverDetach_data() { generic_data(); }
     void oci_serverDetach(); // For task 154518
@@ -1889,6 +1891,38 @@ void tst_QSqlDatabase::odbc_reopenDatabase()
     QVERIFY2(q.exec("SELECT * from " + qTableName("qtest")), q.lastError().text());
     QVERIFY2(q.next(), q.lastError().text());
     db.open();
+}
+
+void tst_QSqlDatabase::odbc_bindBoolean()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+    DBMS_SPECIFIC(db, "QODBC");
+
+    QSqlQuery q(db);
+    q.exec("DROP TABLE " + qTableName("qtestBindBool"));
+    QVERIFY2(q.exec("CREATE TABLE " + qTableName("qtestBindBool") + "(id int, boolvalue bit)"), q.lastError().text());
+
+    // Bind and insert
+    QVERIFY2(q.prepare("INSERT INTO " + qTableName("qtestBindBool") + " VALUES(?, ?)"), q.lastError().text());
+    q.bindValue(0, 1);
+    q.bindValue(1, true);
+    QVERIFY2(q.exec(), q.lastError().text());
+    q.bindValue(0, 2);
+    q.bindValue(1, false);
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    // Retrive
+    QVERIFY2(q.exec("SELECT id, boolvalue FROM " + qTableName("qtestBindBool") + " ORDER BY id"), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toInt(), 1);
+    QCOMPARE(q.value(1).toBool(), true);
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toInt(), 2);
+    QCOMPARE(q.value(1).toBool(), false);
+
+    q.exec("DROP TABLE" + qTableName("qtestBindBool"));
 }
 
 void tst_QSqlDatabase::mysql_multiselect()

@@ -1275,6 +1275,18 @@ bool QODBCResult::exec()
                                       val.toByteArray().size(),
                                       ind);
                 break;
+            case QVariant::Bool:
+                r = SQLBindParameter(d->hStmt,
+                                      i + 1,
+                                      qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
+                                      SQL_C_BIT,
+                                      SQL_BIT,
+                                      0,
+                                      0,
+                                      (void *) val.constData(),
+                                      0,
+                                      *ind == SQL_NULL_DATA ? ind : NULL);
+                break;
 #ifndef Q_ODBC_VERSION_2
             case QVariant::String:
                 if (d->unicode) {
