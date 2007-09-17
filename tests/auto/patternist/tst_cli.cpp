@@ -197,6 +197,7 @@ void tst_CLI::run_data() const
     // TODO run fn:trace()
     // TODO Trigger warning
     // TODO what can we do with queries/nodeSequence.xq?
+    // two query files on the command line.
 }
 
 QTEST_MAIN(tst_CLI)

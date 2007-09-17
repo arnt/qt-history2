@@ -1,7 +1,7 @@
 xs:untypedAtomic("xs:untypedAtomic"),
-xs:dateTime("2002-10-10T23:02:12"),
-xs:date("2002-10-10"),
-xs:time("23:02:12"),
+xs:dateTime("2002-10-10T23:02:12Z"),
+xs:date("2002-10-10Z"),
+xs:time("23:02:12Z"),
 xs:duration("P12M"),
 
 (: Sub-types of xs:decimal :)
@@ -26,7 +26,7 @@ xs:unsignedShort("12"),
 xs:unsignedByte("13"),
 xs:positiveInteger("14"),
 
-xs:gYearMonth("1976-02"),
+xs:gYearMonth("1976-02Z"),
 xs:gYear("2005-12:00"),
 xs:gMonthDay("--12-25-14:00"),
 xs:gDay("---25-14:00"),
