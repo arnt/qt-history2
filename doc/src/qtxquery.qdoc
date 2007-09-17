@@ -125,6 +125,15 @@
     \row
         \o \c xs:anyURI
         \o QVariant::Url
+    \row
+        \o \c xs:untypedAtomic
+        \o QVariant::String
+    \row
+        \o \c xs:ENTITY
+        \o QVariant::String
+    \row
+        \o \c xs:QName
+        \o QVariant::String
     \endtable
 
     \table
