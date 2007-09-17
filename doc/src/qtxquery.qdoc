@@ -1,7 +1,7 @@
 /* FIXME: see the links below(\l). If I prepend those lines with \sa, the links fail to parse. How to fix? */
 
 /*!
-    \page patternist-manual.html
+    \page qtxquery.html
     \startpage index.html QtReference Documentation
     \title Patternist Framework
     \previouspage QtXml
@@ -96,13 +96,13 @@
         \o \c xs:base64Binary
         \o QVariant::ByteArray
     \row
-        \o c xs:time
+        \o \c xs:time
         \o QVariant::DateTime
     \row
-        \o c xs:date
+        \o \c xs:date
         \o QVariant::DateTime
     \row
-        \o c xs:dateTime
+        \o \c xs:dateTime
         \o QVariant::DateTime
     \row
         \o \c xs:gYear
