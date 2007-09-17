@@ -2819,7 +2819,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                     subRule2.drawRule(p, r);
                 }
 
-                subRule.drawRule(p, hr);
+                subRule.drawRule(p, subRule.boxRect(hr, Margin));
             }
 
             if (slider->subControls & SC_SliderTickmarks) {
@@ -4683,8 +4683,9 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                 int thickness = horizontal ? cr.height() : cr.width();
                 int sliderPos = sliderPositionFromValue(slider->minimum, slider->maximum, slider->sliderPosition,
                                                         (horizontal ? cr.width() : cr.height()) - len, slider->upsideDown);
-                return horizontal ? QRect(cr.x() + sliderPos, cr.y(), len, thickness)
+                cr = horizontal ? QRect(cr.x() + sliderPos, cr.y(), len, thickness)
                                   : QRect(cr.x(), cr.y() + sliderPos, thickness, len);
+                return subRule2.borderRect(cr);
                 break; }
             case SC_SliderTickmarks:
                 // TODO...
