@@ -65,33 +65,33 @@
     where an item is either a node, or an atomic value. Nodes are represented in varying ways: sometimes
     as XML, sometimes with QObject instances, and so on.
 
-    Atomic values, when not being serialized, are represented with QVariant. The mapping is as follows:
+    Atomic values, when not being serialized, are represented with QVariant. The mappings are as follows.
 
     \table
     \header
-        \o From
-        \o To
+        \o To XQuery
+        \o From Qt
     \row
-        \o QVariant::LongLong
         \o \c xs:integer
+        \o QVariant::LongLong
     \row
-        \o QVariant::String
         \o \c xs:string
+        \o QVariant::String
     \row
-        \o QVariant::Double
         \o \c xs:double
+        \o QVariant::Double
     \row
-        \o QVariant::Float
         \o \c xs:float
+        \o QVariant::Double
     \row
-        \o QVariant::Bool
         \o \c xs:boolean
+        \o QVariant::Bool
     \row
         \o \c xs:decimal
         \o QVariant::Double
     \row
-        \o QVariant::ByteArray
         \o \c xs:hexBinary
+        \o QVariant::ByteArray
     \row
         \o \c xs:base64Binary
         \o QVariant::ByteArray
@@ -120,14 +120,50 @@
         \o \c xs:gMonth
         \o QVariant::DateTime
     \row
-        \o QVariant::StringList
         \o \c xs:string*
+        \o QVariant::StringList
     \row
         \o \c xs:anyURI
         \o QVariant::Url
+    \endtable
+
+    \table
+    \header
+        \o From Qt
+        \o To XQuery
     \row
-        \o \c xs:duration
-        \o Should we add a QDuration type to QtCore?
+        \o QVariant::LongLong
+        \o \c xs:integer
+    \row
+        \o QVariant::String
+        \o \c xs:string
+    \row
+        \o QVariant::Double
+        \o \c xs:double
+    \row
+        \o QVariant::Bool
+        \o \c xs:boolean
+    \row
+        \o QVariant::Double
+        \o \c xs:decimal
+    \row
+        \o QVariant::ByteArray
+        \o \c xs:base64Binary
+    \row
+        \o QVariant::Date
+        \o \c xs:dateTime
+    \row
+        \o QVariant::Time
+        \o \c xs:dateTime
+    \row
+        \o QVariant::DateTime
+        \o \c xs:dateTime
+    \row
+        \o QVariant::StringList
+        \o \c xs:string*
+    \row
+        \o QVariant::Url
+        \o \c xs:string
     \row
         \o QVariantList
         \o A sequence of atomic values, whose type is the same as the first item in the QVariantList instance. If all
