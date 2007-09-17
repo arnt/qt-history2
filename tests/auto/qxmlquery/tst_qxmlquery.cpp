@@ -9,10 +9,11 @@
 
 #include <QtTest/QtTest>
 
-#include "PushBaseliner.h"
+#include <QXmlItemIterator>
+#include <QXmlName>
+#include <QXmlQuery>
 
-#include "qxmlquery.h"
-#include "qxmlname.h"
+#include "PushBaseliner.h"
 
 /*!
  \class tst_QXmlQuery
@@ -47,6 +48,7 @@ private Q_SLOTS:
     void bindQObject() const;
     void bindQObject_data();
     void checkGeneratedBaselines() const;
+    void basicXQueryToQtTypeCheck() const;
 
     // TODO bind variables before and after setQuery().
     // TODO 1) setQuery with validquery, 2) setQUery with invalid query; 3) check states
@@ -308,6 +310,84 @@ void tst_QXmlQuery::bindQObject_data()
 void tst_QXmlQuery::checkGeneratedBaselines() const
 {
     QCOMPARE(generatedBaselines, 0);
+}
+
+void tst_QXmlQuery::basicXQueryToQtTypeCheck() const
+{
+    QFile queryFile(QLatin1String(queriesDirectory) + QString::fromLatin1("allAtomics.xq"));
+    QVERIFY(queryFile.open(QIODevice::ReadOnly));
+
+    QXmlQuery query;
+    query.setQuery(&queryFile);
+
+    QXmlItemIterator it(query.evaluateUsingItemIterator());
+
+    int i = 0;
+    QVariantList expected;
+    expected.append(QString::fromLatin1("xs:untypedAtomic"));
+    expected.append(QDateTime());
+    expected.append(QDateTime());
+    expected.append(QDateTime());
+    /* xs:duration */
+    /* xs:dayTimeDuration */
+    /* xs:yearMonthDuration */
+
+    expected.append(QVariant(double(3e3)));     /* xs:float */
+    expected.append(QVariant(double(4e4)));     /* xs:double */
+    expected.append(QVariant(double(2)));       /* xs:decimal */
+
+    /* xs:integer and its sub-types. */
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+    expected.append(QVariant(16));
+
+    expected.append(QVariant());                                            /* xs:gYearMonth("1976-02"), */
+    expected.append(QVariant());                                            /* xs:gYear("2005-12:00"), */
+    expected.append(QVariant());                                            /* xs:gMonthDay("--12-25-14:00"), */
+    expected.append(QVariant());                                            /* xs:gDay("---25-14:00"), */
+    expected.append(QVariant());                                            /* xs:gMonth("--12-14:00"), */
+    expected.append(true);                                                  /* xs:boolean("true"), */
+    expected.append(QVariant());                                            /* xs:base64Binary("aaaa"), */
+    expected.append(QVariant());                                            /* xs:hexBinary("FFFF"), */
+    expected.append(QVariant(QString::fromLatin1("http://example.com/")));  /* xs:anyURI("http://example.com/"), */
+    expected.append(QVariant());                                            /* xs:QName("localName"), */
+
+    expected.append(QVariant(QString::fromLatin1("An xs:string")));
+    expected.append(QVariant(QString::fromLatin1("normalizedString")));
+    expected.append(QVariant(QString::fromLatin1("token")));
+    expected.append(QVariant(QString::fromLatin1("language")));
+    expected.append(QVariant(QString::fromLatin1("NMTOKEN")));
+    expected.append(QVariant(QString::fromLatin1("Name")));
+    expected.append(QVariant(QString::fromLatin1("NCName")));
+    expected.append(QVariant(QString::fromLatin1("ID")));
+    expected.append(QVariant(QString::fromLatin1("IDREF")));
+    expected.append(QVariant(QString::fromLatin1("ENTITY")));
+
+    while(it.hasNext())
+    {
+        it.next();
+        QVERIFY(it.isAtomicValue());
+        const QVariant v(it.atomicValue());
+        QVERIFY(v.isValid());
+
+        QCOMPARE(v.type(), expected.at(i).type());
+
+        QCOMPARE(v, expected.at(i));
+        ++i;
+    }
+
+    QCOMPARE(i, expected.count() - 1);
 }
 
 QTEST_MAIN(tst_QXmlQuery)
