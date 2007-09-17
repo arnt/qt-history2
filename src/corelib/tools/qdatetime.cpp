@@ -1221,8 +1221,8 @@ void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
     \fn QTime::QTime()
 
     Constructs a null time object. A null time is identical to a
-    QTime(0, 0, 0, 0) (i.e., midnight), except that isNull() and
-    isValid() return false.
+    QTime(0, 0, 0, 0) (i.e., midnight), except that isNull() returns true 
+    and isValid() returns false.
 
     \sa isNull(), isValid()
 */
