@@ -123,6 +123,9 @@ QMdiArea
       Qt::ScrollBarAsNeeded as scroll bar policy.
 
 QTextEdit
+    * [171130] Fixed bug when appending text lists, causing the first list element to not be part of the list.
+    * [172367] Fixed bug where setPlainText would get HTML attributes if preceded by setHtml.
+    * [173574] Fixed bug where floating image links would not be clickable.
     * [174276] Fix resizing performance with disabled wrapping.
 
 QUtf8Codec
@@ -131,10 +134,21 @@ QUtf8Codec
 QLabel
     * Fix crash when changing contents in slot connected to linkActivated signal.
 
+QPainter
+    * [168621] Fixed offset bug in drawing with perspective transforms.
+    * [172017] Fixed drawing of non-cosmetic points with cap style FlatCap (X11 and OpenGL).
+    * [175010] Fix some bugs related to dash offsets.
+    * [170517] Fixed missing tab stops when painting to a printer.
+
 QPainterPath
     * Fix addText() with italic fonts.
+    * [178515] Fixed QPainterPath::pointAtPercent() to work correctly on line segments in a path.
+
+QPicture
+    * [168621] Wrong scale when rendering to device with different X and Y DPI.
 
 QRasterPaintEngine
+    * [169997] Fixed aliased rendering of complex paths with a large number of subpaths.
     * [174914] Fixed use of QPainter::setOpacity() when drawing a pixmap
       into a 16-bit buffer using the QRasterPaintEngine.
     * [177919] Fixed a problem with drawing bitmaps in the QRasterPaintEngine.
@@ -171,6 +185,14 @@ QGLWidget
 QGLPixelBuffer
     * [179143] Fixed a memleak when a QGLPixelBuffer was deleted under
       Windows. This would appear as a slowdown in performance to the user.
+
+QSvgRenderer
+    * [172550] Fixed incorrect linear gradient parsing for certain SVGs.
+    * [175651] Fixed crash when loading SVGs with undefined urls.
+
+Text rendering
+    * [168625] Fixed rendering of text with perspective transforms on X11 and Qtopia Core.
+    * [173792] Fixed transformed rendering of non-scalable/bitmap Freetype glyphs.
 
 
 Third party components
@@ -228,6 +250,8 @@ Windows
     * [170000, 171239, 173213] Fixed several issues with printing under Windows, where
       single and multipage printing were garbled.
     * [168642] Fixed an issue with text disappearing when printing under Windows.
+    * [173219] Fixed an issue where fonts would get incorrectly scaled beyond font
+      size 64.
 
 Mac OS X
 --------
@@ -241,6 +265,7 @@ Mac OS X
       X release. In the meantime, if you *must* test your application against
       this Leopard build, please contact Trolltech.
     * [170000] Fixed an issue where QPrinter::newPage() would reset the current QPainter state.
+    * [178531] Fixed text rendering issue in OpenGL causing garbled text.
 
 
 Qtopia Core
