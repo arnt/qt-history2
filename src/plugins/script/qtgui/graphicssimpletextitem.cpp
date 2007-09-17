@@ -5,6 +5,8 @@
 #include <QtGui/QFont>
 #include "../global.h"
 
+Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
+
 DECLARE_POINTER_METATYPE(QGraphicsSimpleTextItem)
 
 QT_BEGIN_NAMESPACE
@@ -70,5 +72,3 @@ QScriptValue constructGraphicsSimpleTextItemClass(QScriptEngine *eng)
 }
 
 QT_END_NAMESPACE
-
-Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
