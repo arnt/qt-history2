@@ -77,10 +77,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     plugin (see QStylePlugin).
 
     The valid keys can be retrieved using the keys()
-    function. Typically they include "windows", "motif", "cde", and
+    function. Typically they include "windows", "motif", "cde",
     "plastique" and "cleanlooks".  Depending on the platform,
-    "windowsxp" and "macintosh" may be available. Note that keys are
-    case insensitive.
+    "windowsxp", "windowsvista" and "macintosh" may be available.
+    Note that keys are case insensitive.
 
     \sa QStyle
 */
@@ -154,7 +154,7 @@ QStyle *QStyleFactory::create(const QString& key)
 }
 
 /*!
-    Returns the list of valid keys, i.e. the leys this factory can
+    Returns the list of valid keys, i.e. the keys this factory can
     create styles for.
 
     \sa create()
