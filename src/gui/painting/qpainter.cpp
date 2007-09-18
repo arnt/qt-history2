@@ -4433,6 +4433,8 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
 
     This function does not break text into multiple lines. Use the QPainter::drawText()
     overload that takes a rectangle instead if you want line breaking.
+    
+    \note The y-position is used as the baseline of the font.
 */
 
 void QPainter::drawText(const QPointF &p, const QString &str)
@@ -4513,6 +4515,9 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
 
     Draws the given \a text with the currently defined text direction,
     beginning at the given \a position.
+
+    \note The y-position is used as the baseline of the font.
+    
 */
 
 /*!
@@ -4585,6 +4590,9 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
 
     Draws the given \a text at position (\a{x}, \a{y}), using the painter's
     currently defined text direction.
+
+    \note The y-position is used as the baseline of the font.    
+    
 */
 
 /*!
@@ -4615,6 +4623,8 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
     \o Qt::TextWordWrap
     \endlist
 
+    \note The y-position is used as the baseline of the font.      
+    
     \sa Qt::AlignmentFlag, Qt::TextFlag
 */
 
