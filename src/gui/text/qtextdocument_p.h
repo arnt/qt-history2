@@ -304,6 +304,7 @@ public:
     bool inContentsChange;
     QSizeF pageSize;
     QString title;
+    QString url;
 };
 
 class QTextTable;

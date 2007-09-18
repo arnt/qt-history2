@@ -116,7 +116,8 @@ public:
     QAbstractTextDocumentLayout *documentLayout() const;
 
     enum MetaInformation {
-        DocumentTitle
+        DocumentTitle,
+        DocumentUrl
     };
     void setMetaInformation(MetaInformation info, const QString &);
     QString metaInformation(MetaInformation info) const;

@@ -77,7 +77,7 @@ private slots:
 
     void markContentsDirty();
 
-    void clonePreservesTitle();
+    void clonePreservesMetaInformation();
     void clonePreservesPageSize();
     void clonePreservesPageBreakPolicies();
     void clonePreservesDefaultFont();
@@ -1638,14 +1638,18 @@ void tst_QTextDocument::markContentsDirty()
     QVERIFY(lout->called);
 }
 
-void tst_QTextDocument::clonePreservesTitle()
+void tst_QTextDocument::clonePreservesMetaInformation()
 {
     const QString title("Foobar");
+    const QString url("about:blank");
     doc->setHtml("<html><head><title>" + title + "</title></head><body>Hrm</body></html>");
+    doc->setMetaInformation(QTextDocument::DocumentUrl, url);
     QCOMPARE(doc->metaInformation(QTextDocument::DocumentTitle), title);
+    QCOMPARE(doc->metaInformation(QTextDocument::DocumentUrl), url);
 
     QTextDocument *clone = doc->clone();
     QCOMPARE(clone->metaInformation(QTextDocument::DocumentTitle), title);
+    QCOMPARE(clone->metaInformation(QTextDocument::DocumentUrl), url);
     delete clone;
 }
 

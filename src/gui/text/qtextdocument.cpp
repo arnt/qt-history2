@@ -26,6 +26,9 @@
 #include "qpainter.h"
 #include "qprinter.h"
 #include "qtextedit.h"
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qdir.h>
 #include "qtextcontrol_p.h"
 
 #include "qtextdocument_p.h"
@@ -317,6 +320,7 @@ QTextDocument *QTextDocument::clone(QObject *parent) const
     doc->rootFrame()->setFrameFormat(rootFrame()->frameFormat());
     QTextDocumentPrivate *priv = doc->d_func();
     priv->title = d->title;
+    priv->url = d->url;
     priv->pageSize = d->pageSize;
     priv->defaultTextOption = d->defaultTextOption;
     priv->setDefaultFont(d->defaultFont());
@@ -835,10 +839,14 @@ QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 */
 QString QTextDocument::metaInformation(MetaInformation info) const
 {
-    if (info != DocumentTitle)
-        return QString();
     Q_D(const QTextDocument);
-    return d->title;
+    switch (info) {
+    case DocumentTitle:
+        return d->title;
+    case DocumentUrl:
+        return d->url;
+    }
+    return QString();
 }
 
 /*!
@@ -849,10 +857,15 @@ QString QTextDocument::metaInformation(MetaInformation info) const
 */
 void QTextDocument::setMetaInformation(MetaInformation info, const QString &string)
 {
-    if (info != DocumentTitle)
-        return;
     Q_D(QTextDocument);
-    d->title = string;
+    switch (info) {
+    case DocumentTitle:
+        d->title = string;
+        break;
+    case DocumentUrl:
+        d->url = string;
+        break;
+    }
 }
 
 /*!
@@ -932,6 +945,8 @@ void QTextDocument::setHtml(const QString &html)
     added to a document.
 
     \value DocumentTitle    The title of the document.
+    \value DocumentUrl      The url of the document. The loadResource() function uses
+                            this url as the base when loading relative resources.
 
     \sa metaInformation(), setMetaInformation()
 */
@@ -1609,6 +1624,35 @@ QVariant QTextDocument::loadResource(int type, const QUrl &name)
     else if (QTextControl *control = qobject_cast<QTextControl *>(parent()))
         r = control->loadResource(type, name);
 #endif
+    else if (!d->url.isEmpty() && name.isRelative()) {
+        QUrl currentURL = d->url;
+        QUrl resourceUrl = name;
+
+        // For the second case QUrl can merge "#someanchor" with "foo.html"
+        // correctly to "foo.html#someanchor"
+        if (!(currentURL.isRelative()
+              || (currentURL.scheme() == QLatin1String("file")
+                  && !QFileInfo(currentURL.toLocalFile()).isAbsolute()))
+            || (name.hasFragment() && name.path().isEmpty())) {
+            resourceUrl =  currentURL.resolved(name);
+        } else {
+            // this is our last resort when current url and new url are both relative
+            // we try to resolve against the current working directory in the local
+            // file system.
+            QFileInfo fi(currentURL.toLocalFile());
+            if (fi.exists()) {
+                resourceUrl =
+                    QUrl::fromLocalFile(fi.absolutePath() + QDir::separator()).resolved(name);
+            }
+        }
+
+        QFile f(resourceUrl.toLocalFile());
+        if (f.open(QFile::ReadOnly)) {
+            r = f.readAll();
+            f.close();
+        }
+    }
+
     if (!r.isNull()) {
         if (type == ImageResource && r.type() == QVariant::ByteArray) {
             QPixmap pm;
