@@ -5105,7 +5105,7 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
     \l{QPixmap::}{alphaChannel()}, which works in the same way as
     this function on QPixmaps.
 
-    \sa setAlphaChannel(), {QPixmap#Pixmap Information}{Pixmap
+    \sa setAlphaChannel(), {QPixmap#Pixmap Information}{Pixmap}
 
     \sa setAlphaChannel(), hasAlphaChannel(), {QImage#Image
     Transformations}{Image Transformations}
